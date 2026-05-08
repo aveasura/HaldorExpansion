@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <!-- Path to your r2modman Valheim profile. -->
+        <R2ModmanProfileDir>C:\Users\YourName\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\Default</R2ModmanProfileDir>
+
+        <!-- Path to your Valheim client installation. -->
+        <ValheimInstallDir>C:\Program Files (x86)\Steam\steamapps\common\Valheim</ValheimInstallDir>
+
+        <!-- Path to your Valheim dedicated server installation. -->
+        <ValheimDedicatedServerDir>C:\Program Files (x86)\Steam\steamapps\common\Valheim dedicated server</ValheimDedicatedServerDir>
+
+        <!-- Optional local deployment switches. -->
+        <DeployToClientProfile>true</DeployToClientProfile>
+        <DeployToDedicatedServer>true</DeployToDedicatedServer>
+        <CopyToDesktop>true</CopyToDesktop>
+    </PropertyGroup>
+</Project>

@@ -1,0 +1,35 @@
+# Local developer machine paths
+HaldorExpansion.Local.props
+
+# Local notes
+*.txt
+
+# IDE / editor
+.idea/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+
+# Build output
+bin/
+obj/
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+*.dll
+*.pdb
+*.mdb
+
+# Logs / local runtime files
+*.log
+LogOutput.log
+BepInEx/config/
+BepInEx/cache/
+BepInEx/patchers/
+
+# OS files
+.DS_Store
+Thumbs.db

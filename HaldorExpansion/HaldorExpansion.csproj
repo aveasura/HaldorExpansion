@@ -1,0 +1,234 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
+            Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+
+    <!--
+    Optional local developer settings.
+    
+    Copy HaldorExpansion.Local.props.example to HaldorExpansion.Local.props
+    and update the paths for your machine if the defaults below do not match your setup.
+    -->
+    <Import Project="HaldorExpansion.Local.props"
+            Condition="Exists('HaldorExpansion.Local.props')" />
+    
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{8A5C36D6-1908-4277-91DF-24E5D1B9B7BA}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>HaldorExpansion</RootNamespace>
+        <AssemblyName>HaldorExpansion</AssemblyName>
+        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!--
+        Local development paths.
+    
+        These values are used only when they were not already provided by:
+        - HaldorExpansion.Local.props
+        - Rider / Visual Studio
+        - MSBuild command line
+    
+        If your r2modman profile is not named "Default", override R2ModmanProfileDir
+        in HaldorExpansion.Local.props.
+        -->
+
+        <R2ModmanProfileDir Condition=" '$(R2ModmanProfileDir)' == '' ">$(APPDATA)\r2modmanPlus-local\Valheim\profiles\Default</R2ModmanProfileDir>
+
+        <!-- Path to the Valheim client installation. Used for Valheim and Unity assemblies. -->
+        <ValheimInstallDir Condition=" '$(ValheimInstallDir)' == '' ">C:\Program Files (x86)\Steam\steamapps\common\Valheim</ValheimInstallDir>
+
+        <!-- Path to the Valheim dedicated server installation. Used only for local PostBuild deployment. -->
+        <ValheimDedicatedServerDir Condition=" '$(ValheimDedicatedServerDir)' == '' ">C:\Program Files (x86)\Steam\steamapps\common\Valheim dedicated server</ValheimDedicatedServerDir>
+
+        <!-- Local plugin deployment folders. The compiled DLL is copied here after build. -->
+        <ClientPluginDeployDir Condition=" '$(ClientPluginDeployDir)' == '' ">$(R2ModmanProfileDir)\BepInEx\plugins\aveasura-HaldorExpansion</ClientPluginDeployDir>
+        <ServerPluginDeployDir Condition=" '$(ServerPluginDeployDir)' == '' ">$(ValheimDedicatedServerDir)\BepInEx\plugins\aveasura-HaldorExpansion</ServerPluginDeployDir>
+
+        <!-- Keep true for your current workflow. Can be overridden in HaldorExpansion.Local.props. -->
+        <DeployToClientProfile Condition=" '$(DeployToClientProfile)' == '' ">true</DeployToClientProfile>
+        <DeployToDedicatedServer Condition=" '$(DeployToDedicatedServer)' == '' ">true</DeployToDedicatedServer>
+        <CopyToDesktop Condition=" '$(CopyToDesktop)' == '' ">true</CopyToDesktop>
+    </PropertyGroup>
+
+    
+    <ItemGroup>
+        <Reference Include="System"/>
+        <Reference Include="System.Core"/>
+        <Reference Include="System.Data"/>
+        <Reference Include="System.Xml"/>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <Compile Include="Cestus\HaldorExpansionPlugin.Cestus.cs"/>
+        <Compile Include="Cestus\HaldorExpansionPlugin.CestusHud.cs"/>
+        <Compile Include="HaldorExpansionPlugin.AdrenalineReflection.cs"/>
+        <Compile Include="HaldorExpansionPlugin.CestusAnimatorSpeed.cs"/>
+        <Compile Include="HaldorExpansionPlugin.CestusItem.cs"/>
+        <Compile Include="HaldorExpansionPlugin.cs"/>
+        <Compile Include="HaldorExpansionPlugin.DelayedDoomChest.cs"/>
+        <Compile Include="HaldorExpansionPlugin.DelayedDoomSystem.cs"/>
+        <Compile Include="HaldorExpansionPlugin.EmbeddedIcons.cs" />
+        <Compile Include="HaldorExpansionPlugin.Localization.cs"/>
+        <Compile Include="HaldorExpansionPlugin.PitKingChest.cs"/>
+        <Compile Include="HaldorExpansionPlugin.Reflection.cs"/>
+        <Compile Include="HaldorExpansionPlugin.Ring.cs"/>
+        <Compile Include="HaldorExpansionPlugin.ShadowCrossbow.cs"/>
+        <Compile Include="HaldorExpansionPlugin.Trophies.cs"/>
+        <Compile Include="HaldorExpansionPlugin.WoundedBeastCape.cs"/>
+        <Compile Include="Patches\CestusAdrenalineMirrorPatch.cs"/>
+        <Compile Include="Patches\CestusActivationInputPatch.cs"/>
+        <Compile Include="Patches\CestusAttackBlockDuringCastPatch.cs"/>
+        <Compile Include="Patches\CestusCastInputLockPatch.cs"/>
+        <Compile Include="Patches\CestusShieldHudPatch.cs"/>
+        <Compile Include="Patches\DelayedDoomApplyArmorPatch.cs"/>
+        <Compile Include="Patches\DelayedDoomApplyDamagePatch.cs"/>
+        <Compile Include="Patches\StaminaCapeApplyDamagePatch.cs"/>
+        <Compile Include="Patches\DelayedDoomDamagePatch.cs"/>
+        <Compile Include="Patches\DelayedDoomFoodRegenPatch.cs"/>
+        <Compile Include="Patches\DelayedDoomInventoryFixPatch.cs"/>
+        <Compile Include="Patches\HaldorShopExpansionPatch.cs"/>
+        <Compile Include="Patches\ObjectDB_Awake_Patch.cs"/>
+        <Compile Include="Patches\WoundedBeastCapePlayerUpdatePatch.cs"/>
+        <Compile Include="Patches\WoundedBeastCapeApplyDamagePatch.cs"/>
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="StaminaCapeFeature.cs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="BepInEx">
+            <HintPath>$(R2ModmanProfileDir)\BepInEx\core\BepInEx.dll</HintPath>
+        </Reference>
+
+        <Reference Include="0Harmony">
+            <HintPath>$(R2ModmanProfileDir)\BepInEx\core\0Harmony.dll</HintPath>
+        </Reference>
+
+        <Reference Include="Jotunn">
+            <HintPath>$(R2ModmanProfileDir)\BepInEx\plugins\ValheimModding-Jotunn\Jotunn.dll</HintPath>
+        </Reference>
+
+        <Reference Include="assembly_valheim">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\assembly_valheim.dll</HintPath>
+        </Reference>
+
+        <Reference Include="UnityEngine">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.dll</HintPath>
+        </Reference>
+
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+
+        <Reference Include="UnityEngine.UI">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.UI.dll</HintPath>
+        </Reference>
+
+        <Reference Include="UnityEngine.TextRenderingModule">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+        </Reference>
+
+        <Reference Include="UnityEngine.AnimationModule">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+        </Reference>
+
+        <Reference Include="UnityEngine.ParticleSystemModule">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+        </Reference>
+
+        <Reference Include="UnityEngine.AudioModule">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+        </Reference>
+        
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="HaldorExpansion.Local.props.example" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\Icons\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Assets\Icons\brisingamen.png">
+            <LogicalName>HaldorExpansion.Assets.Icons.brisingamen.png</LogicalName>
+        </EmbeddedResource>
+
+        <EmbeddedResource Include="Assets\Icons\Bone_crushers.png">
+            <LogicalName>HaldorExpansion.Assets.Icons.Bone_crushers.png</LogicalName>
+        </EmbeddedResource>
+
+        <EmbeddedResource Include="Assets\Icons\delayed_doom_chest.png">
+            <LogicalName>HaldorExpansion.Assets.Icons.delayed_doom_chest.png</LogicalName>
+        </EmbeddedResource>
+
+        <EmbeddedResource Include="Assets\Icons\pit_king_chest.png">
+            <LogicalName>HaldorExpansion.Assets.Icons.pit_king_chest.png</LogicalName>
+        </EmbeddedResource>
+
+        <EmbeddedResource Include="Assets\Icons\Shadow_crossbow.png">
+            <LogicalName>HaldorExpansion.Assets.Icons.Shadow_crossbow.png</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+    
+    
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+
+    <!--
+    Local development deployment.
+    
+    After build, the compiled DLL can be copied to:
+    - r2modman client profile
+    - Valheim dedicated server
+    - Desktop
+    
+    This does not affect the mod logic. It only helps with local testing.
+    -->
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Copy
+                Condition=" '$(DeployToClientProfile)' == 'true' "
+                SourceFiles="$(TargetPath)"
+                DestinationFolder="$(ClientPluginDeployDir)\"
+                SkipUnchangedFiles="true"/>
+
+        <Copy
+                Condition=" '$(DeployToDedicatedServer)' == 'true' "
+                SourceFiles="$(TargetPath)"
+                DestinationFolder="$(ServerPluginDeployDir)\"
+                SkipUnchangedFiles="true"/>
+
+        <Copy
+                Condition=" '$(CopyToDesktop)' == 'true' "
+                SourceFiles="$(TargetPath)"
+                DestinationFolder="$(USERPROFILE)\Desktop\"
+                SkipUnchangedFiles="true"/>
+    </Target>
+
+</Project>
