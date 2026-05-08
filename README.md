@@ -1,72 +1,74 @@
-# Haldor Expansion
+﻿# Haldor Expansion
 
-Мод для Valheim на BepInEx + Jotunn, который расширяет торговлю у Haldor и добавляет уникальные предметы с кастомными боевыми механиками.
+[English](README.md) | [Русский](README.ru.md)
 
-## Установка для игроков
+Valheim mod for BepInEx + Jotunn that expands Haldor's trading and adds unique items with custom combat mechanics.
 
-Для обычной установки не нужно менять код, настраивать `.csproj`, создавать `HaldorExpansion.Local.props` или отдельно копировать PNG-файлы.
+## Installation for players
 
-Достаточно положить скомпилированный файл:
+For normal installation, you do not need to change the code, configure `.csproj`, create `HaldorExpansion.Local.props`, or copy PNG files separately.
+
+Just place the compiled file:
 
 ```text
 HaldorExpansion.dll
 ```
 
-в папку плагина:
+into the plugin folder:
 
 ```text
 BepInEx/plugins/aveasura-HaldorExpansion/
 ```
 
-Игровые иконки предметов уже встроены внутрь `HaldorExpansion.dll` как embedded resources.
+Item icons are already embedded inside `HaldorExpansion.dll` as embedded resources.
 
-> `HaldorExpansion.Local.props` нужен только разработчикам для локальной сборки проекта. Игрокам он не нужен.
+> `HaldorExpansion.Local.props` is only needed by developers for local project builds. Players do not need it.
 
-## Важно для multiplayer / dedicated server
+## Important for multiplayer / dedicated server
 
-Мод меняет геймплей и добавляет сетевые механики, поэтому на dedicated server его должны иметь и сервер, и все клиенты.
+This mod changes gameplay and adds networked mechanics, so on a dedicated server it must be installed both on the server and on all clients.
 
-Рекомендуется использовать одинаковую версию мода на сервере и у всех игроков.
+It is recommended to use the same mod version on the server and for all players.
 
-## Что добавляет
+## Features
 
-- новые товары у Haldor;
-- возможность продавать трофеи и некоторые редкие материалы, включая `SurtlingCore`, `BlackCore` и `MoltenCore`;
-- уникальные предметы с кастомными боевыми механиками;
-- кастомные броню и плащи с рискованными эффектами;
-- поддержку multiplayer / dedicated server через `NetworkCompatibility(EveryoneMustHaveMod, Minor)`;
-- русскую и английскую локализации для добавленных предметов и эффектов.
+- new items sold by Haldor;
+- the ability to sell trophies and some rare materials, including `SurtlingCore`, `BlackCore`, and `MoltenCore`;
+- unique items with custom combat mechanics;
+- custom armor and cloaks with risky effects;
+- multiplayer / dedicated server support via `NetworkCompatibility(EveryoneMustHaveMod, Minor)`;
+- English and Russian localization for added items and effects.
 
-## Добавленные уникальные предметы
+## Added unique items
 
-- `Костоломы / Bone Crushers` - кастеты с активной способностью, защитным покровом и ударной волной;
-- `Кираса безмолвной расплаты / Cuirass of Silent Reckoning` - броня, которая отсрочивает часть опасного урона;
-- `Плащ раненого зверя / Cloak of the Wounded Beast` - плащ с рискованной регенерацией на низком здоровье;
-- `Плащ выжженной стойкости / Cloak of Burned Resolve` - плащ, переводящий часть урона в расход выносливости;
-- `Осквернённый Бризингамен / Corrupted Brisingamen` - аксессуар для переносимого веса;
-- `Арбалет теневой охоты / Crossbow of the Shadow Hunt` - тяжёлый арбалет для мощного первого выстрела;
-- `Накидка хозяина ямы / Pit King's Cuirass` - предмет для агрессивной игры с кастетом.
+- `Bone Crushers` - cestus with an active ability, protective barrier, and shockwave;
+- `Cuirass of Silent Reckoning` - armor that delays part of dangerous incoming damage;
+- `Cloak of the Wounded Beast` - cloak with risky regeneration at low health;
+- `Cloak of Burned Resolve` - cloak that redirects part of incoming damage into stamina loss;
+- `Corrupted Brisingamen` - accessory for increased carry weight;
+- `Crossbow of the Shadow Hunt` - heavy crossbow for a powerful opening shot;
+- `Pit King's Cuirass` - item for aggressive cestus-focused gameplay.
 
-## Рекомендуемый стиль игры
+## Recommended playstyle
 
-Мод лучше всего раскрывается на повышенной сложности, где дополнительные предметы ощущаются не как бесплатное усиление, а как рискованные инструменты выживания.
+The mod works best on higher difficulty, where additional items feel less like free power and more like risky survival tools.
 
-Для более хардкорного прохождения хорошо сочетается с:
+For a more hardcore playthrough, it pairs well with:
 
-- `Smoothbrain-CreatureLevelAndLootControl` - усиление существ;
-- `warpalicious-Monster_Modifiers` - дополнительные модификаторы существ;
-- `ASharpPen-Custom_Raids` - более опасные и частые рейды.
+- `Smoothbrain-CreatureLevelAndLootControl` - stronger creatures;
+- `warpalicious-Monster_Modifiers` - additional creature modifiers;
+- `ASharpPen-Custom_Raids` - more dangerous and frequent raids.
 
-Эти моды не являются обязательными зависимостями.
+These mods are not required dependencies.
 
-## Совместимость
+## Compatibility
 
-Обязательные зависимости:
+Required dependencies:
 
 - BepInEx 5;
 - Jotunn.
 
-Мод тестировался в multiplayer / dedicated server окружении вместе с другими gameplay-модами, включая:
+The mod was tested in a multiplayer / dedicated server environment together with other gameplay mods, including:
 
 - `Smoothbrain-CreatureLevelAndLootControl`;
 - `warpalicious-Monster_Modifiers`;
@@ -77,31 +79,31 @@ BepInEx/plugins/aveasura-HaldorExpansion/
 - `Advize-PlantEverything`;
 - `Marf-FuelEternal`.
 
-Полная совместимость со всеми версиями сторонних модов не гарантируется, но в моей тестовой сборке конфликтов не обнаружено.
+Full compatibility with every version of third-party mods is not guaranteed, but no conflicts were found in my test setup.
 
 ## Runtime assets
 
-Игровые иконки предметов находятся внутри `HaldorExpansion.dll` как embedded resources.
+Item icons are embedded inside `HaldorExpansion.dll` as embedded resources.
 
-Игрокам не нужно отдельно копировать PNG-файлы.
+Players do not need to copy PNG files separately.
 
-Исходные PNG-файлы лежат в проекте в папке:
+Source PNG files are stored in the project folder:
 
 ```text
 HaldorExpansion/Assets/Icons/
 ```
 
-Они нужны только для сборки проекта из исходников.
+They are only needed when building the project from source.
 
-## Требования для разработки
+## Development requirements
 
 - Valheim;
 - BepInEx 5;
 - Jotunn;
 - .NET Framework 4.8;
-- Visual Studio или Rider.
+- Visual Studio or Rider.
 
-Проект использует локальные пути к Valheim/r2modman DLL в `HaldorExpansion/HaldorExpansion.csproj`. Пути вынесены в MSBuild-свойства:
+The project uses local paths to Valheim/r2modman DLLs in `HaldorExpansion/HaldorExpansion.csproj`. These paths are stored as MSBuild properties:
 
 - `R2ModmanProfileDir`;
 - `ValheimInstallDir`;
@@ -109,32 +111,32 @@ HaldorExpansion/Assets/Icons/
 - `ClientPluginDeployDir`;
 - `ServerPluginDeployDir`.
 
-Если папки отличаются, используйте `HaldorExpansion.Local.props`, как описано ниже в разделе Local build paths.
+If your folders are different, use `HaldorExpansion.Local.props` as described below in the Local build paths section.
 
 ## Local build paths
 
-Если пути к Valheim, r2modman или dedicated server отличаются от дефолтных в `.csproj`, создайте локальный файл настроек:
+If your Valheim, r2modman, or dedicated server paths are different from the defaults in `.csproj`, create a local settings file:
 
 ```text
 HaldorExpansion/HaldorExpansion.Local.props
 ```
 
-Для этого можно скопировать готовый пример:
+You can do this by copying the provided example:
 
 ```text
 HaldorExpansion/HaldorExpansion.Local.props.example
 ```
 
-и переименовать копию в:
+and renaming the copy to:
 
 ```text
 HaldorExpansion/HaldorExpansion.Local.props
 ```
 
-После этого поменяйте пути внутри `HaldorExpansion.Local.props` под себя.
+After that, change the paths inside `HaldorExpansion.Local.props` for your machine.
 
-`HaldorExpansion.Local.props` не должен попадать в Git, потому что содержит локальные пути конкретной машины.
+`HaldorExpansion.Local.props` should not be committed to Git because it contains machine-specific local paths.
 
-## Статус
+## Status
 
-Текущая версия: рабочая development/test сборка. Кодовая база продолжает дорабатываться и очищаться.
+Current version: working development/test build. The codebase is still being improved and cleaned up.
