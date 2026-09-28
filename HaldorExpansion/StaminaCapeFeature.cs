@@ -524,10 +524,17 @@ namespace HaldorExpansion
 
         private static bool HasPrefab(Trader trader, string prefabName)
         {
+            string requiredGlobalKey = HaldorExpansionPlugin.GetShopRequiredGlobalKey(prefabName);
+
             foreach (Trader.TradeItem tradeItem in trader.m_items)
             {
                 if (tradeItem.m_prefab != null && tradeItem.m_prefab.name == prefabName)
+                {
+                    // Keep already-added entries in sync as well. This matters when a
+                    // server config is synchronized/changed after the TradeItem exists.
+                    tradeItem.m_requiredGlobalKey = requiredGlobalKey;
                     return true;
+                }
             }
 
             return false;
@@ -546,7 +553,8 @@ namespace HaldorExpansion
                 m_prefab = itemDrop,
                 m_price = price,
                 m_stack = stack,
-                m_requiredGlobalKey = string.Empty,
+                m_requiredGlobalKey = HaldorExpansionPlugin.GetShopRequiredGlobalKey(
+                    itemDrop != null ? itemDrop.name : string.Empty),
                 m_levelUpEffect = false,
                 m_buyPlayerEffects = new EffectList(),
                 m_icon = null,

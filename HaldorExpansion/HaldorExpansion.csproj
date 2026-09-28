@@ -99,6 +99,7 @@
         <Compile Include="HaldorExpansionPlugin.PitKingChest.cs"/>
         <Compile Include="HaldorExpansionPlugin.Reflection.cs"/>
         <Compile Include="HaldorExpansionPlugin.Ring.cs"/>
+        <Compile Include="HaldorExpansionPlugin.ShopProgressionConfig.cs"/>
         <Compile Include="HaldorExpansionPlugin.ShadowCrossbow.cs"/>
         <Compile Include="HaldorExpansionPlugin.Trophies.cs"/>
         <Compile Include="HaldorExpansionPlugin.WoundedBeastCape.cs"/>
