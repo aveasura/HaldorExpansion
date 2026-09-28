@@ -83,6 +83,10 @@ namespace HaldorExpansion.Patches
             if (!IsHaldor(__instance))
                 return;
 
+            // Refresh trophy/core sell values from the currently active (server-synced) config
+            // before the store UI is opened. SettingChanged also refreshes live changes.
+            HaldorExpansionPlugin.ApplyTrophyValues(ObjectDB.instance);
+
             if (__instance.m_items == null)
                 __instance.m_items = new List<Trader.TradeItem>();
 

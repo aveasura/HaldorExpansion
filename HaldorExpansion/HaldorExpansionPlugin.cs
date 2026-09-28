@@ -35,6 +35,7 @@ namespace HaldorExpansion
             Log = Logger;
 
             RegisterShopProgressionConfig();
+            RegisterHaldorSellPriceConfig();
             AddLocalizations();
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), ModGuid);
             

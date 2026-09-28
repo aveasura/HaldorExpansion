@@ -10,21 +10,19 @@ namespace HaldorExpansion
         // Отдельно: не трофеи, но Хальдор может купить
         private static readonly Dictionary<string, int> ExtraSellableItems = new Dictionary<string, int>
         {
-            { "SurtlingCore", 30 },
-            { "BlackCore", 80 },
-            { "MoltenCore", 130 }
+            { "SurtlingCore", 50 },
+            { "BlackCore", 100 },
+            { "MoltenCore", 150 }
         };
 
         // Только трофеи
         private static readonly Dictionary<string, int> TrophyValueOverrides = new Dictionary<string, int>
         {
-            // Луга
             { "TrophyDeer", 15 },
             { "TrophyBoar", 15 },
             { "TrophyNeck", 25 },
             { "TrophyEikthyr", 70 },
-
-            // Черный лес
+            
             { "TrophyGreydwarf", 15 },
             { "TrophySkeleton", 15 },
             { "TrophyGreydwarfShaman", 20 },
@@ -32,17 +30,17 @@ namespace HaldorExpansion
             { "TrophyGreydwarfBrute", 20 },
             { "TrophyBjorn", 50 },
             { "TrophyFrostTroll", 50 },
+            { "TrophyForestTroll", 50 },
             { "TrophySkeletonPoison", 50 },
             { "TrophySkeletonHildir", 80 },
             { "TrophyTheElder", 100 },
-
-            // Океан
+            
             { "TrophySerpent", 500 },
             { "TrophyBonemawSerpent", 500 },
-
-            // Болото
+            
             { "TrophyBlob", 15 },
             { "TrophyDraugr", 15 },
+            { "TrophyDraugrFem", 15 },
             { "TrophyLeech", 15 },
             { "TrophySurtling", 15 },
             { "TrophyDraugrElite", 30 },
@@ -50,8 +48,7 @@ namespace HaldorExpansion
             { "TrophyAbomination", 75 },
             { "TrophyKvastur", 80 },
             { "TrophyBonemass", 150 },
-
-            // Гора
+            
             { "TrophyWolf", 15 },
             { "TrophyHatchling", 15 },
             { "TrophyUlv", 20 },
@@ -60,8 +57,7 @@ namespace HaldorExpansion
             { "TrophySGolem", 70 },
             { "TrophyCultist_Hildir", 80 },
             { "TrophyDragonQueen", 200 },
-
-            // Равнины
+            
             { "TrophyDeathsquito", 15 },
             { "TrophyGoblin", 15 },
             { "TrophyGrowth", 15 },
@@ -72,8 +68,7 @@ namespace HaldorExpansion
             { "TrophyGoblinBruteBrosShaman", 80 },
             { "TrophyGoblinBruteBrosBrute", 80 },
             { "TrophyGoblinKing", 350 },
-
-            // Туманные земли
+            
             { "TrophySeeker", 20 },
             { "TrophyTick", 20 },
             { "TrophyDvergr", 20 },
@@ -81,16 +76,28 @@ namespace HaldorExpansion
             { "TrophyGjall", 70 },
             { "TrophySeekerBrute", 80 },
             { "TrophySeekerQueen", 500 },
-
-            // Пепельные земли
+            
             { "TrophyCharredArcher", 20 },
             { "TrophyVolture", 20 },
             { "TrophyAsksvin", 20 },
             { "TrophyCharredMage", 25 },
             { "TrophyCharredMelee", 25 },
+            { "TrophyBlob_Lava", 30 },
             { "TrophyMorgen", 100 },
             { "TrophyFallenValkyrie", 120 },
-            { "TrophyFader", 1000 }
+            { "TrophyFader", 1000 },
+            
+            { "TrophyBarka", 50 },
+            { "TrophyElaking", 50 },
+            { "TrophyMole", 50 },
+            { "TrophyBlob_Frost", 50 },
+            { "TrophyJotunWitch", 50 },
+            { "TrophyJotunWarrior", 50 },
+            { "TrophyMoose", 50 },
+            { "TrophyBlob_Morkhalla", 50 },
+            { "TrophySeal", 50 },
+            { "TrophyWrithan", 50 },
+            { "TrophyDeerWhite", 50 }
         };
 
         internal static void ApplyTrophyValues(ObjectDB db)
@@ -112,9 +119,10 @@ namespace HaldorExpansion
                 // Сначала - отдельные нетрофейные предметы
                 if (ExtraSellableItems.TryGetValue(go.name, out int extraValue))
                 {
-                    shared.m_value = extraValue;
+                    int configuredExtraValue = GetConfiguredHaldorSellPrice(go.name, extraValue);
+                    shared.m_value = configuredExtraValue;
                     DebugLog(
-                        $"[HaldorExpansion] Extra sellable item value set: prefab={go.name}, key={shared.m_name}, value={extraValue}");
+                        $"[HaldorExpansion] Extra sellable item value set: prefab={go.name}, key={shared.m_name}, value={configuredExtraValue}");
                     continue;
                 }
 
@@ -122,11 +130,11 @@ namespace HaldorExpansion
                 if (shared.m_itemType != ItemDrop.ItemData.ItemType.Trophy)
                     continue;
 
-                int value = DefaultTrophyValue;
+                int value = GetDefaultTrophySellPrice();
 
                 if (TrophyValueOverrides.TryGetValue(go.name, out int overrideValue))
                 {
-                    value = overrideValue;
+                    value = GetConfiguredHaldorSellPrice(go.name, overrideValue);
                 }
 
                 shared.m_value = value;
@@ -146,7 +154,7 @@ namespace HaldorExpansion
                 return false;
 
             if (ExtraSellableItems.ContainsKey(prefabName))
-                return true;
+                return item.m_shared.m_value > 0;
 
             return item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Trophy
                    && item.m_shared.m_value > 0;
