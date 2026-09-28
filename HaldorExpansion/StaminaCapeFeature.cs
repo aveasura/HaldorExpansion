@@ -535,11 +535,26 @@ namespace HaldorExpansion
 
         private static void AddTradeItem(Trader trader, ItemDrop itemDrop, int price, int stack)
         {
+            ItemDrop.ItemData itemData = itemDrop != null ? itemDrop.m_itemData : null;
+            ItemDrop.ItemData.SharedData shared = itemData != null ? itemData.m_shared : null;
+
+            // Valheim 1.0 expanded Trader.TradeItem with UI/progression fields.
+            // StoreGui.FillList expects these reference fields to be initialized;
+            // leaving them null (the pre-1.0 behavior) causes a NullReferenceException.
             trader.m_items.Add(new Trader.TradeItem
             {
                 m_prefab = itemDrop,
                 m_price = price,
-                m_stack = stack
+                m_stack = stack,
+                m_requiredGlobalKey = string.Empty,
+                m_levelUpEffect = false,
+                m_buyPlayerEffects = new EffectList(),
+                m_icon = null,
+                m_name = shared != null ? shared.m_name ?? string.Empty : string.Empty,
+                m_tooltip = shared != null ? shared.m_description ?? string.Empty : string.Empty,
+                m_buyKey = string.Empty,
+                m_incrementKey = string.Empty,
+                m_incrementAmount = 0
             });
         }
     }
