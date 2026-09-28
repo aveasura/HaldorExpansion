@@ -533,6 +533,7 @@ namespace HaldorExpansion
                     // Keep already-added entries in sync as well. This matters when a
                     // server config is synchronized/changed after the TradeItem exists.
                     tradeItem.m_requiredGlobalKey = requiredGlobalKey;
+                    tradeItem.m_price = HaldorExpansionPlugin.GetShopPrice(prefabName, tradeItem.m_price);
                     return true;
                 }
             }
@@ -544,6 +545,7 @@ namespace HaldorExpansion
         {
             ItemDrop.ItemData itemData = itemDrop != null ? itemDrop.m_itemData : null;
             ItemDrop.ItemData.SharedData shared = itemData != null ? itemData.m_shared : null;
+            string prefabName = itemDrop != null ? itemDrop.name : string.Empty;
 
             // Valheim 1.0 expanded Trader.TradeItem with UI/progression fields.
             // StoreGui.FillList expects these reference fields to be initialized;
@@ -551,10 +553,9 @@ namespace HaldorExpansion
             trader.m_items.Add(new Trader.TradeItem
             {
                 m_prefab = itemDrop,
-                m_price = price,
+                m_price = HaldorExpansionPlugin.GetShopPrice(prefabName, price),
                 m_stack = stack,
-                m_requiredGlobalKey = HaldorExpansionPlugin.GetShopRequiredGlobalKey(
-                    itemDrop != null ? itemDrop.name : string.Empty),
+                m_requiredGlobalKey = HaldorExpansionPlugin.GetShopRequiredGlobalKey(prefabName),
                 m_levelUpEffect = false,
                 m_buyPlayerEffects = new EffectList(),
                 m_icon = null,
