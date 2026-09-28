@@ -9,6 +9,9 @@ namespace HaldorExpansion
         private static readonly Dictionary<string, ConfigEntry<string>> ShopRequiredGlobalKeys =
             new Dictionary<string, ConfigEntry<string>>();
 
+        private readonly HashSet<string> ShopProgressionSectionsWithBossHelp =
+            new HashSet<string>();
+
         private void RegisterShopProgressionConfig()
         {
             // Custom HaldorExpansion items.
@@ -55,17 +58,53 @@ namespace HaldorExpansion
             BindShopRequiredGlobalKey("Shop Progression - Materials", "Needle", "Needle");
         }
 
+        private const string ShopProgressionDescription =
+            "World global key required before this item appears in Haldor's shop. " +
+            "Leave empty to keep the item always available.";
+
+        private const string BossGlobalKeyHelp =
+            ShopProgressionDescription + "\n" +
+            "Vanilla boss keys:\n" +
+            "defeated_eikthyr - Eikthyr\n" +
+            "defeated_gdking - The Elder\n" +
+            "defeated_bonemass - Bonemass\n" +
+            "defeated_dragon - Moder\n" +
+            "defeated_goblinking - Yagluth\n" +
+            "defeated_queen - The Queen\n" +
+            "defeated_fader - Fader\n" +
+            "defeated_frozenking - Kall Fimbulbringer";
+
         private void BindShopRequiredGlobalKey(string section, string prefabName, string displayName)
         {
+            bool firstEntryInSection = ShopProgressionSectionsWithBossHelp.Add(section);
+            string configKey = SanitizeConfigKey(displayName) + " RequiredGlobalKey";
+
             ConfigEntry<string> entry = Config.BindConfig(
                 section,
-                displayName + " RequiredGlobalKey",
+                configKey,
                 string.Empty,
-                "World global key required before this item appears in Haldor's shop. " +
-                "Leave empty to keep the item always available. Example: defeated_bonemass",
+                firstEntryInSection ? BossGlobalKeyHelp : ShopProgressionDescription,
                 synced: true);
 
             ShopRequiredGlobalKeys[prefabName] = entry;
+        }
+
+        private static string SanitizeConfigKey(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return "Item";
+
+            return value
+                .Replace("=", string.Empty)
+                .Replace("\n", " ")
+                .Replace("\r", " ")
+                .Replace("\t", " ")
+                .Replace("\\", string.Empty)
+                .Replace("\"", string.Empty)
+                .Replace("'", string.Empty)
+                .Replace("[", "(")
+                .Replace("]", ")")
+                .Trim();
         }
 
         internal static string GetShopRequiredGlobalKey(string prefabName)
