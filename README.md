@@ -45,6 +45,8 @@ Shop prices, world-progression requirements, trophy sell prices, and core sell p
 - unique items with custom combat mechanics;
 - custom armor and cloaks with risk-reward effects;
 - custom active ability for the Bone Crushers cestus;
+- `Hel's Oath` bow with Hel's Sacrifice, Hel's Touch, and the `Hel's Embrace` active ability;
+- the one-use `Thread of the Norns` trinket, which can break instead of its wearer on lethal damage;
 - server-synchronized shop and sell-price configuration;
 - multiplayer / dedicated server support via `NetworkCompatibility(EveryoneMustHaveMod, Minor)`;
 - English and Russian localization for added items and effects.
@@ -56,6 +58,7 @@ Default shop prices are shown below. All of these prices can be changed in the c
 | Item | Default price | Description |
 | --- | ---: | --- |
 | `Bone Crushers` | 2500 | Cestus with an active ability, protective barrier, and shockwave. |
+| `Hel's Oath` | 2500 | High-risk bow: converts part of maximum health into stamina, builds Hel's Touch, and charges Hel's Embrace through damage dealt. |
 | `Cuirass of Silent Reckoning` | 4000 | Armor that delays part of dangerous incoming damage. |
 | `Cloak of the Wounded Beast` | 2500 | Cloak with risky regeneration that becomes stronger at low health. |
 | `Cloak of Burned Resolve` | 2500 | Cloak that redirects part of incoming damage into stamina loss. |
@@ -63,6 +66,29 @@ Default shop prices are shown below. All of these prices can be changed in the c
 | `Thread of the Norns` | 6666 | One-use trinket: prevents lethal damage, is destroyed, and leaves the wearer at half of their pre-hit health. |
 | `Crossbow of the Shadow Hunt` | 2500 | Heavy crossbow for powerful opening shots. |
 | `Pit King's Cuirass` | 4000 | Cestus-focused armor for aggressive close combat. |
+
+## Highlights in version 1.2.0
+
+### Hel's Oath
+
+`Hel's Oath` is a high-risk / high-reward bow built around stamina.
+
+- **Hel's Sacrifice**: 50% of maximum health is transferred into maximum stamina while the bow is in use.
+- **Hel's Touch**: wearing the full Fenris set allows bow damage to awaken the passive. Once awakened, 1 stack is gained every 3 seconds without taking a combat hit, up to Touch V. Taking a hit removes 1 stack.
+- Each Touch stack grants **+5% movement speed** and **-4% stamina cost**.
+- **Hel's Embrace**: actual damage dealt by the bow fills the active-ability meter. By default, a full charge requires **1800 damage**. Charge is retained while the bow stays equipped and is lost when it is unequipped.
+- Activating the ability empowers the next arrow and creates a frost explosion. Explosion damage scales with the wielder's stamina; Touch V significantly empowers Hel's Embrace.
+- The empowered shot itself does not charge the next ability.
+
+### Thread of the Norns
+
+`Thread of the Norns` uses the utility/trinket slot and grants no permanent combat stats.
+
+- On lethal damage, the amulet is destroyed instead of its wearer.
+- Health becomes **50% of the value held before the lethal hit**.
+- Breaking the thread grants **1.5 seconds of protection from health loss**, preventing an immediate follow-up hit or DoT tick from killing the player at once.
+- Remaining DoT effects continue normally after the protection window ends.
+- Default Haldor price: **6666 coins**.
 
 ## Configuration
 
@@ -162,6 +188,21 @@ Mouse2 = Middle Mouse Button
 
 Other Unity `KeyCode` values can also be used.
 
+### Hel's Oath settings
+
+The main Hel's Oath settings are stored in the `Hel Oath` section:
+
+```ini
+Damage for full charge = 1800
+Explosion radius = 7
+Embrace coefficient = 0.85
+Touch V Embrace coefficient = 1.50
+Touch stack interval = 3.0
+Ability Key = Mouse2
+```
+
+`Damage for full charge` counts actual damage dealt by the bow, including Fire / Spirit / Poison DoT attributed to its shots. Gameplay-affecting values in this section are synchronized from the server.
+
 ### Multiplayer configuration
 
 Shop prices, progression requirements, trophy sell prices, and core sell prices are synchronized from the server.
@@ -258,6 +299,6 @@ After that, change the paths inside `HaldorExpansion.Local.props` for your machi
 
 ## Status
 
-Current version: **1.2.0**.
+Current version: **1.2.0**. The previous public release was **1.1.0**.
 
 The mod supports Valheim 1.0 and has been tested in both local and dedicated-server environments.
