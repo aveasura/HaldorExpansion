@@ -60,6 +60,7 @@ Default shop prices are shown below. All of these prices can be changed in the c
 | `Cloak of the Wounded Beast` | 2500 | Cloak with risky regeneration that becomes stronger at low health. |
 | `Cloak of Burned Resolve` | 2500 | Cloak that redirects part of incoming damage into stamina loss. |
 | `Corrupted Brisingamen` | 1600 | Accessory that increases maximum carry weight. |
+| `Thread of the Norns` | 6666 | One-use trinket: prevents lethal damage, is destroyed, and leaves the wearer at half of their pre-hit health. |
 | `Crossbow of the Shadow Hunt` | 2500 | Heavy crossbow for powerful opening shots. |
 | `Pit King's Cuirass` | 4000 | Cestus-focused armor for aggressive close combat. |
 
@@ -257,6 +258,6 @@ After that, change the paths inside `HaldorExpansion.Local.props` for your machi
 
 ## Status
 
-Current version: **1.1.0**.
+Current version: **1.3.11**.
 
 The mod supports Valheim 1.0 and has been tested in both local and dedicated-server environments.
