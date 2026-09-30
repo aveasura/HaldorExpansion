@@ -258,6 +258,6 @@ After that, change the paths inside `HaldorExpansion.Local.props` for your machi
 
 ## Status
 
-Current version: **1.3.11**.
+Current version: **1.2.0**.
 
 The mod supports Valheim 1.0 and has been tested in both local and dedicated-server environments.
