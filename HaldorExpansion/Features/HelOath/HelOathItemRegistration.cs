@@ -113,7 +113,7 @@ namespace HaldorExpansion.Features.HelOath
             shared.m_backstabBonus = HelOathBackstabBonus;
             shared.m_attackForce = 20f;
             
-            shared.m_attack.m_attackStamina = 10f;
+            shared.m_attack.m_drawStaminaDrain = 10f;
 
             shared.m_damages = new HitData.DamageTypes();
             shared.m_damages.m_pierce = HelOathBasePierceDamage;

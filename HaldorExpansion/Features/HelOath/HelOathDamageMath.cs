@@ -23,11 +23,11 @@ namespace HaldorExpansion.Features.HelOath
             float originalMaxHealth = finalMaxHealth * 2f;
             float ratio = helPower / Math.Max(1f, originalMaxHealth);
 
-            if (ratio >= 2.70f) return 1.75f;
+            if (ratio >= 2.70f) return 1.95f;
             if (ratio <= 0.75f) return 0.50f;
 
             if (ratio >= 2.50f)
-                return SmoothSegment(ratio, 2.70f, 2.50f, 1.75f, 1.45f);
+                return SmoothSegment(ratio, 2.70f, 2.50f, 1.95f, 1.45f);
 
             if (ratio >= 2.00f)
                 return SmoothSegment(ratio, 2.50f, 2.00f, 1.45f, 1.15f);

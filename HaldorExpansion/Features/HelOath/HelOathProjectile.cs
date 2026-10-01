@@ -20,6 +20,8 @@ namespace HaldorExpansion.Features.HelOath
 
     internal static class HelOathProjectile
     {
+        private static readonly float DirectArrowMultiplier = 3f;
+        
         private static readonly ConditionalWeakTable<Projectile, HelOathShot> Shots = new ConditionalWeakTable<Projectile, HelOathShot>();
         [ThreadStatic] internal static HelOathShot Current;
 
@@ -46,7 +48,7 @@ namespace HaldorExpansion.Features.HelOath
             Shots.Add(projectile, shot);
             if (special)
             {
-                projectile.m_damage.Modify(3f);
+                projectile.m_damage.Modify(DirectArrowMultiplier);
                 // Vanilla AoE replaces direct damage; the separate burst is resolved below.
                 projectile.m_aoe = 0f;
                 projectile.m_attackForce = 0f;
