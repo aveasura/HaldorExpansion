@@ -19,7 +19,7 @@ namespace HaldorExpansion.Features.HelOath
         internal const string HelOathPassiveNameKey = "$se_heloath_sacrifice";
         internal const string HelOathPassiveDescKey = "$se_heloath_sacrifice_desc";
 
-        internal const float HelOathBasePierceDamage = 62f;
+        internal const float HelOathBasePierceDamage = 30f;
         internal const float HelOathMovementModifier = 0.01f;
         internal const float HelOathBackstabBonus = 3f;
 
@@ -115,8 +115,8 @@ namespace HaldorExpansion.Features.HelOath
 
             shared.m_damages = new HitData.DamageTypes();
             shared.m_damages.m_pierce = HelOathBasePierceDamage;
-            shared.m_damages.m_frost = 10f;
-            shared.m_damages.m_lightning = 5f;
+            shared.m_damages.m_lightning = 35f;
+            shared.m_damages.m_frost = 15f;
             shared.m_damagesPerLevel = new HitData.DamageTypes();
 
             shared.m_maxDurability = 1800f;

@@ -10,6 +10,8 @@ namespace HaldorExpansion.Features.HelOath
         private const string DamageRpc = "HE_HelOathDamage_v1";
         private const string CreditRpc = "HE_HelOathCredit_v1";
         private const string TouchDamageRpc = "HE_HelOathTouchDamage_v1";
+        private const float LightningSplashShare = 0.80f;
+        private const float FrostSplashShare = 0.20f;
         private static readonly FieldInfo CharacterView = AccessTools.Field(typeof(Character), "m_nview");
         internal static ZNetView View(Character character) => character == null ? null : (ZNetView)CharacterView.GetValue(character);
         private static readonly MethodInfo WeakSpot = AccessTools.Method(typeof(Character), "FindWeakSpotIndex");
@@ -65,14 +67,14 @@ namespace HaldorExpansion.Features.HelOath
             return true;
         }
 
-        internal static void Send(Character target, HelOathShot shot, HitData direct, float frost, Vector3 origin)
+        internal static void Send(Character target, HelOathShot shot, HitData direct, float splash, Vector3 origin)
         {
             var view = View(target);
             if (view == null || !view.IsValid()) return;
             var package = new ZPackage();
             Write(package, shot.Special);
             Write(package, shot.Epoch);
-            Write(package, frost);
+            Write(package, splash);
             Write(package, origin);
             Write(package, direct != null);
             var hit = direct ?? new HitData();
@@ -96,7 +98,7 @@ namespace HaldorExpansion.Features.HelOath
             {
                 bool special = package.ReadBool();
                 string epoch = package.ReadString();
-                float frost = package.ReadSingle();
+                float splash = package.ReadSingle();
                 Vector3 origin = package.ReadVector3();
                 bool hasDirect = package.ReadBool();
                 var hit = new HitData();
@@ -105,7 +107,7 @@ namespace HaldorExpansion.Features.HelOath
                 if (attacker == null) return;
                 var attackerView = View(attacker);
                 if (attackerView == null || !attackerView.IsValid() || attackerView.GetZDO().GetOwner() != sender) return;
-                if (float.IsNaN(frost) || float.IsInfinity(frost) || frost < 0f) return;
+                if (float.IsNaN(splash) || float.IsInfinity(splash) || splash < 0f) return;
                 if (target.IsDead() || target.GetHealth() <= 0f || target.IsTeleporting() || target.InCutscene()) return;
 
                 float health = target.GetHealth();
@@ -122,13 +124,14 @@ namespace HaldorExpansion.Features.HelOath
                     // Run the real, Harmony-patched game damage pipeline on the target owner.
                     HelOathDotTracking.Apply(target, sender, hit, !special && !target.IsPlayer() && BaseAI.IsEnemy(attacker, target) ? attacker.GetPlayerID() + ":" + epoch : null);
                 }
-                if (special && frost > 0f && !target.IsDead() && target.GetHealth() > 0f)
+                if (special && splash > 0f && !target.IsDead() && target.GetHealth() > 0f)
                 {
                     var burst = new HitData { m_point = target.GetCenterPoint(), m_dir = direction,
                         m_pushForce = 0f, m_staggerMultiplier = 0f, m_backstabBonus = 1f,
                         m_dodgeable = false, m_blockable = false, m_ranged = true,
                         m_skill = Skills.SkillType.Bows, m_hitType = HitData.HitType.PlayerHit };
-                    burst.m_damage.m_frost = frost;
+                    burst.m_damage.m_lightning = splash * LightningSplashShare;
+                    burst.m_damage.m_frost = splash * FrostSplashShare;
                     burst.SetAttacker(attacker);
                     HelOathDotTracking.Apply(target, sender, burst, null);
                 }

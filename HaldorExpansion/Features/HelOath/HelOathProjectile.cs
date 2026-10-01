@@ -12,7 +12,7 @@ namespace HaldorExpansion.Features.HelOath
         internal bool Special;
         internal bool TouchV;
         internal bool Resolved;
-        internal float Frost;
+        internal float Splash;
         internal float Radius;
         internal Character DirectTarget;
         internal HitData DirectHit;
@@ -32,14 +32,14 @@ namespace HaldorExpansion.Features.HelOath
             bool special = HelOathRuntime.State.TryFire(Time.time, out touchV);
             if (special) HelOathEffects.SyncPrepared(player, false);
             float coefficient = touchV ? HelOathConfiguration.TouchVEmbraceCoefficientValue : HelOathConfiguration.NormalEmbraceCoefficient;
-            float frost = special ? HelOathDamageMath.CalculateSplash(player.GetMaxStamina(), player.GetMaxHealth(), coefficient) : 0f;
+            float splash = special ? HelOathDamageMath.CalculateSplash(player.GetMaxStamina(), player.GetMaxHealth(), coefficient) : 0f;
             var shot = new HelOathShot
             {
                 Owner = player,
                 Special = special,
                 TouchV = touchV,
                 Epoch = HelOathRuntime.State.Epoch,
-                Frost = frost,
+                Splash = splash,
                 Radius = HelOathConfiguration.ExplosionRadius
             };
             Shots.Remove(projectile);
@@ -76,8 +76,8 @@ namespace HaldorExpansion.Features.HelOath
             foreach (var target in targets)
             {
                 var hit = target == shot.DirectTarget ? shot.DirectHit : null;
-                float frost = CanExplodeOn(shot.Owner, target) ? shot.Frost : 0f;
-                HelOathNetwork.Send(target, shot, hit, frost, point);
+                float splash = CanExplodeOn(shot.Owner, target) ? shot.Splash : 0f;
+                HelOathNetwork.Send(target, shot, hit, splash, point);
             }
             HelOathEffects.BroadcastExplosion(shot.Owner, point, shot.Radius, shot.TouchV);
         }

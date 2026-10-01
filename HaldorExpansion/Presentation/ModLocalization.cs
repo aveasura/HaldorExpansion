@@ -21,11 +21,13 @@ namespace HaldorExpansion.Presentation
                 [HelOathItemRegistration.HelOathItemKey] = "Клятва Хель",
                 [HelOathItemRegistration.HelOathItemDescKey] =
                     "Холод Хельхейма дремлет в его тетиве. Каждая пролитая им кровь приближает исполнение Клятвы — и когда она будет исполнена, откроются Объятия Хель.\n\n" +
-                    "<color=#9EDFF2><b>Фенрис — Касание Хель:</b></color> полный сет пробуждает Касание хель от урона луком. Каждый стак улучшает подвижность персонажа.\n\n" +
-                    "<color=#D5F5FF><b>Объятия Хель:</b></color> урон луком заряжает активную способность. При применении следующая стрела взрывается. Урон напрямую зависит от максимума выносливости. Касание V значительно усиливает его.",
+                    "<color=#9EDFF2><b>Фенрис — Касание Хель:</b></color> полный сет пробуждает Касание Хель от урона луком. Каждый стак улучшает подвижность персонажа.\n\n" +
+                    "<color=#D5F5FF><b>Объятия Хель:</b></color> урон луком заряжает активную способность. " +
+                    "При применении следующая стрела взрывается. " +
+                    "<b>чем меньше максимум здоровья и выше максимум выносливости, тем сильнее Объятия Хель.</b> Касание V значительно усиливает их.",
                 [HelOathItemRegistration.HelOathPassiveNameKey] = "Жертва Хель",
                 [HelOathItemRegistration.HelOathPassiveDescKey] =
-                    "50% максимального здоровья превращается в максимальную выносливость.\n+20 к навыку Луки.",
+                    "50% максимального здоровья превращается в максимальную выносливость.",
                 ["$he_hel_ability"] = "Объятия Хель",
                 ["$he_hel_prepared"] = "Клятва пробуждена",
                 ["$se_hel_touch_1"] = "Касание Хель I",
@@ -37,7 +39,8 @@ namespace HaldorExpansion.Presentation
                 ["$se_hel_touch_4"] = "Касание Хель IV",
                 ["$se_hel_touch_4_desc"] = "+20% к скорости передвижения.\n-16% затрат выносливости на все действия.",
                 ["$se_hel_touch_5"] = "Касание Хель V",
-                ["$se_hel_touch_5_desc"] = "+25% к скорости передвижения.\n-20% затрат выносливости на все действия.\nОбъятия Хель значительно усилены.",
+                ["$se_hel_touch_5_desc"] =
+                    "+25% к скорости передвижения.\n-20% затрат выносливости на все действия.\nОбъятия Хель значительно усилены.",
                 // Осквернённый Бризингамен
                 ["$item_brisingamen"] = "Осквернённый Бризингамен",
                 ["$item_brisingamen_desc"] =
@@ -105,7 +108,7 @@ namespace HaldorExpansion.Presentation
                     "Раз в секунду восстанавливает здоровье: чем ниже текущее здоровье, тем сильнее восстановление.\n" +
                     "Огонь, яд и дух подавляют регенерацию на 2 секунды.\n\n" +
                     "При использовании вместе с Кирасой безмолвной расплаты эффект лечения сокращается в 2 раза.",
-                
+
                 // Плащ выжженной стойкости
                 [StaminaCapeItemRegistration.ItemKey] = "Плащ выжженной стойкости",
                 [StaminaCapeItemRegistration.ItemDescKey] =
@@ -123,11 +126,13 @@ namespace HaldorExpansion.Presentation
                 [HelOathItemRegistration.HelOathItemKey] = "Hel's Oath",
                 [HelOathItemRegistration.HelOathItemDescKey] =
                     "Helheim's cold slumbers in its string. Every drop of blood it spills brings the Oath closer to fulfillment — and when it is fulfilled, Hel's Embrace is revealed.\n\n" +
-                    "<color=#9EDFF2><b>Fenris — Hel's Touch:</b></color> the full set awakens Hel's Touch when the bow deals damage. Each stack improves the wielder's mobility.\n\n" +
-                    "<color=#D5F5FF><b>Hel's Embrace:</b></color> damage dealt with the bow charges the active ability. When activated, the next arrow explodes. Its damage scales directly with maximum stamina. Touch V greatly empowers it.",
+                    "<color=#9EDFF2><b>Fenris — Hel's Touch:</b></color> wearing the full set awakens Hel's Touch through bow damage. Each stack improves the character's mobility.\n\n" +
+                    "<color=#D5F5FF><b>Hel's Embrace:</b></color> bow damage charges the active ability. " +
+                    "When activated, the next arrow explodes on impact. " +
+                    "<b>the lower the maximum health and the higher the maximum stamina, the stronger Hel's Embrace becomes.</b> Hel's Touch V greatly empowers it.",
                 [HelOathItemRegistration.HelOathPassiveNameKey] = "Hel's Sacrifice",
                 [HelOathItemRegistration.HelOathPassiveDescKey] =
-                    "50% of maximum health is converted into maximum stamina.\n+20 Bows skill.",
+                    "50% of maximum health is converted into maximum stamina.",
                 ["$he_hel_ability"] = "Hel's Embrace",
                 ["$he_hel_prepared"] = "Oath Awakened",
                 ["$se_hel_touch_1"] = "Hel's Touch I",
@@ -139,7 +144,8 @@ namespace HaldorExpansion.Presentation
                 ["$se_hel_touch_4"] = "Hel's Touch IV",
                 ["$se_hel_touch_4_desc"] = "+20% movement speed.\n-16% stamina cost for all actions.",
                 ["$se_hel_touch_5"] = "Hel's Touch V",
-                ["$se_hel_touch_5_desc"] = "+25% movement speed.\n-20% stamina cost for all actions.\nHel's Embrace is greatly empowered.",
+                ["$se_hel_touch_5_desc"] =
+                    "+25% movement speed.\n-20% stamina cost for all actions.\nHel's Embrace is greatly empowered.",
                 // Corrupted Brisingamen
                 ["$item_brisingamen"] = "Corrupted Brisingamen",
                 ["$item_brisingamen_desc"] =
@@ -207,7 +213,7 @@ namespace HaldorExpansion.Presentation
                     "Restores health once per second: the lower your current health is, the stronger the regeneration becomes.\n" +
                     "Fire, poison, and spirit suppress regeneration for 2 seconds.\n\n" +
                     "When used together with the Cuirass of Silent Reckoning, its healing effect is halved.",
-                
+
                 // Cloak of Burned Resolve
                 [StaminaCapeItemRegistration.ItemKey] = "Cloak of Burned Resolve",
                 [StaminaCapeItemRegistration.ItemDescKey] =

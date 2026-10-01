@@ -77,7 +77,7 @@ Default shop prices are shown below. All of these prices can be changed in the c
 - **Hel's Touch**: wearing the full Fenris set allows bow damage to awaken the passive. Once awakened, 1 stack is gained every 3 seconds without taking a combat hit, up to Touch V. Taking a hit removes 1 stack. Unequipping the bow or breaking the full Fenris set disables all Touch bonuses immediately, but the current stacks are retained for 5 seconds; after that, 1 stack fades every 3 seconds. Returning to Hel's Oath + full Fenris before complete decay restores the remaining stage without gaining stacks during the swap.
 - Each Touch stack grants **+5% movement speed** and **-4% stamina cost**.
 - **Hel's Embrace**: actual damage dealt by the bow fills the active-ability meter. By default, a full charge requires **1800 damage**. Charge is stored on the specific bow instance and persists through unequipping, weapon swaps, and location transitions.
-- Activating the ability empowers the next arrow and creates a frost explosion. Explosion damage scales with the wielder's stamina; Touch V significantly empowers Hel's Embrace.
+- Activating the ability empowers the next arrow and creates an explosion dealing **80% Lightning / 20% Frost** damage. Total explosion damage scales with the wielder's stamina; Touch V significantly empowers Hel's Embrace.
 - The empowered shot itself does not charge the next ability.
 
 ### Thread of the Norns
