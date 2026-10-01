@@ -14,7 +14,7 @@ class StateTests
             Check(s.Charge == 40f, "Actual damage contributes proportionally");
             s.AddDamage(900f, 1000f, 0f, epoch);
             Check(s.Charge == 100f, "Charge caps at full");
-            Check(s.Activate(0f, 1f), "Full charge starts activation");
+            Check(s.Activate(0f, 1f, true), "Full charge starts activation");
             s.AddDamage(500f, 1000f, 0f, s.Epoch);
             Check(s.Charge == 0f, "No accumulation during activation");
             Check(!s.TryFire(0.9f), "Casting cannot produce a special shot");
@@ -42,13 +42,13 @@ class StateTests
             s.AddDamage(50f, float.NaN, 9f, s.Epoch);
             Check(s.Charge == 0f, "Invalid configured threshold cannot poison charge");
             s.AddDamage(1000f, 1000f, 9f, s.Epoch);
-            s.Activate(9f, 1f);
+            s.Activate(9f, 1f, true);
             s.Equip(null);
             s.Tick(20f);
             Check(!s.Prepared && s.Charge == 0f, "Unequip cancels casting and prepared shot");
             s.Equip("bow-a");
             s.AddDamage(1000f,1000f,20f,s.Epoch);
-            Check(s.Activate(20f,0f), "Instant activation accepts full charge");
+            Check(s.Activate(20f,0f,true), "Instant activation accepts full charge");
             s.Tick(20f);
             Check(s.Prepared && !s.Casting, "Instant activation has no animation lock");
             Check(s.TryFire(20f), "Instant prepared shot fires immediately");
@@ -92,7 +92,7 @@ class StateTests
             // Fill Embrace only after Touch has already existed for a while.
             s.AddDamage(900f, 1000f, 74f, s.Epoch);
             Check(s.Charge == 100f, "Touch building does not interfere with Embrace charge");
-            Check(s.Activate(74f, 0f), "Touch V can activate Embrace");
+            Check(s.Activate(74f, 0f, true), "Touch V can activate Embrace");
             Check(s.TouchStacks == 0 && !s.TouchAwakened && s.PreparedWithTouchV, "Activation consumes Touch and its awakened cycle while snapshotting Touch V");
             s.Tick(74f);
             bool touchV;
@@ -105,12 +105,46 @@ class StateTests
             s.RegisterBowDamage(80f, true, 3f);
             s.UpdateTouch(86f, true, 3f);
             Check(s.TouchStacks == 2, "Touch builds while full Fenris is present");
-            s.UpdateTouch(86.1f, false, 3f);
-            Check(s.TouchStacks == 0 && !s.TouchAwakened, "Losing full Fenris immediately removes Touch and requires new bow damage to awaken it again");
-            s.UpdateTouch(100f, true, 3f);
-            Check(s.TouchStacks == 0, "Re-equipping Fenris alone does not restart Touch without a new Hel's Oath damage event");
 
-            Console.WriteLine("PASS: charge, cast, prepared shot, cooldown, stale credit, per-bow restore, Touch-on-damage timing/hit-decrement/V snapshot and invalid input scenarios");
+            // Loadout swap: Touch becomes inactive externally, but its player-owned stage is retained briefly.
+            s.UpdateTouch(86.1f, false, 3f);
+            Check(s.TouchStacks == 2 && s.TouchAwakened, "Losing full Fenris starts grace instead of deleting Touch");
+            s.RegisterCombatHit(88f, false, 3f);
+            Check(s.TouchStacks == 2, "Frozen Touch is not additionally punished by combat hits");
+            s.UpdateTouch(91.09f, false, 3f);
+            Check(s.TouchStacks == 2, "All Touch stacks survive the five-second grace window");
+            s.UpdateTouch(91.1f, false, 3f);
+            Check(s.TouchStacks == 1 && s.TouchAwakened, "First Touch stack fades when grace ends");
+
+            // Returning before complete decay restores the saved stage but does not grant offline catch-up.
+            s.UpdateTouch(92f, true, 3f);
+            Check(s.TouchStacks == 1 && s.TouchAwakened, "Re-equipping the required loadout restores the retained Touch stage");
+            s.UpdateTouch(94.99f, true, 3f);
+            Check(s.TouchStacks == 1, "Touch growth timer restarts after returning to the loadout");
+            s.UpdateTouch(95f, true, 3f);
+            Check(s.TouchStacks == 2, "Touch resumes normal growth after the restarted timer");
+
+            // Unequipping the bow uses the same grace/decay path because Touch belongs to the player, not the item.
+            s.Equip(null);
+            s.UpdateTouch(95.1f, false, 3f);
+            s.UpdateTouch(100.1f, false, 3f);
+            Check(s.TouchStacks == 1 && s.TouchAwakened, "Unequipped bow loses one retained Touch stack after grace");
+            s.UpdateTouch(103.1f, false, 3f);
+            Check(s.TouchStacks == 0 && !s.TouchAwakened, "Touch fully expires after the final retained stack decays");
+            s.Equip("bow-touch-loss");
+            s.UpdateTouch(110f, true, 3f);
+            Check(s.TouchStacks == 0 && !s.TouchAwakened, "Fully expired Touch requires new bow damage to awaken again");
+
+            // A retained raw Touch V must never empower Embrace while the Fenris requirement is inactive.
+            s.RegisterBowDamage(110f, true, 3f);
+            s.UpdateTouch(125f, true, 3f);
+            Check(s.TouchStacks == 5, "Touch can rebuild to V after a fresh damage event");
+            s.AddDamage(1000f, 1000f, 125f, s.Epoch);
+            s.UpdateTouch(125.1f, false, 3f);
+            Check(s.Activate(125.1f, 0f, false), "Embrace remains usable after the Fenris requirement is removed");
+            Check(!s.PreparedWithTouchV, "Inactive retained Touch V cannot empower Embrace");
+
+            Console.WriteLine("PASS: charge, cast, prepared shot, cooldown, stale credit, per-bow restore, Touch timing/hit-decrement/V snapshot, grace/decay/loadout gating and invalid input scenarios");
             DamageMathTests.Run();
             DotTests.Run();
             return 0;

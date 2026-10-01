@@ -6,6 +6,8 @@ namespace HaldorExpansion.Features.HelOath
     internal sealed class HelOathState
     {
         internal const int MaxTouchStacks = 5;
+        internal const float TouchInactiveGrace = 5f;
+        internal const float TouchDecayInterval = 3f;
 
         internal float Charge { get; private set; }
         internal bool Casting { get; private set; }
@@ -20,6 +22,8 @@ namespace HaldorExpansion.Features.HelOath
         private float blockedUntil;
         private float nextTouchAt;
         private bool touchTimerArmed;
+        private float nextTouchDecayAt;
+        private bool touchDecayArmed;
 
         internal void Equip(object current, float restoredCharge = 0f)
         {
@@ -27,9 +31,9 @@ namespace HaldorExpansion.Features.HelOath
             weapon = current;
             Charge = current == null ? 0f : NormalizeCharge(restoredCharge);
             Casting = Prepared = PreparedWithTouchV = false;
-            ClearTouch();
             Epoch = Guid.NewGuid().ToString("N");
-            // Keep cooldown when sheathing/re-equipping. Charge itself is restored from the bow instance.
+            // Keep cooldown and Hel's Touch when sheathing/re-equipping. Charge itself is restored from the bow instance.
+            // Touch is player state: while the bow/full Fenris are unavailable it becomes inactive and decays in UpdateTouch.
         }
 
         internal void AddDamage(float damage, float requiredDamage, float now, string epoch)
@@ -57,9 +61,20 @@ namespace HaldorExpansion.Features.HelOath
             interval = NormalizeTouchInterval(interval);
             if (weapon == null || !fullFenrisSet)
             {
-                ClearTouch();
+                UpdateInactiveTouch(now);
                 return;
             }
+
+            // Returning to Hel's Oath + full Fenris resumes the saved stage, but never grants
+            // catch-up stacks for the time spent in another loadout.
+            if (touchDecayArmed)
+            {
+                touchDecayArmed = false;
+                nextTouchDecayAt = 0f;
+                touchTimerArmed = false;
+                nextTouchAt = 0f;
+            }
+
             if (!TouchAwakened || Casting || Prepared) return;
 
             if (!touchTimerArmed)
@@ -79,19 +94,18 @@ namespace HaldorExpansion.Features.HelOath
         internal void RegisterCombatHit(float now, bool fullFenrisSet, float interval)
         {
             interval = NormalizeTouchInterval(interval);
-            if (TouchStacks > 0) TouchStacks--;
-
             bool eligible = fullFenrisSet && weapon != null && TouchAwakened && !Casting && !Prepared;
-            touchTimerArmed = eligible;
-            if (eligible) nextTouchAt = now + interval;
-            else if (!fullFenrisSet || weapon == null) ClearTouch();
-            else nextTouchAt = 0f;
+            if (!eligible) return; // Frozen/inactive Touch is already governed by loadout decay.
+
+            if (TouchStacks > 0) TouchStacks--;
+            touchTimerArmed = true;
+            nextTouchAt = now + interval;
         }
 
-        internal bool Activate(float now, float duration)
+        internal bool Activate(float now, float duration, bool touchActive)
         {
             if (weapon == null || Charge < 100f || Casting || Prepared || now < blockedUntil) return false;
-            PreparedWithTouchV = TouchStacks >= MaxTouchStacks;
+            PreparedWithTouchV = touchActive && TouchStacks >= MaxTouchStacks;
             Charge = 0f;
             Casting = true;
             readyAt = now + Math.Max(0f, duration);
@@ -125,6 +139,43 @@ namespace HaldorExpansion.Features.HelOath
             return TryFire(now, out ignored);
         }
 
+
+        internal void ResetTouch() => ClearTouch();
+
+        private void UpdateInactiveTouch(float now)
+        {
+            touchTimerArmed = false;
+            nextTouchAt = 0f;
+            if (!TouchAwakened)
+            {
+                touchDecayArmed = false;
+                nextTouchDecayAt = 0f;
+                return;
+            }
+
+            if (!touchDecayArmed)
+            {
+                touchDecayArmed = true;
+                nextTouchDecayAt = now + TouchInactiveGrace;
+                return;
+            }
+
+            // The first stage is lost when the grace window ends; further stages fade one by one.
+            while (TouchStacks > 0 && now >= nextTouchDecayAt)
+            {
+                TouchStacks--;
+                if (TouchStacks <= 0)
+                {
+                    ClearTouch();
+                    return;
+                }
+                nextTouchDecayAt += TouchDecayInterval;
+            }
+
+            // An awakened zero-stack cycle is also forgotten once its grace expires.
+            if (TouchStacks <= 0 && now >= nextTouchDecayAt) ClearTouch();
+        }
+
         private static float NormalizeTouchInterval(float interval)
         {
             if (float.IsNaN(interval) || float.IsInfinity(interval) || interval <= 0f) return 3f;
@@ -143,6 +194,8 @@ namespace HaldorExpansion.Features.HelOath
             TouchAwakened = false;
             touchTimerArmed = false;
             nextTouchAt = 0f;
+            touchDecayArmed = false;
+            nextTouchDecayAt = 0f;
         }
     }
 }
