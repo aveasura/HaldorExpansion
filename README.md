@@ -73,10 +73,10 @@ Default shop prices are shown below. All of these prices can be changed in the c
 
 `Hel's Oath` is a high-risk / high-reward bow built around stamina.
 
-- **Hel's Sacrifice**: 50% of maximum health is transferred into maximum stamina while the bow is in use.
+- **Hel's Sacrifice**: 50% of maximum health is transferred into maximum stamina while the bow is in use; additionally grants +20 Bows skill.
 - **Hel's Touch**: wearing the full Fenris set allows bow damage to awaken the passive. Once awakened, 1 stack is gained every 3 seconds without taking a combat hit, up to Touch V. Taking a hit removes 1 stack.
 - Each Touch stack grants **+5% movement speed** and **-4% stamina cost**.
-- **Hel's Embrace**: actual damage dealt by the bow fills the active-ability meter. By default, a full charge requires **1800 damage**. Charge is retained while the bow stays equipped and is lost when it is unequipped.
+- **Hel's Embrace**: actual damage dealt by the bow fills the active-ability meter. By default, a full charge requires **1800 damage**. Charge is stored on the specific bow instance and persists through unequipping, weapon swaps, and location transitions.
 - Activating the ability empowers the next arrow and creates a frost explosion. Explosion damage scales with the wielder's stamina; Touch V significantly empowers Hel's Embrace.
 - The empowered shot itself does not charge the next ability.
 

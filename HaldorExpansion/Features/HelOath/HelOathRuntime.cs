@@ -42,21 +42,26 @@ namespace HaldorExpansion.Features.HelOath
             }
             var current = !player.IsDead() && !player.IsTeleporting() && Equipped(player) ? player.GetCurrentWeapon() : null;
             int oldTouch = State.TouchStacks;
-            State.Equip(current);
-            HelOathEffects.SyncPrepared(player, State.Prepared);
-            if (oldTouch != State.TouchStacks)
-            {
-                HelOathTouchEffects.Sync(player, State.TouchStacks);
-                HelOathTouchStatus.Sync(player, State.TouchStacks);
-            }
             if (!ReferenceEquals(lastWeapon, current))
             {
+                // Store progress on the concrete bow before it leaves the active weapon slot.
+                if (lastWeapon != null) HelOathChargeStore.Write(lastWeapon, State.Charge);
+
+                // A different Hel's Oath instance owns its own charge. Unequipped state stays inert.
+                State.Equip(current, current != null ? HelOathChargeStore.Read(current) : 0f);
                 lastWeapon = current;
+
                 // Recompute limits without ticking food, healing or refilling stamina.
                 object[] values = { 0f, 0f, 0f };
                 FoodValue.Invoke(player, values);
                 player.SetMaxHealth((float)values[0], false);
                 MaxStamina.Invoke(player, new object[] { (float)values[1], false });
+            }
+            HelOathEffects.SyncPrepared(player, State.Prepared);
+            if (oldTouch != State.TouchStacks)
+            {
+                HelOathTouchEffects.Sync(player, State.TouchStacks);
+                HelOathTouchStatus.Sync(player, State.TouchStacks);
             }
         }
 
@@ -78,6 +83,7 @@ namespace HaldorExpansion.Features.HelOath
             if (!(bool)GetButtonDown.Invoke(null, new object[] { HelOathConfiguration.Button.Name })) return;
             if (State.Activate(Time.time, 0f))
             {
+                PersistCharge();
                 State.Tick(Time.time);
                 HelOathTouchEffects.Sync(player, 0);
                 HelOathTouchStatus.Sync(player, 0);
@@ -95,6 +101,7 @@ namespace HaldorExpansion.Features.HelOath
                 Equipped(player) && HelOathEquipment.HasFullFenrisSet(player),
                 HelOathConfiguration.TouchStackIntervalValue);
             State.AddDamage(damage, HelOathConfiguration.RequiredDamage, Time.time, epoch);
+            PersistCharge();
         }
 
         // Special Embrace damage does not charge Embrace again, but it is still Hel's Oath damage
@@ -122,6 +129,11 @@ namespace HaldorExpansion.Features.HelOath
                 HelOathTouchEffects.Sync(player, State.TouchStacks);
                 HelOathTouchStatus.Sync(player, State.TouchStacks);
             }
+        }
+
+        private static void PersistCharge()
+        {
+            if (lastWeapon != null) HelOathChargeStore.Write(lastWeapon, State.Charge);
         }
     }
 }

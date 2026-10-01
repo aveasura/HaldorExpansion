@@ -79,6 +79,7 @@
 
     <ItemGroup>
         <Compile Include="Features\HelOath\HelOathAppearance.cs"/>
+        <Compile Include="Features\HelOath\HelOathChargeStore.cs"/>
         <Compile Include="Features\HelOath\HelOathAudio.cs"/>
         <Compile Include="Features\HelOath\HelOathDotLedger.cs"/>
         <Compile Include="Features\HelOath\HelOathDotTracking.cs"/>

@@ -125,8 +125,8 @@ namespace HaldorExpansion.Features.HelOath
             shared.m_canBeReparied = true;
 
             // Do not inherit gameplay status effects from the source bow or another mod's edits.
-            // A stat-neutral equip effect is used only to expose Hel's Sacrifice as a
-            // separate highlighted tooltip field, mirroring Delayed Doom's presentation.
+            // Hel's Sacrifice lives on the bow's equip status effect so its skill bonus is
+            // applied only while the bow is equipped and remains visible in the highlighted tooltip.
             ApplyHelOathPassiveTooltip(shared);
             shared.m_attackStatusEffect = null;
             shared.m_fullAdrenalineSE = null;
@@ -144,6 +144,8 @@ namespace HaldorExpansion.Features.HelOath
             se.name = "SE_HelOathSacrificeTooltip";
             ReflectionAccess.SetFieldIfExists(se, "m_name", HelOathPassiveNameKey);
             ReflectionAccess.SetFieldIfExists(se, "m_tooltip", HelOathPassiveDescKey);
+            se.m_skillLevel = Skills.SkillType.Bows;
+            se.m_skillLevelModifier = 20f;
             shared.m_equipStatusEffect = se;
         }
 

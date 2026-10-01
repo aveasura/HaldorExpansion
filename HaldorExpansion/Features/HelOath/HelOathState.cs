@@ -21,15 +21,15 @@ namespace HaldorExpansion.Features.HelOath
         private float nextTouchAt;
         private bool touchTimerArmed;
 
-        internal void Equip(object current)
+        internal void Equip(object current, float restoredCharge = 0f)
         {
             if (ReferenceEquals(weapon, current)) return;
             weapon = current;
-            Charge = 0f;
+            Charge = current == null ? 0f : NormalizeCharge(restoredCharge);
             Casting = Prepared = PreparedWithTouchV = false;
             ClearTouch();
             Epoch = Guid.NewGuid().ToString("N");
-            // Keep cooldown when sheathing/re-equipping.
+            // Keep cooldown when sheathing/re-equipping. Charge itself is restored from the bow instance.
         }
 
         internal void AddDamage(float damage, float requiredDamage, float now, string epoch)
@@ -129,6 +129,12 @@ namespace HaldorExpansion.Features.HelOath
         {
             if (float.IsNaN(interval) || float.IsInfinity(interval) || interval <= 0f) return 3f;
             return interval;
+        }
+
+        private static float NormalizeCharge(float charge)
+        {
+            if (float.IsNaN(charge) || float.IsInfinity(charge)) return 0f;
+            return Math.Max(0f, Math.Min(100f, charge));
         }
 
         private void ClearTouch()

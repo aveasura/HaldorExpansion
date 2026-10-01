@@ -19,7 +19,7 @@ namespace HaldorExpansion
     {
         internal const string ModGuid = "aveasura.haldor.expansion";
         private const string ModName = "Haldor Expansion";
-        private const string ModVersion = "1.3.14";
+        private const string ModVersion = "1.3.15";
 
         internal static ManualLogSource Log;
         internal static HaldorExpansionPlugin Instance;

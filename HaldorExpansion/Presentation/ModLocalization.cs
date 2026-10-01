@@ -25,7 +25,7 @@ namespace HaldorExpansion.Presentation
                     "<color=#D5F5FF><b>Объятия Хель:</b></color> урон луком заряжает активную способность. При применении следующая стрела взрывается. Урон напрямую зависит от максимума выносливости. Касание V значительно усиливает его.",
                 [HelOathItemRegistration.HelOathPassiveNameKey] = "Жертва Хель",
                 [HelOathItemRegistration.HelOathPassiveDescKey] =
-                    "50% максимального здоровья превращается в максимальную выносливость.",
+                    "50% максимального здоровья превращается в максимальную выносливость.\n+20 к навыку Луки.",
                 ["$he_hel_ability"] = "Объятия Хель",
                 ["$he_hel_prepared"] = "Клятва пробуждена",
                 ["$se_hel_touch_1"] = "Касание Хель I",
@@ -127,7 +127,7 @@ namespace HaldorExpansion.Presentation
                     "<color=#D5F5FF><b>Hel's Embrace:</b></color> damage dealt with the bow charges the active ability. When activated, the next arrow explodes. Its damage scales directly with maximum stamina. Touch V greatly empowers it.",
                 [HelOathItemRegistration.HelOathPassiveNameKey] = "Hel's Sacrifice",
                 [HelOathItemRegistration.HelOathPassiveDescKey] =
-                    "50% of maximum health is converted into maximum stamina.",
+                    "50% of maximum health is converted into maximum stamina.\n+20 Bows skill.",
                 ["$he_hel_ability"] = "Hel's Embrace",
                 ["$he_hel_prepared"] = "Oath Awakened",
                 ["$se_hel_touch_1"] = "Hel's Touch I",

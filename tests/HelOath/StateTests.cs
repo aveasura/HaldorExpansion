@@ -29,8 +29,14 @@ class StateTests
             Check(s.Charge == 0f, "Delayed credits from old shots are rejected");
             s.AddDamage(500f, 1000f, 5f, s.Epoch);
             Check(s.Charge == 50f, "Accumulation resumes after cooldown");
-            s.Equip("bow-b");
-            Check(s.Charge == 0f && !s.Prepared, "Switching between identical bows resets charge");
+            float storedBowACharge = s.Charge;
+            s.Equip("bow-b", 0f);
+            Check(s.Charge == 0f && !s.Prepared, "A different bow starts from its own stored charge");
+            s.Equip(null);
+            Check(s.Charge == 0f, "Unequipped runtime state is inert");
+            s.Equip("bow-a", storedBowACharge);
+            Check(s.Charge == 50f, "Re-equipping a bow restores that bow's persisted charge");
+            s.Equip("bow-b", 0f);
             s.AddDamage(float.NaN, 1000f, 9f, s.Epoch);
             Check(s.Charge == 0f, "Malformed credits cannot poison charge");
             s.AddDamage(50f, float.NaN, 9f, s.Epoch);
@@ -104,7 +110,7 @@ class StateTests
             s.UpdateTouch(100f, true, 3f);
             Check(s.TouchStacks == 0, "Re-equipping Fenris alone does not restart Touch without a new Hel's Oath damage event");
 
-            Console.WriteLine("PASS: charge, cast, prepared shot, cooldown, stale credit, equip reset, Touch-on-damage timing/hit-decrement/V snapshot and invalid input scenarios");
+            Console.WriteLine("PASS: charge, cast, prepared shot, cooldown, stale credit, per-bow restore, Touch-on-damage timing/hit-decrement/V snapshot and invalid input scenarios");
             DamageMathTests.Run();
             DotTests.Run();
             return 0;
