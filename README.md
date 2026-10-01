@@ -1,4 +1,4 @@
-﻿# Haldor Expansion
+# Haldor Expansion
 
 [English](README.md) | [Русский](README.ru.md)
 
@@ -302,3 +302,8 @@ After that, change the paths inside `HaldorExpansion.Local.props` for your machi
 Current version: **1.2.0**. The previous public release was **1.1.0**.
 
 The mod supports Valheim 1.0 and has been tested in both local and dedicated-server environments.
+
+### Pelt of Helheim
+
+A black Troll Cape-based cloak. It grants no permanent resistance on its own, but the full **Fenris + Hel's Oath + Hel's Touch V** synergy activates **Helheim's Ward**, making the wearer very resistant to Pierce damage. Breaking any requirement removes the effect immediately.
+

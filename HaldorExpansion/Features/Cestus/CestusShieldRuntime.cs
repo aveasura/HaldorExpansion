@@ -8,10 +8,10 @@ namespace HaldorExpansion.Features.Cestus
     internal static class CestusShieldRuntime
     {
 
-        internal const float CestusShieldMaxHpRatio = 0.40f; // 40% от максимального хп станивится временным щитом
-        internal const float CestusShieldMinFlat = 20f; // минимально возможный щит == 20 единиц
+        internal const float CestusShieldMaxHpRatio = 0.50f; // 50% от максимального хп станивится временным щитом
+        internal const float CestusShieldMinFlat = 40f; // минимально возможный щит == 20 единиц
 
-        internal const float CestusShieldDuration = 6f;
+        internal const float CestusShieldDuration = 9f;
         internal const int CestusShieldTicks = 40;
 
         internal static float GetCestusEffectiveShieldRemaining(Player player)

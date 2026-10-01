@@ -53,6 +53,7 @@ namespace HaldorExpansion.Patches
             
             // Плащи
             HaldorShopUpdater.TryAddWoundedBeastCape(__instance);
+            HaldorShopUpdater.TryAddPeltOfHelheim(__instance);
             
             // Доспехи
             HaldorShopUpdater.TryAddDelayedDoomChest(__instance);

@@ -11,14 +11,14 @@ namespace HaldorExpansion.Features.Cestus
 
         internal const float CestusSetBonusMultiplier = 1.5f; // Множитель, если надета сетовая броня вместе с кастетом.
 
-        internal const float CestusCooldown = 15f;
+        internal const float CestusCooldown = 3f;
 
         internal const string CestusActivationEmote = "point";
         internal const float CestusCastDuration = 1.05f;
 
         // Урон активки (множитель урона)
-        internal const float CestusNovaDamageMultiplier = 2.7f;
-        internal const float CestusNovaRadius = 4f;
+        internal const float CestusNovaDamageMultiplier = 2.6f;
+        internal const float CestusNovaRadius = 5f;
         internal const float CestusNovaPushForce = 20f;
 
         internal static bool TryActivateCestusShield(Player player)

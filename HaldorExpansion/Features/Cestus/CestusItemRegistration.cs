@@ -25,22 +25,22 @@ namespace HaldorExpansion.Features.Cestus
         internal const string CestusItemKey = "$item_weapon_gritcestus";
         internal const string CestusItemDescKey = "$item_weapon_gritcestus_desc";
         
-        private const float GritCestusWeight = 5f;
+        private const float GritCestusWeight = 2f;
         
         private const int GritCestusMaxQuality = 1;
         private const float GritCestusMaxDurability = 1800f;
         private const float GritCestusDurabilityPerLevel = 0f;
 
         // Урон
-        private const float GritCestusBluntDamage = 24f;
-        private const float GritCestusLightningDamage = 4f;
+        private const float GritCestusBluntDamage = 20f;
+        private const float GritCestusLightningDamage = 6f;
 
         // Особые статы
         internal const float GritCestusBonusMaxHealth = 30f;
         private const float GritCestusPrimaryStaggerMultiplier = 1.35f; // ускоренное настакивание оглушения ударами
         private const float GritCestusSecondaryStaggerMultiplier = 2.2f;
         internal const float GritCestusAttackSpeedMultiplier = 1.9f; // +90% скорости атаки пока кастет в руках
-        internal const float GritCestusArmorPenalty = 15f; // плоский минус к броне
+        internal const float GritCestusArmorPenalty = 5f; // плоский минус к броне
 
         // блок/парирование
         private const float GritCestusBlockPower = 2f;
@@ -170,13 +170,13 @@ namespace HaldorExpansion.Features.Cestus
             // потребление выносливости на удары
             if (shared.m_attack != null)
             {
-                shared.m_attack.m_attackStamina = 12f;
+                shared.m_attack.m_attackStamina = 6f;
                 shared.m_attack.m_staggerMultiplier = GritCestusPrimaryStaggerMultiplier;
             }
 
             if (shared.m_secondaryAttack != null)
             {
-                shared.m_secondaryAttack.m_attackStamina = 20;
+                shared.m_secondaryAttack.m_attackStamina = 14;
                 shared.m_secondaryAttack.m_staggerMultiplier = GritCestusSecondaryStaggerMultiplier;
             }
 

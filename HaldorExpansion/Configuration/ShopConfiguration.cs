@@ -4,6 +4,7 @@ using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
 using HaldorExpansion.Features.PitKing;
+using HaldorExpansion.Features.PeltOfHelheim;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.StaminaCape;
 using HaldorExpansion.Features.WoundedBeast;
@@ -34,6 +35,7 @@ namespace HaldorExpansion.Configuration
             BindShopItemConfig("Shop Progression - Custom Items", NornThreadItemRegistration.PrefabName, "Thread of the Norns", NornThreadItemRegistration.Price);
             BindShopItemConfig("Shop Progression - Custom Items", WoundedBeastItemRegistration.WoundedBeastCapePrefabName, "Cloak of the Wounded Beast", WoundedBeastItemRegistration.WoundedBeastCapePrice);
             BindShopItemConfig("Shop Progression - Custom Items", StaminaCapeItemRegistration.PrefabName, "Fractured Breath Cape", StaminaCapeItemRegistration.Price);
+            BindShopItemConfig("Shop Progression - Custom Items", PeltOfHelheimItemRegistration.PrefabName, "Pelt of Helheim", PeltOfHelheimItemRegistration.Price);
             BindShopItemConfig("Shop Progression - Custom Items", DelayedDoomItemRegistration.DelayedDoomChestPrefabName, "Cuirass of Silent Reckoning", DelayedDoomItemRegistration.DelayedDoomChestPrice);
             BindShopItemConfig("Shop Progression - Custom Items", PitKingItemRegistration.PitKingChestPrefabName, "Pit King's Cuirass", PitKingItemRegistration.PitKingChestPrice);
             BindShopItemConfig("Shop Progression - Custom Items", CestusItemRegistration.GritCestusPrefabName, "Grit Cestus", CestusItemRegistration.GritCestusPrice);

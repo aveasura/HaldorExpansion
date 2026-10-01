@@ -178,7 +178,7 @@ namespace HaldorExpansion.Features.WoundedBeast
             shared.m_name = WoundedBeastCapeItemKey;
             shared.m_description = WoundedBeastCapeItemDescKey;
 
-            shared.m_armor = 1f;
+            shared.m_armor = 2f;
             shared.m_maxQuality = 1;
             shared.m_weight = 1f;
             shared.m_value = 0;

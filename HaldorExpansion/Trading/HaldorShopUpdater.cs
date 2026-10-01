@@ -5,6 +5,7 @@ using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
 using HaldorExpansion.Features.PitKing;
+using HaldorExpansion.Features.PeltOfHelheim;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.WoundedBeast;
 using UnityEngine;
@@ -61,6 +62,18 @@ namespace HaldorExpansion.Trading
             new ShopItemDefinition("Needle", 250, 1, true)
         };
         
+        internal static void TryAddPeltOfHelheim(Trader trader)
+        {
+            PeltOfHelheimItemRegistration.EnsureReady();
+
+            ItemDrop drop = PeltOfHelheimItemRegistration.CapeItemDrop;
+            if (drop == null) return;
+            if (HasPrefab(trader, PeltOfHelheimItemRegistration.PrefabName)) return;
+
+            AddTradeItem(trader, drop, PeltOfHelheimItemRegistration.Price, 1);
+            HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Pelt of Helheim added to Haldor shop");
+        }
+
         internal static void TryAddWoundedBeastCape(Trader trader)
         {
             WoundedBeastItemRegistration.EnsureWoundedBeastCapeReady();

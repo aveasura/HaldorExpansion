@@ -10,7 +10,7 @@ namespace HaldorExpansion.Features.WoundedBeast
         // С Кирасой безмолвной расплаты эффект хила от плаща в 2 раза слабее
         private const float WoundedBeastCapeRegenWithDelayedDoomMultiplier = 1f / 2f; 
 
-        internal const float WoundedBeastCapeIncomingDamageMultiplier = 1.25f;
+        internal const float WoundedBeastCapeIncomingDamageMultiplier = 1.18f;
         internal const float WoundedBeastCapeDotRegenSuppressDuration = 2f;
         private const float WoundedBeastCapeRegenTickInterval = 1f;
 
@@ -125,10 +125,11 @@ namespace HaldorExpansion.Features.WoundedBeast
             float hpFraction = currentHealth / maxHealth;
 
             if (hpFraction > 0.80f) return 0f;
-            if (hpFraction > 0.70f) return 1f;
-            if (hpFraction > 0.60f) return 2f;
-            if (hpFraction > 0.55f) return 3f;
-            if (hpFraction > 0.40f) return 5f;
+            if (hpFraction > 0.75f) return 1f;
+            if (hpFraction > 0.65f) return 2f;
+            if (hpFraction > 0.60f) return 3f;
+            if (hpFraction > 0.45f) return 5f;
+            if (hpFraction > 0.30f) return 6f;
             if (hpFraction > 0.20f) return 7f;
             return 10f;
         }

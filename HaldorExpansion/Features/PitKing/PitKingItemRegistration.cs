@@ -115,7 +115,7 @@ namespace HaldorExpansion.Features.PitKing
             shared.m_name = PitKingChestItemKey;
             shared.m_description = PitKingChestItemDescKey;
 
-            shared.m_armor = 12f;
+            shared.m_armor = 18f;
             shared.m_maxQuality = 1;
             shared.m_weight = 5f;
             shared.m_value = 0;

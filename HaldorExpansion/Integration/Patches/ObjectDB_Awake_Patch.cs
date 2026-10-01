@@ -4,6 +4,7 @@ using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
 using HaldorExpansion.Features.PitKing;
+using HaldorExpansion.Features.PeltOfHelheim;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.WoundedBeast;
 using HaldorExpansion.Integration;
@@ -47,6 +48,8 @@ namespace HaldorExpansion.Patches
             HelOathItemRegistration.EnsureHelOathReady();
             HelOathTouchStatus.EnsureRegistered();
             WoundedBeastItemRegistration.EnsureWoundedBeastCapeReady();
+            PeltOfHelheimItemRegistration.EnsureReady();
+            PeltOfHelheimStatus.EnsureRegistered();
 
             ShadowCrossbowItemRegistration.RegisterShadowCrossbowRecipe();
             HelOathItemRegistration.RegisterHelOathRecipe();
@@ -54,6 +57,7 @@ namespace HaldorExpansion.Patches
             DelayedDoomItemRegistration.RegisterDelayedDoomChestRecipe();
             PitKingItemRegistration.RegisterPitKingChestRecipe();
             WoundedBeastItemRegistration.RegisterWoundedBeastCapeRecipe();
+            PeltOfHelheimItemRegistration.RegisterRecipe();
 
             TrophyValueUpdater.ApplyTrophyValues(ObjectDB.instance);
         }

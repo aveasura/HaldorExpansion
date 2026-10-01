@@ -4,6 +4,7 @@ using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
 using HaldorExpansion.Features.PitKing;
+using HaldorExpansion.Features.PeltOfHelheim;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.WoundedBeast;
 
@@ -34,6 +35,8 @@ namespace HaldorExpansion.Integration
             ShadowCrossbowItemRegistration.ShadowCrossbowItemDrop = null;
 
             WoundedBeastRuntime.ResetWoundedBeastCapeState();
+            PeltOfHelheimItemRegistration.ResetCaches();
+            PeltOfHelheimStatus.ResetRegistration();
 
             BrisingamenItemRegistration._ringReadyLogged = false;
             NornThreadItemRegistration._readyLogged = false;

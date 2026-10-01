@@ -1,5 +1,6 @@
 using HaldorExpansion.Features.HelOath;
 using HaldorExpansion.Features.NornThread;
+using HaldorExpansion.Features.PeltOfHelheim;
 ﻿using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.StaminaCape;
@@ -83,7 +84,7 @@ namespace HaldorExpansion.Presentation
                 [CestusItemRegistration.CestusEffectDescKey] =
                     "+30 к максимуму здоровья.\n" +
                     "+90% к скорости атаки.\n" +
-                    "-15 брони.",
+                    "-5 брони.",
 
                 // Накидка хозяина ямы
                 ["$item_chest_pitking"] = "Накидка хозяина ямы",
@@ -97,6 +98,15 @@ namespace HaldorExpansion.Presentation
                 ["$itemset_steelheart_desc"] =
                     "Сет с кастетом: активка кастета получает на 50% больше силы щита и урона ударной волны.",
 
+                // Шкура Хельхейма
+                [PeltOfHelheimItemRegistration.ItemKey] = "Шкура Хельхейма",
+                [PeltOfHelheimItemRegistration.ItemDescKey] =
+                    "Чёрная шкура, напитанная холодом Хельхейма. Она отвечает лишь тому, кто довёл охоту до совершенства.\n\n" +
+                    "<color=#9EDFF2><b>Покров Хельхейма:</b></color> если надет полный сет Фенриса, в руках Клятва Хель и активно Касание Хель V, владелец получает <b>очень высокую устойчивость к колющему урону.</b>",
+                [PeltOfHelheimItemRegistration.EffectNameKey] = "Покров Хельхейма",
+                [PeltOfHelheimItemRegistration.EffectDescKey] =
+                    "Касание Хель V завершает связь Фенриса с Хельхеймом.\nОчень высокая устойчивость к колющему урону.",
+
                 // Плащ раненого зверя
                 [WoundedBeastItemRegistration.WoundedBeastCapeItemKey] = "Плащ раненого зверя",
                 ["$item_cape_woundedbeast_desc"] =
@@ -104,7 +114,7 @@ namespace HaldorExpansion.Presentation
                     "Чем ближе смерть, тем яростнее он цепляется за жизнь — но каждая рана вгрызается глубже.",
                 ["$se_cape_woundedbeast"] = "Раненый зверь",
                 ["$se_cape_woundedbeast_desc"] =
-                    "Получаемый урон +25%.\n" +
+                    "Получаемый урон +18%.\n" +
                     "Раз в секунду восстанавливает здоровье: чем ниже текущее здоровье, тем сильнее восстановление.\n" +
                     "Огонь, яд и дух подавляют регенерацию на 2 секунды.\n\n" +
                     "При использовании вместе с Кирасой безмолвной расплаты эффект лечения сокращается в 2 раза.",
@@ -188,7 +198,7 @@ namespace HaldorExpansion.Presentation
                 [CestusItemRegistration.CestusEffectDescKey] =
                     "+30 to maximum health.\n" +
                     "+90% attack speed.\n" +
-                    "-15 armor.",
+                    "-5 armor.",
 
                 // Pit King's Cuirass
                 ["$item_chest_pitking"] = "Pit King's Cuirass",
@@ -202,6 +212,15 @@ namespace HaldorExpansion.Presentation
                 ["$itemset_steelheart_desc"] =
                     "Set with the cestus: the cestus active ability gains 50% more barrier strength and shockwave damage.",
 
+                // Pelt of Helheim
+                [PeltOfHelheimItemRegistration.ItemKey] = "Pelt of Helheim",
+                [PeltOfHelheimItemRegistration.ItemDescKey] =
+                    "A blackened pelt steeped in Helheim's cold. It answers only to a hunter who has brought the chase to perfection.\n\n" +
+                    "<color=#9EDFF2><b>Helheim's Ward:</b></color> while wearing the full Fenris set, wielding Hel's Oath, and maintaining Hel's Touch V, the wearer becomes <b>very resistant to Pierce damage.</b>",
+                [PeltOfHelheimItemRegistration.EffectNameKey] = "Helheim's Ward",
+                [PeltOfHelheimItemRegistration.EffectDescKey] =
+                    "Hel's Touch V completes the bond between Fenris and Helheim.\nVery resistant to Pierce damage.",
+
                 // Cloak of the Wounded Beast
                 [WoundedBeastItemRegistration.WoundedBeastCapeItemKey] = "Cloak of the Wounded Beast",
                 ["$item_cape_woundedbeast_desc"] =
@@ -209,7 +228,7 @@ namespace HaldorExpansion.Presentation
                     "The closer death comes, the more fiercely it clings to life — but every wound bites deeper.",
                 ["$se_cape_woundedbeast"] = "Wounded Beast",
                 ["$se_cape_woundedbeast_desc"] =
-                    "Incoming damage +25%.\n" +
+                    "Incoming damage +18%.\n" +
                     "Restores health once per second: the lower your current health is, the stronger the regeneration becomes.\n" +
                     "Fire, poison, and spirit suppress regeneration for 2 seconds.\n\n" +
                     "When used together with the Cuirass of Silent Reckoning, its healing effect is halved.",
