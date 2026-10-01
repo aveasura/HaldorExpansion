@@ -21,7 +21,7 @@ namespace HaldorExpansion.Features.HelOath
 
         internal const float HelOathBasePierceDamage = 30f;
         internal const float HelOathMovementModifier = 0.01f;
-        internal const float HelOathBackstabBonus = 3f;
+        internal const float HelOathBackstabBonus = 4f;
 
         internal static GameObject HelOathPrefab;
         internal static ItemDrop HelOathItemDrop;
