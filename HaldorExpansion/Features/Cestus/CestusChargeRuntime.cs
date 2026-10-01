@@ -11,7 +11,7 @@ namespace HaldorExpansion.Features.Cestus
         internal const float CestusChargeMax = 100f;
 
         // распад заряда со временем =====
-        internal const float CestusChargePerPostArmorDamage = 1.4f; // за 10 полученного урона стакает 13 шкалы
+        internal const float CestusChargePerPostArmorDamage = 1.3f; // за 10 полученного урона стакает 13 шкалы
         internal const float CestusChargeDecayDelay = 9f; // после последнего входящего урона ждём 7 секунд
         internal const float CestusChargeDecayPerSecond = 4f; // потом теряем 4 заряда в секунду
         internal const float CestusChargeDecayTickInterval = 0.20f; // decay считается каждые 0.2 сек

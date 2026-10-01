@@ -170,13 +170,13 @@ namespace HaldorExpansion.Features.Cestus
             // потребление выносливости на удары
             if (shared.m_attack != null)
             {
-                shared.m_attack.m_attackStamina = 6f;
+                shared.m_attack.m_attackStamina = 7f;
                 shared.m_attack.m_staggerMultiplier = GritCestusPrimaryStaggerMultiplier;
             }
 
             if (shared.m_secondaryAttack != null)
             {
-                shared.m_secondaryAttack.m_attackStamina = 14;
+                shared.m_secondaryAttack.m_attackStamina = 15;
                 shared.m_secondaryAttack.m_staggerMultiplier = GritCestusSecondaryStaggerMultiplier;
             }
 

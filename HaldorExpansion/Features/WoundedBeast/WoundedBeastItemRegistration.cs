@@ -130,7 +130,7 @@ namespace HaldorExpansion.Features.WoundedBeast
                 {
                     Name = recipeName,
                     Item = WoundedBeastCapePrefabName,
-                    Amount = 1,
+                    Amount = 2,
                     CraftingStation = craftingStation,
                     RepairStation = repairStation,
                     MinStationLevel = 1,
