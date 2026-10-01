@@ -76,7 +76,7 @@ Default shop prices are shown below. All of these prices can be changed in the c
 - **Hel's Sacrifice**: 50% of maximum health is transferred into maximum stamina while the bow is in use; additionally grants +20 Bows skill.
 - **Hel's Touch**: wearing the full Fenris set allows bow damage to awaken the passive. Once awakened, 1 stack is gained every 3 seconds without taking a combat hit, up to Touch V. Taking a hit removes 1 stack. Unequipping the bow or breaking the full Fenris set disables all Touch bonuses immediately, but the current stacks are retained for 5 seconds; after that, 1 stack fades every 3 seconds. Returning to Hel's Oath + full Fenris before complete decay restores the remaining stage without gaining stacks during the swap.
 - Each Touch stack grants **+5% movement speed** and **-4% stamina cost**.
-- **Hel's Embrace**: actual damage dealt by the bow fills the active-ability meter. The base threshold is **650 damage at the Elder tier**, while the actual requirement scales with world boss progression: pre-Eikthyr ×0.65, Eikthyr ×0.80, Elder ×1.00, Bonemass ×1.25, Moder ×1.55, Yagluth ×1.85, Queen ×2.20, Fader ×2.60. Charge is stored on the specific bow instance and persists through unequipping, weapon swaps, and location transitions.
+- **Hel's Embrace**: outgoing damage from normal bow shots fills the active-ability meter **before target resistance/armor is applied**. The base threshold is **650 damage at the Elder tier**, while the actual requirement scales with world boss progression: pre-Eikthyr ×0.65, Eikthyr ×0.80, Elder ×1.00, Bonemass ×1.25, Moder ×1.55, Yagluth ×1.85, Queen ×2.20, Fader ×2.60. Charge is stored on the specific bow instance and persists through unequipping, weapon swaps, and location transitions.
 - Activating the ability empowers the next arrow and creates an explosion dealing **80% Lightning / 20% Frost** damage. Total explosion damage scales with the wielder's stamina; Touch V significantly empowers Hel's Embrace.
 - The empowered shot itself does not charge the next ability.
 
@@ -201,7 +201,7 @@ Touch stack interval = 3.0
 Ability Key = Mouse2
 ```
 
-`Damage for full charge` counts actual damage dealt by the bow, including Fire / Spirit / Poison DoT attributed to its shots. Gameplay-affecting values in this section are synchronized from the server.
+`Damage for full charge` counts the normal shot's outgoing damage payload before target defenses. Fire / Spirit / Poison components are credited once with the originating hit, so delayed DoT ticks do not add the same damage a second time. A hit must still deal some real HP damage to grant charge. Gameplay-affecting values in this section are synchronized from the server.
 
 ### Multiplayer configuration
 

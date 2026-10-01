@@ -386,7 +386,9 @@ namespace HaldorExpansion.Features.HelOath
             shape.radius = radius;
             var velocity = ps.velocityOverLifetime;
             velocity.enabled = true;
+            velocity.x = new ParticleSystem.MinMaxCurve(0f, 0f);
             velocity.y = new ParticleSystem.MinMaxCurve(0.08f, 0.19f);
+            velocity.z = new ParticleSystem.MinMaxCurve(0f, 0f);
             var fade = ps.colorOverLifetime;
             fade.enabled = true;
             var gradient = new Gradient();
@@ -426,7 +428,9 @@ namespace HaldorExpansion.Features.HelOath
             shape.radius = radius;
             var velocity = ps.velocityOverLifetime;
             velocity.enabled = true;
+            velocity.x = new ParticleSystem.MinMaxCurve(0f, 0f);
             velocity.y = new ParticleSystem.MinMaxCurve(0.09f, 0.28f);
+            velocity.z = new ParticleSystem.MinMaxCurve(0f, 0f);
             var fade = ps.colorOverLifetime;
             fade.enabled = true;
             var gradient = new Gradient();

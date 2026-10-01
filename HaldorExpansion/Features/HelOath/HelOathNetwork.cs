@@ -110,6 +110,8 @@ namespace HaldorExpansion.Features.HelOath
                 if (float.IsNaN(splash) || float.IsInfinity(splash) || splash < 0f) return;
                 if (target.IsDead() || target.GetHealth() <= 0f || target.IsTeleporting() || target.InCutscene()) return;
 
+                bool validEnemy = !target.IsPlayer() && BaseAI.IsEnemy(attacker, target);
+                float outgoingChargeDamage = hasDirect && !special ? hit.GetTotalDamage() : 0f;
                 float health = target.GetHealth();
                 Vector3 direction = target.GetCenterPoint() - origin;
                 if (direction.sqrMagnitude < 0.001f) direction = hit.m_dir.sqrMagnitude > 0f ? hit.m_dir : attacker.transform.forward;
@@ -122,7 +124,9 @@ namespace HaldorExpansion.Features.HelOath
                         hit.m_staggerMultiplier = 0f;
                     }
                     // Run the real, Harmony-patched game damage pipeline on the target owner.
-                    HelOathDotTracking.Apply(target, sender, hit, !special && !target.IsPlayer() && BaseAI.IsEnemy(attacker, target) ? attacker.GetPlayerID() + ":" + epoch : null);
+                    // Charge is credited once from the pre-defense outgoing payload below, so DoT
+                    // channels must not be attributed again when their delayed ticks resolve.
+                    HelOathDotTracking.Apply(target, sender, hit, null);
                 }
                 if (special && splash > 0f && !target.IsDead() && target.GetHealth() > 0f)
                 {
@@ -140,7 +144,7 @@ namespace HaldorExpansion.Features.HelOath
                 {
                     // Embrace never recharges itself, but real special-shot damage may awaken a
                     // fresh Hel's Touch cycle after activation consumed the previous stacks.
-                    if (actualDamage > 0f && !target.IsPlayer() && BaseAI.IsEnemy(attacker, target))
+                    if (actualDamage > 0f && validEnemy)
                         attackerView.InvokeRPC(TouchDamageRpc, actualDamage);
                     if (!target.IsPlayer() && !target.IsDead() && target.GetHealth() > 0f)
                     {
@@ -149,8 +153,9 @@ namespace HaldorExpansion.Features.HelOath
                     }
                     return;
                 }
-                if (actualDamage > 0f && !target.IsPlayer() && BaseAI.IsEnemy(attacker, target))
-                    attackerView.InvokeRPC(CreditRpc, epoch, actualDamage);
+                float chargeCredit = HelOathChargeCreditMath.Select(outgoingChargeDamage, actualDamage, validEnemy, special);
+                if (chargeCredit > 0f)
+                    attackerView.InvokeRPC(CreditRpc, epoch, chargeCredit);
             }
             catch (Exception e)
             {

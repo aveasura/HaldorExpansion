@@ -18,9 +18,10 @@ namespace HaldorExpansion.Features.HelOath
         internal static void Register(ConfigFile config)
         {
             ChargeDamage = config.BindConfig("Hel Oath", "Damage for full charge", 650f,
-                "Base actual bow damage required for a full charge. The real requirement scales with world boss progression: " +
+                "Base outgoing bow damage required for a full charge. The real requirement scales with world boss progression: " +
                 "pre-Eikthyr x0.65, Eikthyr x0.80, Elder x1.00, Bonemass x1.25, Moder x1.55, Yagluth x1.85, Queen x2.20, Fader x2.60. " +
-                "Attributed damage over time counts; the special shot never charges the ability.", synced: true);
+                "Normal shots are credited from their pre-defense damage payload, so enemy resistance/armor does not slow charge. " +
+                "DoT channels are credited once with the originating hit and are not counted again on later ticks; the special shot never charges the ability.", synced: true);
             Radius = config.BindConfig("Hel Oath", "Explosion radius", 9f,
                 "Hel's Embrace explosion radius in metres. Damage does not fall off with distance.", synced: true);
             EmbraceCoefficient = config.BindConfig("Hel Oath", "Embrace coefficient", 0.85f,

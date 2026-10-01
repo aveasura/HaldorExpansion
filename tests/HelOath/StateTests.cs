@@ -147,6 +147,7 @@ class StateTests
             Console.WriteLine("PASS: charge, cast, prepared shot, cooldown, stale credit, per-bow restore, Touch timing/hit-decrement/V snapshot, grace/decay/loadout gating and invalid input scenarios");
             DamageMathTests.Run();
             ProgressionTests.Run();
+            ChargeCreditTests.Run();
             DotTests.Run();
             return 0;
         }
