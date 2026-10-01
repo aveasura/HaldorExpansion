@@ -3,6 +3,10 @@ HaldorExpansion.Local.props
 
 # Local notes
 *.txt
+/docs
+
+# Readme
+*.md
 
 # IDE / editor
 .idea/
@@ -33,3 +37,6 @@ BepInEx/patchers/
 # OS files
 .DS_Store
 Thumbs.db
+
+# tools
+*.py

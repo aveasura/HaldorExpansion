@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
@@ -77,8 +77,24 @@
         <CopyToDesktop Condition=" '$(CopyToDesktop)' == '' ">true</CopyToDesktop>
     </PropertyGroup>
 
-    
     <ItemGroup>
+        <Compile Include="Features\HelOath\HelOathAppearance.cs"/>
+        <Compile Include="Features\HelOath\HelOathChargeStore.cs"/>
+        <Compile Include="Features\HelOath\HelOathAudio.cs"/>
+        <Compile Include="Features\HelOath\HelOathDotLedger.cs"/>
+        <Compile Include="Features\HelOath\HelOathDotTracking.cs"/>
+        <Compile Include="Features\HelOath\HelOathConfiguration.cs"/>
+        <Compile Include="Features\HelOath\HelOathDamageMath.cs"/>
+        <Compile Include="Features\HelOath\HelOathEquipment.cs"/>
+        <Compile Include="Features\HelOath\HelOathEffects.cs"/>
+        <Compile Include="Features\HelOath\HelOathTouchEffects.cs"/>
+        <Compile Include="Features\HelOath\HelOathTouchStatus.cs"/>
+        <Compile Include="Features\HelOath\HelOathItemRegistration.cs"/>
+        <Compile Include="Features\HelOath\HelOathNetwork.cs"/>
+        <Compile Include="Features\HelOath\HelOathPatches.cs"/>
+        <Compile Include="Features\HelOath\HelOathProjectile.cs"/>
+        <Compile Include="Features\HelOath\HelOathRuntime.cs"/>
+        <Compile Include="Features\HelOath\HelOathState.cs"/>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Data"/>
@@ -86,41 +102,78 @@
     </ItemGroup>
     
     <ItemGroup>
-        <Compile Include="Cestus\HaldorExpansionPlugin.Cestus.cs"/>
-        <Compile Include="Cestus\HaldorExpansionPlugin.CestusHud.cs"/>
-        <Compile Include="HaldorExpansionPlugin.AdrenalineReflection.cs"/>
-        <Compile Include="HaldorExpansionPlugin.CestusAnimatorSpeed.cs"/>
-        <Compile Include="HaldorExpansionPlugin.CestusItem.cs"/>
-        <Compile Include="HaldorExpansionPlugin.cs"/>
-        <Compile Include="HaldorExpansionPlugin.DelayedDoomChest.cs"/>
-        <Compile Include="HaldorExpansionPlugin.DelayedDoomSystem.cs"/>
-        <Compile Include="HaldorExpansionPlugin.EmbeddedIcons.cs" />
-        <Compile Include="HaldorExpansionPlugin.Localization.cs"/>
-        <Compile Include="HaldorExpansionPlugin.PitKingChest.cs"/>
-        <Compile Include="HaldorExpansionPlugin.Reflection.cs"/>
-        <Compile Include="HaldorExpansionPlugin.Ring.cs"/>
-        <Compile Include="HaldorExpansionPlugin.ShopProgressionConfig.cs"/>
-        <Compile Include="HaldorExpansionPlugin.SellPrices.cs"/>
-        <Compile Include="HaldorExpansionPlugin.ShadowCrossbow.cs"/>
-        <Compile Include="HaldorExpansionPlugin.Trophies.cs"/>
-        <Compile Include="HaldorExpansionPlugin.WoundedBeastCape.cs"/>
-        <Compile Include="Patches\CestusAdrenalineMirrorPatch.cs"/>
-        <Compile Include="Patches\CestusActivationInputPatch.cs"/>
-        <Compile Include="Patches\CestusAttackBlockDuringCastPatch.cs"/>
-        <Compile Include="Patches\CestusCastInputLockPatch.cs"/>
-        <Compile Include="Patches\CestusShieldHudPatch.cs"/>
-        <Compile Include="Patches\DelayedDoomApplyArmorPatch.cs"/>
-        <Compile Include="Patches\DelayedDoomApplyDamagePatch.cs"/>
-        <Compile Include="Patches\StaminaCapeApplyDamagePatch.cs"/>
-        <Compile Include="Patches\DelayedDoomDamagePatch.cs"/>
-        <Compile Include="Patches\DelayedDoomFoodRegenPatch.cs"/>
-        <Compile Include="Patches\DelayedDoomInventoryFixPatch.cs"/>
-        <Compile Include="Patches\HaldorShopExpansionPatch.cs"/>
-        <Compile Include="Patches\ObjectDB_Awake_Patch.cs"/>
-        <Compile Include="Patches\WoundedBeastCapePlayerUpdatePatch.cs"/>
-        <Compile Include="Patches\WoundedBeastCapeApplyDamagePatch.cs"/>
+
+        <Compile Include="Bootstrap\HaldorExpansionPlugin.CestusAnimatorSpeed.cs"/>
+        <Compile Include="Bootstrap\HaldorExpansionPlugin.CestusItem.cs"/>
+        <Compile Include="Bootstrap\HaldorExpansionPlugin.cs"/>
+
+        <Compile Include="Bootstrap\HaldorExpansionPlugin.PitKingChest.cs"/>
+
+        <Compile Include="Integration\Patches\CestusAdrenalineMirrorPatch.cs"/>
+        <Compile Include="Integration\Patches\CestusActivationInputPatch.cs"/>
+        <Compile Include="Integration\Patches\CestusAttackBlockDuringCastPatch.cs"/>
+        <Compile Include="Integration\Patches\CestusCastInputLockPatch.cs"/>
+        <Compile Include="Integration\Patches\CestusShieldHudPatch.cs"/>
+        <Compile Include="Integration\Patches\DelayedDoomApplyArmorPatch.cs"/>
+        <Compile Include="Integration\Patches\DelayedDoomApplyDamagePatch.cs"/>
+        <Compile Include="Integration\Patches\StaminaCapeApplyDamagePatch.cs"/>
+        <Compile Include="Integration\Patches\DelayedDoomDamagePatch.cs"/>
+        <Compile Include="Integration\Patches\DelayedDoomFoodRegenPatch.cs"/>
+        <Compile Include="Integration\Patches\DelayedDoomInventoryFixPatch.cs"/>
+        <Compile Include="Integration\Patches\HaldorShopExpansionPatch.cs"/>
+        <Compile Include="Integration\Patches\ObjectDB_Awake_Patch.cs"/>
+        <Compile Include="Integration\Patches\WoundedBeastCapePlayerUpdatePatch.cs"/>
+        <Compile Include="Integration\Patches\WoundedBeastCapeApplyDamagePatch.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
-        <Compile Include="StaminaCapeFeature.cs"/>
+        <Compile Include="Integration\Patches\StaminaCapeLifecycleAndShopPatches.cs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="Features\Cestus\CestusEquipment.cs"/>
+        <Compile Include="Features\Cestus\CestusAbility.cs"/>
+        <Compile Include="Features\Cestus\CestusInputRegistration.cs"/>
+        <Compile Include="Features\Cestus\CestusChargeRuntime.cs"/>
+        <Compile Include="Features\Cestus\CestusShieldRuntime.cs"/>
+        <Compile Include="Features\Cestus\CestusNetworkState.cs"/>
+        <Compile Include="Features\Cestus\CestusEffects.cs"/>
+        <Compile Include="Features\Cestus\CestusStateStore.cs"/>
+        <Compile Include="Features\Cestus\CestusRuntime.cs"/>
+        <Compile Include="Diagnostics\PlayerDiagnostics.cs"/>
+        <Compile Include="Features\Cestus\CestusHudView.cs"/>
+        <Compile Include="Diagnostics\AdrenalineDiagnostics.cs"/>
+        <Compile Include="Features\Cestus\CestusAnimationRuntime.cs"/>
+        <Compile Include="Features\Cestus\CestusItemRegistration.cs"/>
+        <Compile Include="Features\Cestus\CestusInventoryRebind.cs"/>
+        <Compile Include="Features\DelayedDoom\DelayedDoomItemRegistration.cs"/>
+        <Compile Include="Features\DelayedDoom\DelayedDoomInventoryRebind.cs"/>
+        <Compile Include="Features\DelayedDoom\DelayedDoomEquipment.cs"/>
+        <Compile Include="Features\DelayedDoom\DelayedDoomRuntime.cs"/>
+        <Compile Include="Combat\HitDamageMath.cs"/>
+        <Compile Include="Features\DelayedDoom\DelayedDoomFoodRegen.cs"/>
+        <Compile Include="Presentation\EmbeddedIconLoader.cs"/>
+        <Compile Include="Presentation\ModLocalization.cs"/>
+        <Compile Include="Features\PitKing\PitKingItemRegistration.cs"/>
+        <Compile Include="Features\SteelHeart\SteelHeartSet.cs"/>
+        <Compile Include="Features\PitKing\PitKingEquipment.cs"/>
+        <Compile Include="Compatibility\ReflectionAccess.cs"/>
+        <Compile Include="Compatibility\CharacterHealthAccess.cs"/>
+        <Compile Include="Features\Brisingamen\BrisingamenItemRegistration.cs"/>
+        <Compile Include="Features\NornThread\NornThreadItemRegistration.cs"/>
+        <Compile Include="Features\NornThread\NornThreadRuntime.cs"/>
+        <Compile Include="Features\NornThread\NornThreadEffects.cs"/>
+        <Compile Include="Integration\ItemCacheReset.cs"/>
+        <Compile Include="Configuration\ShopConfiguration.cs"/>
+        <Compile Include="Configuration\ConfigKey.cs"/>
+        <Compile Include="Configuration\SellPriceConfiguration.cs"/>
+        <Compile Include="Features\ShadowCrossbow\ShadowCrossbowItemRegistration.cs"/>
+        <Compile Include="Trading\TrophyValueUpdater.cs"/>
+        <Compile Include="Features\WoundedBeast\WoundedBeastRuntime.cs"/>
+        <Compile Include="Features\WoundedBeast\WoundedBeastItemRegistration.cs"/>
+        <Compile Include="Features\WoundedBeast\WoundedBeastInventoryRebind.cs"/>
+        <Compile Include="Trading\HaldorShopUpdater.cs"/>
+        <Compile Include="Features\StaminaCape\StaminaCapeItemRegistration.cs"/>
+        <Compile Include="Features\StaminaCape\StaminaCapeRuntime.cs"/>
+        <Compile Include="Features\StaminaCape\StaminaCapeInventoryRebind.cs"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -183,6 +236,10 @@
             <LogicalName>HaldorExpansion.Assets.Icons.brisingamen.png</LogicalName>
         </EmbeddedResource>
 
+        <EmbeddedResource Include="Assets\Icons\norn_thread.png">
+            <LogicalName>HaldorExpansion.Assets.Icons.norn_thread.png</LogicalName>
+        </EmbeddedResource>
+
         <EmbeddedResource Include="Assets\Icons\Bone_crushers.png">
             <LogicalName>HaldorExpansion.Assets.Icons.Bone_crushers.png</LogicalName>
         </EmbeddedResource>
@@ -198,9 +255,12 @@
         <EmbeddedResource Include="Assets\Icons\Shadow_crossbow.png">
             <LogicalName>HaldorExpansion.Assets.Icons.Shadow_crossbow.png</LogicalName>
         </EmbeddedResource>
+
+        <EmbeddedResource Include="Assets\Icons\Hel_oath.png">
+            <LogicalName>HaldorExpansion.Assets.Icons.Hel_oath.png</LogicalName>
+        </EmbeddedResource>
     </ItemGroup>
-    
-    
+
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
 
     <!--
