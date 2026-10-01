@@ -11,13 +11,13 @@ internal static class DamageMathTests
         Check(HelOathDamageMath.GlassCannonMultiplier(100f, 300f), 0.80f, "1.50 ratio multiplier");
         Check(HelOathDamageMath.GlassCannonMultiplier(100f, 400f), 1.15f, "2.00 ratio multiplier");
         Check(HelOathDamageMath.GlassCannonMultiplier(100f, 500f), 1.45f, "2.50 ratio multiplier");
-        Check(HelOathDamageMath.GlassCannonMultiplier(100f, 540f), 1.70f, "2.70 ratio multiplier");
-        Check(HelOathDamageMath.GlassCannonMultiplier(100f, 700f), 1.70f, "ratio cap");
+        Check(HelOathDamageMath.GlassCannonMultiplier(100f, 540f), 1.95f, "2.70 ratio multiplier");
+        Check(HelOathDamageMath.GlassCannonMultiplier(100f, 700f), 1.95f, "ratio cap");
 
         // Deep-North-ish full stamina build after Hel's exact transfer:
         // 70 final HP, 460 final stamina => HelPower 390 => ratio 390 / 140 > 2.70.
-        Check(HelOathDamageMath.CalculateSplash(460f, 70f, 0.85f), 563.55f, "glass normal Embrace target");
-        Check(HelOathDamageMath.CalculateSplash(460f, 70f, 1.50f), 994.50f, "glass Touch V target");
+        Check(HelOathDamageMath.CalculateSplash(460f, 70f, 0.85f), 646.425f, "glass normal Embrace target");
+        Check(HelOathDamageMath.CalculateSplash(460f, 70f, 2.15f), 1635.075f, "glass Touch V target");
 
         float previous = HelOathDamageMath.GlassCannonMultiplier(100f, 150f);
         for (int hpPower = 160; hpPower <= 540; hpPower += 10)

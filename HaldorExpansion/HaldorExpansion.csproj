@@ -95,6 +95,8 @@
         <Compile Include="Features\HelOath\HelOathProjectile.cs"/>
         <Compile Include="Features\HelOath\HelOathRuntime.cs"/>
         <Compile Include="Features\HelOath\HelOathState.cs"/>
+        <Compile Include="Features\HelOath\HelOathProgressionMath.cs"/>
+        <Compile Include="Features\HelOath\HelOathWorldProgression.cs"/>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Data"/>

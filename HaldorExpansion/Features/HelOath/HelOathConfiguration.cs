@@ -18,7 +18,9 @@ namespace HaldorExpansion.Features.HelOath
         internal static void Register(ConfigFile config)
         {
             ChargeDamage = config.BindConfig("Hel Oath", "Damage for full charge", 650f,
-                "Actual bow damage, including attributed damage over time, required for a full charge. The special shot never charges the ability.", synced: true);
+                "Base actual bow damage required for a full charge. The real requirement scales with world boss progression: " +
+                "pre-Eikthyr x0.65, Eikthyr x0.80, Elder x1.00, Bonemass x1.25, Moder x1.55, Yagluth x1.85, Queen x2.20, Fader x2.60. " +
+                "Attributed damage over time counts; the special shot never charges the ability.", synced: true);
             Radius = config.BindConfig("Hel Oath", "Explosion radius", 9f,
                 "Hel's Embrace explosion radius in metres. Damage does not fall off with distance.", synced: true);
             EmbraceCoefficient = config.BindConfig("Hel Oath", "Embrace coefficient", 0.85f,
@@ -37,7 +39,8 @@ namespace HaldorExpansion.Features.HelOath
         private static float FiniteClamp(float value, float min, float max, float fallback)
             => float.IsNaN(value) || float.IsInfinity(value) ? fallback : Mathf.Clamp(value, min, max);
 
-        internal static float RequiredDamage => FiniteClamp(ChargeDamage.Value, 1f, 1000000f, 650f);
+        internal static float BaseRequiredDamage => FiniteClamp(ChargeDamage.Value, 1f, 1000000f, 650f);
+        internal static float RequiredDamage => HelOathWorldProgression.ScaleRequiredDamage(BaseRequiredDamage);
         internal static float ExplosionRadius => FiniteClamp(Radius.Value, 0.5f, 50f, 9f);
         internal static float NormalEmbraceCoefficient => FiniteClamp(EmbraceCoefficient.Value, 0f, 10f, 0.85f);
         internal static float TouchVEmbraceCoefficientValue => FiniteClamp(TouchVEmbraceCoefficient.Value, 0f, 10f, 2.15f);
