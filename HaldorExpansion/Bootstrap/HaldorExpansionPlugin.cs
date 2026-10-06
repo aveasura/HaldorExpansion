@@ -1,4 +1,5 @@
-using HaldorExpansion.Features.HelOath;
+﻿using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Configuration;
 using HaldorExpansion.Diagnostics;
 using HaldorExpansion.Features.Cestus;
@@ -54,6 +55,7 @@ namespace HaldorExpansion
             }
             CestusInputRegistration.RegisterCestusInput(Config);
             HelOathConfiguration.Register(Config);
+            BerserkerConfiguration.Register(Config);
         }
     }
 }

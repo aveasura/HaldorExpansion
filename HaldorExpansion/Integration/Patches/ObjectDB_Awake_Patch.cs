@@ -1,4 +1,5 @@
-using HaldorExpansion.Features.HelOath;
+﻿using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Brisingamen;
 using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.Cestus;
@@ -47,6 +48,8 @@ namespace HaldorExpansion.Patches
             ShadowCrossbowItemRegistration.EnsureShadowCrossbowReady();
             HelOathItemRegistration.EnsureHelOathReady();
             HelOathTouchStatus.EnsureRegistered();
+            BerserkerItemRegistration.EnsureReady();
+            BerserkerWrathStatus.EnsureRegistered();
             WoundedBeastItemRegistration.EnsureWoundedBeastCapeReady();
             PeltOfHelheimItemRegistration.EnsureReady();
             PeltOfHelheimStatus.EnsureRegistered();

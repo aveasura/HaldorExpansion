@@ -1,4 +1,5 @@
-using HaldorExpansion.Features.HelOath;
+﻿using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.PeltOfHelheim;
 ﻿using HaldorExpansion.Features.Cestus;
@@ -42,6 +43,24 @@ namespace HaldorExpansion.Presentation
                 ["$se_hel_touch_5"] = "Касание Хель V",
                 ["$se_hel_touch_5_desc"] =
                     "+25% к скорости передвижения.\n-20% затрат выносливости на все действия.\nОбъятия Хель значительно усилены.",
+                // Берсерк — рабочее имя/описание первой игровой итерации
+                [BerserkerItemRegistration.ItemKey] = "Секира берсерка",
+                [BerserkerItemRegistration.ItemDescKey] =
+                    "Тяжёлая двуручная секира, которая становится опаснее вместе с ранами владельца.\n\n" +
+                    "Попадания по врагам пробуждают Ярость. Она растёт до V стадии и постепенно угасает, если перестать атаковать. " +
+                    "На Ярости V начинается Бешенство: пока секира в руках, здоровье медленно сгорает, но оружие продолжает усиливаться от недостающего здоровья.",
+                ["$se_berserker_wrath_1"] = "Ярость I",
+                ["$se_berserker_wrath_1_desc"] = "Ярость пробуждена. Продолжайте атаковать, чтобы усиливать её.",
+                ["$se_berserker_wrath_2"] = "Ярость II",
+                ["$se_berserker_wrath_2_desc"] = "Ярость нарастает. Без новых попаданий она начнёт угасать.",
+                ["$se_berserker_wrath_3"] = "Ярость III",
+                ["$se_berserker_wrath_3_desc"] = "Ярость захватывает бойца всё сильнее.",
+                ["$se_berserker_wrath_4"] = "Ярость IV",
+                ["$se_berserker_wrath_4_desc"] = "Ещё немного — и ярость сорвётся в Бешенство.",
+                ["$se_berserker_wrath_5"] = "Ярость V",
+                ["$se_berserker_wrath_5_desc"] =
+                    "Бешенство. Пока секира в руках, здоровье медленно сгорает. Самосгорание не может опустить здоровье ниже установленного предела.",
+
                 // Осквернённый Бризингамен
                 ["$item_brisingamen"] = "Осквернённый Бризингамен",
                 ["$item_brisingamen_desc"] =
@@ -156,6 +175,24 @@ namespace HaldorExpansion.Presentation
                 ["$se_hel_touch_5"] = "Hel's Touch V",
                 ["$se_hel_touch_5_desc"] =
                     "+25% movement speed.\n-20% stamina cost for all actions.\nHel's Embrace is greatly empowered.",
+                // Berserker — working name/description for the first gameplay iteration
+                [BerserkerItemRegistration.ItemKey] = "Berserker Greataxe",
+                [BerserkerItemRegistration.ItemDescKey] =
+                    "A heavy two-handed greataxe that grows more dangerous as its wielder is wounded.\n\n" +
+                    "Hitting enemies awakens Wrath. It rises through five stages and slowly fades when the assault stops. " +
+                    "At Wrath V, Frenzy begins: while the greataxe is wielded, health slowly burns away while the weapon keeps benefiting from missing health.",
+                ["$se_berserker_wrath_1"] = "Wrath I",
+                ["$se_berserker_wrath_1_desc"] = "Wrath has awakened. Keep attacking to drive it higher.",
+                ["$se_berserker_wrath_2"] = "Wrath II",
+                ["$se_berserker_wrath_2_desc"] = "Wrath is rising. Without new hits it will begin to fade.",
+                ["$se_berserker_wrath_3"] = "Wrath III",
+                ["$se_berserker_wrath_3_desc"] = "Wrath grips the fighter more tightly.",
+                ["$se_berserker_wrath_4"] = "Wrath IV",
+                ["$se_berserker_wrath_4_desc"] = "One step remains before Wrath breaks into Frenzy.",
+                ["$se_berserker_wrath_5"] = "Wrath V",
+                ["$se_berserker_wrath_5_desc"] =
+                    "Frenzy. While the greataxe is wielded, health slowly burns away. Self-drain cannot reduce health below the configured floor.",
+
                 // Corrupted Brisingamen
                 ["$item_brisingamen"] = "Corrupted Brisingamen",
                 ["$item_brisingamen_desc"] =

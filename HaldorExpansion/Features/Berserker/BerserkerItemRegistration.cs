@@ -1,0 +1,121 @@
+using HaldorExpansion.Compatibility;
+using Jotunn.Entities;
+using Jotunn.Managers;
+using System;
+using UnityEngine;
+
+namespace HaldorExpansion.Features.Berserker
+{
+    internal static class BerserkerItemRegistration
+    {
+        // Working internal/name choice for the gameplay prototype. User-facing naming can be changed later
+        // without changing the gameplay architecture.
+        internal const string PrefabName = "BattleaxeBerserker";
+        internal const string SourcePrefabName = "BattleaxeGold_BloodLightning";
+        internal const string ItemKey = "$item_weapon_berserker_greataxe";
+        internal const string ItemDescKey = "$item_weapon_berserker_greataxe_desc";
+        internal const float BaseSlashDamage = 135f;
+
+        internal static GameObject Prefab;
+        internal static ItemDrop ItemDrop;
+
+        internal static bool EnsureReady()
+        {
+            try
+            {
+                if (ObjectDB.instance == null) return false;
+
+                GameObject existing = ObjectDB.instance.GetItemPrefab(PrefabName);
+                if (existing != null)
+                {
+                    Prefab = existing;
+                    ItemDrop = existing.GetComponent<ItemDrop>();
+                    if (ItemDrop != null)
+                    {
+                        ConfigureShared(ItemDrop.m_itemData.m_shared);
+                        ItemDrop.m_itemData.m_dropPrefab = existing;
+                    }
+                    return ItemDrop != null;
+                }
+
+                GameObject source = ObjectDB.instance.GetItemPrefab(SourcePrefabName);
+                if (source == null)
+                {
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        $"[Berserker] Source prefab not found: {SourcePrefabName}. " +
+                        "This prototype requires the Valheim build containing the Deep North Thunderblood Greataxe.");
+                    return false;
+                }
+
+                GameObject clone = PrefabManager.Instance.CreateClonedPrefab(PrefabName, source.name);
+                if (clone == null)
+                {
+                    HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Failed to clone Thunderblood Greataxe prefab.");
+                    return false;
+                }
+
+                ItemDrop drop = clone.GetComponent<ItemDrop>();
+                if (drop == null)
+                {
+                    HaldorExpansionPlugin.Log?.LogWarning("[Berserker] ItemDrop missing on cloned greataxe.");
+                    return false;
+                }
+
+                ConfigureShared(drop.m_itemData.m_shared);
+                drop.m_itemData.m_dropPrefab = clone;
+                ItemManager.Instance.AddItem(new CustomItem(clone, true));
+
+                Prefab = clone;
+                ItemDrop = drop;
+                HaldorExpansionPlugin.DebugLog(
+                    $"[Berserker] Prototype greataxe registered: {PrefabName} (source={SourcePrefabName})");
+                return true;
+            }
+            catch (Exception e)
+            {
+                HaldorExpansionPlugin.Log?.LogError($"[Berserker] EnsureReady error: {e}");
+                return false;
+            }
+        }
+
+        private static void ConfigureShared(ItemDrop.ItemData.SharedData shared)
+        {
+            if (shared == null) return;
+
+            shared.m_name = ItemKey;
+            shared.m_description = ItemDescKey;
+            shared.m_value = 0;
+
+            // Keep the Thunderblood Greataxe's native model, animations, stamina costs, block stats,
+            // movement penalty and — critically — its built-in missing-health attack scaling.
+            // Replacing only the damage payload leaves the Attack objects untouched, where the
+            // vanilla "damage increased per health missing" modifier lives.
+            shared.m_damages = new HitData.DamageTypes();
+            shared.m_damages.m_slash = BaseSlashDamage;
+            shared.m_damagesPerLevel = new HitData.DamageTypes();
+            shared.m_maxQuality = 1;
+
+            // Thunderblood's chain-lightning proc is NOT an attack status effect in current Valheim.
+            // It is spawned directly by both Attack objects through m_spawnOnHit / m_spawnOnHitChance.
+            // Clear that inherited proc while deliberately leaving m_damageMultiplierPerMissingHP intact.
+            shared.m_attackStatusEffect = null;
+            ReflectionAccess.SetFieldIfExists(shared, "m_attackStatusEffectChance", 0f);
+            ClearSpawnOnHit(shared.m_attack);
+            ClearSpawnOnHit(shared.m_secondaryAttack);
+
+            shared.m_setName = "";
+            shared.m_setSize = 0;
+            shared.m_setStatusEffect = null;
+        }
+        private static void ClearSpawnOnHit(Attack attack)
+        {
+            if (attack == null) return;
+
+            // Reflection matches the defensive cleanup pattern used by Norn Thread and avoids
+            // binding the mod to field visibility changes between Valheim builds.
+            ReflectionAccess.SetFieldIfExists(attack, "m_spawnOnHit", null);
+            ReflectionAccess.SetFieldIfExists(attack, "m_spawnOnHitChance", 0f);
+        }
+
+    }
+}
