@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using UnityEngine.UI;
 using UnityEngine;
 
@@ -192,7 +192,7 @@ namespace HaldorExpansion.Features.Cestus
             HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Cestus segmented HUD with text created");
         }
 
-        private static Component FindReferenceHealthBarComponent(Hud hud)
+        internal static Component FindReferenceHealthBarComponent(Hud hud)
         {
             FieldInfo[] fields = typeof(Hud).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 

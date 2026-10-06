@@ -40,3 +40,13 @@ namespace HaldorExpansion.Features.Berserker
             => BerserkerAttackScope.TryCredit(__instance, hit);
     }
 }
+
+namespace HaldorExpansion.Features.Berserker
+{
+    [HarmonyPatch(typeof(Hud), "Update")]
+    internal static class BerserkerDebtHudPatch
+    {
+        private static void Postfix(Hud __instance)
+            => BerserkerDebtHudView.Update(__instance, Player.m_localPlayer);
+    }
+}

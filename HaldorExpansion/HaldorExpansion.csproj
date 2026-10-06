@@ -80,6 +80,9 @@
     <ItemGroup>
         <Compile Include="Features\Berserker\BerserkerConfiguration.cs"/>
         <Compile Include="Features\Berserker\BerserkerState.cs"/>
+        <Compile Include="Features\Berserker\BerserkerDebtState.cs"/>
+        <Compile Include="Features\Berserker\BerserkerBloodDebtPatches.cs"/>
+        <Compile Include="Features\Berserker\BerserkerDebtHudView.cs"/>
         <Compile Include="Features\Berserker\BerserkerEquipment.cs"/>
         <Compile Include="Features\Berserker\BerserkerItemRegistration.cs"/>
         <Compile Include="Features\Berserker\BerserkerAttackScope.cs"/>

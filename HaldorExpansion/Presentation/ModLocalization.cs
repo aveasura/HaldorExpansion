@@ -44,11 +44,13 @@ namespace HaldorExpansion.Presentation
                 ["$se_hel_touch_5_desc"] =
                     "+25% к скорости передвижения.\n-20% затрат выносливости на все действия.\nОбъятия Хель значительно усилены.",
                 // Берсерк — рабочее имя/описание первой игровой итерации
+                ["$se_berserker_blood_debt"] = "Кровавый долг",
                 [BerserkerItemRegistration.ItemKey] = "Секира берсерка",
                 [BerserkerItemRegistration.ItemDescKey] =
                     "Тяжёлая двуручная секира, которая становится опаснее вместе с ранами владельца.\n\n" +
                     "Попадания по врагам пробуждают Ярость. Она растёт до V стадии и постепенно угасает, если перестать атаковать. " +
-                    "На Ярости V начинается Бешенство: пока секира в руках, здоровье медленно сгорает, но оружие продолжает усиливаться от недостающего здоровья.",
+                    "На Ярости V начинается Бешенство: пока секира в руках, здоровье медленно сгорает, но оружие продолжает усиливаться от недостающего здоровья.\n\n" +
+                    "Кровавый долг растёт от фактически потерянного здоровья при ударах врагов. Бешенство добавляет совсем немного долга, а вне боя долг постепенно угасает. Расплата появится в следующем прототипе.",
                 ["$se_berserker_wrath_1"] = "Ярость I",
                 ["$se_berserker_wrath_1_desc"] = "Ярость пробуждена. Продолжайте атаковать, чтобы усиливать её.",
                 ["$se_berserker_wrath_2"] = "Ярость II",
@@ -176,11 +178,13 @@ namespace HaldorExpansion.Presentation
                 ["$se_hel_touch_5_desc"] =
                     "+25% movement speed.\n-20% stamina cost for all actions.\nHel's Embrace is greatly empowered.",
                 // Berserker — working name/description for the first gameplay iteration
+                ["$se_berserker_blood_debt"] = "Blood Debt",
                 [BerserkerItemRegistration.ItemKey] = "Berserker Greataxe",
                 [BerserkerItemRegistration.ItemDescKey] =
                     "A heavy two-handed greataxe that grows more dangerous as its wielder is wounded.\n\n" +
                     "Hitting enemies awakens Wrath. It rises through five stages and slowly fades when the assault stops. " +
-                    "At Wrath V, Frenzy begins: while the greataxe is wielded, health slowly burns away while the weapon keeps benefiting from missing health.",
+                    "At Wrath V, Frenzy begins: while the greataxe is wielded, health slowly burns away while the weapon keeps benefiting from missing health.\n\n" +
+                    "Blood Debt grows from real HP lost to enemy attacks. Frenzy adds a little, but without combat the debt decays. Reckoning is coming in a later prototype.",
                 ["$se_berserker_wrath_1"] = "Wrath I",
                 ["$se_berserker_wrath_1_desc"] = "Wrath has awakened. Keep attacking to drive it higher.",
                 ["$se_berserker_wrath_2"] = "Wrath II",

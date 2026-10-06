@@ -48,6 +48,8 @@ internal static class BerserkerStateTests
             s.RegisterHit(0f, float.PositiveInfinity, 2f, 10f);
             Check(s.WrathStage == 0, "Malformed hit inputs are ignored");
 
+            VerifyDebt();
+
             Console.WriteLine("PASS: Berserker Wrath hit progression, V/Frenzy, timer restart, staged decay, partial reset and fractional AoE credit");
             return 0;
         }
@@ -57,6 +59,47 @@ internal static class BerserkerStateTests
             return 1;
         }
     }
+
+    private static void VerifyDebt()
+    {
+        var debt = new BerserkerDebtState();
+        debt.AddEnemyDamage(0f, 20f, 2f, 10f);
+        Check(NearlyDouble(debt.Amount, 40d), "Twenty real HP lost gives forty debt at x2");
+        debt.Tick(9.99f, 4f);
+        Check(NearlyDouble(debt.Amount, 40d), "No decay before ten seconds");
+        debt.Tick(11f, 4f);
+        Check(NearlyDouble(debt.Amount, 40d * Math.Exp(-0.04d)), "Four percent exponential decay begins after delay");
+
+        debt.AddEnemyDamage(12f, 10f, 2f, 10f);
+        double refreshed = debt.Amount;
+        debt.Tick(21f, 4f);
+        Check(NearlyDouble(debt.Amount, refreshed), "Fresh enemy damage restarts idle delay");
+        debt.AddFrenzyLoss(22f, 10f, 0.1f, 10f);
+        double withFrenzy = debt.Amount;
+        debt.Tick(23f, 4f);
+        Check(debt.Amount < withFrenzy, "Frenzy drain never refreshes enemy-hit delay");
+
+        debt.Reset();
+        debt.AddFrenzyLoss(2f, 10f, 0.1f, 10f);
+        Check(NearlyDouble(debt.Amount, 1d), "Frenzy self-drain accrues only 10 percent");
+        debt.Tick(11f, 4f);
+        Check(NearlyDouble(debt.Amount, 1d), "Frenzy-only debt uses its own first decay delay");
+        debt.Tick(13f, 4f);
+        Check(debt.Amount < 1d, "Frenzy-only debt decays without enemy hits");
+
+        debt.Reset();
+        debt.AddEnemyDamage(0f, 1000000f, 100f, 10f);
+        debt.AddEnemyDamage(1f, 1000000f, 100f, 10f);
+        Check(debt.Amount >= 200000000d, "Debt has no gameplay maximum");
+        debt.AddEnemyDamage(2f, float.NaN, 2f, 10f);
+        Check(debt.Amount >= 200000000d, "Nonfinite inputs do not poison debt");
+        debt.Reset();
+        Check(debt.Amount == 0d, "Death/owner reset clears debt");
+        Console.WriteLine("PASS: Blood Debt actual-HP coefficients, delay, exponential decay, Frenzy-only credit, unlimited growth and reset");
+    }
+
+    private static bool NearlyDouble(double a, double b)
+        => Math.Abs(a - b) <= 0.0001d;
 
     private static bool Nearly(float a, float b) => Math.Abs(a - b) <= 0.0001f;
     private static void Check(bool value, string message)
