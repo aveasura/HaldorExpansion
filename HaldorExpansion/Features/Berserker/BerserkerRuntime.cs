@@ -1,4 +1,3 @@
-using HaldorExpansion.Compatibility;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Berserker
@@ -41,16 +40,26 @@ namespace HaldorExpansion.Features.Berserker
                 return;
             }
 
-            int before = State.WrathStage;
-            State.Tick(Time.time, BerserkerConfiguration.DecayIntervalValue);
-            if (State.WrathStage != before) SyncStatus(player);
-            if (!BerserkerRagnarokRuntime.IsCasting)
-                Debt.Tick(Time.time, BerserkerConfiguration.DebtDecayRateValue);
+            // Poll Ragnarök before decay. If the player presses the ability key while
+            // Wrath V / Debt requirements are currently valid, the cast commits first
+            // and the short cast window cannot immediately decay itself out of validity.
+            BerserkerRagnarokRuntime.Update(player);
+
+            if (!BerserkerRagnarokRuntime.IsInputLocked(player))
+            {
+                int before = State.WrathStage;
+                State.Tick(Time.time, BerserkerConfiguration.DecayIntervalValue);
+                if (State.WrathStage != before) SyncStatus(player);
+
+                Debt.Tick(
+                    Time.time,
+                    BerserkerConfiguration.DebtDecayRateValue,
+                    BerserkerConfiguration.DebtIncomingGraceValue,
+                    BerserkerConfiguration.DebtOutgoingGraceValue);
+            }
 
             // Wrath V / Frenzy no longer self-damages the player. Risk comes from
             // taking real enemy damage to build Blood Debt; future equipment can amplify it.
-
-            BerserkerRagnarokRuntime.Update(player);
         }
 
         internal static void NotifyAxeHit(Player player, float credit)
@@ -68,13 +77,34 @@ namespace HaldorExpansion.Features.Berserker
             if (State.WrathStage != before) SyncStatus(player);
         }
 
+        internal static void NotifyAxeDebtHit(Player player, bool secondary, bool grantsDebt)
+        {
+            if (player == null || player != Player.m_localPlayer || player.IsDead()) return;
+            EnsureOwner(player);
+
+            float debtGain = 0f;
+            if (grantsDebt)
+                debtGain = secondary
+                    ? BerserkerConfiguration.SecondaryDebtGainValue
+                    : BerserkerConfiguration.PrimaryDebtGainValue;
+
+            // Reckoning passes grantsDebt=false: it still refreshes outgoing combat activity
+            // so Debt decay does not begin while the player is actively fighting.
+            Debt.RegisterAxeHit(Time.time, debtGain);
+        }
+
         internal static void NotifyEnemyDamage(Player player, float actualHpLost)
         {
             if (player == null || player != Player.m_localPlayer || player.IsDead()) return;
             EnsureOwner(player);
-            Debt.AddEnemyDamage(Time.time, actualHpLost,
-                BerserkerConfiguration.EnemyDebtMultiplierValue,
-                BerserkerConfiguration.DebtDecayDelayValue);
+
+            float maxHealth = Mathf.Max(0f, player.GetMaxHealth());
+            if (maxHealth <= 0f) return;
+            Debt.AddEnemyDamage(
+                Time.time,
+                actualHpLost,
+                maxHealth,
+                BerserkerConfiguration.DebtPerFullHealthBarValue);
         }
 
         internal static bool TryGetReckoningPayload(Player player, out double debt, out float bonus)
@@ -85,32 +115,35 @@ namespace HaldorExpansion.Features.Berserker
             EnsureOwner(player);
             if (!State.Frenzy || !BerserkerEquipment.Equipped(player)) return false;
 
-            debt = Debt.Amount;
-            if (debt + 0.0001d < BerserkerConfiguration.ReckoningMinimumDebtValue) return false;
+            double currentDebt = Debt.Amount;
+            if (currentDebt + 0.0001d < BerserkerConfiguration.ReckoningMinimumDebtValue) return false;
+
+            debt = currentDebt * BerserkerConfiguration.ReckoningSpendFraction;
+            if (debt <= 0d) return false;
             bonus = BerserkerReckoningMath.BonusDamage(debt);
             return bonus > 0f;
         }
 
-        internal static void CommitReckoning(Player player)
+        internal static void CommitReckoning(Player player, double spentDebt)
         {
             if (player == null || player != Player.m_localPlayer) return;
-            Debt.ConsumeAll();
+            Debt.Spend(spentDebt);
         }
 
-        internal static void ApplyReckoningHeal(Player player, float actualDamage)
+        internal static void ApplyReckoningHeal(Player player, float finalDamage)
         {
             if (player == null || player != Player.m_localPlayer || player.IsDead()) return;
-            if (float.IsNaN(actualDamage) || float.IsInfinity(actualDamage) || actualDamage <= 0f) return;
+            if (float.IsNaN(finalDamage) || float.IsInfinity(finalDamage) || finalDamage <= 0f) return;
 
             float maxHealth = Mathf.Max(0f, player.GetMaxHealth());
             float current = Mathf.Max(0f, player.GetHealth());
             float heal = BerserkerReckoningMath.HealAmount(
-                actualDamage,
+                finalDamage,
                 BerserkerConfiguration.ReckoningLifeStealFraction);
             heal = Mathf.Min(heal, Mathf.Max(0f, maxHealth - current));
             if (heal <= 0f) return;
 
-            CharacterHealthAccess.SetCharacterHealth(player, current + heal);
+            player.Heal(heal, true);
         }
 
         internal static void Reset(Player player)
@@ -144,6 +177,5 @@ namespace HaldorExpansion.Features.Berserker
             BerserkerWrathStatus.Sync(player, stage);
             lastSyncedStage = stage;
         }
-
     }
 }

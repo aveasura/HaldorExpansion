@@ -76,15 +76,27 @@ namespace HaldorExpansion.Features.Berserker
             }
         }
 
-        internal static void TryCredit(Character target, HitData hit)
+        internal static bool TryCredit(Character target, HitData hit)
         {
             Player player = activePlayer;
             ItemDrop.ItemData weapon = activeWeapon;
-            if (!ValidEnemyHit(player, weapon, target, hit)) return;
+            if (!ValidEnemyHit(player, weapon, target, hit)) return false;
 
             // One Character only once per swing, even if several colliders are touched.
-            if (creditedTargets != null && !creditedTargets.Add(target)) return;
+            if (creditedTargets != null && !creditedTargets.Add(target)) return false;
             BerserkerRuntime.NotifyAxeHit(player, 1f);
+            return true;
+        }
+
+        internal static void FinishDebtCredit(bool credited)
+        {
+            if (!credited) return;
+            Player player = activePlayer;
+            if (player == null) return;
+
+            // Once this secondary swing has become Reckoning, the whole swing is treated
+            // as the empowered attack and cannot refund Blood Debt from any additional targets.
+            BerserkerRuntime.NotifyAxeDebtHit(player, activeSecondary, !reckoningUsedThisAttack);
         }
 
         internal static bool TryInterceptReckoning(Character target, HitData hit)

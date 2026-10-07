@@ -55,9 +55,9 @@ namespace HaldorExpansion.Presentation
                     "Тяжёлая двуручная секира, которая становится опаснее вместе с ранами владельца.\n\n" +
                     "Попадания по врагам пробуждают Ярость. Она растёт до V стадии и постепенно угасает, если перестать атаковать. " +
                     "Каждая стадия Ярости даёт +10% к скорости атаки и снижает затраты выносливости на все действия на 5%. На Ярости V начинается Бешенство: максимальный темп боя открывает Расплату и Рагнарёк. Оружие по-прежнему усиливается от недостающего здоровья.\n\n" +
-                    "Кровавый долг растёт только от фактически потерянного здоровья при ударах врагов и постепенно угасает вне боя. " +
-                    "На Ярости V и при минимум x1 Кровавого долга специальная атака секиры (колёсико мыши) сразу становится Расплатой: она поглощает весь долг, наносит дополнительный рассекающий урон и восстанавливает часть здоровья.\n\n" +
-                    "Прототип Рагнарёка: на Ярости V и при минимум x5 Кровавого долга нажмите Z, чтобы после короткого каста обрушить метеоритный дождь на выбранного врага. Рагнарёк поглощает весь долг и оставляет после себя Истощение.",
+                    "Кровавый долг растёт от фактически потерянного здоровья при ударах врагов и от успешных попаданий секирой, а вне боя постепенно угасает. " +
+                    "На Ярости V и при минимум x1 Кровавого долга специальная атака секиры (колёсико мыши) сразу становится Расплатой: она поглощает половину текущего долга, наносит дополнительный рассекающий урон и восстанавливает 20% финального урона по основной цели.\n\n" +
+                    "Прототип Рагнарёка: на Ярости V и при минимум x5 Кровавого долга нажмите E, чтобы после короткого неотменяемого каста обрушить метеоритный дождь вокруг себя. Рагнарёк поглощает весь долг и оставляет после себя Истощение.",
                 ["$se_berserker_wrath_1"] = "Ярость I",
                 ["$se_berserker_wrath_1_desc"] = "+10% к скорости атаки. -5% затрат выносливости на все действия. Продолжайте атаковать, чтобы усиливать Ярость.",
                 ["$se_berserker_wrath_2"] = "Ярость II",
@@ -196,9 +196,9 @@ namespace HaldorExpansion.Presentation
                     "A heavy two-handed greataxe that grows more dangerous as its wielder is wounded.\n\n" +
                     "Hitting enemies awakens Wrath. It rises through five stages and slowly fades when the assault stops. " +
                     "Each Wrath stage grants +10% attack speed and reduces stamina costs for all actions by 5%. At Wrath V, Frenzy begins: maximum combat tempo unlocks Reckoning and Ragnarok, while the weapon continues to benefit from missing health.\n\n" +
-                    "Blood Debt grows only from real HP lost to enemy attacks and gradually decays out of combat. " +
-                    "At Wrath V and at least x1 Blood Debt, the greataxe secondary attack (mouse wheel) becomes Reckoning immediately: it consumes all debt, deals bonus Slash damage, and restores some health.\n\n" +
-                    "Ragnarok prototype: at Wrath V and at least x5 Blood Debt, press Z to cast a meteor rain on the selected enemy. Ragnarok consumes all debt and leaves the berserker Exhausted.",
+                    "Blood Debt grows from real HP lost to enemy attacks and from successful greataxe hits, then gradually decays out of combat. " +
+                    "At Wrath V and at least x1 Blood Debt, the greataxe secondary attack (mouse wheel) becomes Reckoning immediately: it consumes half of the current debt, deals bonus Slash damage, and restores 20% of the final damage dealt to the main target.\n\n" +
+                    "Ragnarok prototype: at Wrath V and at least x5 Blood Debt, press E to commit to a short cast and call a meteor rain around yourself. Ragnarok consumes all debt and leaves the berserker Exhausted.",
                 ["$se_berserker_wrath_1"] = "Wrath I",
                 ["$se_berserker_wrath_1_desc"] = "+10% attack speed. -5% stamina cost for all actions. Keep attacking to drive Wrath higher.",
                 ["$se_berserker_wrath_2"] = "Wrath II",

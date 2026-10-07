@@ -64,27 +64,50 @@ internal static class BerserkerStateTests
     private static void VerifyDebt()
     {
         var debt = new BerserkerDebtState();
-        debt.AddEnemyDamage(0f, 20f, 2f, 10f);
-        Check(NearlyDouble(debt.Amount, 40d), "Twenty real HP lost gives forty debt at x2");
-        debt.Tick(9.99f, 4f);
-        Check(NearlyDouble(debt.Amount, 40d), "No decay before ten seconds");
-        debt.Tick(11f, 4f);
-        Check(NearlyDouble(debt.Amount, 40d * Math.Exp(-0.04d)), "Four percent exponential decay begins after delay");
 
-        debt.AddEnemyDamage(12f, 10f, 2f, 10f);
-        double refreshed = debt.Amount;
-        debt.Tick(21f, 4f);
-        Check(NearlyDouble(debt.Amount, refreshed), "Fresh enemy damage restarts idle delay");
+        // 85% of a health bar should provide ~350 Debt with the default 411.765/full-bar economy.
+        debt.AddEnemyDamage(0f, 85f, 100f, 411.765f);
+        Check(Math.Abs(debt.Amount - 350.00025d) < 0.01d,
+            "Incoming Debt is normalized by Max HP instead of absolute HP loss");
+
+        // Outgoing combat contributes a fixed amount and holds decay for five seconds.
+        debt.RegisterAxeHit(1f, 7f);
+        Check(Math.Abs(debt.Amount - 357.00025d) < 0.01d, "Primary axe hit adds seven Debt");
+        debt.Tick(9.99f, 4f, 10f, 5f);
+        Check(Math.Abs(debt.Amount - 357.00025d) < 0.01d,
+            "Debt does not decay while either incoming or outgoing grace window is still active");
+
+        // Incoming grace expires at t=10, outgoing at t=6, so decay starts at t=10.
+        debt.Tick(11f, 4f, 10f, 5f);
+        Check(Math.Abs(debt.Amount - 357.00025d * Math.Exp(-0.04d)) < 0.01d,
+            "Decay begins only after both incoming and outgoing grace windows expire");
+
+        // A new axe hit, even with zero Debt gain (Reckoning), refreshes outgoing combat QoL.
+        double beforeReckoningActivity = debt.Amount;
+        debt.RegisterAxeHit(12f, 0f);
+        debt.Tick(16.99f, 4f, 10f, 5f);
+        Check(Math.Abs(debt.Amount - beforeReckoningActivity) < 0.01d,
+            "Reckoning-style zero-gain axe activity refreshes the five-second outgoing grace");
+
+        debt.RegisterAxeHit(17f, 11f);
+        Check(debt.Amount > beforeReckoningActivity + 10.9d, "Secondary axe hit adds eleven Debt");
+
+        double half = debt.Amount * 0.5d;
+        double spent = debt.Spend(half);
+        Check(Math.Abs(spent - half) < 0.0001d && Math.Abs(debt.Amount - half) < 0.0001d,
+            "Partial Debt spending leaves the unspent half intact");
+
         debt.Reset();
-        debt.AddEnemyDamage(0f, 1000000f, 100f, 10f);
-        debt.AddEnemyDamage(1f, 1000000f, 100f, 10f);
-        Check(debt.Amount >= 200000000d, "Debt has no gameplay maximum");
-        debt.AddEnemyDamage(2f, float.NaN, 2f, 10f);
-        Check(debt.Amount >= 200000000d, "Nonfinite inputs do not poison debt");
+        debt.AddEnemyDamage(0f, 1000000f, 1f, 411.765f);
+        debt.AddEnemyDamage(1f, 1000000f, 1f, 411.765f);
+        Check(debt.Amount >= 823000000d, "Debt has no gameplay maximum");
+        debt.AddEnemyDamage(2f, float.NaN, 100f, 411.765f);
+        Check(debt.Amount >= 823000000d, "Nonfinite inputs do not poison debt");
         debt.Reset();
         Check(debt.Amount == 0d, "Death/owner reset clears debt");
-        Console.WriteLine("PASS: Blood Debt actual-HP coefficients, delay, exponential decay, unlimited growth and reset");
+        Console.WriteLine("PASS: Blood Debt Max-HP normalization, dual grace decay, outgoing hit gains, partial spending and unlimited growth");
     }
+
 
 
     private static void VerifyReckoning()
@@ -96,9 +119,9 @@ internal static class BerserkerStateTests
         Check(Nearly(BerserkerReckoningMath.BonusDamage(1000d), 665f), "x10 Reckoning bonus is 665");
         Check(Nearly(BerserkerReckoningMath.BonusDamage(2000d), 865f), "x20 Reckoning bonus is 865");
 
-        Check(Nearly(BerserkerReckoningMath.HealAmount(500f, 0.25f), 125f),
-            "Reckoning heals twenty-five percent of actual damage");
-        Check(Nearly(BerserkerReckoningMath.HealAmount(1000f, 0.25f), 250f),
+        Check(Nearly(BerserkerReckoningMath.HealAmount(500f, 0.20f), 100f),
+            "Reckoning heals twenty percent of final direct damage");
+        Check(Nearly(BerserkerReckoningMath.HealAmount(1000f, 0.20f), 200f),
             "Reckoning lifesteal has no artificial max-health cap");
 
         Check(Nearly(BerserkerRagnarokMath.TotalDamage(500d), 1500f), "x5 Ragnarok total is 1500");
@@ -108,11 +131,17 @@ internal static class BerserkerStateTests
         Check(Nearly(BerserkerRagnarokMath.TotalDamage(2000d), 2500f), "x20 Ragnarok soft-scales to 2500");
 
         var debt = new BerserkerDebtState();
-        debt.AddEnemyDamage(0f, 125f, 2f, 10f);
+        debt.AddEnemyDamage(0f, 195f, 100f, 100f);
+        double reckoningSpend = debt.Amount * 0.5d;
+        double spent = debt.Spend(reckoningSpend);
+        Check(NearlyDouble(spent, 97.5d) && NearlyDouble(debt.Amount, 97.5d),
+            "Reckoning can spend exactly half of 195 Debt and leave 97.5");
+
+        debt.RegisterAxeHit(1f, 402.5f);
         double consumed = debt.ConsumeAll();
-        Check(NearlyDouble(consumed, 250d) && debt.Amount == 0d,
-            "Reckoning consumes the entire exact Blood Debt amount");
-        Console.WriteLine("PASS: Reckoning softer segmented bonus, uncapped lifesteal, Ragnarok independent curve and full debt consumption");
+        Check(NearlyDouble(consumed, 500d) && debt.Amount == 0d,
+            "Ragnarok still consumes the entire exact Blood Debt amount");
+        Console.WriteLine("PASS: Reckoning softer segmented bonus, half-spend resource model, uncapped lifesteal and Ragnarok full consumption");
     }
 
     private static bool NearlyDouble(double a, double b)

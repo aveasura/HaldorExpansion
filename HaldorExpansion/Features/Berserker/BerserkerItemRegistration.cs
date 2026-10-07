@@ -14,14 +14,14 @@ namespace HaldorExpansion.Features.Berserker
         internal const string SourcePrefabName = "BattleaxeGold_BloodLightning";
         internal const string ItemKey = "$item_weapon_berserker_greataxe";
         internal const string ItemDescKey = "$item_weapon_berserker_greataxe_desc";
-        internal const float BaseSlashDamage = 105f;
-        internal const float SecondaryBaseDamage = 120f;
+        internal const float BaseSlashDamage = 100f;
+        internal const float SecondaryBaseDamage = 135f;
         internal const float MovementModifier = -0.10f;
-        internal const float PrimaryStamina = 16f;
-        internal const float AttackForce = 50f;
-        internal const float BlockPower = 38f;
-        internal const float DeflectionForce = 35f;
-        internal const float PrimaryStaggerMultiplier = 1.125f;
+        internal const float PrimaryStamina = 14f;
+        internal const float AttackForce = 45f;
+        internal const float BlockPower = 22f;
+        internal const float DeflectionForce = 26f;
+        internal const float PrimaryStaggerMultiplier = 1.2f;
         internal const float SecondaryStaggerMultiplier = 3f;
         internal const string SecondaryAttackAnimation = "swing_sledge";
 
@@ -116,8 +116,8 @@ namespace HaldorExpansion.Features.Berserker
             if (shared.m_secondaryAttack != null)
             {
                 shared.m_secondaryAttack.m_staggerMultiplier = SecondaryStaggerMultiplier;
-                // Make the overhead secondary a deliberate execution hit: 120 base damage
-                // from the shared 105 Slash weapon profile, before missing-HP scaling/Reckoning.
+                // Make the overhead secondary a deliberate execution hit: 135 base damage
+                // from the shared 100 Slash weapon profile, before missing-HP scaling/Reckoning.
                 shared.m_secondaryAttack.m_damageMultiplier = SecondaryBaseDamage / BaseSlashDamage;
 
                 // Keep the Berserker secondary attack mechanics/hit data, but use the

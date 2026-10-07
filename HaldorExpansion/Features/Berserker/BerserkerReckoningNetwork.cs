@@ -27,9 +27,9 @@ namespace HaldorExpansion.Features.Berserker
             if (character is Player player)
             {
                 BerserkerEffects.Register(player, view);
-                view.Register<float>(HealRpc, (sender, actualDamage) =>
+                view.Register<float>(HealRpc, (sender, finalDamage) =>
                 {
-                    if (view.IsOwner()) BerserkerRuntime.ApplyReckoningHeal(player, actualDamage);
+                    if (view.IsOwner()) BerserkerRuntime.ApplyReckoningHeal(player, finalDamage);
                 });
             }
         }
@@ -67,15 +67,25 @@ namespace HaldorExpansion.Features.Berserker
                 ZPackage package = new ZPackage();
                 hit.Serialize(ref package);
                 targetView.InvokeRPC(DamageRpc, package);
-                BerserkerRuntime.CommitReckoning(attacker);
-                BerserkerEffects.BroadcastReckoningImpact(attacker, hit.m_point, debt);
-                return true;
+                BerserkerRuntime.CommitReckoning(attacker, debt);
             }
             catch (Exception e)
             {
                 HaldorExpansionPlugin.Log?.LogError("[Berserker] Failed to route Reckoning hit: " + e);
                 return false;
             }
+
+            // VFX is non-gameplay. A visual RPC failure must never make the already-routed
+            // Reckoning fall back to vanilla Character.Damage or refund outgoing Debt.
+            try
+            {
+                BerserkerEffects.BroadcastReckoningImpact(attacker, hit.m_point, debt);
+            }
+            catch (Exception e)
+            {
+                HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Reckoning impact VFX failed: " + e.Message);
+            }
+            return true;
         }
 
         private static void ReceiveDamage(Character target, ZNetView view, long sender, ZPackage package)
@@ -95,11 +105,30 @@ namespace HaldorExpansion.Features.Berserker
                 if (target.IsDead() || target.GetHealth() <= 0f || target.IsTeleporting() || target.InCutscene()) return;
                 if (target.IsPlayer() || !BaseAI.IsEnemy(attacker, target)) return;
 
-                float before = target.GetHealth();
-                NativeDamage.Invoke(target, new object[] { sender, hit });
-                float actualDamage = Mathf.Max(0f, before - Mathf.Max(0f, target.GetHealth()));
-                if (actualDamage > 0f)
-                    attackerView.InvokeRPC(HealRpc, actualDamage);
+                // Character.ApplyDamage raises m_onDamaged with the final direct damage value
+                // after the vanilla resistance/armor pipeline. Unlike HP delta, this value is
+                // not truncated by the target's remaining health, so overkill still contributes
+                // to Reckoning lifesteal exactly like the displayed damage number.
+                float finalDamage = 0f;
+                Action<float, Character> captureDamage = (damage, source) =>
+                {
+                    if (finalDamage > 0f || source != attacker) return;
+                    if (float.IsNaN(damage) || float.IsInfinity(damage) || damage <= 0f) return;
+                    finalDamage = damage;
+                };
+
+                target.m_onDamaged += captureDamage;
+                try
+                {
+                    NativeDamage.Invoke(target, new object[] { sender, hit });
+                }
+                finally
+                {
+                    target.m_onDamaged -= captureDamage;
+                }
+
+                if (finalDamage > 0f)
+                    attackerView.InvokeRPC(HealRpc, finalDamage);
             }
             catch (Exception e)
             {

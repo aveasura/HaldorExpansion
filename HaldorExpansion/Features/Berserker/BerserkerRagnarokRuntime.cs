@@ -1,55 +1,68 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
+using HaldorExpansion.Compatibility;
 using HarmonyLib;
 using UnityEngine;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerRagnarokRuntime
     {
         private const string MeteorPrefabName = "projectile_meteor";
+
         private const string CastEmote = "cheer";
-        private const float TargetRange = 35f;
-        private const float TargetDotMinimum = 0.40f;
+
         // Single source of truth for both gameplay meteor spread and the cast telegraph.
-        internal const float MeteorImpactRadius = 7.5f;
+        internal const float MeteorImpactRadius = 7.0f;
+
+        // Damage radius of each individual meteor explosion. Keep this separate from
+        // MeteorImpactRadius: the latter controls where meteors land, while this
+        // controls how much area each impact actually damages.
+        internal const float MeteorExplosionRadius = 9.0f;
         private const float MeteorSpawnHeight = 38f;
         private const float MeteorHorizontalDistanceMin = 18f;
         private const float MeteorHorizontalDistanceMax = 24f;
         private const float MeteorLateralJitter = 4f;
         private const float MeteorVelocity = 30f;
-        private const float MeteorInterval = 0.20f;
+        private const float MeteorInterval = 0.60f;
         private const float MeteorPushForce = 45f;
 
         private static readonly MethodInfo GetButtonDown =
             AccessTools.Method(AccessTools.TypeByName("ZInput"), "GetButtonDown", new[] { typeof(string) });
+
         private static readonly MethodInfo TakeInput = AccessTools.Method(typeof(Player), "TakeInput");
-        private static readonly MethodInfo StopEmote = AccessTools.Method(typeof(Player), "StopEmote", System.Type.EmptyTypes);
+
+        private static readonly MethodInfo StopEmote =
+            AccessTools.Method(typeof(Player), "StopEmote", Type.EmptyTypes);
 
         private static Coroutine castRoutine;
         private static bool casting;
+        private static float inputLockedUntil;
 
         internal static bool IsCasting => casting;
+
+        // Only the 1.5 s commitment phase is input-locked. The meteor shower can
+        // continue afterwards while the player regains control.
+        internal static bool IsInputLocked(Player player)
+        {
+            return player != null && player == Player.m_localPlayer && casting && Time.time < inputLockedUntil;
+        }
 
         internal static void Update(Player player)
         {
             if (player == null || player != Player.m_localPlayer || player.IsDead()) return;
-            if (casting || BerserkerConfiguration.RagnarokButton == null || GetButtonDown == null || TakeInput == null) return;
+            if (casting || BerserkerConfiguration.RagnarokButton == null || GetButtonDown == null ||
+                TakeInput == null) return;
             if (!BerserkerEquipment.Equipped(player) || !BerserkerRuntime.State.Frenzy) return;
             if (BerserkerRuntime.Debt.Amount + 0.0001d < BerserkerConfiguration.RagnarokMinimumDebtValue) return;
             if (player.IsTeleporting() || player.InCutscene() || player.InAttack() || player.InDodge()) return;
             if (!(bool)TakeInput.Invoke(player, null)) return;
             if (!(bool)GetButtonDown.Invoke(null, new object[] { BerserkerConfiguration.RagnarokButton.Name })) return;
 
-            Character target = AcquireTarget(player);
-            if (target == null)
-            {
-                player.Message(MessageHud.MessageType.Center, "$msg_berserker_ragnarok_no_target");
-                return;
-            }
-
-            StartCast(player, target);
+            StartCast(player);
         }
 
         internal static void Reset(Player player)
@@ -59,39 +72,44 @@ namespace HaldorExpansion.Features.Berserker
                 HaldorExpansionPlugin.Instance.StopCoroutine(castRoutine);
             castRoutine = null;
             casting = false;
+            inputLockedUntil = 0f;
             if (hadCast && player != null) BerserkerEffects.BroadcastRagnarokStop(player);
             if (player != null && player == Player.m_localPlayer && player.InEmote())
                 StopCastEmote(player);
         }
 
-        private static void StartCast(Player player, Character target)
+        private static void StartCast(Player player)
         {
             if (HaldorExpansionPlugin.Instance == null) return;
             casting = true;
-            castRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(CastRoutine(player, target, target.GetCenterPoint()));
+            inputLockedUntil = Time.time + BerserkerConfiguration.RagnarokCastDurationValue;
+            castRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(CastRoutine(player));
         }
 
-        private static IEnumerator CastRoutine(Player player, Character target, Vector3 initialTargetPoint)
+        private static IEnumerator CastRoutine(Player player)
         {
             try
             {
                 player.StartEmote(CastEmote, true);
-                BerserkerEffects.BroadcastRagnarokCast(player, target, BerserkerConfiguration.RagnarokCastDurationValue);
-                float finishAt = Time.time + BerserkerConfiguration.RagnarokCastDurationValue;
-                while (Time.time < finishAt)
-                {
-                    if (!CanContinueCast(player)) yield break;
-                    yield return null;
-                }
+                ClearHumanoidAttackState(player);
+                ClearHumanoidBlockState(player);
+                BerserkerEffects.BroadcastRagnarokCast(player, BerserkerConfiguration.RagnarokCastDurationValue);
 
-                if (!CanContinueCast(player)) yield break;
-                double debt = BerserkerRuntime.Debt.Amount;
-                if (debt + 0.0001d < BerserkerConfiguration.RagnarokMinimumDebtValue) yield break;
+                // Once the activation conditions passed and E started the cast, Ragnarök is
+                // committed. Do not re-check Wrath, Debt, equipment, attack/dodge state, etc.
+                // during the animation. Only death can prevent resolution. This mirrors the
+                // reliable commitment behaviour used by Cestus.
+                yield return new WaitForSeconds(BerserkerConfiguration.RagnarokCastDurationValue);
+
+                if (player == null || player != Player.m_localPlayer || player.IsDead()) yield break;
 
                 GameObject meteorPrefab = GetMeteorPrefab();
                 if (meteorPrefab == null) yield break;
 
-                Vector3 center = target != null && !target.IsDead() ? target.GetCenterPoint() : initialTargetPoint;
+                // Ragnarök is centered on the berserker. The telegraph follows the
+                // player during the cast, then this exact position is frozen for the
+                // entire meteor shower once the cast successfully completes.
+                Vector3 center = player.transform.position;
                 double consumed = BerserkerRuntime.Debt.ConsumeAll();
                 if (consumed <= 0d) yield break;
 
@@ -118,7 +136,8 @@ namespace HaldorExpansion.Features.Berserker
                     StopCastEmote(player);
                 castRoutine = null;
                 casting = false;
-                }
+                inputLockedUntil = 0f;
+            }
         }
 
 
@@ -132,48 +151,23 @@ namespace HaldorExpansion.Features.Berserker
             catch (TargetInvocationException ex)
             {
                 HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Ragnarok could not stop cast emote: " +
-                    (ex.InnerException?.Message ?? ex.Message));
+                                                      (ex.InnerException?.Message ?? ex.Message));
             }
         }
 
-        private static bool CanContinueCast(Player player)
+        internal static void ClearHumanoidAttackState(Humanoid humanoid)
         {
-            return player != null && player == Player.m_localPlayer && !player.IsDead() &&
-                   !player.IsTeleporting() && !player.InCutscene() && !player.InAttack() && !player.InDodge() &&
-                   BerserkerEquipment.Equipped(player) && BerserkerRuntime.State.Frenzy;
+            if (humanoid == null) return;
+            ReflectionAccess.SetFieldIfExists(humanoid, "m_attack", false);
+            ReflectionAccess.SetFieldIfExists(humanoid, "m_secondaryAttack", false);
+            ReflectionAccess.SetFieldIfExists(humanoid, "m_attackHold", false);
         }
 
-        private static Character AcquireTarget(Player player)
+        internal static void ClearHumanoidBlockState(Humanoid humanoid)
         {
-            List<Character> characters = Character.GetAllCharacters();
-            if (characters == null) return null;
-
-            Vector3 origin = player.GetCenterPoint();
-            Vector3 look = player.GetLookDir();
-            if (look.sqrMagnitude <= 0.0001f) look = player.transform.forward;
-            look.Normalize();
-
-            Character best = null;
-            float bestScore = float.NegativeInfinity;
-            foreach (Character target in characters)
-            {
-                if (target == null || target == player || target.IsPlayer() || target.IsDead()) continue;
-                if (!BaseAI.IsEnemy(player, target)) continue;
-
-                Vector3 delta = target.GetCenterPoint() - origin;
-                float distance = delta.magnitude;
-                if (distance <= 0.01f || distance > TargetRange) continue;
-
-                float dot = Vector3.Dot(look, delta / distance);
-                if (dot < TargetDotMinimum) continue;
-
-                // Aim alignment dominates; distance breaks ties so the intended target wins naturally.
-                float score = dot * 2f - distance / TargetRange * 0.35f;
-                if (score <= bestScore) continue;
-                bestScore = score;
-                best = target;
-            }
-            return best;
+            if (humanoid == null) return;
+            ReflectionAccess.SetFieldIfExists(humanoid, "m_blocking", false);
+            ReflectionAccess.SetFieldIfExists(humanoid, "m_blockTimer", 0f);
         }
 
         private static GameObject GetMeteorPrefab()
@@ -182,7 +176,8 @@ namespace HaldorExpansion.Features.Berserker
             GameObject prefab = ZNetScene.instance.GetPrefab(MeteorPrefabName);
             if (prefab != null && prefab.GetComponent<Projectile>() != null) return prefab;
 
-            HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Ragnarok meteor prefab missing or has no Projectile component: " + MeteorPrefabName);
+            HaldorExpansionPlugin.Log?.LogWarning(
+                "[Berserker] Ragnarok meteor prefab missing or has no Projectile component: " + MeteorPrefabName);
             return null;
         }
 
@@ -204,6 +199,7 @@ namespace HaldorExpansion.Features.Berserker
                 approach = player.transform.forward;
                 approach.y = 0f;
             }
+
             approach.Normalize();
 
             Vector3 lateral = Vector3.Cross(Vector3.up, approach).normalized;
@@ -218,7 +214,8 @@ namespace HaldorExpansion.Features.Berserker
             if (projectile == null)
             {
                 if (instance != null) Object.Destroy(instance);
-                HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Ragnarok meteor prefab has no Projectile component.");
+                HaldorExpansionPlugin.Log?.LogWarning(
+                    "[Berserker] Ragnarok meteor prefab has no Projectile component.");
                 return;
             }
 
@@ -233,6 +230,13 @@ namespace HaldorExpansion.Features.Berserker
             hit.SetAttacker(player);
 
             projectile.Setup(player, velocity, -1f, hit, player.GetCurrentWeapon(), null);
+
+            // projectile_meteor has its own small vanilla splash. Override it so the
+            // cinematic explosion and the gameplay hit area match the intended
+            // crowd-control role of Ragnarök. Projectile.DoAOE then applies the same
+            // custom HitData damage to every valid target inside this sphere.
+            projectile.m_aoe = MeteorExplosionRadius;
+
             BerserkerEffects.AttachMeteorVisual(instance, damage);
         }
     }

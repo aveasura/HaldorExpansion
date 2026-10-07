@@ -13,7 +13,7 @@ namespace HaldorExpansion.Features.Berserker
     {
         private const string ReckoningSwingRpc = "HE_BerserkerReckoningSwingFx_v1";
         private const string ReckoningImpactRpc = "HE_BerserkerReckoningImpactFx_v1";
-        private const string RagnarokCastRpc = "HE_BerserkerRagnarokCastFx_v2";
+        private const string RagnarokCastRpc = "HE_BerserkerRagnarokCastFx_v3";
         private const string RagnarokStopRpc = "HE_BerserkerRagnarokStopFx_v1";
         private const string RagnarokReleaseRpc = "HE_BerserkerRagnarokReleaseFx_v1";
 
@@ -26,7 +26,6 @@ namespace HaldorExpansion.Features.Berserker
         private sealed class PlayerVisualState
         {
             internal BerserkerRagnarokCastVisual RagnarokCast;
-            internal Character RagnarokTarget;
         }
 
         private static readonly ConditionalWeakTable<Player, PlayerVisualState> PlayerVisuals =
@@ -54,10 +53,10 @@ namespace HaldorExpansion.Features.Berserker
                 PlayReckoningImpact(point, debt);
             });
 
-            view.Register<Vector3, float>(RagnarokCastRpc, (sender, targetPoint, duration) =>
+            view.Register<float>(RagnarokCastRpc, (sender, duration) =>
             {
-                if (!ValidVisualRpc(view, sender) || !FiniteVector(targetPoint) || !FinitePositive(duration) || duration > 10f || !CanRender) return;
-                PlayRagnarokCast(player, targetPoint, duration);
+                if (!ValidVisualRpc(view, sender) || !FinitePositive(duration) || duration > 10f || !CanRender) return;
+                PlayRagnarokCast(player, duration);
             });
 
             view.Register<bool>(RagnarokStopRpc, (sender, ignored) =>
@@ -91,22 +90,12 @@ namespace HaldorExpansion.Features.Berserker
             else if (CanRender) PlayReckoningImpact(point, value);
         }
 
-        internal static void BroadcastRagnarokCast(Player player, Character target, float duration)
+        internal static void BroadcastRagnarokCast(Player player, float duration)
         {
-            if (player == null || target == null || !FinitePositive(duration)) return;
-
-            Vector3 targetPoint = target.transform.position;
-            if (!FiniteVector(targetPoint)) return;
-
-            // Keep the actual Character reference only on the casting client so its
-            // telegraph follows a moving target throughout the cast. Other clients
-            // still receive the initial target position through the cosmetic RPC.
-            PlayerVisualState state = PlayerVisuals.GetValue(player, ignored => new PlayerVisualState());
-            state.RagnarokTarget = target;
-
+            if (player == null || !FinitePositive(duration)) return;
             ZNetView view = View(player);
-            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, RagnarokCastRpc, targetPoint, duration);
-            else if (CanRender) PlayRagnarokCast(player, targetPoint, duration);
+            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, RagnarokCastRpc, duration);
+            else if (CanRender) PlayRagnarokCast(player, duration);
         }
 
         internal static void BroadcastRagnarokStop(Player player)
@@ -140,7 +129,8 @@ namespace HaldorExpansion.Features.Berserker
             GameObject root = new GameObject("Berserker_RagnarokMeteorImpact");
             root.transform.position = point;
             BerserkerImpactVisual impact = root.AddComponent<BerserkerImpactVisual>();
-            impact.Initialize(Mathf.Clamp(intensity * 1.12f, 1f, 1.9f), true, SoftMaterial(), SolidMaterial());
+            impact.Initialize(Mathf.Clamp(intensity * 1.12f, 1f, 1.9f), true, SoftMaterial(), SolidMaterial(),
+                BerserkerRagnarokRuntime.MeteorExplosionRadius);
         }
 
         private static void PlayReckoningSwing(Player player, float debt)
@@ -176,17 +166,16 @@ namespace HaldorExpansion.Features.Berserker
             impact.Initialize(EffectIntensity(debt), false, SoftMaterial(), SolidMaterial());
         }
 
-        private static void PlayRagnarokCast(Player player, Vector3 targetPoint, float duration)
+        private static void PlayRagnarokCast(Player player, float duration)
         {
             if (player == null || player.IsDead()) return;
             PlayerVisualState state = PlayerVisuals.GetValue(player, ignored => new PlayerVisualState());
             if (state.RagnarokCast != null) state.RagnarokCast.StopFx(0.12f);
 
-            Character trackedTarget = player == Player.m_localPlayer ? state.RagnarokTarget : null;
             GameObject root = new GameObject("Berserker_RagnarokCast");
             root.transform.SetParent(player.transform, false);
             BerserkerRagnarokCastVisual cast = root.AddComponent<BerserkerRagnarokCastVisual>();
-            cast.Initialize(player, trackedTarget, targetPoint, BerserkerRagnarokRuntime.MeteorImpactRadius, duration, SoftMaterial(), SolidMaterial());
+            cast.Initialize(player, BerserkerRagnarokRuntime.MeteorImpactRadius, duration, SoftMaterial(), SolidMaterial());
             state.RagnarokCast = cast;
         }
 
@@ -200,10 +189,9 @@ namespace HaldorExpansion.Features.Berserker
                 state.RagnarokCast.StopFx(0.18f);
                 state.RagnarokCast = null;
             }
-            state.RagnarokTarget = null;
         }
 
-        private static void PlayRagnarokRelease(Player player, Vector3 targetPoint, float debt)
+        private static void PlayRagnarokRelease(Player player, Vector3 centerPoint, float debt)
         {
             StopRagnarokCast(player);
             float intensity = Mathf.Clamp(EffectIntensity(debt) + 0.18f, 1.15f, 1.9f);
@@ -216,11 +204,11 @@ namespace HaldorExpansion.Features.Berserker
                 release.Initialize(intensity, SoftMaterial(), SolidMaterial());
             }
 
-            // A restrained target pulse makes the start of the shower readable without
-            // pretending to be an exact damage-radius telegraph.
-            GameObject target = new GameObject("Berserker_RagnarokTargetPulse");
-            target.transform.position = targetPoint;
-            BerserkerImpactVisual marker = target.AddComponent<BerserkerImpactVisual>();
+            // A restrained center pulse marks the exact point where the self-cast area
+            // was frozen when Ragnarök completed.
+            GameObject zone = new GameObject("Berserker_RagnarokCenterPulse");
+            zone.transform.position = centerPoint;
+            BerserkerImpactVisual marker = zone.AddComponent<BerserkerImpactVisual>();
             marker.Initialize(intensity * 0.68f, true, SoftMaterial(), SolidMaterial());
         }
 
@@ -501,12 +489,14 @@ namespace HaldorExpansion.Features.Berserker
         private float bornAt;
         private float intensity;
         private bool meteor;
+        private float exactRadius;
 
-        internal void Initialize(float effectIntensity, bool meteorImpact, Material soft, Material solid)
+        internal void Initialize(float effectIntensity, bool meteorImpact, Material soft, Material solid, float visualRadius = 0f)
         {
             bornAt = Time.time;
             intensity = Mathf.Clamp(effectIntensity, 0.45f, 2f);
             meteor = meteorImpact;
+            exactRadius = Mathf.Max(0f, visualRadius);
 
             rings = new LineRenderer[2];
             for (int i = 0; i < rings.Length; i++)
@@ -561,7 +551,12 @@ namespace HaldorExpansion.Features.Berserker
             float t = Mathf.Clamp01((Time.time - bornAt) / Lifetime);
             float eased = 1f - (1f - t) * (1f - t);
             float alpha = 1f - t;
-            float baseRadius = (meteor ? 1.2f : 0.85f) * intensity;
+            // Meteor impacts can provide the exact gameplay AoE radius. The larger
+            // of the two rings then finishes exactly at that radius, so the VFX does
+            // not visually lie about how far the blast reaches.
+            float baseRadius = exactRadius > 0f
+                ? exactRadius / 3.20f
+                : (meteor ? 1.2f : 0.85f) * intensity;
 
             for (int r = 0; r < rings.Length; r++)
             {
@@ -595,7 +590,6 @@ namespace HaldorExpansion.Features.Berserker
     internal sealed class BerserkerRagnarokCastVisual : MonoBehaviour
     {
         private Player player;
-        private Character target;
         private Vector3 targetPoint;
         private float targetRadius;
         private LineRenderer[] bolts;
@@ -609,11 +603,10 @@ namespace HaldorExpansion.Features.Berserker
         private float stopDuration;
         private float nextBoltRefresh;
 
-        internal void Initialize(Player owner, Character trackedTarget, Vector3 initialTargetPoint, float impactRadius, float castDuration, Material soft, Material solid)
+        internal void Initialize(Player owner, float impactRadius, float castDuration, Material soft, Material solid)
         {
             player = owner;
-            target = trackedTarget;
-            targetPoint = initialTargetPoint;
+            targetPoint = owner != null ? owner.transform.position : transform.position;
             targetRadius = Mathf.Max(0.5f, impactRadius);
             duration = Mathf.Clamp(castDuration, 0.2f, 10f);
             bornAt = Time.time;
@@ -688,12 +681,15 @@ namespace HaldorExpansion.Features.Berserker
                 }
             }
 
-            UpdateTargetTelegraph(alpha, natural);
+            UpdateCastTelegraph(alpha, natural);
         }
 
-        private void UpdateTargetTelegraph(float alpha, float castProgress)
+        private void UpdateCastTelegraph(float alpha, float castProgress)
         {
-            if (target != null && !target.IsDead()) targetPoint = target.transform.position;
+            // While the cast is charging, the exact gameplay telegraph follows the
+            // berserker on every client. At release, runtime freezes the current
+            // player position and all meteors use that fixed center.
+            targetPoint = player.transform.position;
 
             float pulse = 0.5f + 0.5f * Mathf.Sin(Time.time * 6.5f);
             float charge = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.18f, 1f, castProgress));
