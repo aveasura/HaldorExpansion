@@ -14,17 +14,6 @@ namespace HaldorExpansion.Features.Berserker
             internal Player Player;
             internal float BeforeHp;
             internal bool Eligible;
-            internal string SkipReason;
-        }
-
-        // Only a finite number of messages in this prototype: useful to diagnose
-        // a missing source/HP delta without flooding BepInEx logs each frame.
-        private static int diagnosticsLeft = 12;
-        private static void Trace(string message)
-        {
-            if (diagnosticsLeft <= 0) return;
-            diagnosticsLeft--;
-            HaldorExpansionPlugin.Log?.LogInfo("[Berserker Debt] " + message);
         }
 
         [HarmonyPriority(Priority.First)]
@@ -41,29 +30,24 @@ namespace HaldorExpansion.Features.Berserker
 
             if (DelayedDoomRuntime.IsDelayedDoomInternalDamage(player))
             {
-                __state.SkipReason = "Delayed Doom internal damage";
                 return;
             }
             if (NornThreadRuntime.IsGraceActive(player))
             {
-                __state.SkipReason = "Norn Thread rescue grace";
                 return;
             }
 
             Character attacker = __0.GetAttacker();
             if (attacker == null)
             {
-                __state.SkipReason = "attacker unresolved/environment";
                 return;
             }
             if (attacker == player || attacker.IsPlayer())
             {
-                __state.SkipReason = "self/player hit";
                 return;
             }
             if (!BaseAI.IsEnemy(player, attacker))
             {
-                __state.SkipReason = "non-hostile creature";
                 return;
             }
             __state.Eligible = __state.BeforeHp > 0f;
@@ -83,15 +67,9 @@ namespace HaldorExpansion.Features.Berserker
 
             if (!__state.Eligible || player.IsDead() || after <= 0f ||
                 NornThreadRuntime.IsGraceActive(player))
-            {
-                Trace("skipped: " + (__state.SkipReason ?? "dead/Norn protection") +
-                      ", actualHP=" + realLoss.ToString("0.##"));
                 return;
-            }
 
             BerserkerRuntime.NotifyEnemyDamage(player, realLoss);
-            Trace("credited HP=" + realLoss.ToString("0.##") +
-                  " => Debt=" + BerserkerRuntime.Debt.Amount.ToString("0.##"));
         }
 
     }

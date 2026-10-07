@@ -1,5 +1,7 @@
 using BepInEx.Configuration;
 using Jotunn.Extensions;
+using Jotunn.Configs;
+using Jotunn.Managers;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Berserker
@@ -8,16 +10,18 @@ namespace HaldorExpansion.Features.Berserker
     {
         internal static ConfigEntry<float> HitsPerWrathStage;
         internal static ConfigEntry<float> WrathDecayInterval;
-        internal static ConfigEntry<float> FrenzyDrainPercentPerSecond;
-        internal static ConfigEntry<float> FrenzyMinimumHealthPercent;
         internal static ConfigEntry<float> BloodDebtEnemyMultiplier;
-        internal static ConfigEntry<float> BloodDebtFrenzyMultiplier;
         internal static ConfigEntry<float> BloodDebtDecayDelay;
         internal static ConfigEntry<float> BloodDebtDecayPercentPerSecond;
-        internal static ConfigEntry<float> BloodDebtBarCycle;
-        internal static ConfigEntry<float> BloodDebtHudOffsetX;
-        internal static ConfigEntry<float> BloodDebtHudOffsetY;
-        internal static ConfigEntry<float> BloodDebtHudWidth;
+        internal static ConfigEntry<float> ReckoningMinimumDebt;
+        internal static ConfigEntry<float> ReckoningLifeStealPercent;
+        internal static ConfigEntry<float> WrathAttackSpeedPercentPerStage;
+        internal static ConfigEntry<float> WrathStaminaCostReductionPercentPerStage;
+        internal static ConfigEntry<float> RagnarokMinimumDebt;
+        internal static ConfigEntry<float> RagnarokCastDuration;
+        internal static ConfigEntry<float> RagnarokExhaustionDuration;
+        internal static ConfigEntry<float> RagnarokExhaustionMovePenaltyPercent;
+        internal static ButtonConfig RagnarokButton;
 
         internal static void Register(ConfigFile config)
         {
@@ -37,74 +41,79 @@ namespace HaldorExpansion.Features.Berserker
                 "Each lost stage restarts the same interval.",
                 synced: true);
 
-            FrenzyDrainPercentPerSecond = config.BindConfig(
-                "Berserker",
-                "Frenzy max health drain per second percent",
-                0.25f,
-                "Percent of maximum health drained per second while Wrath V / Frenzy is active. " +
-                "The first prototype intentionally uses a very small value.",
-                synced: true);
-
             BloodDebtEnemyMultiplier = config.BindConfig(
                 "Berserker", "Blood Debt from enemy HP loss multiplier", 2f,
                 "Real HP lost to hostile creatures (after armor, resistance, and blocks) is multiplied by this value. " +
                 "Works only while the Berserker Greataxe is equipped.", synced: true);
-
-            BloodDebtFrenzyMultiplier = config.BindConfig(
-                "Berserker", "Blood Debt from Frenzy HP loss multiplier", 0.10f,
-                "Small separate coefficient applied to actual HP removed by Frenzy. " +
-                "Does not restart the Blood Debt decay timer.", synced: true);
 
             BloodDebtDecayDelay = config.BindConfig(
                 "Berserker", "Blood Debt decay delay seconds", 10f,
                 "Seconds without real HP loss from a hostile creature before Blood Debt begins to decay.", synced: true);
 
             BloodDebtDecayPercentPerSecond = config.BindConfig(
-                "Berserker", "Blood Debt decay percent per second", 4f,
+                "Berserker", "Blood Debt decay percent per second", 2.4f,
                 "Exponential percent-per-second decrease while out of combat. No maximum Blood Debt limit.", synced: true);
 
-            BloodDebtBarCycle = config.BindConfig(
-                "Berserker", "Blood Debt HUD amount per cycle", 100f,
-                "Visual-only threshold for one completed Blood Debt bar cycle. The center label shows x0, x1, x2, etc. Accumulating beyond it is unlimited.", synced: true);
+            ReckoningMinimumDebt = config.BindConfig(
+                "Berserker", "Reckoning minimum Blood Debt", 100f,
+                "Minimum Blood Debt required for the secondary greataxe attack to become Reckoning at Wrath V.", synced: true);
 
-            // Client-only layout tuning relative to the health bar.
-            // Keep configurable until the best in-game position is established.
-            BloodDebtHudOffsetX = config.BindConfig(
-                "Berserker", "Blood Debt HUD offset X from HP", 8f,
-                "Horizontal gap from the RIGHT edge of the HP bar. Negative values move left. " +
-                "Client-only visual adjustment.", synced: false);
+            ReckoningLifeStealPercent = config.BindConfig(
+                "Berserker", "Reckoning lifesteal percent", 25f,
+                "Percent of the main target's actual post-defense Reckoning damage restored as health.", synced: true);
 
-            BloodDebtHudOffsetY = config.BindConfig(
-                "Berserker", "Blood Debt HUD offset Y from HP", 0f,
-                "Vertical adjustment relative to the BOTTOM edge of the HP bar. Positive moves up. " +
-                "Client-only visual adjustment.", synced: false);
+            WrathAttackSpeedPercentPerStage = config.BindConfig(
+                "Berserker", "Wrath attack speed percent per stage", 10f,
+                "Attack animation speed gained per active Wrath stage while wielding the Berserker Greataxe.", synced: true);
 
-            BloodDebtHudWidth = config.BindConfig(
-                "Berserker", "Blood Debt HUD bar width", 32f,
-                "Fixed width of the Blood Debt meter in UI pixels. Client-only. " +
-                "Height always follows the actual health bar automatically.", synced: false);
+            WrathStaminaCostReductionPercentPerStage = config.BindConfig(
+                "Berserker", "Wrath stamina cost reduction percent per stage", 5f,
+                "Stamina cost reduction for all normal actions per active Wrath stage while wielding the Berserker Greataxe.", synced: true);
 
-            FrenzyMinimumHealthPercent = config.BindConfig(
-                "Berserker",
-                "Frenzy minimum health percent",
-                5f,
-                "Frenzy self-drain cannot reduce current health below this percent of maximum health.",
-                synced: true);
+            RagnarokMinimumDebt = config.BindConfig(
+                "Berserker", "Ragnarok minimum Blood Debt", 500f,
+                "Minimum Blood Debt required to cast the prototype Ragnarok ability at Wrath V.", synced: true);
+
+            RagnarokCastDuration = config.BindConfig(
+                "Berserker", "Ragnarok cast duration seconds", 1.5f,
+                "Prototype cast time before the meteor rain is released.", synced: true);
+
+            RagnarokExhaustionDuration = config.BindConfig(
+                "Berserker", "Ragnarok exhaustion duration seconds", 3f,
+                "Duration of Exhaustion after Ragnarok resolves.", synced: true);
+
+            RagnarokExhaustionMovePenaltyPercent = config.BindConfig(
+                "Berserker", "Ragnarok exhaustion movement penalty percent", 25f,
+                "Movement-speed penalty applied by Exhaustion after Ragnarok.", synced: true);
+
+            ConfigEntry<KeyCode> ragnarokKey = config.Bind(
+                "Berserker", "Ragnarok Ability Key", KeyCode.Z,
+                "Prototype key for casting Ragnarok at Wrath V with at least x5 Blood Debt. The final set requirement will be added later.");
+            RagnarokButton = new ButtonConfig
+            {
+                Name = "HE_BerserkerRagnarok",
+                Config = ragnarokKey,
+                HintToken = "$he_berserker_ragnarok_ability",
+                BlockOtherInputs = true
+            };
+            InputManager.Instance.AddButton(HaldorExpansionPlugin.ModGuid, RagnarokButton);
+
         }
 
         internal static float HitsPerStageValue => FiniteClamp(HitsPerWrathStage.Value, 0.25f, 100f, 2f);
         internal static float DecayIntervalValue => FiniteClamp(WrathDecayInterval.Value, 0.5f, 300f, 10f);
-        internal static float FrenzyDrainFractionPerSecond => FiniteClamp(FrenzyDrainPercentPerSecond.Value, 0f, 20f, 0.25f) * 0.01f;
-        internal static float FrenzyMinimumHealthFraction => FiniteClamp(FrenzyMinimumHealthPercent.Value, 0f, 100f, 5f) * 0.01f;
 
         internal static float EnemyDebtMultiplierValue => FiniteClamp(BloodDebtEnemyMultiplier.Value, 0f, 100f, 2f);
-        internal static float FrenzyDebtMultiplierValue => FiniteClamp(BloodDebtFrenzyMultiplier.Value, 0f, 5f, 0.10f);
         internal static float DebtDecayDelayValue => FiniteClamp(BloodDebtDecayDelay.Value, 0.1f, 600f, 10f);
-        internal static float DebtDecayRateValue => FiniteClamp(BloodDebtDecayPercentPerSecond.Value, 0f, 100f, 4f);
-        internal static float DebtCycleValue => FiniteClamp(BloodDebtBarCycle.Value, 10f, 100000f, 100f);
-        internal static float DebtHudOffsetXValue => FiniteClamp(BloodDebtHudOffsetX.Value, -500f, 500f, 8f);
-        internal static float DebtHudOffsetYValue => FiniteClamp(BloodDebtHudOffsetY.Value, -500f, 500f, 0f);
-        internal static float DebtHudWidthValue => FiniteClamp(BloodDebtHudWidth.Value, 5f, 80f, 32f);
+        internal static float DebtDecayRateValue => FiniteClamp(BloodDebtDecayPercentPerSecond.Value, 0f, 100f, 2.4f);
+        internal static float ReckoningMinimumDebtValue => FiniteClamp(ReckoningMinimumDebt.Value, 1f, 1000000f, 100f);
+        internal static float ReckoningLifeStealFraction => FiniteClamp(ReckoningLifeStealPercent.Value, 0f, 100f, 25f) * 0.01f;
+        internal static float WrathAttackSpeedFractionPerStage => FiniteClamp(WrathAttackSpeedPercentPerStage.Value, 0f, 100f, 10f) * 0.01f;
+        internal static float WrathStaminaReductionFractionPerStage => FiniteClamp(WrathStaminaCostReductionPercentPerStage.Value, 0f, 19f, 5f) * 0.01f;
+        internal static float RagnarokMinimumDebtValue => FiniteClamp(RagnarokMinimumDebt.Value, 100f, 1000000f, 500f);
+        internal static float RagnarokCastDurationValue => FiniteClamp(RagnarokCastDuration.Value, 0.1f, 10f, 1.5f);
+        internal static float RagnarokExhaustionDurationValue => FiniteClamp(RagnarokExhaustionDuration.Value, 0f, 30f, 3f);
+        internal static float RagnarokExhaustionMovePenaltyFraction => FiniteClamp(RagnarokExhaustionMovePenaltyPercent.Value, 0f, 90f, 25f) * 0.01f;
 
         private static float FiniteClamp(float value, float min, float max, float fallback)
             => float.IsNaN(value) || float.IsInfinity(value) ? fallback : Mathf.Clamp(value, min, max);

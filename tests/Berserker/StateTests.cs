@@ -49,8 +49,9 @@ internal static class BerserkerStateTests
             Check(s.WrathStage == 0, "Malformed hit inputs are ignored");
 
             VerifyDebt();
+            VerifyReckoning();
 
-            Console.WriteLine("PASS: Berserker Wrath hit progression, V/Frenzy, timer restart, staged decay, partial reset and fractional AoE credit");
+            Console.WriteLine("PASS: Berserker Wrath, Blood Debt and Reckoning pure-state/math regressions");
             return 0;
         }
         catch (Exception e)
@@ -74,19 +75,6 @@ internal static class BerserkerStateTests
         double refreshed = debt.Amount;
         debt.Tick(21f, 4f);
         Check(NearlyDouble(debt.Amount, refreshed), "Fresh enemy damage restarts idle delay");
-        debt.AddFrenzyLoss(22f, 10f, 0.1f, 10f);
-        double withFrenzy = debt.Amount;
-        debt.Tick(23f, 4f);
-        Check(debt.Amount < withFrenzy, "Frenzy drain never refreshes enemy-hit delay");
-
-        debt.Reset();
-        debt.AddFrenzyLoss(2f, 10f, 0.1f, 10f);
-        Check(NearlyDouble(debt.Amount, 1d), "Frenzy self-drain accrues only 10 percent");
-        debt.Tick(11f, 4f);
-        Check(NearlyDouble(debt.Amount, 1d), "Frenzy-only debt uses its own first decay delay");
-        debt.Tick(13f, 4f);
-        Check(debt.Amount < 1d, "Frenzy-only debt decays without enemy hits");
-
         debt.Reset();
         debt.AddEnemyDamage(0f, 1000000f, 100f, 10f);
         debt.AddEnemyDamage(1f, 1000000f, 100f, 10f);
@@ -95,7 +83,36 @@ internal static class BerserkerStateTests
         Check(debt.Amount >= 200000000d, "Nonfinite inputs do not poison debt");
         debt.Reset();
         Check(debt.Amount == 0d, "Death/owner reset clears debt");
-        Console.WriteLine("PASS: Blood Debt actual-HP coefficients, delay, exponential decay, Frenzy-only credit, unlimited growth and reset");
+        Console.WriteLine("PASS: Blood Debt actual-HP coefficients, delay, exponential decay, unlimited growth and reset");
+    }
+
+
+    private static void VerifyReckoning()
+    {
+        Check(Nearly(BerserkerReckoningMath.BonusDamage(100d), 120f), "x1 Reckoning bonus is 120");
+        Check(Nearly(BerserkerReckoningMath.BonusDamage(300d), 360f), "x3 Reckoning bonus is 360");
+        Check(Nearly(BerserkerReckoningMath.BonusDamage(500d), 470f), "x5 Reckoning bonus is 470");
+        Check(Nearly(BerserkerReckoningMath.BonusDamage(600d), 525f), "x6 Reckoning bonus is 525");
+        Check(Nearly(BerserkerReckoningMath.BonusDamage(1000d), 665f), "x10 Reckoning bonus is 665");
+        Check(Nearly(BerserkerReckoningMath.BonusDamage(2000d), 865f), "x20 Reckoning bonus is 865");
+
+        Check(Nearly(BerserkerReckoningMath.HealAmount(500f, 0.25f), 125f),
+            "Reckoning heals twenty-five percent of actual damage");
+        Check(Nearly(BerserkerReckoningMath.HealAmount(1000f, 0.25f), 250f),
+            "Reckoning lifesteal has no artificial max-health cap");
+
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(500d), 1500f), "x5 Ragnarok total is 1500");
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(600d), 1600f), "x6 Ragnarok total is 1600");
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(800d), 1800f), "x8 Ragnarok total is 1800");
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(1000d), 2000f), "x10 Ragnarok total is 2000");
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(2000d), 2500f), "x20 Ragnarok soft-scales to 2500");
+
+        var debt = new BerserkerDebtState();
+        debt.AddEnemyDamage(0f, 125f, 2f, 10f);
+        double consumed = debt.ConsumeAll();
+        Check(NearlyDouble(consumed, 250d) && debt.Amount == 0d,
+            "Reckoning consumes the entire exact Blood Debt amount");
+        Console.WriteLine("PASS: Reckoning softer segmented bonus, uncapped lifesteal, Ragnarok independent curve and full debt consumption");
     }
 
     private static bool NearlyDouble(double a, double b)

@@ -10,7 +10,25 @@ namespace HaldorExpansion.Features.Berserker
 
         private static Player owner;
         private static int lastSyncedStage = -1;
-        private static float frenzyDrainAccumulator;
+
+        internal static int EffectiveWrathStage(Player player)
+        {
+            if (player == null || player != Player.m_localPlayer || player.IsDead()) return 0;
+            if (!BerserkerEquipment.Equipped(player)) return 0;
+            return Mathf.Clamp(State.WrathStage, 0, BerserkerState.MaxWrathStage);
+        }
+
+        internal static float WrathAttackSpeedMultiplier(Player player)
+        {
+            int stage = EffectiveWrathStage(player);
+            return Mathf.Clamp(1f + stage * BerserkerConfiguration.WrathAttackSpeedFractionPerStage, 0.1f, 3f);
+        }
+
+        internal static float WrathStaminaMultiplier(Player player)
+        {
+            int stage = EffectiveWrathStage(player);
+            return Mathf.Clamp(1f - stage * BerserkerConfiguration.WrathStaminaReductionFractionPerStage, 0.1f, 1f);
+        }
 
         internal static void Update(Player player)
         {
@@ -26,25 +44,13 @@ namespace HaldorExpansion.Features.Berserker
             int before = State.WrathStage;
             State.Tick(Time.time, BerserkerConfiguration.DecayIntervalValue);
             if (State.WrathStage != before) SyncStatus(player);
-            Debt.Tick(Time.time, BerserkerConfiguration.DebtDecayRateValue);
+            if (!BerserkerRagnarokRuntime.IsCasting)
+                Debt.Tick(Time.time, BerserkerConfiguration.DebtDecayRateValue);
 
-            // Wrath belongs to the player and survives a short weapon swap through normal decay,
-            // but Frenzy itself is active only while the prototype greataxe is actually wielded.
-            if (State.Frenzy && BerserkerEquipment.Equipped(player) &&
-                !player.IsTeleporting() && !player.InCutscene())
-            {
-                frenzyDrainAccumulator += Mathf.Max(0f, Time.deltaTime);
-                if (frenzyDrainAccumulator >= 0.25f)
-                {
-                    float elapsed = frenzyDrainAccumulator;
-                    frenzyDrainAccumulator = 0f;
-                    ApplyFrenzyDrain(player, elapsed);
-                }
-            }
-            else
-            {
-                frenzyDrainAccumulator = 0f;
-            }
+            // Wrath V / Frenzy no longer self-damages the player. Risk comes from
+            // taking real enemy damage to build Blood Debt; future equipment can amplify it.
+
+            BerserkerRagnarokRuntime.Update(player);
         }
 
         internal static void NotifyAxeHit(Player player, float credit)
@@ -71,11 +77,47 @@ namespace HaldorExpansion.Features.Berserker
                 BerserkerConfiguration.DebtDecayDelayValue);
         }
 
+        internal static bool TryGetReckoningPayload(Player player, out double debt, out float bonus)
+        {
+            debt = 0d;
+            bonus = 0f;
+            if (player == null || player != Player.m_localPlayer || player.IsDead()) return false;
+            EnsureOwner(player);
+            if (!State.Frenzy || !BerserkerEquipment.Equipped(player)) return false;
+
+            debt = Debt.Amount;
+            if (debt + 0.0001d < BerserkerConfiguration.ReckoningMinimumDebtValue) return false;
+            bonus = BerserkerReckoningMath.BonusDamage(debt);
+            return bonus > 0f;
+        }
+
+        internal static void CommitReckoning(Player player)
+        {
+            if (player == null || player != Player.m_localPlayer) return;
+            Debt.ConsumeAll();
+        }
+
+        internal static void ApplyReckoningHeal(Player player, float actualDamage)
+        {
+            if (player == null || player != Player.m_localPlayer || player.IsDead()) return;
+            if (float.IsNaN(actualDamage) || float.IsInfinity(actualDamage) || actualDamage <= 0f) return;
+
+            float maxHealth = Mathf.Max(0f, player.GetMaxHealth());
+            float current = Mathf.Max(0f, player.GetHealth());
+            float heal = BerserkerReckoningMath.HealAmount(
+                actualDamage,
+                BerserkerConfiguration.ReckoningLifeStealFraction);
+            heal = Mathf.Min(heal, Mathf.Max(0f, maxHealth - current));
+            if (heal <= 0f) return;
+
+            CharacterHealthAccess.SetCharacterHealth(player, current + heal);
+        }
+
         internal static void Reset(Player player)
         {
+            BerserkerRagnarokRuntime.Reset(player);
             State.Reset();
             Debt.Reset();
-            frenzyDrainAccumulator = 0f;
             if (player == Player.m_localPlayer)
             {
                 lastSyncedStage = -1;
@@ -88,9 +130,9 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (owner == player) return;
             owner = player;
+            BerserkerRagnarokRuntime.Reset(player);
             State.Reset();
             Debt.Reset();
-            frenzyDrainAccumulator = 0f;
             lastSyncedStage = -1;
             SyncStatus(player);
         }
@@ -103,27 +145,5 @@ namespace HaldorExpansion.Features.Berserker
             lastSyncedStage = stage;
         }
 
-        private static void ApplyFrenzyDrain(Player player, float deltaTime)
-        {
-            if (deltaTime <= 0f || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime)) return;
-
-            float maxHealth = Mathf.Max(0f, player.GetMaxHealth());
-            float health = Mathf.Max(0f, player.GetHealth());
-            if (maxHealth <= 0f || health <= 0f) return;
-
-            float floor = Mathf.Max(1f, maxHealth * BerserkerConfiguration.FrenzyMinimumHealthFraction);
-            if (health <= floor) return;
-
-            float drain = maxHealth * BerserkerConfiguration.FrenzyDrainFractionPerSecond * deltaTime;
-            if (drain <= 0f || float.IsNaN(drain) || float.IsInfinity(drain)) return;
-
-            float after = Mathf.Max(floor, health - drain);
-            CharacterHealthAccess.SetCharacterHealth(player, after);
-            float actualLoss = Mathf.Max(0f, health - Mathf.Max(0f, player.GetHealth()));
-            if (actualLoss > 0f)
-                Debt.AddFrenzyLoss(Time.time, actualLoss,
-                    BerserkerConfiguration.FrenzyDebtMultiplierValue,
-                    BerserkerConfiguration.DebtDecayDelayValue);
-        }
     }
 }

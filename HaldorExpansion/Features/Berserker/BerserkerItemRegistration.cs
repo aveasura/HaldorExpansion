@@ -14,7 +14,16 @@ namespace HaldorExpansion.Features.Berserker
         internal const string SourcePrefabName = "BattleaxeGold_BloodLightning";
         internal const string ItemKey = "$item_weapon_berserker_greataxe";
         internal const string ItemDescKey = "$item_weapon_berserker_greataxe_desc";
-        internal const float BaseSlashDamage = 135f;
+        internal const float BaseSlashDamage = 105f;
+        internal const float SecondaryBaseDamage = 120f;
+        internal const float MovementModifier = -0.10f;
+        internal const float PrimaryStamina = 16f;
+        internal const float AttackForce = 50f;
+        internal const float BlockPower = 38f;
+        internal const float DeflectionForce = 35f;
+        internal const float PrimaryStaggerMultiplier = 1.125f;
+        internal const float SecondaryStaggerMultiplier = 3f;
+        internal const string SecondaryAttackAnimation = "swing_sledge";
 
         internal static GameObject Prefab;
         internal static ItemDrop ItemDrop;
@@ -67,8 +76,6 @@ namespace HaldorExpansion.Features.Berserker
 
                 Prefab = clone;
                 ItemDrop = drop;
-                HaldorExpansionPlugin.DebugLog(
-                    $"[Berserker] Prototype greataxe registered: {PrefabName} (source={SourcePrefabName})");
                 return true;
             }
             catch (Exception e)
@@ -86,14 +93,37 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_description = ItemDescKey;
             shared.m_value = 0;
 
-            // Keep the Thunderblood Greataxe's native model, animations, stamina costs, block stats,
-            // movement penalty and — critically — its built-in missing-health attack scaling.
-            // Replacing only the damage payload leaves the Attack objects untouched, where the
-            // vanilla "damage increased per health missing" modifier lives.
+            // Keep the Thunderblood Greataxe model/moveset and its native missing-health damage scaling,
+            // but tune the weapon itself around the Berserker risk/reward loop.
             shared.m_damages = new HitData.DamageTypes();
             shared.m_damages.m_slash = BaseSlashDamage;
             shared.m_damagesPerLevel = new HitData.DamageTypes();
             shared.m_maxQuality = 1;
+
+            // Less raw safety/control than the vanilla Deep North greataxe: the build should prefer
+            // taking real HP damage instead of leaning on blocking/parrying and heavy stagger-lock.
+            shared.m_movementModifier = MovementModifier;
+            shared.m_attackForce = AttackForce;
+            shared.m_blockPower = BlockPower;
+            shared.m_deflectionForce = DeflectionForce;
+            shared.m_deflectionForcePerLevel = 0f;
+
+            if (shared.m_attack != null)
+            {
+                shared.m_attack.m_attackStamina = PrimaryStamina;
+                shared.m_attack.m_staggerMultiplier = PrimaryStaggerMultiplier;
+            }
+            if (shared.m_secondaryAttack != null)
+            {
+                shared.m_secondaryAttack.m_staggerMultiplier = SecondaryStaggerMultiplier;
+                // Make the overhead secondary a deliberate execution hit: 120 base damage
+                // from the shared 105 Slash weapon profile, before missing-HP scaling/Reckoning.
+                shared.m_secondaryAttack.m_damageMultiplier = SecondaryBaseDamage / BaseSlashDamage;
+
+                // Keep the Berserker secondary attack mechanics/hit data, but use the
+                // vanilla Stagbreaker overhead slam animation for a heavier execution feel.
+                shared.m_secondaryAttack.m_attackAnimation = SecondaryAttackAnimation;
+            }
 
             // Thunderblood's chain-lightning proc is NOT an attack status effect in current Valheim.
             // It is spawned directly by both Attack objects through m_spawnOnHit / m_spawnOnHitChance.

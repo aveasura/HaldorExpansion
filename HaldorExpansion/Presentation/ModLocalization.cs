@@ -1,4 +1,4 @@
-﻿using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.HelOath;
 using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.PeltOfHelheim;
@@ -45,23 +45,30 @@ namespace HaldorExpansion.Presentation
                     "+25% к скорости передвижения.\n-20% затрат выносливости на все действия.\nОбъятия Хель значительно усилены.",
                 // Берсерк — рабочее имя/описание первой игровой итерации
                 ["$se_berserker_blood_debt"] = "Кровавый долг",
+                ["$he_berserker_ragnarok_ability"] = "Рагнарёк",
+                ["$msg_berserker_ragnarok_no_target"] = "Рагнарёк: нет цели",
+                ["$msg_berserker_ragnarok_cast"] = "Рагнарёк",
+                ["$se_berserker_ragnarok_exhaustion"] = "Истощение",
+                ["$se_berserker_ragnarok_exhaustion_desc"] = "После Рагнарёка скорость передвижения снижена на 25% на 3 секунды.",
                 [BerserkerItemRegistration.ItemKey] = "Секира берсерка",
                 [BerserkerItemRegistration.ItemDescKey] =
                     "Тяжёлая двуручная секира, которая становится опаснее вместе с ранами владельца.\n\n" +
                     "Попадания по врагам пробуждают Ярость. Она растёт до V стадии и постепенно угасает, если перестать атаковать. " +
-                    "На Ярости V начинается Бешенство: пока секира в руках, здоровье медленно сгорает, но оружие продолжает усиливаться от недостающего здоровья.\n\n" +
-                    "Кровавый долг растёт от фактически потерянного здоровья при ударах врагов. Бешенство добавляет совсем немного долга, а вне боя долг постепенно угасает. Расплата появится в следующем прототипе.",
+                    "Каждая стадия Ярости даёт +10% к скорости атаки и снижает затраты выносливости на все действия на 5%. На Ярости V начинается Бешенство: максимальный темп боя открывает Расплату и Рагнарёк. Оружие по-прежнему усиливается от недостающего здоровья.\n\n" +
+                    "Кровавый долг растёт только от фактически потерянного здоровья при ударах врагов и постепенно угасает вне боя. " +
+                    "На Ярости V и при минимум x1 Кровавого долга специальная атака секиры (колёсико мыши) сразу становится Расплатой: она поглощает весь долг, наносит дополнительный рассекающий урон и восстанавливает часть здоровья.\n\n" +
+                    "Прототип Рагнарёка: на Ярости V и при минимум x5 Кровавого долга нажмите Z, чтобы после короткого каста обрушить метеоритный дождь на выбранного врага. Рагнарёк поглощает весь долг и оставляет после себя Истощение.",
                 ["$se_berserker_wrath_1"] = "Ярость I",
-                ["$se_berserker_wrath_1_desc"] = "Ярость пробуждена. Продолжайте атаковать, чтобы усиливать её.",
+                ["$se_berserker_wrath_1_desc"] = "+10% к скорости атаки. -5% затрат выносливости на все действия. Продолжайте атаковать, чтобы усиливать Ярость.",
                 ["$se_berserker_wrath_2"] = "Ярость II",
-                ["$se_berserker_wrath_2_desc"] = "Ярость нарастает. Без новых попаданий она начнёт угасать.",
+                ["$se_berserker_wrath_2_desc"] = "+20% к скорости атаки. -10% затрат выносливости на все действия. Без новых попаданий Ярость начнёт угасать.",
                 ["$se_berserker_wrath_3"] = "Ярость III",
-                ["$se_berserker_wrath_3_desc"] = "Ярость захватывает бойца всё сильнее.",
+                ["$se_berserker_wrath_3_desc"] = "+30% к скорости атаки. -15% затрат выносливости на все действия.",
                 ["$se_berserker_wrath_4"] = "Ярость IV",
-                ["$se_berserker_wrath_4_desc"] = "Ещё немного — и ярость сорвётся в Бешенство.",
+                ["$se_berserker_wrath_4_desc"] = "+40% к скорости атаки. -20% затрат выносливости на все действия. Ещё немного — и Ярость сорвётся в Бешенство.",
                 ["$se_berserker_wrath_5"] = "Ярость V",
                 ["$se_berserker_wrath_5_desc"] =
-                    "Бешенство. Пока секира в руках, здоровье медленно сгорает. Самосгорание не может опустить здоровье ниже установленного предела.",
+                    "Бешенство. +50% к скорости атаки. -25% затрат выносливости на все действия. Открывает Расплату и Рагнарёк при достаточном Кровавом долге.",
 
                 // Осквернённый Бризингамен
                 ["$item_brisingamen"] = "Осквернённый Бризингамен",
@@ -179,23 +186,30 @@ namespace HaldorExpansion.Presentation
                     "+25% movement speed.\n-20% stamina cost for all actions.\nHel's Embrace is greatly empowered.",
                 // Berserker — working name/description for the first gameplay iteration
                 ["$se_berserker_blood_debt"] = "Blood Debt",
+                ["$he_berserker_ragnarok_ability"] = "Ragnarok",
+                ["$msg_berserker_ragnarok_no_target"] = "Ragnarok: no target",
+                ["$msg_berserker_ragnarok_cast"] = "Ragnarok",
+                ["$se_berserker_ragnarok_exhaustion"] = "Exhaustion",
+                ["$se_berserker_ragnarok_exhaustion_desc"] = "After Ragnarok, movement speed is reduced by 25% for 3 seconds.",
                 [BerserkerItemRegistration.ItemKey] = "Berserker Greataxe",
                 [BerserkerItemRegistration.ItemDescKey] =
                     "A heavy two-handed greataxe that grows more dangerous as its wielder is wounded.\n\n" +
                     "Hitting enemies awakens Wrath. It rises through five stages and slowly fades when the assault stops. " +
-                    "At Wrath V, Frenzy begins: while the greataxe is wielded, health slowly burns away while the weapon keeps benefiting from missing health.\n\n" +
-                    "Blood Debt grows from real HP lost to enemy attacks. Frenzy adds a little, but without combat the debt decays. Reckoning is coming in a later prototype.",
+                    "Each Wrath stage grants +10% attack speed and reduces stamina costs for all actions by 5%. At Wrath V, Frenzy begins: maximum combat tempo unlocks Reckoning and Ragnarok, while the weapon continues to benefit from missing health.\n\n" +
+                    "Blood Debt grows only from real HP lost to enemy attacks and gradually decays out of combat. " +
+                    "At Wrath V and at least x1 Blood Debt, the greataxe secondary attack (mouse wheel) becomes Reckoning immediately: it consumes all debt, deals bonus Slash damage, and restores some health.\n\n" +
+                    "Ragnarok prototype: at Wrath V and at least x5 Blood Debt, press Z to cast a meteor rain on the selected enemy. Ragnarok consumes all debt and leaves the berserker Exhausted.",
                 ["$se_berserker_wrath_1"] = "Wrath I",
-                ["$se_berserker_wrath_1_desc"] = "Wrath has awakened. Keep attacking to drive it higher.",
+                ["$se_berserker_wrath_1_desc"] = "+10% attack speed. -5% stamina cost for all actions. Keep attacking to drive Wrath higher.",
                 ["$se_berserker_wrath_2"] = "Wrath II",
-                ["$se_berserker_wrath_2_desc"] = "Wrath is rising. Without new hits it will begin to fade.",
+                ["$se_berserker_wrath_2_desc"] = "+20% attack speed. -10% stamina cost for all actions. Without new hits Wrath will begin to fade.",
                 ["$se_berserker_wrath_3"] = "Wrath III",
-                ["$se_berserker_wrath_3_desc"] = "Wrath grips the fighter more tightly.",
+                ["$se_berserker_wrath_3_desc"] = "+30% attack speed. -15% stamina cost for all actions.",
                 ["$se_berserker_wrath_4"] = "Wrath IV",
-                ["$se_berserker_wrath_4_desc"] = "One step remains before Wrath breaks into Frenzy.",
+                ["$se_berserker_wrath_4_desc"] = "+40% attack speed. -20% stamina cost for all actions. One step remains before Wrath breaks into Frenzy.",
                 ["$se_berserker_wrath_5"] = "Wrath V",
                 ["$se_berserker_wrath_5_desc"] =
-                    "Frenzy. While the greataxe is wielded, health slowly burns away. Self-drain cannot reduce health below the configured floor.",
+                    "Frenzy. +50% attack speed. -25% stamina cost for all actions. Unlocks Reckoning and Ragnarok when enough Blood Debt has been accumulated.",
 
                 // Corrupted Brisingamen
                 ["$item_brisingamen"] = "Corrupted Brisingamen",

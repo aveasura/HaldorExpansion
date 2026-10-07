@@ -50,6 +50,7 @@ namespace HaldorExpansion.Patches
             HelOathTouchStatus.EnsureRegistered();
             BerserkerItemRegistration.EnsureReady();
             BerserkerWrathStatus.EnsureRegistered();
+            BerserkerRagnarokExhaustion.EnsureRegistered();
             WoundedBeastItemRegistration.EnsureWoundedBeastCapeReady();
             PeltOfHelheimItemRegistration.EnsureReady();
             PeltOfHelheimStatus.EnsureRegistered();

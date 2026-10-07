@@ -7,7 +7,7 @@ namespace HaldorExpansion.Features.Berserker
 {
     // Visual-only Blood Debt gauge, anchored to the same vanilla health GuiBar
     // that Cestus uses. We never reparent/resize/modify the health bar itself.
-    // X/Y are offsets relative to its right/bottom edges, not screen coordinates.
+    // Final layout is intentionally fixed in code so players cannot break the HUD through config.
     internal static class BerserkerDebtHudView
     {
         private static Hud attachedHud;
@@ -19,6 +19,10 @@ namespace HaldorExpansion.Features.Berserker
         private static bool warnedMissingHealthBar;
         private static float nextGeometryCheckAt;
         private const float GeometryCheckInterval = 0.20f; // 5 checks/sec
+        private const float DebtPerVisualCycle = 100f;
+        private const float MeterWidth = 32f;
+        private const float OffsetXFromHealth = 8f;
+        private const float OffsetYFromHealth = 0f;
 
         internal static void Update(Hud hud, Player player)
         {
@@ -46,8 +50,7 @@ namespace HaldorExpansion.Features.Berserker
             UpdateGeometryIfDue();
 
             double debt = BerserkerRuntime.Debt.Amount;
-            double perCycle = BerserkerConfiguration.DebtCycleValue;
-            if (perCycle <= 0d) perCycle = 100d;
+            const double perCycle = DebtPerVisualCycle;
 
             // The meter loops visually, but accumulated debt has no hard cap.
             long completedCycles = debt <= 0d ? 0L : (long)Math.Floor(debt / perCycle);
@@ -210,17 +213,16 @@ namespace HaldorExpansion.Features.Berserker
             if (float.IsNaN(worldYPerLocalUnit) || float.IsInfinity(worldYPerLocalUnit) ||
                 worldYPerLocalUnit < 0.0001f) return;
             float healthHeightUi = healthHeightWorld / worldYPerLocalUnit;
-            trackRect.sizeDelta = new Vector2(
-                BerserkerConfiguration.DebtHudWidthValue, healthHeightUi);
+            trackRect.sizeDelta = new Vector2(MeterWidth, healthHeightUi);
 
-            // Config offsets are still in HUD layout units. Convert them to
+            // Fixed HUD offsets are expressed in layout units. Convert them to
             // world units so X always moves visually RIGHT and Y visually UP,
             // regardless of how the vanilla HP hierarchy is rotated.
             float uiScale = parent.TransformVector(Vector3.right).magnitude;
             if (uiScale < 0.0001f) uiScale = 1f;
             trackRect.position = new Vector3(
-                right + BerserkerConfiguration.DebtHudOffsetXValue * uiScale,
-                bottom + BerserkerConfiguration.DebtHudOffsetYValue * uiScale,
+                right + OffsetXFromHealth * uiScale,
+                bottom + OffsetYFromHealth * uiScale,
                 HealthCorners[0].z);
         }
 

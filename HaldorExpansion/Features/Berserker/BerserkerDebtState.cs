@@ -24,23 +24,6 @@ namespace HaldorExpansion.Features.Berserker
             clockInitialized = true;
         }
 
-        internal void AddFrenzyLoss(float now, float actualHpLost, float coefficient, float delay)
-        {
-            if (!Finite(now) || !Finite(actualHpLost) || actualHpLost <= 0f ||
-                !Finite(coefficient) || coefficient <= 0f) return;
-
-            bool wasEmpty = Amount <= 0d;
-            Add(actualHpLost * (double)coefficient);
-            // Frenzy must never refresh the enemy-hit inactivity clock. Only arm it when
-            // the first debt point comes from self-drain, so AFK farming cannot hold debt.
-            if (wasEmpty && Amount > 0d)
-            {
-                decayStartAt = now + Positive(delay, 10f);
-                lastTickAt = now;
-                clockInitialized = true;
-            }
-        }
-
         internal void Tick(float now, float decayPercentPerSecond)
         {
             if (!Finite(now)) return;
@@ -61,6 +44,16 @@ namespace HaldorExpansion.Features.Berserker
                 Amount *= Math.Exp(-rate * (now - start));
                 if (Amount < 0.01d) Amount = 0d;
             }
+        }
+
+        internal double ConsumeAll()
+        {
+            double consumed = Amount;
+            Amount = 0d;
+            decayStartAt = 0f;
+            lastTickAt = 0f;
+            clockInitialized = false;
+            return consumed;
         }
 
         internal void Reset()
