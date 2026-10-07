@@ -12,7 +12,8 @@ namespace HaldorExpansion.Features.Berserker
         private const string CastEmote = "cheer";
         private const float TargetRange = 35f;
         private const float TargetDotMinimum = 0.40f;
-        private const float MeteorSpreadRadius = 7.5f;
+        // Single source of truth for both gameplay meteor spread and the cast telegraph.
+        internal const float MeteorImpactRadius = 7.5f;
         private const float MeteorSpawnHeight = 38f;
         private const float MeteorHorizontalDistanceMin = 18f;
         private const float MeteorHorizontalDistanceMax = 24f;
@@ -75,7 +76,7 @@ namespace HaldorExpansion.Features.Berserker
             try
             {
                 player.StartEmote(CastEmote, true);
-                BerserkerEffects.BroadcastRagnarokCast(player, BerserkerConfiguration.RagnarokCastDurationValue);
+                BerserkerEffects.BroadcastRagnarokCast(player, target, BerserkerConfiguration.RagnarokCastDurationValue);
                 float finishAt = Time.time + BerserkerConfiguration.RagnarokCastDurationValue;
                 while (Time.time < finishAt)
                 {
@@ -189,7 +190,7 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (player == null || prefab == null || damage <= 0f) return;
 
-            Vector2 random = Random.insideUnitCircle * MeteorSpreadRadius;
+            Vector2 random = Random.insideUnitCircle * MeteorImpactRadius;
             Vector3 impact = center + new Vector3(random.x, 0f, random.y);
 
             // Bring the whole shower in on a cinematic diagonal instead of dropping it

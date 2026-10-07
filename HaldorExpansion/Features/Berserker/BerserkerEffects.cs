@@ -13,7 +13,7 @@ namespace HaldorExpansion.Features.Berserker
     {
         private const string ReckoningSwingRpc = "HE_BerserkerReckoningSwingFx_v1";
         private const string ReckoningImpactRpc = "HE_BerserkerReckoningImpactFx_v1";
-        private const string RagnarokCastRpc = "HE_BerserkerRagnarokCastFx_v1";
+        private const string RagnarokCastRpc = "HE_BerserkerRagnarokCastFx_v2";
         private const string RagnarokStopRpc = "HE_BerserkerRagnarokStopFx_v1";
         private const string RagnarokReleaseRpc = "HE_BerserkerRagnarokReleaseFx_v1";
 
@@ -26,6 +26,7 @@ namespace HaldorExpansion.Features.Berserker
         private sealed class PlayerVisualState
         {
             internal BerserkerRagnarokCastVisual RagnarokCast;
+            internal Character RagnarokTarget;
         }
 
         private static readonly ConditionalWeakTable<Player, PlayerVisualState> PlayerVisuals =
@@ -53,10 +54,10 @@ namespace HaldorExpansion.Features.Berserker
                 PlayReckoningImpact(point, debt);
             });
 
-            view.Register<float>(RagnarokCastRpc, (sender, duration) =>
+            view.Register<Vector3, float>(RagnarokCastRpc, (sender, targetPoint, duration) =>
             {
-                if (!ValidVisualRpc(view, sender) || !FinitePositive(duration) || duration > 10f || !CanRender) return;
-                PlayRagnarokCast(player, duration);
+                if (!ValidVisualRpc(view, sender) || !FiniteVector(targetPoint) || !FinitePositive(duration) || duration > 10f || !CanRender) return;
+                PlayRagnarokCast(player, targetPoint, duration);
             });
 
             view.Register<bool>(RagnarokStopRpc, (sender, ignored) =>
@@ -90,12 +91,22 @@ namespace HaldorExpansion.Features.Berserker
             else if (CanRender) PlayReckoningImpact(point, value);
         }
 
-        internal static void BroadcastRagnarokCast(Player player, float duration)
+        internal static void BroadcastRagnarokCast(Player player, Character target, float duration)
         {
-            if (player == null || !FinitePositive(duration)) return;
+            if (player == null || target == null || !FinitePositive(duration)) return;
+
+            Vector3 targetPoint = target.transform.position;
+            if (!FiniteVector(targetPoint)) return;
+
+            // Keep the actual Character reference only on the casting client so its
+            // telegraph follows a moving target throughout the cast. Other clients
+            // still receive the initial target position through the cosmetic RPC.
+            PlayerVisualState state = PlayerVisuals.GetValue(player, ignored => new PlayerVisualState());
+            state.RagnarokTarget = target;
+
             ZNetView view = View(player);
-            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, RagnarokCastRpc, duration);
-            else if (CanRender) PlayRagnarokCast(player, duration);
+            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, RagnarokCastRpc, targetPoint, duration);
+            else if (CanRender) PlayRagnarokCast(player, targetPoint, duration);
         }
 
         internal static void BroadcastRagnarokStop(Player player)
@@ -165,16 +176,17 @@ namespace HaldorExpansion.Features.Berserker
             impact.Initialize(EffectIntensity(debt), false, SoftMaterial(), SolidMaterial());
         }
 
-        private static void PlayRagnarokCast(Player player, float duration)
+        private static void PlayRagnarokCast(Player player, Vector3 targetPoint, float duration)
         {
             if (player == null || player.IsDead()) return;
             PlayerVisualState state = PlayerVisuals.GetValue(player, ignored => new PlayerVisualState());
             if (state.RagnarokCast != null) state.RagnarokCast.StopFx(0.12f);
 
+            Character trackedTarget = player == Player.m_localPlayer ? state.RagnarokTarget : null;
             GameObject root = new GameObject("Berserker_RagnarokCast");
             root.transform.SetParent(player.transform, false);
             BerserkerRagnarokCastVisual cast = root.AddComponent<BerserkerRagnarokCastVisual>();
-            cast.Initialize(player, duration, SoftMaterial(), SolidMaterial());
+            cast.Initialize(player, trackedTarget, targetPoint, BerserkerRagnarokRuntime.MeteorImpactRadius, duration, SoftMaterial(), SolidMaterial());
             state.RagnarokCast = cast;
         }
 
@@ -182,9 +194,13 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (player == null) return;
             PlayerVisualState state;
-            if (!PlayerVisuals.TryGetValue(player, out state) || state.RagnarokCast == null) return;
-            state.RagnarokCast.StopFx(0.18f);
-            state.RagnarokCast = null;
+            if (!PlayerVisuals.TryGetValue(player, out state)) return;
+            if (state.RagnarokCast != null)
+            {
+                state.RagnarokCast.StopFx(0.18f);
+                state.RagnarokCast = null;
+            }
+            state.RagnarokTarget = null;
         }
 
         private static void PlayRagnarokRelease(Player player, Vector3 targetPoint, float debt)
@@ -579,8 +595,13 @@ namespace HaldorExpansion.Features.Berserker
     internal sealed class BerserkerRagnarokCastVisual : MonoBehaviour
     {
         private Player player;
+        private Character target;
+        private Vector3 targetPoint;
+        private float targetRadius;
         private LineRenderer[] bolts;
         private LineRenderer ring;
+        private LineRenderer targetRing;
+        private LineRenderer targetInnerRing;
         private ParticleSystem rise;
         private float bornAt;
         private float duration;
@@ -588,9 +609,12 @@ namespace HaldorExpansion.Features.Berserker
         private float stopDuration;
         private float nextBoltRefresh;
 
-        internal void Initialize(Player owner, float castDuration, Material soft, Material solid)
+        internal void Initialize(Player owner, Character trackedTarget, Vector3 initialTargetPoint, float impactRadius, float castDuration, Material soft, Material solid)
         {
             player = owner;
+            target = trackedTarget;
+            targetPoint = initialTargetPoint;
+            targetRadius = Mathf.Max(0.5f, impactRadius);
             duration = Mathf.Clamp(castDuration, 0.2f, 10f);
             bornAt = Time.time;
 
@@ -600,6 +624,13 @@ namespace HaldorExpansion.Features.Berserker
 
             ring = BerserkerEffects.MakeLine(transform, solid, 0.045f, 49, false);
             ring.loop = true;
+
+            // Exact gameplay telegraph: the outer ring uses the same radius constant
+            // as Random.insideUnitCircle when meteor impact points are generated.
+            targetRing = BerserkerEffects.MakeLine(transform, solid, 0.070f, 65, true);
+            targetRing.loop = true;
+            targetInnerRing = BerserkerEffects.MakeLine(transform, soft, 0.13f, 65, true);
+            targetInnerRing.loop = true;
 
             rise = BerserkerEffects.MakeParticles(transform, soft, true, 0.48f, 0.045f, 0.12f, 0.05f, 0.28f, 280);
             ParticleSystem.EmissionModule emission = rise.emission;
@@ -655,6 +686,44 @@ namespace HaldorExpansion.Features.Berserker
                     float angle = i / (float)(ring.positionCount - 1) * Mathf.PI * 2f;
                     ring.SetPosition(i, new Vector3(Mathf.Cos(angle) * radius, 0.10f, Mathf.Sin(angle) * radius));
                 }
+            }
+
+            UpdateTargetTelegraph(alpha, natural);
+        }
+
+        private void UpdateTargetTelegraph(float alpha, float castProgress)
+        {
+            if (target != null && !target.IsDead()) targetPoint = target.transform.position;
+
+            float pulse = 0.5f + 0.5f * Mathf.Sin(Time.time * 6.5f);
+            float charge = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.18f, 1f, castProgress));
+            float outerAlpha = alpha * (0.45f + charge * 0.42f + pulse * 0.10f);
+            float innerAlpha = alpha * (0.13f + charge * 0.18f + pulse * 0.08f);
+            float y = targetPoint.y + 0.08f;
+
+            if (targetRing != null)
+            {
+                targetRing.startColor = targetRing.endColor = new Color(0.98f, 0.035f, 0.012f, outerAlpha);
+                SetWorldCircle(targetRing, targetPoint, y, targetRadius);
+            }
+
+            if (targetInnerRing != null)
+            {
+                float innerRadius = targetRadius * (0.70f + pulse * 0.035f);
+                targetInnerRing.startColor = targetInnerRing.endColor = new Color(0.12f, 0.002f, 0.006f, innerAlpha);
+                SetWorldCircle(targetInnerRing, targetPoint, y + 0.015f, innerRadius);
+            }
+        }
+
+        private static void SetWorldCircle(LineRenderer line, Vector3 center, float y, float radius)
+        {
+            for (int i = 0; i < line.positionCount; i++)
+            {
+                float angle = i / (float)(line.positionCount - 1) * Mathf.PI * 2f;
+                line.SetPosition(i, new Vector3(
+                    center.x + Mathf.Cos(angle) * radius,
+                    y,
+                    center.z + Mathf.Sin(angle) * radius));
             }
         }
 

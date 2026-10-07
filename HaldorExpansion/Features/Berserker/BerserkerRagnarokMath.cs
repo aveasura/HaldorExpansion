@@ -20,8 +20,7 @@ namespace HaldorExpansion.Features.Berserker
 
         // Ragnarok is intentionally a separate payoff curve rather than Reckoning × N.
         // At the unlock threshold x5 it starts at 1500 total damage. Up to x10 each extra
-        // Debt point adds 1 damage.
-        // beyond x10 the marginal gain softens to 0.5 per Debt.
+        // Debt point adds 1 damage beyond x10 the marginal gain softens to 0.5 per Debt.
         internal static float TotalDamage(double debt)
         {
             if (double.IsNaN(debt) || double.IsInfinity(debt) || debt < MinimumDebt) return 0f;
