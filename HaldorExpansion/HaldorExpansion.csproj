@@ -85,6 +85,11 @@
         <Compile Include="Features\Berserker\BerserkerDebtHudView.cs"/>
         <Compile Include="Features\Berserker\BerserkerEquipment.cs"/>
         <Compile Include="Features\Berserker\BerserkerItemRegistration.cs"/>
+        <Compile Include="Features\Berserker\BerserkerCloakItemRegistration.cs"/>
+        <Compile Include="Features\Berserker\BerserkerCloakRuntime.cs"/>
+        <Compile Include="Features\Berserker\BerserkerCloakDamagePatch.cs"/>
+        <Compile Include="Features\Berserker\BerserkerCloakInventoryRebind.cs"/>
+        <Compile Include="Features\Berserker\BerserkerCloakPlayerPatch.cs"/>
         <Compile Include="Features\Berserker\BerserkerAttackScope.cs"/>
         <Compile Include="Features\Berserker\BerserkerRuntime.cs"/>
         <Compile Include="Features\Berserker\BerserkerWrathStatus.cs"/>

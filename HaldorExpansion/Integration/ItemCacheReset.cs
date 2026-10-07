@@ -1,4 +1,5 @@
 using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Brisingamen;
 using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.Cestus;
@@ -17,6 +18,7 @@ namespace HaldorExpansion.Integration
         {
             HelOathItemRegistration.HelOathPrefab = null;
             HelOathItemRegistration.HelOathItemDrop = null;
+            BerserkerCloakItemRegistration.ResetCaches();
             BrisingamenItemRegistration.RingPrefab = null;
             BrisingamenItemRegistration.RingItemDrop = null;
             NornThreadItemRegistration.Prefab = null;

@@ -57,6 +57,7 @@ namespace HaldorExpansion.Features.Berserker
             if (casting || BerserkerConfiguration.RagnarokButton == null || GetButtonDown == null ||
                 TakeInput == null) return;
             if (!BerserkerEquipment.Equipped(player) || !BerserkerRuntime.State.Frenzy) return;
+            if (!BerserkerCloakRuntime.HasEquipped(player)) return;
             if (BerserkerRuntime.Debt.Amount + 0.0001d < BerserkerConfiguration.RagnarokMinimumDebtValue) return;
             if (player.IsTeleporting() || player.InCutscene() || player.InAttack() || player.InDodge()) return;
             if (!(bool)TakeInput.Invoke(player, null)) return;

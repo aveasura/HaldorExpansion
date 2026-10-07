@@ -54,10 +54,10 @@ namespace HaldorExpansion.Presentation
                 [BerserkerItemRegistration.ItemDescKey] =
                     "Тяжёлая двуручная секира, которая становится опаснее вместе с ранами владельца.\n\n" +
                     "Попадания по врагам пробуждают Ярость. Она растёт до V стадии и постепенно угасает, если перестать атаковать. " +
-                    "Каждая стадия Ярости даёт +10% к скорости атаки и снижает затраты выносливости на все действия на 5%. На Ярости V начинается Бешенство: максимальный темп боя открывает Расплату и Рагнарёк. Оружие по-прежнему усиливается от недостающего здоровья.\n\n" +
+                    "Каждая стадия Ярости даёт +10% к скорости атаки и снижает затраты выносливости на все действия на 5%. На Ярости V начинается Бешенство: максимальный темп боя открывает Расплату, а экипированный Плащ берсерка пробуждает Рагнарёк. Оружие по-прежнему усиливается от недостающего здоровья.\n\n" +
                     "Кровавый долг растёт от фактически потерянного здоровья при ударах врагов и от успешных попаданий секирой, а вне боя постепенно угасает. " +
-                    "На Ярости V и при минимум x1 Кровавого долга специальная атака секиры (колёсико мыши) сразу становится Расплатой: она поглощает половину текущего долга, наносит дополнительный рассекающий урон и восстанавливает 20% финального урона по основной цели.\n\n" +
-                    "Прототип Рагнарёка: на Ярости V и при минимум x5 Кровавого долга нажмите E, чтобы после короткого неотменяемого каста обрушить метеоритный дождь вокруг себя. Рагнарёк поглощает весь долг и оставляет после себя Истощение.",
+                    "На Ярости V и при минимум x1 Кровавого долга специальная атака секиры (колёсико мыши) сразу становится Расплатой: она поглощает половину текущего долга, наносит дополнительный рассекающий урон и восстанавливает 30% финального урона по основной цели.\n\n" +
+                    "Рагнарёк: экипированный Плащ берсерка пробуждает способность. На Ярости V и при минимум x5 Кровавого долга нажмите E, чтобы после короткого неотменяемого каста обрушить метеоритный дождь вокруг себя. Рагнарёк поглощает весь долг и оставляет после себя Истощение.",
                 ["$se_berserker_wrath_1"] = "Ярость I",
                 ["$se_berserker_wrath_1_desc"] = "+10% к скорости атаки. -5% затрат выносливости на все действия. Продолжайте атаковать, чтобы усиливать Ярость.",
                 ["$se_berserker_wrath_2"] = "Ярость II",
@@ -68,7 +68,17 @@ namespace HaldorExpansion.Presentation
                 ["$se_berserker_wrath_4_desc"] = "+40% к скорости атаки. -20% затрат выносливости на все действия. Ещё немного — и Ярость сорвётся в Бешенство.",
                 ["$se_berserker_wrath_5"] = "Ярость V",
                 ["$se_berserker_wrath_5_desc"] =
-                    "Бешенство. +50% к скорости атаки. -25% затрат выносливости на все действия. Открывает Расплату и Рагнарёк при достаточном Кровавом долге.",
+                    "Бешенство. +50% к скорости атаки. -25% затрат выносливости на все действия. Открывает Расплату; с Плащом берсерка и достаточным Кровавым долгом становится доступен Рагнарёк.",
+
+                // Плащ берсерка — рабочее имя
+                [BerserkerCloakItemRegistration.ItemKey] = "Плащ берсерка",
+                [BerserkerCloakItemRegistration.ItemDescKey] =
+                    "Плащ для тех, кто принимает удар вместо того, чтобы отступить. Чем кровавее становится бой, тем быстрее приближается Рагнарёк.",
+                [BerserkerCloakItemRegistration.EffectNameKey] = "Предвестник Рагнарёка",
+                [BerserkerCloakItemRegistration.EffectDescKey] =
+                    "+30% получаемого урона.\n" +
+                    "+50% к накоплению Кровавого долга.\n" +
+                    "Пробуждает Рагнарёк.",
 
                 // Осквернённый Бризингамен
                 ["$item_brisingamen"] = "Осквернённый Бризингамен",
@@ -195,10 +205,10 @@ namespace HaldorExpansion.Presentation
                 [BerserkerItemRegistration.ItemDescKey] =
                     "A heavy two-handed greataxe that grows more dangerous as its wielder is wounded.\n\n" +
                     "Hitting enemies awakens Wrath. It rises through five stages and slowly fades when the assault stops. " +
-                    "Each Wrath stage grants +10% attack speed and reduces stamina costs for all actions by 5%. At Wrath V, Frenzy begins: maximum combat tempo unlocks Reckoning and Ragnarok, while the weapon continues to benefit from missing health.\n\n" +
+                    "Each Wrath stage grants +10% attack speed and reduces stamina costs for all actions by 5%. At Wrath V, Frenzy begins: maximum combat tempo unlocks Reckoning, while an equipped Berserker Cloak awakens Ragnarok. The weapon continues to benefit from missing health.\n\n" +
                     "Blood Debt grows from real HP lost to enemy attacks and from successful greataxe hits, then gradually decays out of combat. " +
-                    "At Wrath V and at least x1 Blood Debt, the greataxe secondary attack (mouse wheel) becomes Reckoning immediately: it consumes half of the current debt, deals bonus Slash damage, and restores 20% of the final damage dealt to the main target.\n\n" +
-                    "Ragnarok prototype: at Wrath V and at least x5 Blood Debt, press E to commit to a short cast and call a meteor rain around yourself. Ragnarok consumes all debt and leaves the berserker Exhausted.",
+                    "At Wrath V and at least x1 Blood Debt, the greataxe secondary attack (mouse wheel) becomes Reckoning immediately: it consumes half of the current debt, deals bonus Slash damage, and restores 30% of the final damage dealt to the main target.\n\n" +
+                    "Ragnarok: the equipped Berserker Cloak awakens the ability. At Wrath V and at least x5 Blood Debt, press E to commit to a short cast and call a meteor rain around yourself. Ragnarok consumes all debt and leaves the berserker Exhausted.",
                 ["$se_berserker_wrath_1"] = "Wrath I",
                 ["$se_berserker_wrath_1_desc"] = "+10% attack speed. -5% stamina cost for all actions. Keep attacking to drive Wrath higher.",
                 ["$se_berserker_wrath_2"] = "Wrath II",
@@ -209,7 +219,17 @@ namespace HaldorExpansion.Presentation
                 ["$se_berserker_wrath_4_desc"] = "+40% attack speed. -20% stamina cost for all actions. One step remains before Wrath breaks into Frenzy.",
                 ["$se_berserker_wrath_5"] = "Wrath V",
                 ["$se_berserker_wrath_5_desc"] =
-                    "Frenzy. +50% attack speed. -25% stamina cost for all actions. Unlocks Reckoning and Ragnarok when enough Blood Debt has been accumulated.",
+                    "Frenzy. +50% attack speed. -25% stamina cost for all actions. Unlocks Reckoning; with the Berserker Cloak and enough Blood Debt, Ragnarok becomes available.",
+
+                // Berserker Cloak — working name
+                [BerserkerCloakItemRegistration.ItemKey] = "Berserker Cloak",
+                [BerserkerCloakItemRegistration.ItemDescKey] =
+                    "A cloak for those who take the blow instead of yielding. The bloodier the battle becomes, the closer Ragnarok draws.",
+                [BerserkerCloakItemRegistration.EffectNameKey] = "Harbinger of Ragnarok",
+                [BerserkerCloakItemRegistration.EffectDescKey] =
+                    "+30% incoming damage.\n" +
+                    "+50% Blood Debt generation.\n" +
+                    "Awakens Ragnarok.",
 
                 // Corrupted Brisingamen
                 ["$item_brisingamen"] = "Corrupted Brisingamen",

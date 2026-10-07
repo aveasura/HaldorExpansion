@@ -1,4 +1,4 @@
-﻿using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.HelOath;
 using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Brisingamen;
 using HaldorExpansion.Features.NornThread;
@@ -49,6 +49,7 @@ namespace HaldorExpansion.Patches
             HelOathItemRegistration.EnsureHelOathReady();
             HelOathTouchStatus.EnsureRegistered();
             BerserkerItemRegistration.EnsureReady();
+            BerserkerCloakItemRegistration.EnsureReady();
             BerserkerWrathStatus.EnsureRegistered();
             BerserkerRagnarokExhaustion.EnsureRegistered();
             WoundedBeastItemRegistration.EnsureWoundedBeastCapeReady();
@@ -62,6 +63,7 @@ namespace HaldorExpansion.Patches
             PitKingItemRegistration.RegisterPitKingChestRecipe();
             WoundedBeastItemRegistration.RegisterWoundedBeastCapeRecipe();
             PeltOfHelheimItemRegistration.RegisterRecipe();
+            BerserkerCloakItemRegistration.RegisterRecipe();
 
             TrophyValueUpdater.ApplyTrophyValues(ObjectDB.instance);
         }

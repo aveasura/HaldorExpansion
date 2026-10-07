@@ -1,4 +1,5 @@
 using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Configuration;
 using HaldorExpansion.Features.Brisingamen;
 using HaldorExpansion.Features.NornThread;
@@ -62,6 +63,19 @@ namespace HaldorExpansion.Trading
             new ShopItemDefinition("Needle", 250, 1, true)
         };
         
+
+        internal static void TryAddBerserkerCloak(Trader trader)
+        {
+            BerserkerCloakItemRegistration.EnsureReady();
+
+            ItemDrop drop = BerserkerCloakItemRegistration.ItemDrop;
+            if (drop == null) return;
+            if (HasPrefab(trader, BerserkerCloakItemRegistration.PrefabName)) return;
+
+            AddTradeItem(trader, drop, BerserkerCloakItemRegistration.Price, 1);
+            HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Berserker cloak added to Haldor shop");
+        }
+
         internal static void TryAddPeltOfHelheim(Trader trader)
         {
             PeltOfHelheimItemRegistration.EnsureReady();

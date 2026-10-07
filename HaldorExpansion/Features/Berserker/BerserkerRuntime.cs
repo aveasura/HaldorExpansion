@@ -84,9 +84,12 @@ namespace HaldorExpansion.Features.Berserker
 
             float debtGain = 0f;
             if (grantsDebt)
+            {
                 debtGain = secondary
                     ? BerserkerConfiguration.SecondaryDebtGainValue
                     : BerserkerConfiguration.PrimaryDebtGainValue;
+                debtGain *= BerserkerCloakRuntime.DebtMultiplier(player);
+            }
 
             // Reckoning passes grantsDebt=false: it still refreshes outgoing combat activity
             // so Debt decay does not begin while the player is actively fighting.
@@ -104,7 +107,7 @@ namespace HaldorExpansion.Features.Berserker
                 Time.time,
                 actualHpLost,
                 maxHealth,
-                BerserkerConfiguration.DebtPerFullHealthBarValue);
+                BerserkerConfiguration.DebtPerFullHealthBarValue * BerserkerCloakRuntime.DebtMultiplier(player));
         }
 
         internal static bool TryGetReckoningPayload(Player player, out double debt, out float bonus)
