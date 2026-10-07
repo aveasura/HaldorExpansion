@@ -19,6 +19,7 @@ namespace HaldorExpansion.Integration
             HelOathItemRegistration.HelOathPrefab = null;
             HelOathItemRegistration.HelOathItemDrop = null;
             BerserkerCloakItemRegistration.ResetCaches();
+            BerserkerHelmetItemRegistration.ResetCaches();
             BrisingamenItemRegistration.RingPrefab = null;
             BrisingamenItemRegistration.RingItemDrop = null;
             NornThreadItemRegistration.Prefab = null;

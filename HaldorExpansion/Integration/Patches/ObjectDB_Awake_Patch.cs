@@ -50,6 +50,7 @@ namespace HaldorExpansion.Patches
             HelOathTouchStatus.EnsureRegistered();
             BerserkerItemRegistration.EnsureReady();
             BerserkerCloakItemRegistration.EnsureReady();
+            BerserkerHelmetItemRegistration.EnsureReady();
             BerserkerWrathStatus.EnsureRegistered();
             BerserkerRagnarokExhaustion.EnsureRegistered();
             WoundedBeastItemRegistration.EnsureWoundedBeastCapeReady();
@@ -64,6 +65,7 @@ namespace HaldorExpansion.Patches
             WoundedBeastItemRegistration.RegisterWoundedBeastCapeRecipe();
             PeltOfHelheimItemRegistration.RegisterRecipe();
             BerserkerCloakItemRegistration.RegisterRecipe();
+            BerserkerHelmetItemRegistration.RegisterRecipe();
 
             TrophyValueUpdater.ApplyTrophyValues(ObjectDB.instance);
         }

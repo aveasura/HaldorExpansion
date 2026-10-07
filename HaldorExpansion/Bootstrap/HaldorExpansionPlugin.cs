@@ -1,4 +1,4 @@
-﻿using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.HelOath;
 using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Configuration;
 using HaldorExpansion.Diagnostics;
@@ -47,15 +47,19 @@ namespace HaldorExpansion
             _shopConfiguration.RegisterShopProgressionConfig(Config);
             _sellPriceConfiguration.RegisterHaldorSellPriceConfig(Config);
             ModLocalization.AddLocalizations();
+
+            // Bind every configuration entry before Harmony patching. A compatibility issue in one
+            // Harmony target must never leave later runtime systems with null ConfigEntry fields.
+            CestusInputRegistration.RegisterCestusInput(Config);
+            HelOathConfiguration.Register(Config);
+            BerserkerConfiguration.Register(Config);
+
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), ModGuid);
-            
+
             if (DebugLogging)
             {
                 AdrenalineDiagnostics.DumpAdrenalineReflection();
             }
-            CestusInputRegistration.RegisterCestusInput(Config);
-            HelOathConfiguration.Register(Config);
-            BerserkerConfiguration.Register(Config);
         }
     }
 }

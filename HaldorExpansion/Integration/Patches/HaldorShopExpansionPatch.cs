@@ -1,6 +1,7 @@
+using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Trading;
 using System.Collections.Generic;
 using System.Reflection;
-using HaldorExpansion.Trading;
 using HarmonyLib;
 
 namespace HaldorExpansion.Patches
@@ -8,6 +9,7 @@ namespace HaldorExpansion.Patches
     [HarmonyPatch]
     internal static class HaldorShopExpansionPatch
     {
+
         static MethodBase TargetMethod()
         {
             MethodInfo fallback = null;
@@ -44,20 +46,21 @@ namespace HaldorExpansion.Patches
 
             // добавляет Хальдору обычные предметы из массива ShopItems
             HaldorShopUpdater.TryAddConfiguredItems(__instance);
-
+            
             // Аксессуары
             HaldorShopUpdater.TryAddRing(__instance);
             HaldorShopUpdater.TryAddNornThread(__instance);
-
+            
             // Плащи
             HaldorShopUpdater.TryAddWoundedBeastCape(__instance);
             HaldorShopUpdater.TryAddPeltOfHelheim(__instance);
             HaldorShopUpdater.TryAddBerserkerCloak(__instance);
-
+            
             // Доспехи
+            HaldorShopUpdater.TryAddBerserkerHelmet(__instance);
             HaldorShopUpdater.TryAddDelayedDoomChest(__instance);
             HaldorShopUpdater.TryAddPitKingChest(__instance);
-
+            
             // Оружие
             HaldorShopUpdater.TryAddCestus(__instance);
             HaldorShopUpdater.TryAddShadowCrossbow(__instance);

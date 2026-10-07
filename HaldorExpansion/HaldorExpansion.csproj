@@ -90,6 +90,11 @@
         <Compile Include="Features\Berserker\BerserkerCloakDamagePatch.cs"/>
         <Compile Include="Features\Berserker\BerserkerCloakInventoryRebind.cs"/>
         <Compile Include="Features\Berserker\BerserkerCloakPlayerPatch.cs"/>
+        <Compile Include="Features\Berserker\BerserkerHelmetItemRegistration.cs"/>
+        <Compile Include="Features\Berserker\BerserkerHelmetRuntime.cs"/>
+        <Compile Include="Features\Berserker\BerserkerHelmetPatches.cs"/>
+        <Compile Include="Features\Berserker\BerserkerHelmetInventoryRebind.cs"/>
+        <Compile Include="Features\Berserker\BerserkerHelmetPlayerPatch.cs"/>
         <Compile Include="Features\Berserker\BerserkerAttackScope.cs"/>
         <Compile Include="Features\Berserker\BerserkerRuntime.cs"/>
         <Compile Include="Features\Berserker\BerserkerWrathStatus.cs"/>

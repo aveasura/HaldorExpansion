@@ -80,6 +80,17 @@ namespace HaldorExpansion.Presentation
                     "+50% к накоплению Кровавого долга.\n" +
                     "Пробуждает Рагнарёк.",
 
+                // Шлем берсерка — рабочее имя
+                [BerserkerHelmetItemRegistration.ItemKey] = "Шлем берсерка",
+                [BerserkerHelmetItemRegistration.ItemDescKey] =
+                    "Тяжёлый шлем, который крепнет вместе с Яростью владельца. Чем яростнее бой, тем труднее сломить его натиск.",
+                [BerserkerHelmetItemRegistration.EffectNameKey] = "Несокрушимая ярость",
+                [BerserkerHelmetItemRegistration.EffectDescKey] =
+                    "Каждая стадия Ярости:\n" +
+                    "+4 брони.\n" +
+                    "-15% накопления ошеломления.\n" +
+                    "-1% получаемого урона.",
+
                 // Осквернённый Бризингамен
                 ["$item_brisingamen"] = "Осквернённый Бризингамен",
                 ["$item_brisingamen_desc"] =
@@ -230,6 +241,17 @@ namespace HaldorExpansion.Presentation
                     "+30% incoming damage.\n" +
                     "+50% Blood Debt generation.\n" +
                     "Awakens Ragnarok.",
+
+                // Berserker Helmet — working name
+                [BerserkerHelmetItemRegistration.ItemKey] = "Berserker Helmet",
+                [BerserkerHelmetItemRegistration.ItemDescKey] =
+                    "A heavy helm that hardens with its wielder's Wrath. The fiercer the battle becomes, the harder the berserker is to break.",
+                [BerserkerHelmetItemRegistration.EffectNameKey] = "Unbroken Wrath",
+                [BerserkerHelmetItemRegistration.EffectDescKey] =
+                    "Each Wrath stage:\n" +
+                    "+4 armor.\n" +
+                    "-15% incoming stagger buildup.\n" +
+                    "-1% incoming damage.",
 
                 // Corrupted Brisingamen
                 ["$item_brisingamen"] = "Corrupted Brisingamen",

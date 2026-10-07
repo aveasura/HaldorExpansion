@@ -76,6 +76,18 @@ namespace HaldorExpansion.Trading
             HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Berserker cloak added to Haldor shop");
         }
 
+        internal static void TryAddBerserkerHelmet(Trader trader)
+        {
+            BerserkerHelmetItemRegistration.EnsureReady();
+
+            ItemDrop drop = BerserkerHelmetItemRegistration.ItemDrop;
+            if (drop == null) return;
+            if (HasPrefab(trader, BerserkerHelmetItemRegistration.PrefabName)) return;
+
+            AddTradeItem(trader, drop, BerserkerHelmetItemRegistration.Price, 1);
+            HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Berserker helmet added to Haldor shop");
+        }
+
         internal static void TryAddPeltOfHelheim(Trader trader)
         {
             PeltOfHelheimItemRegistration.EnsureReady();
