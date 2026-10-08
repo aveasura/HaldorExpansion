@@ -93,6 +93,7 @@
         <Compile Include="Features\Berserker\BerserkerHelmetItemRegistration.cs"/>
         <Compile Include="Features\Berserker\BerserkerHelmetRuntime.cs"/>
         <Compile Include="Features\Berserker\BerserkerHelmetPatches.cs"/>
+        <Compile Include="Features\Berserker\BerserkerHelmetLifeStealNetwork.cs"/>
         <Compile Include="Features\Berserker\BerserkerHelmetInventoryRebind.cs"/>
         <Compile Include="Features\Berserker\BerserkerHelmetPlayerPatch.cs"/>
         <Compile Include="Features\Berserker\BerserkerAttackScope.cs"/>

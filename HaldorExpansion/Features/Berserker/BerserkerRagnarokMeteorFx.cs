@@ -1,7 +1,8 @@
 using System;
 using HarmonyLib;
 using UnityEngine;
-using UnityEngine.Rendering;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace HaldorExpansion.Features.Berserker
 {
@@ -15,7 +16,11 @@ namespace HaldorExpansion.Features.Berserker
         private const string Marker = "HE_BerserkerRagnarokMeteor_v1";
         private const string IntensityKey = "HE_BerserkerMeteorIntensity_v1";
         private const string ThunderbloodPrefab = "BattleaxeGold_BloodLightning";
-        private const string ImpactSoundPrefab = "sfx_golem_attack_hit";
+
+        private static readonly string[] ImpactPrefabs =
+        {
+            "fx_Abomination_attack2", "fx_Abomination_attack3"
+        };
 
         // Cosmetic tuning: these never influence meteor damage, number or radius.
         internal const float RagnarokMeteorAuraScale = 1.95f;
@@ -23,10 +28,9 @@ namespace HaldorExpansion.Features.Berserker
         internal const float RagnarokMeteorCrimsonGlow = 0.88f;
         internal const float MeteorImpactSmokeScale = 1.15f;
 
-        private static AudioClip impactClip;
-        private static bool searchedImpactClip;
 
-        internal static void MarkOwnedMeteor(GameObject meteor, float intensity)
+        internal static void MarkOwnedMeteor(GameObject meteor, float intensity,
+            Player caster, float explosionRadius)
         {
             if (meteor == null) return;
             ZNetView view = meteor.GetComponent<ZNetView>();
@@ -37,6 +41,11 @@ namespace HaldorExpansion.Features.Berserker
             // vanilla ORANGE particles doesn't alter SpawnOnHit, DoAOE or damage.
             view.GetZDO().Set(Marker, true);
             view.GetZDO().Set(IntensityKey, Mathf.Clamp(intensity, 1f, 1.8f));
+            BerserkerMeteorImpactState impact = meteor.GetComponent<BerserkerMeteorImpactState>();
+            if (impact == null) impact = meteor.AddComponent<BerserkerMeteorImpactState>();
+            impact.Caster = caster;
+            impact.Intensity = Mathf.Clamp(intensity, 1f, 1.8f);
+            impact.ExplosionRadius = explosionRadius;
             Projectile projectile = meteor.GetComponent<Projectile>();
             if (projectile != null)
             {
@@ -74,10 +83,13 @@ namespace HaldorExpansion.Features.Berserker
                 ParticleSystemRenderer psRenderer = native.GetComponent<ParticleSystemRenderer>();
                 if (psRenderer != null) psRenderer.enabled = false;
             }
+
             foreach (TrailRenderer nativeTrail in meteor.GetComponentsInChildren<TrailRenderer>(true))
-                if (nativeTrail != null) nativeTrail.enabled = false;
+                if (nativeTrail != null)
+                    nativeTrail.enabled = false;
             foreach (Light nativeLight in meteor.GetComponentsInChildren<Light>(true))
-                if (nativeLight != null) nativeLight.enabled = false;
+                if (nativeLight != null)
+                    nativeLight.enabled = false;
 
             // The rock is now deliberately dark and only partly readable through the
             // storm. The crimson emission gives the impression of pressure/heat inside
@@ -87,9 +99,11 @@ namespace HaldorExpansion.Features.Berserker
             dark.SetColor("_BaseColor", new Color(0.075f, 0.012f, 0.018f, 1f));
             dark.SetColor("_EmissionColor", new Color(0.62f, 0.010f, 0.026f, 1f));
             foreach (MeshRenderer renderer in meteor.GetComponentsInChildren<MeshRenderer>(true))
-                if (renderer != null) renderer.SetPropertyBlock(dark);
+                if (renderer != null)
+                    renderer.SetPropertyBlock(dark);
             foreach (SkinnedMeshRenderer renderer in meteor.GetComponentsInChildren<SkinnedMeshRenderer>(true))
-                if (renderer != null) renderer.SetPropertyBlock(dark);
+                if (renderer != null)
+                    renderer.SetPropertyBlock(dark);
 
             GameObject vfxRoot = new GameObject("Ragnarok_MeteorFlightVFX");
             vfxRoot.transform.SetParent(meteor.transform, false);
@@ -108,6 +122,7 @@ namespace HaldorExpansion.Features.Berserker
                 Vector3 extent = renderer.bounds.extents;
                 radius = Mathf.Max(radius, Mathf.Max(extent.x, Mathf.Max(extent.y, extent.z)));
             }
+
             radius = Mathf.Clamp(radius, 0.45f, 1.8f);
 
             // Independent materials: textured soot is alpha blended; flame uses a
@@ -155,8 +170,8 @@ namespace HaldorExpansion.Features.Berserker
                 float u = x / (float)(size - 1);
                 float v = y / (float)(size - 1);
                 float noise = 0.60f * Mathf.PerlinNoise(u * 6.3f + 13f, v * 6.3f + 29f)
-                    + 0.28f * Mathf.PerlinNoise(u * 14f + 7f, v * 14f + 3f)
-                    + 0.12f * Mathf.PerlinNoise(u * 31f, v * 31f);
+                              + 0.28f * Mathf.PerlinNoise(u * 14f + 7f, v * 14f + 3f)
+                              + 0.12f * Mathf.PerlinNoise(u * 31f, v * 31f);
                 float alpha;
                 if (flame)
                 {
@@ -175,8 +190,10 @@ namespace HaldorExpansion.Features.Berserker
                     float edge = Mathf.Clamp01((1f - Mathf.Sqrt(dx * dx + dy * dy)) * 2f);
                     alpha = edge * edge * Mathf.Clamp01((noise - 0.30f) * 2.5f);
                 }
+
                 pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
             }
+
             texture.SetPixels(pixels);
             texture.Apply(false, true);
             cached = new Material(source);
@@ -203,7 +220,8 @@ namespace HaldorExpansion.Features.Berserker
             main.scalingMode = ParticleSystemScalingMode.Local;
             main.startLifetime = new ParticleSystem.MinMaxCurve(lifeMin, lifeMax);
             main.startColor = Color.white; // Lifetime colour is not multiplied by a dark start tint.
-            main.startRotation = flame ? new ParticleSystem.MinMaxCurve(0f)
+            main.startRotation = flame
+                ? new ParticleSystem.MinMaxCurve(0f)
                 : new ParticleSystem.MinMaxCurve(-Mathf.PI, Mathf.PI);
             main.gravityModifier = 0f;
             main.cullingMode = ParticleSystemCullingMode.AlwaysSimulate;
@@ -225,6 +243,7 @@ namespace HaldorExpansion.Features.Berserker
                 velocity.x = new ParticleSystem.MinMaxCurve(-0.35f * radius, 0.35f * radius);
                 velocity.y = new ParticleSystem.MinMaxCurve(-0.35f * radius, 0.35f * radius);
             }
+
             // World wake uses only initial cone velocity: old smoke never turns
             // when the emitter changes direction. No inherited projectile speed.
             var emission = ps.emission;
@@ -239,11 +258,13 @@ namespace HaldorExpansion.Features.Berserker
             noiseModule.damping = true;
 
             Gradient gradient = new Gradient();
-            gradient.SetKeys(new[] {
+            gradient.SetKeys(new[]
+            {
                 new GradientColorKey(hot, 0f),
                 new GradientColorKey(Color.Lerp(hot, cold, 0.45f), 0.38f),
                 new GradientColorKey(cold, 1f)
-            }, new[] {
+            }, new[]
+            {
                 new GradientAlphaKey(0f, 0f),
                 new GradientAlphaKey(opacity, 0.08f),
                 new GradientAlphaKey(opacity * 0.65f, 0.48f),
@@ -274,19 +295,20 @@ namespace HaldorExpansion.Features.Berserker
                 ps.Stop(false, ParticleSystemStopBehavior.StopEmitting);
             Light light = root.GetComponent<Light>();
             if (light != null) light.enabled = false;
-            UnityEngine.Object.Destroy(root.gameObject, 1.3f);
+            Object.Destroy(root.gameObject, 1.3f);
         }
 
         private static ParticleSystem CloneThunderbloodParticle(Transform parent, string child)
         {
             GameObject weapon = ZNetScene.instance != null
-                ? ZNetScene.instance.GetPrefab(ThunderbloodPrefab) : null;
+                ? ZNetScene.instance.GetPrefab(ThunderbloodPrefab)
+                : null;
             Transform attach = weapon != null ? weapon.transform.Find("attach") : null;
             Transform axe = attach != null ? attach.Find("battleaxe") : null;
             Transform vfx = axe != null ? axe.Find("VFX (1)") : null;
             Transform source = vfx != null ? vfx.Find(child) : null;
             if (source == null) return null;
-            GameObject copy = UnityEngine.Object.Instantiate(source.gameObject, parent, false);
+            GameObject copy = Object.Instantiate(source.gameObject, parent, false);
             copy.name = "Ragnarok_Meteor_" + source.name;
             copy.transform.localPosition = Vector3.zero;
             copy.transform.localRotation = Quaternion.identity;
@@ -295,9 +317,10 @@ namespace HaldorExpansion.Features.Berserker
             ParticleSystem ps = copy.GetComponent<ParticleSystem>();
             if (ps == null)
             {
-                UnityEngine.Object.Destroy(copy);
+                Object.Destroy(copy);
                 return null;
             }
+
             ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             return ps;
         }
@@ -313,8 +336,8 @@ namespace HaldorExpansion.Features.Berserker
                 ParticleSystem smoke = CloneThunderbloodParticle(root.transform, "Clouds");
                 if (smoke == null) break;
                 smoke.transform.localPosition = new Vector3(
-                    UnityEngine.Random.Range(-1.4f, 1.4f), 0.12f,
-                    UnityEngine.Random.Range(-1.4f, 1.4f));
+                    Random.Range(-1.4f, 1.4f), 0.12f,
+                    Random.Range(-1.4f, 1.4f));
                 var main = smoke.main;
                 main.loop = false;
                 main.playOnAwake = false;
@@ -360,8 +383,8 @@ namespace HaldorExpansion.Features.Berserker
                 ParticleSystem arc = CloneThunderbloodParticle(root.transform, "Right/Lightning (3)");
                 if (arc == null) break;
                 arc.transform.localPosition = new Vector3(
-                    UnityEngine.Random.Range(-0.50f, 0.50f), 0.24f,
-                    UnityEngine.Random.Range(-0.50f, 0.50f));
+                    Random.Range(-0.50f, 0.50f), 0.24f,
+                    Random.Range(-0.50f, 0.50f));
                 var main = arc.main;
                 main.loop = false;
                 main.playOnAwake = false;
@@ -374,47 +397,122 @@ namespace HaldorExpansion.Features.Berserker
                 arc.Emit(Mathf.RoundToInt(12f * intensity));
             }
 
-            PlayImpactAudio(hitPoint);
-            UnityEngine.Object.Destroy(root, 3.6f);
+            SpawnImpactFlames(root.transform, intensity);
+            Object.Destroy(root, 3.6f);
         }
 
-        private static void PlayImpactAudio(Vector3 point)
+        private static void SpawnImpactFlames(Transform root, float intensity)
         {
-            if (!searchedImpactClip)
-            {
-                GameObject prefab = ZNetScene.instance != null
-                    ? ZNetScene.instance.GetPrefab(ImpactSoundPrefab) : null;
-                if (prefab != null)
-                {
-                    searchedImpactClip = true;
-                    foreach (ZSFX sound in prefab.GetComponentsInChildren<ZSFX>(true))
-                    {
-                        if (sound == null || sound.m_audioClips == null) continue;
-                        foreach (AudioClip clip in sound.m_audioClips)
-                        {
-                            if (clip == null) continue;
-                            impactClip = clip;
-                            break;
-                        }
-                        if (impactClip != null) break;
-                    }
-                }
-            }
-            if (impactClip == null) return;
-            GameObject host = new GameObject("Ragnarok_MeteorStoneImpactSfx");
-            host.transform.position = point;
-            AudioSource audio = host.AddComponent<AudioSource>();
-            audio.playOnAwake = false;
-            audio.clip = impactClip;
-            audio.spatialBlend = 1f;
-            audio.minDistance = 4f;
-            audio.maxDistance = 48f;
-            audio.rolloffMode = AudioRolloffMode.Logarithmic;
-            audio.pitch = UnityEngine.Random.Range(0.78f, 0.91f);
-            audio.volume = 0.58f * AudioMan.GetSFXVolume();
-            audio.Play();
-            UnityEngine.Object.Destroy(host, impactClip.length / audio.pitch + 0.2f);
+            // Reuse the approved flight flame texture and lifetime palette, but
+            // emit once in every direction instead of following a moving rock.
+            CreateFlightLayer(root, "ImpactFlameScatter", true, false, 1f,
+                0.38f, 0.80f, 0.45f, 0.95f, 5f, 11f, 0f,
+                new Color(1f, 0.24f, 0.10f), new Color(0.11f, 0.005f, 0.015f), 0.92f);
+            ParticleSystem flame = root.Find("Ragnarok_ImpactFlameScatter").GetComponent<ParticleSystem>();
+            var main = flame.main;
+            main.loop = false;
+            main.gravityModifier = 0.25f;
+            var emission = flame.emission;
+            emission.rateOverDistance = 0f;
+            var shape = flame.shape;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radius = 0.38f;
+            var limit = flame.limitVelocityOverLifetime;
+            limit.enabled = true;
+            limit.limit = 2.5f;
+            limit.dampen = 0.18f;
+            flame.Play(false);
+            flame.Emit(Mathf.RoundToInt(64f * intensity));
+
+            CreateFlightLayer(root, "ImpactSootScatter", false, false, 1f,
+                0.65f, 1.25f, 0.65f, 1.20f, 1.5f, 4f, 0f,
+                new Color(0.18f, 0.018f, 0.028f), new Color(0.035f, 0.028f, 0.030f), 0.46f);
+            ParticleSystem soot = root.Find("Ragnarok_ImpactSootScatter").GetComponent<ParticleSystem>();
+            main = soot.main;
+            main.loop = false;
+            main.gravityModifier = -0.08f;
+            emission = soot.emission;
+            emission.rateOverDistance = 0f;
+            shape = soot.shape;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radius = 0.55f;
+            soot.Play(false);
+            soot.Emit(Mathf.RoundToInt(22f * intensity));
         }
+
+        // OnHit runs at the true collision point. The previous OnDestroy-driven
+        // path waited until the projectile was torn down, then created multiple
+        // procedural VFX before playing a hand-picked clip. Both caused a late,
+        // non-vanilla impact. Instantiate the *unaltered* native effect instead:
+        // its ZNetView replicates one authoritative impact to other clients, and
+        // its own ZSFX uses exactly the clips, mixer, variation and delays from
+        // the game (as in EasySpawner).
+        internal static void OnMeteorHit(Projectile projectile, Vector3 hitPoint)
+        {
+            if (projectile == null || float.IsNaN(hitPoint.x) || float.IsNaN(hitPoint.y) ||
+                float.IsNaN(hitPoint.z) || float.IsInfinity(hitPoint.x) ||
+                float.IsInfinity(hitPoint.y) || float.IsInfinity(hitPoint.z)) return;
+
+            ZNetView view = projectile.GetComponent<ZNetView>();
+            if (view == null || !view.IsValid() || !view.IsOwner() ||
+                view.GetZDO() == null || !view.GetZDO().GetBool(Marker)) return;
+
+            BerserkerMeteorImpactState state = projectile.GetComponent<BerserkerMeteorImpactState>();
+            if (state == null || state.Emitted) return;
+            state.Emitted = true; // At most one effect, even if OnHit is invoked twice.
+
+            try
+            {
+                int index = Random.Range(0, ImpactPrefabs.Length);
+                GameObject original = ZNetScene.instance?.GetPrefab(ImpactPrefabs[index]);
+                if (original == null)
+                    original = ZNetScene.instance?.GetPrefab(ImpactPrefabs[1 - index]);
+                if (original != null)
+                    Object.Instantiate(original, hitPoint, Quaternion.identity);
+                else
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[Berserker] Native Abomination meteor impact prefab unavailable.");
+            }
+            catch (Exception e)
+            {
+                // Cosmetic problems must never interrupt native projectile hit/damage.
+                HaldorExpansionPlugin.Log?.LogWarning(
+                    "[Berserker] Native Abomination meteor impact failed: " + e.Message);
+            }
+
+            try
+            {
+                // Procedural charcoal, sparks and expanding rings use a separate
+                // cosmetic-only player RPC, also initiated at the real hit frame.
+                // They cannot block or postpone the vanilla Abomination prefab.
+                BerserkerEffects.BroadcastRagnarokMeteorImpact(state.Caster, hitPoint,
+                    state.Intensity, state.ExplosionRadius);
+            }
+            catch (Exception e)
+            {
+                HaldorExpansionPlugin.Log?.LogWarning(
+                    "[Berserker] Meteor impact visuals broadcast failed: " + e.Message);
+            }
+        }
+    }
+
+    // Gameplay never changes: this hook only spawns cosmetics *before* the
+    // projectile processes/destroys itself. Source hitPoint is the real contact.
+    [HarmonyPatch(typeof(Projectile), "OnHit")]
+    internal static class BerserkerRagnarokMeteorHitPatch
+    {
+        private static void Prefix(Projectile __instance, Vector3 hitPoint)
+        {
+            BerserkerRagnarokMeteorFx.OnMeteorHit(__instance, hitPoint);
+        }
+    }
+
+    internal sealed class BerserkerMeteorImpactState : MonoBehaviour
+    {
+        internal Player Caster;
+        internal float Intensity = 1f;
+        internal float ExplosionRadius = BerserkerRagnarokMath.MinimumMeteorExplosionRadius;
+        internal bool Emitted;
     }
 
     // A non-invasive hook: the game creates projectile_meteor on each client

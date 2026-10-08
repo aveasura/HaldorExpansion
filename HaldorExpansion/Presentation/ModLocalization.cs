@@ -89,7 +89,8 @@ namespace HaldorExpansion.Presentation
                     "Каждая стадия Ярости:\n" +
                     "+4 брони.\n" +
                     "-15% накопления ошеломления.\n" +
-                    "-1% получаемого урона.",
+                    "-1% получаемого урона.\n" +
+                    "+1% восстановления HP атак топором.",
 
                 // Осквернённый Бризингамен
                 ["$item_brisingamen"] = "Осквернённый Бризингамен",
@@ -251,7 +252,8 @@ namespace HaldorExpansion.Presentation
                     "Each Wrath stage:\n" +
                     "+4 armor.\n" +
                     "-15% incoming stagger buildup.\n" +
-                    "-1% incoming damage.",
+                    "-1% incoming damage.\n" +
+                    "1% of axe damage dealt restored as HP.",
 
                 // Corrupted Brisingamen
                 ["$item_brisingamen"] = "Corrupted Brisingamen",

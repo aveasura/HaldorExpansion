@@ -28,14 +28,22 @@ namespace HaldorExpansion.Features.Berserker
             {
                 BerserkerEffects.Register(player, view);
                 BerserkerWrathEffects.Register(player, view);
+                BerserkerHelmetLifeStealNetwork.Register(player, view);
                 view.Register<Vector3, float>(HealRpc, (sender, point, finalDamage) =>
                 {
                     if (!view.IsOwner()) return;
                     float actualHeal = BerserkerRuntime.ApplyReckoningHeal(player, finalDamage);
                     if (actualHeal > 0f)
                     {
-                        try { BerserkerEffects.BroadcastReckoningHeal(player, point, actualHeal); }
-                        catch (Exception e) { HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Reckoning heal VFX failed: " + e.Message); }
+                        try
+                        {
+                            BerserkerEffects.BroadcastReckoningHeal(player, point, actualHeal);
+                        }
+                        catch (Exception e)
+                        {
+                            HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Reckoning heal VFX failed: " +
+                                                                  e.Message);
+                        }
                     }
                 });
             }
@@ -92,6 +100,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Reckoning impact VFX failed: " + e.Message);
             }
+
             return true;
         }
 
@@ -109,7 +118,8 @@ namespace HaldorExpansion.Features.Berserker
                 ZNetView attackerView = View(attacker);
                 if (attackerView == null || !attackerView.IsValid() || attackerView.GetZDO() == null ||
                     attackerView.GetZDO().GetOwner() != sender) return;
-                if (target.IsDead() || target.GetHealth() <= 0f || target.IsTeleporting() || target.InCutscene()) return;
+                if (target.IsDead() || target.GetHealth() <= 0f || target.IsTeleporting() ||
+                    target.InCutscene()) return;
                 if (target.IsPlayer() || !BaseAI.IsEnemy(attacker, target)) return;
 
                 // Character.ApplyDamage raises m_onDamaged with the final direct damage value

@@ -1,7 +1,7 @@
+using System;
 using HaldorExpansion.Compatibility;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Berserker
@@ -16,11 +16,11 @@ namespace HaldorExpansion.Features.Berserker
         internal const string ItemDescKey = "$item_weapon_berserker_greataxe_desc";
         internal const float BaseSlashDamage = 95f;
         internal const float SecondaryBaseDamage = 130f;
-        internal const float MovementModifier = -0.10f;
+        internal const float MovementModifier = -0.15f;
         internal const float PrimaryStamina = 14f;
         internal const float AttackForce = 45f;
-        internal const float BlockPower = 22f;
-        internal const float DeflectionForce = 26f;
+        internal const float BlockPower = 14f;
+        internal const float DeflectionForce = 20f;
         internal const float PrimaryStaggerMultiplier = 1.2f;
         internal const float SecondaryStaggerMultiplier = 3f;
         internal const string SecondaryAttackAnimation = "swing_sledge";
@@ -44,6 +44,7 @@ namespace HaldorExpansion.Features.Berserker
                         ConfigureShared(ItemDrop.m_itemData.m_shared);
                         ItemDrop.m_itemData.m_dropPrefab = existing;
                     }
+
                     return ItemDrop != null;
                 }
 
@@ -113,6 +114,7 @@ namespace HaldorExpansion.Features.Berserker
                 shared.m_attack.m_attackStamina = PrimaryStamina;
                 shared.m_attack.m_staggerMultiplier = PrimaryStaggerMultiplier;
             }
+
             if (shared.m_secondaryAttack != null)
             {
                 shared.m_secondaryAttack.m_staggerMultiplier = SecondaryStaggerMultiplier;
@@ -137,6 +139,7 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_setSize = 0;
             shared.m_setStatusEffect = null;
         }
+
         private static void ClearSpawnOnHit(Attack attack)
         {
             if (attack == null) return;
@@ -146,6 +149,5 @@ namespace HaldorExpansion.Features.Berserker
             ReflectionAccess.SetFieldIfExists(attack, "m_spawnOnHit", null);
             ReflectionAccess.SetFieldIfExists(attack, "m_spawnOnHitChance", 0f);
         }
-
     }
 }

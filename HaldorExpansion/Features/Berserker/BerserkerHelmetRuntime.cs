@@ -8,6 +8,7 @@ namespace HaldorExpansion.Features.Berserker
         internal const float ArmorPerWrathStage = 4f;
         internal const float StaggerReductionPerWrathStage = 0.15f;
         internal const float DamageReductionPerWrathStage = 0.01f;
+        internal const float LifeStealFractionPerWrathStage = 0.01f;
 
         internal static bool IsHelmet(ItemDrop.ItemData item)
         {
@@ -41,6 +42,26 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (!HasEquipped(player)) return 0;
             return Mathf.Clamp(BerserkerRuntime.EffectiveWrathStage(player), 0, BerserkerState.MaxWrathStage);
+        }
+
+        // The helmet only heals from real enemy HP loss, not inflated overkill damage.
+        // The existing Reckoning-exclusive lifesteal is separate and remains untouched.
+        internal static float ApplyLifeSteal(Player player, float actualEnemyHealthLost)
+        {
+            if (player == null || player != Player.m_localPlayer || player.IsDead() ||
+                float.IsNaN(actualEnemyHealthLost) || float.IsInfinity(actualEnemyHealthLost) ||
+                actualEnemyHealthLost <= 0f) return 0f;
+
+            int stage = WrathStage(player);
+            if (stage <= 0) return 0f;
+
+            float maxHealth = Mathf.Max(0f, player.GetMaxHealth());
+            float missing = Mathf.Max(0f, maxHealth - Mathf.Max(0f, player.GetHealth()));
+            float heal = Mathf.Min(actualEnemyHealthLost * stage * LifeStealFractionPerWrathStage, missing);
+            if (heal <= 0f) return 0f;
+
+            player.Heal(heal, true);
+            return heal;
         }
 
         internal static float ArmorBonus(Player player)

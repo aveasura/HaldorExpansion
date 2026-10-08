@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.Berserker
 {
@@ -10,6 +12,7 @@ namespace HaldorExpansion.Features.Berserker
     internal static class BerserkerRagnarokFx
     {
         private const string CastSoundPrefab = "fx_Abomination_attack1_start";
+        private const string CastBellPrefab = "sfx_fader_bell";
         private const string ThunderbloodPrefab = "BattleaxeGold_BloodLightning";
 
         // VFX ONLY: seconds after an accepted E before the smoke starts leaving
@@ -42,13 +45,14 @@ namespace HaldorExpansion.Features.Berserker
         internal static void OnCast(Player player, Transform castVisualRoot, float duration)
         {
             if (player == null || castVisualRoot == null) return;
-            // Local caster already started BOTH voice and smoke stopwatch at E.
-            // The subsequent cast RPC must not double-play the roar or reset VFX.
+            // Local caster already started BOTH sounds and the smoke stopwatch at E.
+            // The subsequent cast RPC must not double-play audio or reset VFX.
             if (player == Player.m_localPlayer &&
                 player.GetComponentInChildren<BerserkerRagnarokAscension>() != null)
                 return;
 
             PlayCastSound(player);
+            PlayCastBell(player);
             BeginSkywardAura(player);
         }
 
@@ -57,8 +61,9 @@ namespace HaldorExpansion.Features.Berserker
         internal static void BeginLocalSkywardAura(Player player)
         {
             if (player == null || !BerserkerEffects.CanRender) return;
-            // Voice begins with accepted E, independently of the delayed smoke.
+            // Both sounds begin with accepted E, independently of the delayed smoke.
             PlayCastSound(player);
+            PlayCastBell(player);
             BeginSkywardAura(player);
         }
 
@@ -75,7 +80,8 @@ namespace HaldorExpansion.Features.Berserker
             // Delay and duration control ONLY the cosmetic emitters. The cast,
             // emote, voice and meteor release are completely independent.
             foreach (var previous in player.GetComponentsInChildren<BerserkerRagnarokAscension>())
-                if (previous != null) previous.Finish();
+                if (previous != null)
+                    previous.Finish();
 
             GameObject smokeRoot = new GameObject("Berserker_RagnarokSkywardAura");
             smokeRoot.transform.SetParent(player.transform, false);
@@ -88,18 +94,18 @@ namespace HaldorExpansion.Features.Berserker
             // of a flat vertical sheet or a single streamer through the torso.
             Vector3[] sources =
             {
-                new Vector3(-0.34f, 0.28f,  0.15f),
-                new Vector3( 0.34f, 0.28f, -0.15f),
-                new Vector3( 0.00f, 0.50f,  0.38f),
-                new Vector3( 0.00f, 0.52f, -0.38f),
-                new Vector3(-0.46f, 1.02f,  0.04f),
-                new Vector3( 0.46f, 1.02f, -0.04f),
-                new Vector3( 0.06f, 1.15f,  0.39f),
+                new Vector3(-0.34f, 0.28f, 0.15f),
+                new Vector3(0.34f, 0.28f, -0.15f),
+                new Vector3(0.00f, 0.50f, 0.38f),
+                new Vector3(0.00f, 0.52f, -0.38f),
+                new Vector3(-0.46f, 1.02f, 0.04f),
+                new Vector3(0.46f, 1.02f, -0.04f),
+                new Vector3(0.06f, 1.15f, 0.39f),
                 new Vector3(-0.06f, 1.17f, -0.39f),
-                new Vector3(-0.31f, 1.70f,  0.02f),
-                new Vector3( 0.31f, 1.70f, -0.02f),
-                new Vector3( 0.00f, 2.08f,  0.18f),
-                new Vector3( 0.00f, 2.12f, -0.18f)
+                new Vector3(-0.31f, 1.70f, 0.02f),
+                new Vector3(0.31f, 1.70f, -0.02f),
+                new Vector3(0.00f, 2.08f, 0.18f),
+                new Vector3(0.00f, 2.12f, -0.18f)
             };
 
             for (int i = 0; i < sources.Length; i++)
@@ -148,8 +154,8 @@ namespace HaldorExpansion.Features.Berserker
             Vector3[] lightningAnchors =
             {
                 new Vector3(-0.28f, 0.73f, 0.06f),
-                new Vector3( 0.28f, 0.91f,-0.06f),
-                new Vector3( 0.03f, 1.56f, 0.20f)
+                new Vector3(0.28f, 0.91f, -0.06f),
+                new Vector3(0.03f, 1.56f, 0.20f)
             };
             foreach (Vector3 anchor in lightningAnchors)
             {
@@ -171,19 +177,20 @@ namespace HaldorExpansion.Features.Berserker
             Transform source = right != null ? right.Find("Lightning (3)") : null;
             if (source == null) return null;
 
-            GameObject copy = UnityEngine.Object.Instantiate(source.gameObject, parent, false);
+            GameObject copy = Object.Instantiate(source.gameObject, parent, false);
             copy.name = release ? "Ragnarok_ThunderbloodReleaseSpark" : "Ragnarok_ThunderbloodCastSpark";
             copy.transform.localPosition = localPosition +
-                Vector3.up * ThunderbloodLightningHeightOffset;
+                                           Vector3.up * ThunderbloodLightningHeightOffset;
             copy.transform.localRotation = Quaternion.identity;
             copy.transform.localScale = Vector3.one;
             copy.SetActive(true);
             ParticleSystem ps = copy.GetComponent<ParticleSystem>();
             if (ps == null)
             {
-                UnityEngine.Object.Destroy(copy);
+                Object.Destroy(copy);
                 return null;
             }
+
             ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
             var main = ps.main;
@@ -236,9 +243,9 @@ namespace HaldorExpansion.Features.Berserker
             Vector3[] anchors =
             {
                 new Vector3(-0.34f, -0.54f, 0.10f),
-                new Vector3( 0.34f, -0.54f,-0.10f),
-                new Vector3( 0.00f,  0.04f, 0.24f),
-                new Vector3( 0.00f,  0.26f,-0.24f)
+                new Vector3(0.34f, -0.54f, -0.10f),
+                new Vector3(0.00f, 0.04f, 0.24f),
+                new Vector3(0.00f, 0.26f, -0.24f)
             };
             int particles = Mathf.RoundToInt(7f * Mathf.Clamp(intensity, 1f, 2f));
             foreach (Vector3 anchor in anchors)
@@ -260,19 +267,20 @@ namespace HaldorExpansion.Features.Berserker
             Vector3[] burstOrigins =
             {
                 new Vector3(-0.23f, 0.45f, 0.07f),
-                new Vector3( 0.23f, 0.45f,-0.07f),
-                new Vector3( 0.00f, 0.65f, 0.19f),
-                new Vector3( 0.00f, 0.65f,-0.19f),
+                new Vector3(0.23f, 0.45f, -0.07f),
+                new Vector3(0.00f, 0.65f, 0.19f),
+                new Vector3(0.00f, 0.65f, -0.19f),
                 new Vector3(-0.17f, 1.35f, 0.04f),
-                new Vector3( 0.17f, 1.35f,-0.04f),
-                new Vector3( 0.00f, 2.00f, 0.00f)
+                new Vector3(0.17f, 1.35f, -0.04f),
+                new Vector3(0.00f, 2.00f, 0.00f)
             };
             for (int i = 0; i < burstOrigins.Length; i++)
             {
                 bool high = i == burstOrigins.Length - 1;
                 var cloud = MakeAscendingCloud(root.transform, burstOrigins[i],
-                    high ? new Color(1f, 0.39f, 0.30f, 0.55f)
-                         : new Color(1f, 0.23f, 0.17f, 0.68f),
+                    high
+                        ? new Color(1f, 0.39f, 0.30f, 0.55f)
+                        : new Color(1f, 0.23f, 0.17f, 0.68f),
                     high ? 0.16f : 0.24f, 0f, 1.0f);
                 if (cloud == null) continue;
                 var cloudMain = cloud.main;
@@ -295,7 +303,40 @@ namespace HaldorExpansion.Features.Berserker
             emission.rateOverTime = 0f;
             ash.Play();
             ash.Emit(Mathf.RoundToInt(65f * Mathf.Clamp(intensity, 1f, 1.9f)));
-            UnityEngine.Object.Destroy(root, 3.5f);
+            Object.Destroy(root, 3.5f);
+        }
+
+        // Play the actual vanilla bell prefab, retaining its own ZSFX clips,
+        // volume, pitch, and spatial settings (just like an in-game spawn).
+        // The existing roar still plays alongside it, in the same cast frame.
+        private static void PlayCastBell(Player player)
+        {
+            if (player == null) return;
+            try
+            {
+                GameObject bell = ZNetScene.instance != null
+                    ? ZNetScene.instance.GetPrefab(CastBellPrefab)
+                    : null;
+                if (bell == null)
+                {
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[Berserker] Ragnarok cast bell prefab unavailable: " + CastBellPrefab);
+                    return;
+                }
+
+                // A networked vanilla prefab replicates from the caster once.
+                // Non-networked sounds play once per client via the existing cast RPC.
+                bool networked = bell.GetComponentInChildren<ZNetView>(true) != null;
+                if (networked && player != Player.m_localPlayer) return;
+
+                Object.Instantiate(bell, player.GetCenterPoint(), Quaternion.identity);
+            }
+            catch (Exception e)
+            {
+                // Missing/changed cosmetic assets cannot prevent Ragnarök casting.
+                HaldorExpansionPlugin.Log?.LogWarning(
+                    "[Berserker] Ragnarok cast bell failed: " + e.Message);
+            }
         }
 
         private static void PlayCastSound(Player player)
@@ -303,7 +344,8 @@ namespace HaldorExpansion.Features.Berserker
             if (!searchedCastAudio)
             {
                 GameObject prefab = ZNetScene.instance != null
-                    ? ZNetScene.instance.GetPrefab(CastSoundPrefab) : null;
+                    ? ZNetScene.instance.GetPrefab(CastSoundPrefab)
+                    : null;
                 if (prefab != null)
                 {
                     foreach (ZSFX sfx in prefab.GetComponentsInChildren<ZSFX>(true))
@@ -315,8 +357,10 @@ namespace HaldorExpansion.Features.Berserker
                             castAudio = clip;
                             break;
                         }
+
                         if (castAudio != null) break;
                     }
+
                     if (castAudio == null)
                         foreach (AudioSource s in prefab.GetComponentsInChildren<AudioSource>(true))
                         {
@@ -324,9 +368,11 @@ namespace HaldorExpansion.Features.Berserker
                             castAudio = s.clip;
                             break;
                         }
+
                     searchedCastAudio = true;
                 }
             }
+
             if (castAudio == null) return;
 
             bool local = player == Player.m_localPlayer;
@@ -344,7 +390,7 @@ namespace HaldorExpansion.Features.Berserker
             audio.pitch = 0.96f * 0.70f;
             audio.volume = (local ? 0.82f : 0.62f) * AudioMan.GetSFXVolume();
             audio.Play();
-            UnityEngine.Object.Destroy(host, castAudio.length / audio.pitch + 0.3f);
+            Object.Destroy(host, castAudio.length / audio.pitch + 0.3f);
         }
 
         private static ParticleSystem MakeCloud(Transform parent, Vector3 local, bool loop, float duration,
@@ -360,7 +406,7 @@ namespace HaldorExpansion.Features.Berserker
 
             // Clouds itself contains no gameplay/network components. All these
             // copies are local visuals, never registered with ZNetScene.
-            var copy = UnityEngine.Object.Instantiate(clouds.gameObject, parent, false);
+            var copy = Object.Instantiate(clouds.gameObject, parent, false);
             copy.name = loop ? "Ragnarok_CastWispySmoke" : "Ragnarok_BurstWispySmoke";
             copy.transform.localPosition = local;
             copy.transform.localRotation = Quaternion.identity;
@@ -369,9 +415,10 @@ namespace HaldorExpansion.Features.Berserker
             ParticleSystem ps = copy.GetComponent<ParticleSystem>();
             if (ps == null)
             {
-                UnityEngine.Object.Destroy(copy);
+                Object.Destroy(copy);
                 return null;
             }
+
             ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             var main = ps.main;
             main.playOnAwake = false;
@@ -401,7 +448,7 @@ namespace HaldorExpansion.Features.Berserker
             noise.scrollSpeed = 0.38f;
             ps.Play();
             if (burst > 0) ps.Emit(burst);
-            if (loop && destroyWithTimer) UnityEngine.Object.Destroy(copy, duration + 1.2f);
+            if (loop && destroyWithTimer) Object.Destroy(copy, duration + 1.2f);
             return ps;
         }
 
@@ -455,24 +502,30 @@ namespace HaldorExpansion.Features.Berserker
     // active until its timer expires; launched particles persist in world space.
     internal sealed class BerserkerRagnarokAscension : MonoBehaviour
     {
-        private readonly System.Collections.Generic.List<ParticleSystem> emitters =
-            new System.Collections.Generic.List<ParticleSystem>();
-        private readonly System.Collections.Generic.List<float> rates =
-            new System.Collections.Generic.List<float>();
-        private readonly System.Collections.Generic.List<Vector3> origins =
-            new System.Collections.Generic.List<Vector3>();
-        private readonly System.Collections.Generic.List<float> radii =
-            new System.Collections.Generic.List<float>();
+        private readonly List<ParticleSystem> emitters =
+            new List<ParticleSystem>();
+
+        private readonly List<float> rates =
+            new List<float>();
+
+        private readonly List<Vector3> origins =
+            new List<Vector3>();
+
+        private readonly List<float> radii =
+            new List<float>();
+
         private float begunAt;
         private float startDelay;
         private float duration;
         private Player owner;
         private bool finished;
         private bool started;
-        private readonly System.Collections.Generic.List<ParticleSystem> sparks =
-            new System.Collections.Generic.List<ParticleSystem>();
-        private readonly System.Collections.Generic.List<float> sparksRates =
-            new System.Collections.Generic.List<float>();
+
+        private readonly List<ParticleSystem> sparks =
+            new List<ParticleSystem>();
+
+        private readonly List<float> sparksRates =
+            new List<float>();
 
         internal void Initialize(Player player, float delaySeconds, float emissionDuration)
         {
@@ -532,16 +585,18 @@ namespace HaldorExpansion.Features.Berserker
                 if (ps == null) continue;
                 ps.transform.SetParent(null, true);
                 ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-                UnityEngine.Object.Destroy(ps.gameObject, 3.50f);
+                Destroy(ps.gameObject, 3.50f);
             }
+
             for (int i = 0; i < sparks.Count; i++)
             {
                 ParticleSystem ps = sparks[i];
                 if (ps == null) continue;
                 ps.transform.SetParent(null, true);
                 ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-                UnityEngine.Object.Destroy(ps.gameObject, 2.50f);
+                Destroy(ps.gameObject, 2.50f);
             }
+
             sparks.Clear();
             sparksRates.Clear();
             emitters.Clear();
@@ -549,7 +604,7 @@ namespace HaldorExpansion.Features.Berserker
             origins.Clear();
             radii.Clear();
             enabled = false;
-            UnityEngine.Object.Destroy(gameObject);
+            Destroy(gameObject);
         }
 
         private void Update()
@@ -580,6 +635,7 @@ namespace HaldorExpansion.Features.Berserker
                     // instead of waiting for random rate-over-time emissions.
                     ps.Emit(5);
                 }
+
                 for (int i = 0; i < sparks.Count; i++)
                 {
                     ParticleSystem ps = sparks[i];

@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace HaldorExpansion.Features.Berserker
 {
@@ -14,9 +16,10 @@ namespace HaldorExpansion.Features.Berserker
         private const string ReckoningSwingRpc = "HE_BerserkerReckoningSwingFx_v1";
         private const string ReckoningImpactRpc = "HE_BerserkerReckoningImpactFx_v1";
         private const string ReckoningHealFxRpc = "HE_BerserkerReckoningHealFx_v1";
-        private const string RagnarokCastRpc = "HE_BerserkerRagnarokCastFx_v3";
+        private const string RagnarokCastRpc = "HE_BerserkerRagnarokCastFx_v4";
         private const string RagnarokStopRpc = "HE_BerserkerRagnarokStopFx_v1";
         private const string RagnarokReleaseRpc = "HE_BerserkerRagnarokReleaseFx_v1";
+        private const string RagnarokMeteorImpactRpc = "HE_BerserkerRagnarokMeteorImpactFx_v2";
 
         private static readonly FieldInfo CharacterView = AccessTools.Field(typeof(Character), "m_nview");
         private static readonly FieldInfo RightVisual = AccessTools.Field(typeof(VisEquipment), "m_rightItemInstance");
@@ -50,20 +53,23 @@ namespace HaldorExpansion.Features.Berserker
 
             view.Register<Vector3, float>(ReckoningImpactRpc, (sender, point, debt) =>
             {
-                if (!ValidVisualRpc(view, sender) || !FiniteVector(point) || !FinitePositive(debt) || !CanRender) return;
+                if (!ValidVisualRpc(view, sender) || !FiniteVector(point) || !FinitePositive(debt) ||
+                    !CanRender) return;
                 PlayReckoningImpact(player, point, debt);
             });
 
             view.Register<Vector3, float>(ReckoningHealFxRpc, (sender, point, heal) =>
             {
-                if (!ValidVisualRpc(view, sender) || !FiniteVector(point) || !FinitePositive(heal) || !CanRender) return;
+                if (!ValidVisualRpc(view, sender) || !FiniteVector(point) || !FinitePositive(heal) ||
+                    !CanRender) return;
                 BerserkerReckoningFx.Heal(player, point, heal);
             });
 
-            view.Register<float>(RagnarokCastRpc, (sender, duration) =>
+            view.Register<float, float>(RagnarokCastRpc, (sender, duration, impactRadius) =>
             {
-                if (!ValidVisualRpc(view, sender) || !FinitePositive(duration) || duration > 10f || !CanRender) return;
-                PlayRagnarokCast(player, duration);
+                if (!ValidVisualRpc(view, sender) || !FinitePositive(duration) || duration > 10f ||
+                    !FinitePositive(impactRadius) || impactRadius > 11.1f || !CanRender) return;
+                PlayRagnarokCast(player, duration, impactRadius);
             });
 
             view.Register<bool>(RagnarokStopRpc, (sender, ignored) =>
@@ -74,9 +80,19 @@ namespace HaldorExpansion.Features.Berserker
 
             view.Register<Vector3, float>(RagnarokReleaseRpc, (sender, targetPoint, debt) =>
             {
-                if (!ValidVisualRpc(view, sender) || !FiniteVector(targetPoint) || !FinitePositive(debt) || !CanRender) return;
+                if (!ValidVisualRpc(view, sender) || !FiniteVector(targetPoint) || !FinitePositive(debt) ||
+                    !CanRender) return;
                 PlayRagnarokRelease(player, targetPoint, debt);
             });
+
+            view.Register<Vector3, float, float>(RagnarokMeteorImpactRpc,
+                (sender, point, intensity, explosionRadius) =>
+                {
+                    if (!ValidVisualRpc(view, sender) || !FiniteVector(point) ||
+                        !FinitePositive(intensity) || intensity > 1.8f ||
+                        !FinitePositive(explosionRadius) || explosionRadius > 7.1f || !CanRender) return;
+                    PlayMeteorImpact(point, intensity, explosionRadius);
+                });
         }
 
         internal static void BroadcastReckoningSwing(Player player, double debt)
@@ -101,16 +117,18 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (player == null || !FiniteVector(point) || !FinitePositive(actualHeal)) return;
             ZNetView view = View(player);
-            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, ReckoningHealFxRpc, point, actualHeal);
+            if (view != null && view.IsValid())
+                view.InvokeRPC(ZNetView.Everybody, ReckoningHealFxRpc, point, actualHeal);
             else if (CanRender) BerserkerReckoningFx.Heal(player, point, actualHeal);
         }
 
-        internal static void BroadcastRagnarokCast(Player player, float duration)
+        internal static void BroadcastRagnarokCast(Player player, float duration, float impactRadius)
         {
-            if (player == null || !FinitePositive(duration)) return;
+            if (player == null || !FinitePositive(duration) || !FinitePositive(impactRadius)) return;
             ZNetView view = View(player);
-            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, RagnarokCastRpc, duration);
-            else if (CanRender) PlayRagnarokCast(player, duration);
+            if (view != null && view.IsValid())
+                view.InvokeRPC(ZNetView.Everybody, RagnarokCastRpc, duration, impactRadius);
+            else if (CanRender) PlayRagnarokCast(player, duration, impactRadius);
         }
 
         internal static void BroadcastRagnarokStop(Player player)
@@ -126,7 +144,8 @@ namespace HaldorExpansion.Features.Berserker
             float value = SafeDebt(debt);
             if (player == null || value <= 0f || !FiniteVector(targetPoint)) return;
             ZNetView view = View(player);
-            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, RagnarokReleaseRpc, targetPoint, value);
+            if (view != null && view.IsValid())
+                view.InvokeRPC(ZNetView.Everybody, RagnarokReleaseRpc, targetPoint, value);
             else if (CanRender) PlayRagnarokRelease(player, targetPoint, value);
         }
 
@@ -145,14 +164,25 @@ namespace HaldorExpansion.Features.Berserker
             meteor.AddComponent<BerserkerMeteorVisual>().Initialize(Mathf.Clamp(intensity, 1f, 1.8f));
         }
 
-        internal static void PlayMeteorImpact(Vector3 point, float intensity)
+        internal static void BroadcastRagnarokMeteorImpact(Player caster, Vector3 point,
+            float intensity, float explosionRadius)
+        {
+            if (!FiniteVector(point) || !FinitePositive(intensity) || !FinitePositive(explosionRadius)) return;
+            ZNetView view = View(caster);
+            if (view != null && view.IsValid() && view.IsOwner())
+                view.InvokeRPC(ZNetView.Everybody, RagnarokMeteorImpactRpc, point, intensity, explosionRadius);
+            else if (CanRender)
+                PlayMeteorImpact(point, intensity, explosionRadius);
+        }
+
+        internal static void PlayMeteorImpact(Vector3 point, float intensity, float explosionRadius)
         {
             if (!CanRender || !FiniteVector(point)) return;
             GameObject root = new GameObject("Berserker_RagnarokMeteorImpact");
             root.transform.position = point;
             BerserkerImpactVisual impact = root.AddComponent<BerserkerImpactVisual>();
             impact.Initialize(Mathf.Clamp(intensity * 1.12f, 1f, 1.9f), true, SoftMaterial(), SolidMaterial(),
-                BerserkerRagnarokRuntime.MeteorExplosionRadius);
+                explosionRadius);
             BerserkerRagnarokMeteorFx.SpawnCrimsonImpact(point, intensity);
         }
 
@@ -164,12 +194,13 @@ namespace HaldorExpansion.Features.Berserker
             if (weapon != null)
             {
                 BerserkerWeaponSwingVisual old = weapon.GetComponentInChildren<BerserkerWeaponSwingVisual>();
-                if (old != null) UnityEngine.Object.Destroy(old.gameObject);
+                if (old != null) Object.Destroy(old.gameObject);
                 GameObject root = new GameObject("Berserker_ReckoningWeaponFx");
                 root.transform.SetParent(weapon.transform, false);
                 root.AddComponent<BerserkerWeaponSwingVisual>()
                     .Initialize(weapon.transform, intensity, SoftMaterial(), SolidMaterial());
             }
+
             BerserkerReckoningFx.Swing(player);
         }
 
@@ -179,7 +210,7 @@ namespace HaldorExpansion.Features.Berserker
             BerserkerReckoningFx.Impact(player, point, EffectIntensity(debt));
         }
 
-        private static void PlayRagnarokCast(Player player, float duration)
+        private static void PlayRagnarokCast(Player player, float duration, float impactRadius)
         {
             if (player == null || player.IsDead()) return;
             PlayerVisualState state = PlayerVisuals.GetValue(player, ignored => new PlayerVisualState());
@@ -188,7 +219,7 @@ namespace HaldorExpansion.Features.Berserker
             GameObject root = new GameObject("Berserker_RagnarokCast");
             root.transform.SetParent(player.transform, false);
             BerserkerRagnarokCastVisual cast = root.AddComponent<BerserkerRagnarokCastVisual>();
-            cast.Initialize(player, BerserkerRagnarokRuntime.MeteorImpactRadius, duration, SoftMaterial(), SolidMaterial());
+            cast.Initialize(player, impactRadius, duration, SoftMaterial(), SolidMaterial());
             BerserkerRagnarokFx.OnCast(player, root.transform, duration);
             state.RagnarokCast = cast;
         }
@@ -300,6 +331,7 @@ namespace HaldorExpansion.Features.Berserker
                 alpha = alpha * alpha * (3f - 2f * alpha);
                 pixels[y * 48 + x] = new Color(1f, 1f, 1f, alpha);
             }
+
             softTexture.SetPixels(pixels);
             softTexture.Apply();
 
@@ -325,7 +357,8 @@ namespace HaldorExpansion.Features.Berserker
             return solidMaterial;
         }
 
-        internal static LineRenderer MakeLine(Transform parent, Material material, float width, int points, bool worldSpace)
+        internal static LineRenderer MakeLine(Transform parent, Material material, float width, int points,
+            bool worldSpace)
         {
             GameObject go = new GameObject("Berserker_BloodLine");
             if (parent != null) go.transform.SetParent(parent, false);
@@ -409,7 +442,7 @@ namespace HaldorExpansion.Features.Berserker
             trail.endColor = new Color(0.33f, 0.07f, 0.08f, 0f);
             trail.shadowCastingMode = ShadowCastingMode.Off;
             trail.receiveShadows = false;
-            UnityEngine.Object.Destroy(trailPoint, Lifetime + 0.42f);
+            Destroy(trailPoint, Lifetime + 0.42f);
 
             arcs = new LineRenderer[3];
             for (int i = 0; i < arcs.Length; i++)
@@ -429,7 +462,7 @@ namespace HaldorExpansion.Features.Berserker
                     : new Vector3(0.14f, extent * 1.6f, 0.14f);
             sparks.Play();
 
-            UnityEngine.Object.Destroy(gameObject, Lifetime + 0.08f);
+            Destroy(gameObject, Lifetime + 0.08f);
         }
 
         private void Update()
@@ -469,7 +502,8 @@ namespace HaldorExpansion.Features.Berserker
             Renderer[] renderers = weapon.GetComponentsInChildren<Renderer>();
             foreach (Renderer renderer in renderers)
             {
-                if (renderer is ParticleSystemRenderer || renderer is LineRenderer || renderer is TrailRenderer) continue;
+                if (renderer is ParticleSystemRenderer || renderer is LineRenderer ||
+                    renderer is TrailRenderer) continue;
                 Bounds bounds = renderer.localBounds;
                 for (int corner = 0; corner < 8; corner++)
                 {
@@ -507,7 +541,8 @@ namespace HaldorExpansion.Features.Berserker
         private bool meteor;
         private float exactRadius;
 
-        internal void Initialize(float effectIntensity, bool meteorImpact, Material soft, Material solid, float visualRadius = 0f)
+        internal void Initialize(float effectIntensity, bool meteorImpact, Material soft, Material solid,
+            float visualRadius = 0f)
         {
             bornAt = Time.time;
             intensity = Mathf.Clamp(effectIntensity, 0.45f, 2f);
@@ -526,13 +561,14 @@ namespace HaldorExpansion.Features.Berserker
             {
                 LineRenderer line = BerserkerEffects.MakeLine(transform, solid, 0.028f * intensity, 5, false);
                 spokes[s] = line;
-                float angle = (360f / spokes.Length) * s + UnityEngine.Random.Range(-10f, 10f);
+                float angle = (360f / spokes.Length) * s + Random.Range(-10f, 10f);
                 Vector3 direction = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
                 Vector3 side = Vector3.Cross(Vector3.up, direction).normalized;
                 for (int i = 0; i < line.positionCount; i++)
                 {
                     float u = i / (float)(line.positionCount - 1);
-                    line.SetPosition(i, direction * u * 2.4f * intensity + side * UnityEngine.Random.Range(-0.16f, 0.16f));
+                    line.SetPosition(i,
+                        direction * u * 2.4f * intensity + side * Random.Range(-0.16f, 0.16f));
                 }
             }
 
@@ -546,7 +582,8 @@ namespace HaldorExpansion.Features.Berserker
             burst.Play();
             burst.Emit(meteor ? 118 : 82);
 
-            ParticleSystem smoke = BerserkerEffects.MakeParticles(transform, soft, false, 0.86f, 0.10f, 0.28f, 0.25f, 1.1f, 160);
+            ParticleSystem smoke =
+                BerserkerEffects.MakeParticles(transform, soft, false, 0.86f, 0.10f, 0.28f, 0.25f, 1.1f, 160);
             ParticleSystem.MainModule smokeMain = smoke.main;
             smokeMain.startColor = new ParticleSystem.MinMaxGradient(
                 new Color(0.12f, 0.004f, 0.006f, 0.62f),
@@ -558,7 +595,7 @@ namespace HaldorExpansion.Features.Berserker
             smoke.Play();
             smoke.Emit(meteor ? 48 : 30);
 
-            UnityEngine.Object.Destroy(gameObject, Lifetime + 0.25f);
+            Destroy(gameObject, Lifetime + 0.25f);
         }
 
         private void Update()
@@ -586,7 +623,8 @@ namespace HaldorExpansion.Features.Berserker
                 for (int i = 0; i < line.positionCount; i++)
                 {
                     float angle = i / (float)(line.positionCount - 1) * Mathf.PI * 2f;
-                    line.SetPosition(i, new Vector3(Mathf.Cos(angle) * radius, 0.05f + r * 0.035f, Mathf.Sin(angle) * radius));
+                    line.SetPosition(i,
+                        new Vector3(Mathf.Cos(angle) * radius, 0.05f + r * 0.035f, Mathf.Sin(angle) * radius));
                 }
             }
 
@@ -646,7 +684,7 @@ namespace HaldorExpansion.Features.Berserker
             velocity.y = new ParticleSystem.MinMaxCurve(2.2f, 5.2f);
             rise.Play();
 
-            UnityEngine.Object.Destroy(gameObject, duration + 0.8f);
+            Destroy(gameObject, duration + 0.8f);
         }
 
         internal void StopFx(float fadeDuration)
@@ -655,7 +693,7 @@ namespace HaldorExpansion.Features.Berserker
             stopAt = Time.time;
             stopDuration = Mathf.Max(0.08f, fadeDuration);
             if (rise != null) rise.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-            UnityEngine.Object.Destroy(gameObject, stopDuration + 0.38f);
+            Destroy(gameObject, stopDuration + 0.38f);
         }
 
         private void Update()
@@ -724,7 +762,6 @@ namespace HaldorExpansion.Features.Berserker
                     center.z + Mathf.Sin(angle) * radius));
             }
         }
-
     }
 
     internal sealed class BerserkerRagnarokReleaseVisual : MonoBehaviour
@@ -740,7 +777,8 @@ namespace HaldorExpansion.Features.Berserker
             ring = BerserkerEffects.MakeLine(transform, solid, 0.075f * intensity, 57, false);
             ring.loop = true;
 
-            ParticleSystem burst = BerserkerEffects.MakeParticles(transform, soft, false, 0.82f, 0.06f, 0.19f, 1.0f, 5.8f, 380);
+            ParticleSystem burst =
+                BerserkerEffects.MakeParticles(transform, soft, false, 0.82f, 0.06f, 0.19f, 1.0f, 5.8f, 380);
             ParticleSystem.ShapeModule shape = burst.shape;
             shape.shapeType = ParticleSystemShapeType.Sphere;
             shape.radius = 0.45f;
@@ -750,7 +788,7 @@ namespace HaldorExpansion.Features.Berserker
             // Short, authentic Thunderblood red sparks instead of procedurally
             // randomized lightning lines. Original gameplay ring stays intact.
             BerserkerRagnarokFx.SpawnReleaseLightning(transform, intensity);
-            UnityEngine.Object.Destroy(gameObject, 0.78f);
+            Destroy(gameObject, 0.78f);
         }
 
         private void Update()
@@ -768,16 +806,13 @@ namespace HaldorExpansion.Features.Berserker
                 }
             }
         }
-
     }
 
     internal sealed class BerserkerMeteorVisual : MonoBehaviour
     {
         private Transform flightRoot;
         private float intensity = 1f;
-        private float bornAt;
         private Vector3 previousPosition;
-        private Vector3 lastPosition;
         private bool initialized;
         private bool flightStarted;
 
@@ -786,9 +821,7 @@ namespace HaldorExpansion.Features.Berserker
             if (initialized) return;
             initialized = true;
             intensity = Mathf.Clamp(effectIntensity, 1f, 1.8f);
-            bornAt = Time.time;
             previousPosition = transform.position;
-            lastPosition = transform.position;
 
             flightRoot = BerserkerRagnarokMeteorFx.ConfigureFlight(gameObject, intensity);
         }
@@ -815,16 +848,14 @@ namespace HaldorExpansion.Features.Berserker
             }
 
             previousPosition = currentPosition;
-            lastPosition = currentPosition;
         }
 
         private void OnDestroy()
         {
+            // The Abomination impact and custom explosion are triggered by OnHit,
+            // not by the delayed destruction of the projectile. Stop only the
+            // flight particles here; no second (late) impact is allowed.
             BerserkerRagnarokMeteorFx.StopFlight(flightRoot);
-            // Projectile_meteor is destroyed on impact. Ignore immediate teardown during
-            // failed spawning, and leave the native projectile responsible for gameplay.
-            if (!initialized || !BerserkerEffects.CanRender || Time.time - bornAt < 0.12f) return;
-            BerserkerEffects.PlayMeteorImpact(lastPosition, intensity);
         }
     }
 }

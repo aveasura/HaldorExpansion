@@ -15,13 +15,8 @@ namespace HaldorExpansion.Features.Berserker
 
         private const string CastEmote = "cheer";
 
-        // Single source of truth for both gameplay meteor spread and the cast telegraph.
-        internal const float MeteorImpactRadius = 7.0f;
-
-        // Damage radius of each individual meteor explosion. Keep this separate from
-        // MeteorImpactRadius: the latter controls where meteors land, while this
-        // controls how much area each impact actually damages.
-        internal const float MeteorExplosionRadius = 9.0f;
+        // Meteor spread and explosion radius are computed from the E-press Debt
+        // snapshot by BerserkerRagnarokMath; no static gameplay radius here.
         private const float MeteorSpawnHeight = 38f;
         private const float MeteorHorizontalDistanceMin = 18f;
         private const float MeteorHorizontalDistanceMax = 24f;
@@ -85,20 +80,24 @@ namespace HaldorExpansion.Features.Berserker
             // Accepted E starts the cosmetic stopwatch immediately. This does NOT
             // extend the emote, meteor release, input lock or any damage timings.
             float castSeconds = BerserkerConfiguration.RagnarokCastDurationValue;
+            // Freeze gameplay scaling at E. The telegraph RPC carries this same radius.
+            double debtAtActivation = BerserkerRuntime.Debt.Amount;
             casting = true;
             inputLockedUntil = Time.time + castSeconds;
             BerserkerRagnarokFx.BeginLocalSkywardAura(player);
-            castRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(CastRoutine(player, castSeconds));
+            castRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(
+                CastRoutine(player, castSeconds, debtAtActivation));
         }
 
-        private static IEnumerator CastRoutine(Player player, float castSeconds)
+        private static IEnumerator CastRoutine(Player player, float castSeconds, double debtAtActivation)
         {
             try
             {
                 player.StartEmote(CastEmote, true);
                 ClearHumanoidAttackState(player);
                 ClearHumanoidBlockState(player);
-                BerserkerEffects.BroadcastRagnarokCast(player, castSeconds);
+                BerserkerEffects.BroadcastRagnarokCast(player, castSeconds,
+                    BerserkerRagnarokMath.MeteorImpactRadius(debtAtActivation));
 
                 // Once the activation conditions passed and E started the cast, Ragnarök is
                 // committed. Do not re-check Wrath, Debt, equipment, attack/dodge state, etc.
@@ -120,21 +119,23 @@ namespace HaldorExpansion.Features.Berserker
 
                 StopCastEmote(player);
                 BerserkerRagnarokExhaustion.Apply(player);
-                BerserkerEffects.BroadcastRagnarokRelease(player, center, consumed);
+                BerserkerEffects.BroadcastRagnarokRelease(player, center, debtAtActivation);
                 // The unleashed storm consumes Wrath I-V as well as Blood Debt.
                 // Reset on release (not activation) so interrupted casts do not
                 // discard stacks, and sync the approved Wrath aura out for others.
                 BerserkerRuntime.ConsumeWrathForRagnarok(player);
                 player.Message(MessageHud.MessageType.Center, "$msg_berserker_ragnarok_cast");
 
-                int count = BerserkerRagnarokMath.MeteorCount(consumed);
-                float perMeteor = BerserkerRagnarokMath.PerMeteorDamage(consumed);
+                int count = BerserkerRagnarokMath.MeteorCount(debtAtActivation);
+                float perMeteor = BerserkerRagnarokMath.PerMeteorDamage(debtAtActivation);
+                float impactRadius = BerserkerRagnarokMath.MeteorImpactRadius(debtAtActivation);
+                float explosionRadius = BerserkerRagnarokMath.MeteorExplosionRadius(debtAtActivation);
                 if (count <= 0 || perMeteor <= 0f) yield break;
 
                 for (int i = 0; i < count; i++)
                 {
                     if (player == null || player.IsDead()) yield break;
-                    SpawnMeteor(player, meteorPrefab, center, perMeteor);
+                    SpawnMeteor(player, meteorPrefab, center, perMeteor, impactRadius, explosionRadius);
                     if (i + 1 < count) yield return new WaitForSeconds(MeteorInterval);
                 }
             }
@@ -190,11 +191,12 @@ namespace HaldorExpansion.Features.Berserker
             return null;
         }
 
-        private static void SpawnMeteor(Player player, GameObject prefab, Vector3 center, float damage)
+        private static void SpawnMeteor(Player player, GameObject prefab, Vector3 center,
+            float damage, float impactRadius, float explosionRadius)
         {
             if (player == null || prefab == null || damage <= 0f) return;
 
-            Vector2 random = Random.insideUnitCircle * MeteorImpactRadius;
+            Vector2 random = Random.insideUnitCircle * impactRadius;
             Vector3 impact = center + new Vector3(random.x, 0f, random.y);
 
             // Bring the whole shower in on a cinematic diagonal instead of dropping it
@@ -244,12 +246,13 @@ namespace HaldorExpansion.Features.Berserker
             // cinematic explosion and the gameplay hit area match the intended
             // crowd-control role of Ragnarök. Projectile.DoAOE then applies the same
             // custom HitData damage to every valid target inside this sphere.
-            projectile.m_aoe = MeteorExplosionRadius;
+            projectile.m_aoe = explosionRadius;
 
             // ZDO marker makes the unique cosmetics visible to every client,
             // while vanilla projectile physics and AoE remain unchanged.
             BerserkerRagnarokMeteorFx.MarkOwnedMeteor(instance,
-                Mathf.Clamp(1f + Mathf.Log10(Mathf.Max(1f, damage / 100f)) * 0.24f, 1f, 1.75f));
+                Mathf.Clamp(1f + Mathf.Log10(Mathf.Max(1f, damage / 100f)) * 0.24f, 1f, 1.75f),
+                player, explosionRadius);
             BerserkerEffects.AttachMeteorVisual(instance, damage);
         }
     }
