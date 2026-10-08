@@ -124,11 +124,19 @@ internal static class BerserkerStateTests
         Check(Nearly(BerserkerReckoningMath.HealAmount(1000f, 0.20f), 200f),
             "Reckoning lifesteal has no artificial max-health cap");
 
-        Check(Nearly(BerserkerRagnarokMath.TotalDamage(500d), 1500f), "x5 Ragnarok total is 1500");
-        Check(Nearly(BerserkerRagnarokMath.TotalDamage(600d), 1600f), "x6 Ragnarok total is 1600");
-        Check(Nearly(BerserkerRagnarokMath.TotalDamage(800d), 1800f), "x8 Ragnarok total is 1800");
-        Check(Nearly(BerserkerRagnarokMath.TotalDamage(1000d), 2000f), "x10 Ragnarok total is 2000");
-        Check(Nearly(BerserkerRagnarokMath.TotalDamage(2000d), 2500f), "x20 Ragnarok soft-scales to 2500");
+        Check(BerserkerRagnarokMath.MeteorCount(500d) == 10, "x5 Ragnarok spawns 10 meteors");
+        Check(BerserkerRagnarokMath.MeteorCount(600d) == 12, "x6 Ragnarok spawns 12 meteors");
+        Check(BerserkerRagnarokMath.MeteorCount(800d) == 16, "x8 Ragnarok spawns 16 meteors");
+        Check(BerserkerRagnarokMath.MeteorCount(1500d) == 16, "Ragnarok meteor count caps at 16");
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(400d), 0f), "Below x5 Ragnarok deals no damage");
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(500d), 1440f), "x5 Ragnarok total is 1440 after +80%");
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(600d), 1800f), "x6 Ragnarok total is 1800 after +80%");
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(800d), 2790f), "x8 Ragnarok total is 2790 after +80%");
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(1000d), 4140f), "x10 Ragnarok total is 4140 after +80%");
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(1500d), 9090f), "x15 Ragnarok total is 9090 after +80%");
+        Check(Nearly(BerserkerRagnarokMath.TotalDamage(2000d), 11340f), "x20 Ragnarok soft-scales to 11340");
+        Check(Nearly(BerserkerRagnarokMath.PerMeteorDamage(500d), 144f), "x5 damage splits across 10 meteors");
+        Check(Nearly(BerserkerRagnarokMath.PerMeteorDamage(800d), 174.375f), "x8 damage splits across 16 meteors");
 
         var debt = new BerserkerDebtState();
         debt.AddEnemyDamage(0f, 195f, 100f, 100f);

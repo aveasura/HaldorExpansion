@@ -16,7 +16,11 @@ namespace HaldorExpansion.Features.Berserker
     [HarmonyPatch(typeof(Player), "Update")]
     internal static class BerserkerPlayerUpdatePatch
     {
-        private static void Postfix(Player __instance) => BerserkerRuntime.Update(__instance);
+        private static void Postfix(Player __instance)
+        {
+            BerserkerRuntime.Update(__instance);
+            BerserkerWrathEffects.UpdatePlayer(__instance);
+        }
     }
 
     // The mouse-wheel alternative attack reaches StartAttack with secondaryAttack=true.

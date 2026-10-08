@@ -127,16 +127,51 @@ namespace HaldorExpansion.Features.Berserker
             return bonus > 0f;
         }
 
+        // Temporary test harness: preserve owner initialization, stage decay
+        // bookkeeping and ZDO/status synchronization just like real axe hits.
+        internal static void GrantTestWrathV(Player player)
+        {
+            if (player == null || player != Player.m_localPlayer || player.IsDead()) return;
+            EnsureOwner(player);
+            State.RegisterHit(Time.time,
+                BerserkerConfiguration.HitsPerStageValue * BerserkerState.MaxWrathStage,
+                BerserkerConfiguration.HitsPerStageValue,
+                BerserkerConfiguration.DecayIntervalValue);
+            SyncStatus(player);
+        }
+
+        // x5 is an additive +500 points, not a reset of any existing Debt.
+        // Reuse its normal outgoing-activity clock so it does not immediately
+        // decay before the player can initiate Ragnarök.
+        internal static void GrantTestDebt(Player player, double points)
+        {
+            if (player == null || player != Player.m_localPlayer || player.IsDead() ||
+                double.IsNaN(points) || double.IsInfinity(points) || points <= 0d) return;
+            EnsureOwner(player);
+            Debt.RegisterAxeHit(Time.time, (float)points);
+        }
+
+        // Ragnarök burns all Wrath stacks only when the committed cast actually
+        // releases its meteors. Do not reset Debt here; the cast consumes that
+        // separately after validating its meteor prefab and success conditions.
+        internal static void ConsumeWrathForRagnarok(Player player)
+        {
+            if (player == null || player != Player.m_localPlayer || player.IsDead()) return;
+            EnsureOwner(player);
+            State.Reset();
+            SyncStatus(player);
+        }
+
         internal static void CommitReckoning(Player player, double spentDebt)
         {
             if (player == null || player != Player.m_localPlayer) return;
             Debt.Spend(spentDebt);
         }
 
-        internal static void ApplyReckoningHeal(Player player, float finalDamage)
+        internal static float ApplyReckoningHeal(Player player, float finalDamage)
         {
-            if (player == null || player != Player.m_localPlayer || player.IsDead()) return;
-            if (float.IsNaN(finalDamage) || float.IsInfinity(finalDamage) || finalDamage <= 0f) return;
+            if (player == null || player != Player.m_localPlayer || player.IsDead()) return 0f;
+            if (float.IsNaN(finalDamage) || float.IsInfinity(finalDamage) || finalDamage <= 0f) return 0f;
 
             float maxHealth = Mathf.Max(0f, player.GetMaxHealth());
             float current = Mathf.Max(0f, player.GetHealth());
@@ -144,9 +179,10 @@ namespace HaldorExpansion.Features.Berserker
                 finalDamage,
                 BerserkerConfiguration.ReckoningLifeStealFraction);
             heal = Mathf.Min(heal, Mathf.Max(0f, maxHealth - current));
-            if (heal <= 0f) return;
+            if (heal <= 0f) return 0f;
 
             player.Heal(heal, true);
+            return heal;
         }
 
         internal static void Reset(Player player)
@@ -158,6 +194,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 lastSyncedStage = -1;
                 BerserkerWrathStatus.Sync(player, 0);
+                BerserkerWrathEffects.Sync(player, 0);
                 lastSyncedStage = 0;
             }
         }
@@ -178,6 +215,7 @@ namespace HaldorExpansion.Features.Berserker
             int stage = State.WrathStage;
             if (stage == lastSyncedStage) return;
             BerserkerWrathStatus.Sync(player, stage);
+            BerserkerWrathEffects.Sync(player, stage);
             lastSyncedStage = stage;
         }
     }

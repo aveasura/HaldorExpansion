@@ -103,8 +103,13 @@
         <Compile Include="Features\Berserker\BerserkerReckoningNetwork.cs"/>
         <Compile Include="Features\Berserker\BerserkerRagnarokMath.cs"/>
         <Compile Include="Features\Berserker\BerserkerRagnarokRuntime.cs"/>
+        <Compile Include="Features\Berserker\BerserkerRagnarokFx.cs"/>
+        <Compile Include="Features\Berserker\BerserkerRagnarokMeteorFx.cs"/>
+        <Compile Include="Features\Berserker\BerserkerTestCommands.cs"/>
         <Compile Include="Features\Berserker\BerserkerRagnarokExhaustion.cs"/>
         <Compile Include="Features\Berserker\BerserkerEffects.cs"/>
+        <Compile Include="Features\Berserker\BerserkerReckoningFx.cs"/>
+        <Compile Include="Features\Berserker\BerserkerWrathEffects.cs"/>
         <Compile Include="Features\HelOath\HelOathAppearance.cs"/>
         <Compile Include="Features\HelOath\HelOathChargeStore.cs"/>
         <Compile Include="Features\HelOath\HelOathChargeCreditMath.cs"/>
@@ -251,6 +256,20 @@
 
         <Reference Include="UnityEngine.ParticleSystemModule">
             <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+        </Reference>
+
+        <!-- Needed by Reckoning's ground-alignment raycast for the native
+             Abomination impact. Match the PhysicsModule from the same Valheim install. -->
+        <Reference Include="UnityEngine.PhysicsModule">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+        </Reference>
+
+        <!-- Use Valheim's Unity netstandard 2.1 facade rather than the .NET 4.8
+             implicit netstandard 2.0 facade for UnityEngine.AudioModule. -->
+        <Reference Include="netstandard" Condition="Exists('$(ValheimInstallDir)\valheim_Data\Managed\netstandard.dll')">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\netstandard.dll</HintPath>
+            <SpecificVersion>False</SpecificVersion>
+            <Private>False</Private>
         </Reference>
 
         <Reference Include="UnityEngine.AudioModule">

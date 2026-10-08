@@ -27,9 +27,16 @@ namespace HaldorExpansion.Features.Berserker
             if (character is Player player)
             {
                 BerserkerEffects.Register(player, view);
-                view.Register<float>(HealRpc, (sender, finalDamage) =>
+                BerserkerWrathEffects.Register(player, view);
+                view.Register<Vector3, float>(HealRpc, (sender, point, finalDamage) =>
                 {
-                    if (view.IsOwner()) BerserkerRuntime.ApplyReckoningHeal(player, finalDamage);
+                    if (!view.IsOwner()) return;
+                    float actualHeal = BerserkerRuntime.ApplyReckoningHeal(player, finalDamage);
+                    if (actualHeal > 0f)
+                    {
+                        try { BerserkerEffects.BroadcastReckoningHeal(player, point, actualHeal); }
+                        catch (Exception e) { HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Reckoning heal VFX failed: " + e.Message); }
+                    }
                 });
             }
         }
@@ -128,7 +135,7 @@ namespace HaldorExpansion.Features.Berserker
                 }
 
                 if (finalDamage > 0f)
-                    attackerView.InvokeRPC(HealRpc, finalDamage);
+                    attackerView.InvokeRPC(HealRpc, hit.m_point, finalDamage);
             }
             catch (Exception e)
             {

@@ -44,8 +44,8 @@ namespace HaldorExpansion.Features.Berserker
 
         internal static bool IsCasting => casting;
 
-        // Only the 1.5 s commitment phase is input-locked. The meteor shower can
-        // continue afterwards while the player regains control.
+        // Input locking and meteor release follow ONLY the configured cast duration.
+        // Skyward aura delay/emission are cosmetic and never alter gameplay timing.
         internal static bool IsInputLocked(Player player)
         {
             return player != null && player == Player.m_localPlayer && casting && Time.time < inputLockedUntil;
@@ -82,25 +82,29 @@ namespace HaldorExpansion.Features.Berserker
         private static void StartCast(Player player)
         {
             if (HaldorExpansionPlugin.Instance == null) return;
+            // Accepted E starts the cosmetic stopwatch immediately. This does NOT
+            // extend the emote, meteor release, input lock or any damage timings.
+            float castSeconds = BerserkerConfiguration.RagnarokCastDurationValue;
             casting = true;
-            inputLockedUntil = Time.time + BerserkerConfiguration.RagnarokCastDurationValue;
-            castRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(CastRoutine(player));
+            inputLockedUntil = Time.time + castSeconds;
+            BerserkerRagnarokFx.BeginLocalSkywardAura(player);
+            castRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(CastRoutine(player, castSeconds));
         }
 
-        private static IEnumerator CastRoutine(Player player)
+        private static IEnumerator CastRoutine(Player player, float castSeconds)
         {
             try
             {
                 player.StartEmote(CastEmote, true);
                 ClearHumanoidAttackState(player);
                 ClearHumanoidBlockState(player);
-                BerserkerEffects.BroadcastRagnarokCast(player, BerserkerConfiguration.RagnarokCastDurationValue);
+                BerserkerEffects.BroadcastRagnarokCast(player, castSeconds);
 
                 // Once the activation conditions passed and E started the cast, Ragnarök is
                 // committed. Do not re-check Wrath, Debt, equipment, attack/dodge state, etc.
                 // during the animation. Only death can prevent resolution. This mirrors the
                 // reliable commitment behaviour used by Cestus.
-                yield return new WaitForSeconds(BerserkerConfiguration.RagnarokCastDurationValue);
+                yield return new WaitForSeconds(castSeconds);
 
                 if (player == null || player != Player.m_localPlayer || player.IsDead()) yield break;
 
@@ -117,6 +121,10 @@ namespace HaldorExpansion.Features.Berserker
                 StopCastEmote(player);
                 BerserkerRagnarokExhaustion.Apply(player);
                 BerserkerEffects.BroadcastRagnarokRelease(player, center, consumed);
+                // The unleashed storm consumes Wrath I-V as well as Blood Debt.
+                // Reset on release (not activation) so interrupted casts do not
+                // discard stacks, and sync the approved Wrath aura out for others.
+                BerserkerRuntime.ConsumeWrathForRagnarok(player);
                 player.Message(MessageHud.MessageType.Center, "$msg_berserker_ragnarok_cast");
 
                 int count = BerserkerRagnarokMath.MeteorCount(consumed);
@@ -238,6 +246,10 @@ namespace HaldorExpansion.Features.Berserker
             // custom HitData damage to every valid target inside this sphere.
             projectile.m_aoe = MeteorExplosionRadius;
 
+            // ZDO marker makes the unique cosmetics visible to every client,
+            // while vanilla projectile physics and AoE remain unchanged.
+            BerserkerRagnarokMeteorFx.MarkOwnedMeteor(instance,
+                Mathf.Clamp(1f + Mathf.Log10(Mathf.Max(1f, damage / 100f)) * 0.24f, 1f, 1.75f));
             BerserkerEffects.AttachMeteorVisual(instance, damage);
         }
     }

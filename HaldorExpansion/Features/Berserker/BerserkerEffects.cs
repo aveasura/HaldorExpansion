@@ -13,6 +13,7 @@ namespace HaldorExpansion.Features.Berserker
     {
         private const string ReckoningSwingRpc = "HE_BerserkerReckoningSwingFx_v1";
         private const string ReckoningImpactRpc = "HE_BerserkerReckoningImpactFx_v1";
+        private const string ReckoningHealFxRpc = "HE_BerserkerReckoningHealFx_v1";
         private const string RagnarokCastRpc = "HE_BerserkerRagnarokCastFx_v3";
         private const string RagnarokStopRpc = "HE_BerserkerRagnarokStopFx_v1";
         private const string RagnarokReleaseRpc = "HE_BerserkerRagnarokReleaseFx_v1";
@@ -50,7 +51,13 @@ namespace HaldorExpansion.Features.Berserker
             view.Register<Vector3, float>(ReckoningImpactRpc, (sender, point, debt) =>
             {
                 if (!ValidVisualRpc(view, sender) || !FiniteVector(point) || !FinitePositive(debt) || !CanRender) return;
-                PlayReckoningImpact(point, debt);
+                PlayReckoningImpact(player, point, debt);
+            });
+
+            view.Register<Vector3, float>(ReckoningHealFxRpc, (sender, point, heal) =>
+            {
+                if (!ValidVisualRpc(view, sender) || !FiniteVector(point) || !FinitePositive(heal) || !CanRender) return;
+                BerserkerReckoningFx.Heal(player, point, heal);
             });
 
             view.Register<float>(RagnarokCastRpc, (sender, duration) =>
@@ -87,7 +94,15 @@ namespace HaldorExpansion.Features.Berserker
             if (player == null || value <= 0f || !FiniteVector(point)) return;
             ZNetView view = View(player);
             if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, ReckoningImpactRpc, point, value);
-            else if (CanRender) PlayReckoningImpact(point, value);
+            else if (CanRender) PlayReckoningImpact(player, point, value);
+        }
+
+        internal static void BroadcastReckoningHeal(Player player, Vector3 point, float actualHeal)
+        {
+            if (player == null || !FiniteVector(point) || !FinitePositive(actualHeal)) return;
+            ZNetView view = View(player);
+            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, ReckoningHealFxRpc, point, actualHeal);
+            else if (CanRender) BerserkerReckoningFx.Heal(player, point, actualHeal);
         }
 
         internal static void BroadcastRagnarokCast(Player player, float duration)
@@ -123,6 +138,13 @@ namespace HaldorExpansion.Features.Berserker
             visual.Initialize(EffectIntensity(Mathf.Max(100f, perMeteorDamage)));
         }
 
+        // Called by the replicated meteor marker on remote clients.
+        internal static void AttachMeteorVisualByIntensity(GameObject meteor, float intensity)
+        {
+            if (!CanRender || meteor == null || meteor.GetComponent<BerserkerMeteorVisual>() != null) return;
+            meteor.AddComponent<BerserkerMeteorVisual>().Initialize(Mathf.Clamp(intensity, 1f, 1.8f));
+        }
+
         internal static void PlayMeteorImpact(Vector3 point, float intensity)
         {
             if (!CanRender || !FiniteVector(point)) return;
@@ -131,39 +153,30 @@ namespace HaldorExpansion.Features.Berserker
             BerserkerImpactVisual impact = root.AddComponent<BerserkerImpactVisual>();
             impact.Initialize(Mathf.Clamp(intensity * 1.12f, 1f, 1.9f), true, SoftMaterial(), SolidMaterial(),
                 BerserkerRagnarokRuntime.MeteorExplosionRadius);
+            BerserkerRagnarokMeteorFx.SpawnCrimsonImpact(point, intensity);
         }
 
         private static void PlayReckoningSwing(Player player, float debt)
         {
             if (player == null || player.IsDead()) return;
-            GameObject weapon = FindBerserkerWeaponVisual(player);
             float intensity = EffectIntensity(debt);
-
+            GameObject weapon = FindBerserkerWeaponVisual(player);
             if (weapon != null)
             {
                 BerserkerWeaponSwingVisual old = weapon.GetComponentInChildren<BerserkerWeaponSwingVisual>();
                 if (old != null) UnityEngine.Object.Destroy(old.gameObject);
-
                 GameObject root = new GameObject("Berserker_ReckoningWeaponFx");
                 root.transform.SetParent(weapon.transform, false);
-                BerserkerWeaponSwingVisual swing = root.AddComponent<BerserkerWeaponSwingVisual>();
-                swing.Initialize(weapon.transform, intensity, SoftMaterial(), SolidMaterial());
-                return;
+                root.AddComponent<BerserkerWeaponSwingVisual>()
+                    .Initialize(weapon.transform, intensity, SoftMaterial(), SolidMaterial());
             }
-
-            // Fallback for the first frame after an equipment visual refresh.
-            GameObject fallback = new GameObject("Berserker_ReckoningFallbackFx");
-            fallback.transform.position = player.GetCenterPoint() + player.transform.forward * 0.5f;
-            BerserkerImpactVisual pulse = fallback.AddComponent<BerserkerImpactVisual>();
-            pulse.Initialize(intensity * 0.55f, false, SoftMaterial(), SolidMaterial());
+            BerserkerReckoningFx.Swing(player);
         }
 
-        private static void PlayReckoningImpact(Vector3 point, float debt)
+        private static void PlayReckoningImpact(Player player, Vector3 point, float debt)
         {
-            GameObject root = new GameObject("Berserker_ReckoningImpact");
-            root.transform.position = point;
-            BerserkerImpactVisual impact = root.AddComponent<BerserkerImpactVisual>();
-            impact.Initialize(EffectIntensity(debt), false, SoftMaterial(), SolidMaterial());
+            if (player == null) return;
+            BerserkerReckoningFx.Impact(player, point, EffectIntensity(debt));
         }
 
         private static void PlayRagnarokCast(Player player, float duration)
@@ -176,6 +189,7 @@ namespace HaldorExpansion.Features.Berserker
             root.transform.SetParent(player.transform, false);
             BerserkerRagnarokCastVisual cast = root.AddComponent<BerserkerRagnarokCastVisual>();
             cast.Initialize(player, BerserkerRagnarokRuntime.MeteorImpactRadius, duration, SoftMaterial(), SolidMaterial());
+            BerserkerRagnarokFx.OnCast(player, root.transform, duration);
             state.RagnarokCast = cast;
         }
 
@@ -203,6 +217,8 @@ namespace HaldorExpansion.Features.Berserker
                 BerserkerRagnarokReleaseVisual release = root.AddComponent<BerserkerRagnarokReleaseVisual>();
                 release.Initialize(intensity, SoftMaterial(), SolidMaterial());
             }
+
+            BerserkerRagnarokFx.OnRelease(centerPoint, intensity);
 
             // A restrained center pulse marks the exact point where the self-cast area
             // was frozen when Ragnarök completed.
@@ -386,11 +402,11 @@ namespace HaldorExpansion.Features.Berserker
             trail = trailPoint.AddComponent<TrailRenderer>();
             trail.time = 0.30f;
             trail.minVertexDistance = 0.025f;
-            trail.startWidth = 0.20f * intensity;
+            trail.startWidth = 0.15f * intensity;
             trail.endWidth = 0.025f;
             trail.sharedMaterial = soft;
-            trail.startColor = new Color(1f, 0.055f, 0.018f, 0.92f);
-            trail.endColor = new Color(0.055f, 0.002f, 0.006f, 0f);
+            trail.startColor = new Color(1f, 0.90f, 0.63f, 0.92f);
+            trail.endColor = new Color(0.33f, 0.07f, 0.08f, 0f);
             trail.shadowCastingMode = ShadowCastingMode.Off;
             trail.receiveShadows = false;
             UnityEngine.Object.Destroy(trailPoint, Lifetime + 0.42f);
@@ -398,12 +414,12 @@ namespace HaldorExpansion.Features.Berserker
             arcs = new LineRenderer[3];
             for (int i = 0; i < arcs.Length; i++)
             {
-                arcs[i] = BerserkerEffects.MakeLine(transform, solid, (0.020f + i * 0.006f) * intensity, 9, false);
+                arcs[i] = BerserkerEffects.MakeLine(transform, solid, (0.012f + i * 0.004f) * intensity, 9, false);
             }
 
             sparks = BerserkerEffects.MakeParticles(transform, soft, true, 0.24f, 0.035f, 0.085f, 0.05f, 0.28f, 160);
             ParticleSystem.EmissionModule emission = sparks.emission;
-            emission.rateOverTime = 42f * intensity;
+            emission.rateOverTime = 22f * intensity;
             ParticleSystem.ShapeModule shape = sparks.shape;
             shape.shapeType = ParticleSystemShapeType.Box;
             shape.scale = axis == Vector3.right
@@ -429,8 +445,8 @@ namespace HaldorExpansion.Features.Berserker
                 LineRenderer line = arcs[a];
                 if (line == null) continue;
                 Color c = a == 0
-                    ? new Color(1f, 0.07f, 0.025f, 0.95f * alpha)
-                    : new Color(0.20f, 0.004f, 0.008f, 0.74f * alpha);
+                    ? new Color(1f, 0.91f, 0.66f, 0.96f * alpha)
+                    : new Color(0.31f, 0.04f, 0.065f, 0.68f * alpha);
                 line.startColor = line.endColor = c;
                 for (int i = 0; i < line.positionCount; i++)
                 {
@@ -592,7 +608,6 @@ namespace HaldorExpansion.Features.Berserker
         private Player player;
         private Vector3 targetPoint;
         private float targetRadius;
-        private LineRenderer[] bolts;
         private LineRenderer ring;
         private LineRenderer targetRing;
         private LineRenderer targetInnerRing;
@@ -601,7 +616,6 @@ namespace HaldorExpansion.Features.Berserker
         private float duration;
         private float stopAt = -1f;
         private float stopDuration;
-        private float nextBoltRefresh;
 
         internal void Initialize(Player owner, float impactRadius, float castDuration, Material soft, Material solid)
         {
@@ -610,10 +624,6 @@ namespace HaldorExpansion.Features.Berserker
             targetRadius = Mathf.Max(0.5f, impactRadius);
             duration = Mathf.Clamp(castDuration, 0.2f, 10f);
             bornAt = Time.time;
-
-            bolts = new LineRenderer[5];
-            for (int i = 0; i < bolts.Length; i++)
-                bolts[i] = BerserkerEffects.MakeLine(transform, solid, i == 0 ? 0.060f : 0.035f, 11, true);
 
             ring = BerserkerEffects.MakeLine(transform, solid, 0.045f, 49, false);
             ring.loop = true;
@@ -636,7 +646,6 @@ namespace HaldorExpansion.Features.Berserker
             velocity.y = new ParticleSystem.MinMaxCurve(2.2f, 5.2f);
             rise.Play();
 
-            RefreshBolts(1f);
             UnityEngine.Object.Destroy(gameObject, duration + 0.8f);
         }
 
@@ -662,13 +671,6 @@ namespace HaldorExpansion.Features.Berserker
             float fadeOut = 1f;
             if (stopAt >= 0f) fadeOut = 1f - Mathf.Clamp01((Time.time - stopAt) / stopDuration);
             float alpha = fadeIn * fadeOut;
-
-            if (Time.time >= nextBoltRefresh)
-            {
-                nextBoltRefresh = Time.time + 0.055f;
-                RefreshBolts(alpha);
-            }
-            else ApplyBoltAlpha(alpha);
 
             if (ring != null)
             {
@@ -723,68 +725,18 @@ namespace HaldorExpansion.Features.Berserker
             }
         }
 
-        private void RefreshBolts(float alpha)
-        {
-            if (bolts == null || player == null) return;
-            Vector3 origin = player.GetCenterPoint() + Vector3.up * 0.15f;
-            for (int b = 0; b < bolts.Length; b++)
-            {
-                LineRenderer line = bolts[b];
-                if (line == null) continue;
-                Vector2 radial = UnityEngine.Random.insideUnitCircle.normalized * UnityEngine.Random.Range(0.35f, 1.45f);
-                Vector3 end = origin + new Vector3(radial.x, UnityEngine.Random.Range(7.5f, 11.5f), radial.y);
-                Vector3 direction = end - origin;
-                Vector3 side = Vector3.Cross(direction.normalized, Vector3.up);
-                if (side.sqrMagnitude < 0.01f) side = Vector3.right;
-                side.Normalize();
-                Vector3 secondSide = Vector3.Cross(direction.normalized, side).normalized;
-
-                for (int i = 0; i < line.positionCount; i++)
-                {
-                    float u = i / (float)(line.positionCount - 1);
-                    float envelope = Mathf.Sin(u * Mathf.PI);
-                    Vector3 p = Vector3.Lerp(origin, end, u);
-                    if (i > 0 && i + 1 < line.positionCount)
-                    {
-                        p += side * UnityEngine.Random.Range(-0.40f, 0.40f) * envelope;
-                        p += secondSide * UnityEngine.Random.Range(-0.24f, 0.24f) * envelope;
-                    }
-                    line.SetPosition(i, p);
-                }
-            }
-            ApplyBoltAlpha(alpha);
-        }
-
-        private void ApplyBoltAlpha(float alpha)
-        {
-            if (bolts == null) return;
-            for (int b = 0; b < bolts.Length; b++)
-            {
-                if (bolts[b] == null) continue;
-                Color color = b == 0
-                    ? new Color(1f, 0.075f, 0.025f, 0.92f * alpha)
-                    : new Color(0.26f, 0.004f, 0.008f, 0.74f * alpha);
-                bolts[b].startColor = bolts[b].endColor = color;
-            }
-        }
     }
 
     internal sealed class BerserkerRagnarokReleaseVisual : MonoBehaviour
     {
-        private LineRenderer[] bolts;
         private LineRenderer ring;
         private float bornAt;
         private float intensity;
-        private float nextRefresh;
 
         internal void Initialize(float effectIntensity, Material soft, Material solid)
         {
             intensity = Mathf.Clamp(effectIntensity, 1f, 2f);
             bornAt = Time.time;
-            bolts = new LineRenderer[7];
-            for (int i = 0; i < bolts.Length; i++)
-                bolts[i] = BerserkerEffects.MakeLine(transform, solid, (i == 0 ? 0.085f : 0.045f) * intensity, 10, true);
-
             ring = BerserkerEffects.MakeLine(transform, solid, 0.075f * intensity, 57, false);
             ring.loop = true;
 
@@ -795,7 +747,9 @@ namespace HaldorExpansion.Features.Berserker
             burst.Play();
             burst.Emit(145);
 
-            RefreshBolts();
+            // Short, authentic Thunderblood red sparks instead of procedurally
+            // randomized lightning lines. Original gameplay ring stays intact.
+            BerserkerRagnarokFx.SpawnReleaseLightning(transform, intensity);
             UnityEngine.Object.Destroy(gameObject, 0.78f);
         }
 
@@ -803,24 +757,6 @@ namespace HaldorExpansion.Features.Berserker
         {
             float t = Mathf.Clamp01((Time.time - bornAt) / 0.62f);
             float alpha = 1f - t;
-            if (Time.time >= nextRefresh)
-            {
-                nextRefresh = Time.time + 0.07f;
-                RefreshBolts();
-            }
-
-            if (bolts != null)
-            {
-                for (int i = 0; i < bolts.Length; i++)
-                {
-                    if (bolts[i] == null) continue;
-                    Color c = i == 0
-                        ? new Color(1f, 0.085f, 0.025f, 0.98f * alpha)
-                        : new Color(0.18f, 0.003f, 0.007f, 0.82f * alpha);
-                    bolts[i].startColor = bolts[i].endColor = c;
-                }
-            }
-
             if (ring != null)
             {
                 float radius = Mathf.Lerp(0.55f, 4.0f * intensity, 1f - (1f - t) * (1f - t));
@@ -833,40 +769,17 @@ namespace HaldorExpansion.Features.Berserker
             }
         }
 
-        private void RefreshBolts()
-        {
-            if (bolts == null) return;
-            Vector3 origin = transform.position;
-            for (int b = 0; b < bolts.Length; b++)
-            {
-                LineRenderer line = bolts[b];
-                if (line == null) continue;
-                Vector2 radial = UnityEngine.Random.insideUnitCircle.normalized * UnityEngine.Random.Range(0.6f, 2.2f);
-                Vector3 end = origin + new Vector3(radial.x, UnityEngine.Random.Range(9f, 15f), radial.y);
-                Vector3 direction = end - origin;
-                Vector3 side = Vector3.Cross(direction.normalized, Vector3.up);
-                if (side.sqrMagnitude < 0.01f) side = Vector3.right;
-                side.Normalize();
-                for (int i = 0; i < line.positionCount; i++)
-                {
-                    float u = i / (float)(line.positionCount - 1);
-                    Vector3 p = Vector3.Lerp(origin, end, u);
-                    if (i > 0 && i + 1 < line.positionCount)
-                        p += side * UnityEngine.Random.Range(-0.65f, 0.65f) * Mathf.Sin(u * Mathf.PI);
-                    line.SetPosition(i, p);
-                }
-            }
-        }
     }
 
     internal sealed class BerserkerMeteorVisual : MonoBehaviour
     {
-        private TrailRenderer trail;
-        private ParticleSystem embers;
+        private Transform flightRoot;
         private float intensity = 1f;
         private float bornAt;
+        private Vector3 previousPosition;
         private Vector3 lastPosition;
         private bool initialized;
+        private bool flightStarted;
 
         internal void Initialize(float effectIntensity)
         {
@@ -874,36 +787,40 @@ namespace HaldorExpansion.Features.Berserker
             initialized = true;
             intensity = Mathf.Clamp(effectIntensity, 1f, 1.8f);
             bornAt = Time.time;
+            previousPosition = transform.position;
             lastPosition = transform.position;
 
-            trail = gameObject.AddComponent<TrailRenderer>();
-            trail.time = 0.46f;
-            trail.minVertexDistance = 0.10f;
-            trail.startWidth = 0.55f * intensity;
-            trail.endWidth = 0.06f;
-            trail.sharedMaterial = BerserkerEffects.SoftMaterial();
-            trail.startColor = new Color(1f, 0.07f, 0.015f, 0.80f);
-            trail.endColor = new Color(0.06f, 0.002f, 0.004f, 0f);
-            trail.shadowCastingMode = ShadowCastingMode.Off;
-            trail.receiveShadows = false;
-
-            embers = BerserkerEffects.MakeParticles(transform, BerserkerEffects.SoftMaterial(), true, 0.44f,
-                0.05f, 0.15f, 0.15f, 0.65f, 260);
-            ParticleSystem.EmissionModule emission = embers.emission;
-            emission.rateOverTime = 70f * intensity;
-            ParticleSystem.ShapeModule shape = embers.shape;
-            shape.shapeType = ParticleSystemShapeType.Sphere;
-            shape.radius = 0.28f;
-            embers.Play();
+            flightRoot = BerserkerRagnarokMeteorFx.ConfigureFlight(gameObject, intensity);
         }
 
         private void LateUpdate()
         {
-            lastPosition = transform.position;
+            Vector3 currentPosition = transform.position;
+            Vector3 delta = currentPosition - previousPosition;
+
+            if (flightRoot != null) flightRoot.position = currentPosition;
+            if (flightRoot != null && delta.sqrMagnitude > 0.000025f)
+            {
+                Vector3 tailDirection = -delta.normalized;
+                Vector3 up = Mathf.Abs(Vector3.Dot(tailDirection, Vector3.up)) > 0.94f
+                    ? Vector3.right
+                    : Vector3.up;
+                flightRoot.rotation = Quaternion.LookRotation(tailDirection, up);
+                if (!flightStarted)
+                {
+                    foreach (ParticleSystem ps in flightRoot.GetComponentsInChildren<ParticleSystem>())
+                        ps.Play(false);
+                    flightStarted = true;
+                }
+            }
+
+            previousPosition = currentPosition;
+            lastPosition = currentPosition;
         }
 
         private void OnDestroy()
         {
+            BerserkerRagnarokMeteorFx.StopFlight(flightRoot);
             // Projectile_meteor is destroyed on impact. Ignore immediate teardown during
             // failed spawning, and leave the native projectile responsible for gameplay.
             if (!initialized || !BerserkerEffects.CanRender || Time.time - bornAt < 0.12f) return;

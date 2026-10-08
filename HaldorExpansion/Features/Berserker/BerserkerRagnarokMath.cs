@@ -6,16 +6,19 @@ namespace HaldorExpansion.Features.Berserker
     {
         internal const double DebtPerVisualStack = 100d;
         internal const double MinimumDebt = 500d;
-        internal const int MinimumMeteorCount = 5;
-        internal const int MaximumMeteorCount = 8;
+        // Wrath V is consumed on release: double the meteor count (5-8 -> 10-16).
+        internal const int MinimumMeteorCount = 10;
+        internal const int MaximumMeteorCount = 16;
+        private const double TotalDamageMultiplier = 1.80d;
 
         internal static int MeteorCount(double debt)
         {
             if (double.IsNaN(debt) || double.IsInfinity(debt) || debt <= 0d)
                 return MinimumMeteorCount;
 
-            int completedStacks = (int)Math.Floor(debt / DebtPerVisualStack);
-            return Math.Max(MinimumMeteorCount, Math.Min(MaximumMeteorCount, completedStacks));
+            // Clamp before converting to int to handle large, uncapped Blood Debt.
+            double originalCount = Math.Max(5d, Math.Min(8d, Math.Floor(debt / DebtPerVisualStack)));
+            return (int)originalCount * 2;
         }
 
         internal static float TotalDamage(double debt)
@@ -47,6 +50,10 @@ namespace HaldorExpansion.Features.Berserker
             // +250 total damage за каждый следующий x1.
             if (stacks > 15d)
                 total += (stacks - 15d) * 250d;
+
+            // Apply the +80% buff to the TOTAL damage budget, not to every
+            // meteor: PerMeteorDamage divides this budget by the doubled count.
+            total *= TotalDamageMultiplier;
 
             return double.IsNaN(total) || double.IsInfinity(total) || total <= 0d
                 ? 0f

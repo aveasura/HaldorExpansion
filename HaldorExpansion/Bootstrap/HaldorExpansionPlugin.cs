@@ -53,6 +53,7 @@ namespace HaldorExpansion
             CestusInputRegistration.RegisterCestusInput(Config);
             HelOathConfiguration.Register(Config);
             BerserkerConfiguration.Register(Config);
+            BerserkerTestCommands.Register();
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), ModGuid);
 
