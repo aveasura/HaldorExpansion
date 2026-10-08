@@ -14,8 +14,8 @@ namespace HaldorExpansion.Features.Berserker
         internal const string SourcePrefabName = "BattleaxeGold_BloodLightning";
         internal const string ItemKey = "$item_weapon_berserker_greataxe";
         internal const string ItemDescKey = "$item_weapon_berserker_greataxe_desc";
-        internal const float BaseSlashDamage = 100f;
-        internal const float SecondaryBaseDamage = 135f;
+        internal const float BaseSlashDamage = 95f;
+        internal const float SecondaryBaseDamage = 130f;
         internal const float MovementModifier = -0.10f;
         internal const float PrimaryStamina = 14f;
         internal const float AttackForce = 45f;
@@ -116,8 +116,8 @@ namespace HaldorExpansion.Features.Berserker
             if (shared.m_secondaryAttack != null)
             {
                 shared.m_secondaryAttack.m_staggerMultiplier = SecondaryStaggerMultiplier;
-                // Make the overhead secondary a deliberate execution hit: 135 base damage
-                // from the shared 100 Slash weapon profile, before missing-HP scaling/Reckoning.
+                // Make the overhead secondary a deliberate execution hit: 130 base damage
+                // from the shared 95 Slash weapon profile, before missing-HP scaling/Reckoning.
                 shared.m_secondaryAttack.m_damageMultiplier = SecondaryBaseDamage / BaseSlashDamage;
 
                 // Keep the Berserker secondary attack mechanics/hit data, but use the

@@ -17,7 +17,6 @@ namespace HaldorExpansion.Features.Berserker
         internal const string EffectNameKey = "$se_helmet_berserker";
         internal const string EffectDescKey = "$se_helmet_berserker_desc";
 
-        // Prototype shop value; synchronized Haldor config can override it.
         internal const int Price = 2500;
         internal const float BaseArmor = 22f;
 

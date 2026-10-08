@@ -131,9 +131,9 @@ namespace HaldorExpansion.Presentation
                     "чтобы выпустить круговой выброс силы и получить краткий защитный покров.",
                 [CestusItemRegistration.CestusEffectNameKey] = "Закон арены",
                 [CestusItemRegistration.CestusEffectDescKey] =
-                    "+30 к максимуму здоровья.\n" +
+                    "+10 к максимуму здоровья.\n" +
                     "+90% к скорости атаки.\n" +
-                    "-5 брони.",
+                    "-8 брони.",
 
                 // Накидка хозяина ямы
                 ["$item_chest_pitking"] = "Накидка хозяина ямы",
@@ -141,7 +141,7 @@ namespace HaldorExpansion.Presentation
                     "Её не создавали для защиты. " +
                     "Она создана для тех, кто выходит на арену не прятаться за сталью, а ломать кости голыми руками.",
                 ["$se_pitking_vigor"] = "Воля хозяина ямы",
-                ["$se_pitking_vigor_desc"] = "+70 к максимуму здоровья.",
+                ["$se_pitking_vigor_desc"] = "+60 к максимуму здоровья.",
 
                 ["$itemset_steelheart"] = "Стальное сердце",
                 ["$itemset_steelheart_desc"] =
@@ -163,7 +163,7 @@ namespace HaldorExpansion.Presentation
                     "Чем ближе смерть, тем яростнее он цепляется за жизнь — но каждая рана вгрызается глубже.",
                 ["$se_cape_woundedbeast"] = "Раненый зверь",
                 ["$se_cape_woundedbeast_desc"] =
-                    "Получаемый урон +18%.\n" +
+                    "Получаемый урон +20%.\n" +
                     "Раз в секунду восстанавливает здоровье: чем ниже текущее здоровье, тем сильнее восстановление.\n" +
                     "Огонь, яд и дух подавляют регенерацию на 2 секунды.\n\n" +
                     "При использовании вместе с Кирасой безмолвной расплаты эффект лечения сокращается в 2 раза.",
@@ -270,8 +270,8 @@ namespace HaldorExpansion.Presentation
                 // Cuirass of Silent Reckoning
                 ["$item_chest_delayeddoom"] = "Cuirass of Silent Reckoning",
                 ["$item_chest_delayeddoom_desc"] =
-                    "If a post-armor hit would take more than half of your maximum health, " +
-                    "only part of the damage is taken immediately, while the rest returns as delayed pain over the next few seconds.\n" +
+                    "If a hit would take more than half of your maximum health, " +
+                    "only part of the damage is taken immediately, while the rest returns as increased delayed pain over the next few seconds.\n" +
                     "It does not save you from the reckoning — it only gives you time to strike back.",
                 ["$se_delayeddoom_regen"] = "Silent Vitality",
                 ["$se_delayeddoom_regen_desc"] = "+5 health regeneration.",
@@ -293,9 +293,9 @@ namespace HaldorExpansion.Presentation
                     "to release a circular burst of force and gain a brief protective barrier.",
                 [CestusItemRegistration.CestusEffectNameKey] = "Law of the Arena",
                 [CestusItemRegistration.CestusEffectDescKey] =
-                    "+30 to maximum health.\n" +
+                    "+10 to maximum health.\n" +
                     "+90% attack speed.\n" +
-                    "-5 armor.",
+                    "-8 armor.",
 
                 // Pit King's Cuirass
                 ["$item_chest_pitking"] = "Pit King's Cuirass",
@@ -303,7 +303,7 @@ namespace HaldorExpansion.Presentation
                     "It was not forged for protection. " +
                     "It was made for those who step into the pit not to hide behind steel, but to break bones with bare hands.",
                 ["$se_pitking_vigor"] = "Pit King's Vigor",
-                ["$se_pitking_vigor_desc"] = "+70 to maximum health.",
+                ["$se_pitking_vigor_desc"] = "+60 to maximum health.",
 
                 ["$itemset_steelheart"] = "Steel Heart",
                 ["$itemset_steelheart_desc"] =
@@ -325,7 +325,7 @@ namespace HaldorExpansion.Presentation
                     "The closer death comes, the more fiercely it clings to life — but every wound bites deeper.",
                 ["$se_cape_woundedbeast"] = "Wounded Beast",
                 ["$se_cape_woundedbeast_desc"] =
-                    "Incoming damage +18%.\n" +
+                    "Incoming damage +20%.\n" +
                     "Restores health once per second: the lower your current health is, the stronger the regeneration becomes.\n" +
                     "Fire, poison, and spirit suppress regeneration for 2 seconds.\n\n" +
                     "When used together with the Cuirass of Silent Reckoning, its healing effect is halved.",

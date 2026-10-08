@@ -28,7 +28,7 @@ namespace HaldorExpansion.Features.Cestus
         private const float GritCestusWeight = 2f;
         
         private const int GritCestusMaxQuality = 1;
-        private const float GritCestusMaxDurability = 1800f;
+        private const float GritCestusMaxDurability = 900f;
         private const float GritCestusDurabilityPerLevel = 0f;
 
         // Урон
@@ -36,11 +36,11 @@ namespace HaldorExpansion.Features.Cestus
         private const float GritCestusLightningDamage = 6f;
 
         // Особые статы
-        internal const float GritCestusBonusMaxHealth = 30f;
+        internal const float GritCestusBonusMaxHealth = 10f;
         private const float GritCestusPrimaryStaggerMultiplier = 1.35f; // ускоренное настакивание оглушения ударами
         private const float GritCestusSecondaryStaggerMultiplier = 2.2f;
         internal const float GritCestusAttackSpeedMultiplier = 1.9f; // +90% скорости атаки пока кастет в руках
-        internal const float GritCestusArmorPenalty = 5f; // плоский минус к броне
+        internal const float GritCestusArmorPenalty = 8f; // плоский минус к броне
 
         // блок/парирование
         private const float GritCestusBlockPower = 2f;
@@ -170,13 +170,13 @@ namespace HaldorExpansion.Features.Cestus
             // потребление выносливости на удары
             if (shared.m_attack != null)
             {
-                shared.m_attack.m_attackStamina = 7f;
+                shared.m_attack.m_attackStamina = 5f;
                 shared.m_attack.m_staggerMultiplier = GritCestusPrimaryStaggerMultiplier;
             }
 
             if (shared.m_secondaryAttack != null)
             {
-                shared.m_secondaryAttack.m_attackStamina = 15;
+                shared.m_secondaryAttack.m_attackStamina = 12;
                 shared.m_secondaryAttack.m_staggerMultiplier = GritCestusSecondaryStaggerMultiplier;
             }
 

@@ -15,7 +15,7 @@ namespace HaldorExpansion.Features.PitKing
         internal const string PitKingChestSourcePrefab = "ArmorMageChest";
         internal const int PitKingChestPrice = 4000;
 
-        internal const float PitKingChestBonusMaxHealth = 70f;
+        internal const float PitKingChestBonusMaxHealth = 60f;
 
         internal const string PitKingChestItemKey = "$item_chest_pitking";
         private const string PitKingChestItemDescKey = "$item_chest_pitking_desc";
