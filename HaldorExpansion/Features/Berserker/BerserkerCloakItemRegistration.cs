@@ -1,9 +1,10 @@
+using System;
+using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Presentation;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System;
-using System.Reflection;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Berserker
@@ -16,8 +17,9 @@ namespace HaldorExpansion.Features.Berserker
         internal const string ItemDescKey = "$item_cape_berserker_desc";
         internal const string EffectNameKey = "$se_cape_berserker";
         internal const string EffectDescKey = "$se_cape_berserker_desc";
-        
+
         internal const int Price = 2500;
+        internal const string IconFileName = "berserker_cloak.png";
         internal const float Armor = 4f;
 
         internal static GameObject Prefab;
@@ -43,8 +45,11 @@ namespace HaldorExpansion.Features.Berserker
                     if (ItemDrop != null)
                     {
                         ConfigureShared(ItemDrop.m_itemData.m_shared);
+                        ApplyIcon(ItemDrop.m_itemData.m_shared);
                         ItemDrop.m_itemData.m_dropPrefab = existing;
+                        BerserkerAppearance.Apply(existing, BerserkerAppearance.Style.Cloak);
                     }
+
                     return ItemDrop != null;
                 }
 
@@ -59,7 +64,8 @@ namespace HaldorExpansion.Features.Berserker
                 GameObject cloak = PrefabManager.Instance.CreateClonedPrefab(PrefabName, source.name);
                 if (cloak == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Failed to clone deer-hide cape for Berserker cloak.");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[Berserker] Failed to clone deer-hide cape for Berserker cloak.");
                     return false;
                 }
 
@@ -71,7 +77,9 @@ namespace HaldorExpansion.Features.Berserker
                 }
 
                 ConfigureShared(drop.m_itemData.m_shared);
+                ApplyIcon(drop.m_itemData.m_shared);
                 drop.m_itemData.m_dropPrefab = cloak;
+                BerserkerAppearance.Apply(cloak, BerserkerAppearance.Style.Cloak);
 
                 ItemManager.Instance.AddItem(new CustomItem(cloak, true));
                 EnsureRegisteredInObjectDB(cloak);
@@ -96,27 +104,13 @@ namespace HaldorExpansion.Features.Berserker
                 string recipeName = "Recipe_" + PrefabName;
                 if (ItemManager.Instance.GetRecipe(recipeName) != null) return;
 
-                GameObject source = ObjectDB.instance?.GetItemPrefab(SourcePrefabName);
-                ItemDrop sourceDrop = source != null ? source.GetComponent<ItemDrop>() : null;
-                if (sourceDrop == null) return;
-
-                Recipe sourceRecipe = ObjectDB.instance?.GetRecipe(sourceDrop.m_itemData);
-                if (sourceRecipe == null) return;
-
-                string craftingStation = sourceRecipe.m_craftingStation != null
-                    ? sourceRecipe.m_craftingStation.name
-                    : null;
-                string repairStation = sourceRecipe.m_repairStation != null
-                    ? sourceRecipe.m_repairStation.name
-                    : craftingStation;
-
                 var config = new RecipeConfig
                 {
                     Name = recipeName,
                     Item = PrefabName,
                     Amount = 1,
-                    CraftingStation = craftingStation,
-                    RepairStation = repairStation,
+                    CraftingStation = "forge",
+                    RepairStation = "forge",
                     MinStationLevel = 1,
                     Enabled = false,
                     Requirements = Array.Empty<RequirementConfig>()
@@ -141,6 +135,9 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_maxQuality = 1;
             shared.m_value = 0;
             shared.m_movementModifier = 0f;
+            shared.m_canBeReparied = true;
+            shared.m_useDurability = true;
+            BerserkerAppearance.ApplyArmorMaterial(shared, BerserkerAppearance.Style.Cloak);
 
             // The deer cape is only the physical/visual base. Remove inherited equipment/set
             // effects so all gameplay comes from the Berserker feature itself.
@@ -154,6 +151,11 @@ namespace HaldorExpansion.Features.Berserker
             ReflectionAccess.SetFieldIfExists(se, "m_name", EffectNameKey);
             ReflectionAccess.SetFieldIfExists(se, "m_tooltip", EffectDescKey);
             shared.m_equipStatusEffect = se;
+        }
+
+        private static void ApplyIcon(ItemDrop.ItemData.SharedData shared)
+        {
+            EmbeddedIconLoader.TrySetEmbeddedIcon(shared, IconFileName);
         }
 
         private static void EnsureRegisteredInObjectDB(GameObject itemPrefab)

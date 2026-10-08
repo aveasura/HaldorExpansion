@@ -62,6 +62,7 @@ namespace HaldorExpansion.Patches
             HaldorShopUpdater.TryAddPitKingChest(__instance);
             
             // Оружие
+            HaldorShopUpdater.TryAddBerserkerAxe(__instance);
             HaldorShopUpdater.TryAddCestus(__instance);
             HaldorShopUpdater.TryAddShadowCrossbow(__instance);
             HaldorShopUpdater.TryAddHelOath(__instance);

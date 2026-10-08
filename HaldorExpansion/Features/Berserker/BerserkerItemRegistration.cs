@@ -1,5 +1,8 @@
 using System;
+using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Presentation;
+using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using UnityEngine;
@@ -13,6 +16,8 @@ namespace HaldorExpansion.Features.Berserker
         internal const string PrefabName = "BattleaxeBerserker";
         internal const string SourcePrefabName = "BattleaxeGold_BloodLightning";
         internal const string ItemKey = "$item_weapon_berserker_greataxe";
+        internal const int Price = 2500;
+        internal const string IconFileName = "berserker_axe.png";
         internal const string ItemDescKey = "$item_weapon_berserker_greataxe_desc";
         internal const float BaseSlashDamage = 95f;
         internal const float SecondaryBaseDamage = 130f;
@@ -42,7 +47,9 @@ namespace HaldorExpansion.Features.Berserker
                     if (ItemDrop != null)
                     {
                         ConfigureShared(ItemDrop.m_itemData.m_shared);
+                        ApplyIcon(ItemDrop.m_itemData.m_shared);
                         ItemDrop.m_itemData.m_dropPrefab = existing;
+                        BerserkerAppearance.Apply(existing, BerserkerAppearance.Style.Axe);
                     }
 
                     return ItemDrop != null;
@@ -72,8 +79,11 @@ namespace HaldorExpansion.Features.Berserker
                 }
 
                 ConfigureShared(drop.m_itemData.m_shared);
+                ApplyIcon(drop.m_itemData.m_shared);
                 drop.m_itemData.m_dropPrefab = clone;
+                BerserkerAppearance.Apply(clone, BerserkerAppearance.Style.Axe);
                 ItemManager.Instance.AddItem(new CustomItem(clone, true));
+                EnsureRegisteredInObjectDB(clone);
 
                 Prefab = clone;
                 ItemDrop = drop;
@@ -86,6 +96,39 @@ namespace HaldorExpansion.Features.Berserker
             }
         }
 
+        // An intentionally disabled recipe still tells Valheim which forge repairs the weapon.
+        internal static void RegisterRecipe()
+        {
+            try
+            {
+                string recipeName = "Recipe_" + PrefabName;
+                if (ItemManager.Instance.GetRecipe(recipeName) != null) return;
+
+                var config = new RecipeConfig
+                {
+                    Name = recipeName,
+                    Item = PrefabName,
+                    Amount = 1,
+                    CraftingStation = "forge",
+                    RepairStation = "forge",
+                    MinStationLevel = 1,
+                    Enabled = false,
+                    Requirements = Array.Empty<RequirementConfig>()
+                };
+                ItemManager.Instance.AddRecipe(new CustomRecipe(config));
+            }
+            catch (Exception e)
+            {
+                HaldorExpansionPlugin.Log?.LogError($"[Berserker] Register axe recipe error: {e}");
+            }
+        }
+
+        private static void ApplyIcon(ItemDrop.ItemData.SharedData shared)
+        {
+            // The embedded image is optional until the final illustration has been supplied.
+            EmbeddedIconLoader.TrySetEmbeddedIcon(shared, IconFileName);
+        }
+
         private static void ConfigureShared(ItemDrop.ItemData.SharedData shared)
         {
             if (shared == null) return;
@@ -93,6 +136,8 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_name = ItemKey;
             shared.m_description = ItemDescKey;
             shared.m_value = 0;
+            shared.m_canBeReparied = true;
+            shared.m_useDurability = true;
 
             // Keep the Thunderblood Greataxe model/moveset and its native missing-health damage scaling,
             // but tune the weapon itself around the Berserker risk/reward loop.
@@ -138,6 +183,19 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_setName = "";
             shared.m_setSize = 0;
             shared.m_setStatusEffect = null;
+        }
+
+        private static void EnsureRegisteredInObjectDB(GameObject itemPrefab)
+        {
+            if (ObjectDB.instance == null || itemPrefab == null) return;
+
+            if (ObjectDB.instance.m_items != null && !ObjectDB.instance.m_items.Contains(itemPrefab))
+                ObjectDB.instance.m_items.Add(itemPrefab);
+
+            MethodInfo updateItemHashes = typeof(ObjectDB).GetMethod(
+                "UpdateItemHashes",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            updateItemHashes?.Invoke(ObjectDB.instance, null);
         }
 
         private static void ClearSpawnOnHit(Attack attack)

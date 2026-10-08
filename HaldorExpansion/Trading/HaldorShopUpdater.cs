@@ -64,6 +64,18 @@ namespace HaldorExpansion.Trading
         };
         
 
+        internal static void TryAddBerserkerAxe(Trader trader)
+        {
+            BerserkerItemRegistration.EnsureReady();
+
+            ItemDrop drop = BerserkerItemRegistration.ItemDrop;
+            if (drop == null) return;
+            if (HasPrefab(trader, BerserkerItemRegistration.PrefabName)) return;
+
+            AddTradeItem(trader, drop, BerserkerItemRegistration.Price, 1);
+            HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Berserker axe added to Haldor shop");
+        }
+
         internal static void TryAddBerserkerCloak(Trader trader)
         {
             BerserkerCloakItemRegistration.EnsureReady();

@@ -64,6 +64,7 @@ namespace HaldorExpansion.Patches
             PitKingItemRegistration.RegisterPitKingChestRecipe();
             WoundedBeastItemRegistration.RegisterWoundedBeastCapeRecipe();
             PeltOfHelheimItemRegistration.RegisterRecipe();
+            BerserkerItemRegistration.RegisterRecipe();
             BerserkerCloakItemRegistration.RegisterRecipe();
             BerserkerHelmetItemRegistration.RegisterRecipe();
 

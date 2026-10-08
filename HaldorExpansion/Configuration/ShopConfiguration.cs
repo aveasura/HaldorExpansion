@@ -37,6 +37,7 @@ namespace HaldorExpansion.Configuration
             BindShopItemConfig("Shop Progression - Custom Items", WoundedBeastItemRegistration.WoundedBeastCapePrefabName, "Cloak of the Wounded Beast", WoundedBeastItemRegistration.WoundedBeastCapePrice);
             BindShopItemConfig("Shop Progression - Custom Items", StaminaCapeItemRegistration.PrefabName, "Fractured Breath Cape", StaminaCapeItemRegistration.Price);
             BindShopItemConfig("Shop Progression - Custom Items", PeltOfHelheimItemRegistration.PrefabName, "Pelt of Helheim", PeltOfHelheimItemRegistration.Price);
+            BindShopItemConfig("Shop Progression - Custom Items", BerserkerItemRegistration.PrefabName, "Berserker Greataxe", BerserkerItemRegistration.Price);
             BindShopItemConfig("Shop Progression - Custom Items", BerserkerCloakItemRegistration.PrefabName, "Berserker Cloak", BerserkerCloakItemRegistration.Price);
             BindShopItemConfig("Shop Progression - Custom Items", BerserkerHelmetItemRegistration.PrefabName, "Berserker Helmet", BerserkerHelmetItemRegistration.Price);
             BindShopItemConfig("Shop Progression - Custom Items", DelayedDoomItemRegistration.DelayedDoomChestPrefabName, "Cuirass of Silent Reckoning", DelayedDoomItemRegistration.DelayedDoomChestPrice);

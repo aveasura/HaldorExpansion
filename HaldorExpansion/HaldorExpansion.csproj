@@ -106,7 +106,7 @@
         <Compile Include="Features\Berserker\BerserkerRagnarokRuntime.cs"/>
         <Compile Include="Features\Berserker\BerserkerRagnarokFx.cs"/>
         <Compile Include="Features\Berserker\BerserkerRagnarokMeteorFx.cs"/>
-        <Compile Include="Features\Berserker\BerserkerTestCommands.cs"/>
+        <Compile Include="Features\Berserker\BerserkerAppearance.cs"/>
         <Compile Include="Features\Berserker\BerserkerRagnarokExhaustion.cs"/>
         <Compile Include="Features\Berserker\BerserkerEffects.cs"/>
         <Compile Include="Features\Berserker\BerserkerReckoningFx.cs"/>
@@ -318,6 +318,16 @@
 
         <EmbeddedResource Include="Assets\Icons\Pelt_of_Helheim.png">
             <LogicalName>HaldorExpansion.Assets.Icons.Pelt_of_Helheim.png</LogicalName>
+        </EmbeddedResource>
+        <!-- Berserker illustrations are intentionally optional until they are finalized. -->
+        <EmbeddedResource Include="Assets\Icons\berserker_axe.png" Condition="Exists('Assets\Icons\berserker_axe.png')">
+            <LogicalName>HaldorExpansion.Assets.Icons.berserker_axe.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Assets\Icons\berserker_cloak.png" Condition="Exists('Assets\Icons\berserker_cloak.png')">
+            <LogicalName>HaldorExpansion.Assets.Icons.berserker_cloak.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Assets\Icons\berserker_helmet.png" Condition="Exists('Assets\Icons\berserker_helmet.png')">
+            <LogicalName>HaldorExpansion.Assets.Icons.berserker_helmet.png</LogicalName>
         </EmbeddedResource>
     </ItemGroup>
 

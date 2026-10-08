@@ -1,9 +1,10 @@
+using System;
+using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Presentation;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System;
-using System.Reflection;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Berserker
@@ -18,6 +19,7 @@ namespace HaldorExpansion.Features.Berserker
         internal const string EffectDescKey = "$se_helmet_berserker_desc";
 
         internal const int Price = 2500;
+        internal const string IconFileName = "berserker_helmet.png";
         internal const float BaseArmor = 22f;
 
         internal static GameObject Prefab;
@@ -43,8 +45,11 @@ namespace HaldorExpansion.Features.Berserker
                     if (ItemDrop != null)
                     {
                         ConfigureShared(ItemDrop.m_itemData.m_shared);
+                        ApplyIcon(ItemDrop.m_itemData.m_shared);
                         ItemDrop.m_itemData.m_dropPrefab = existing;
+                        BerserkerAppearance.Apply(existing, BerserkerAppearance.Style.Helmet);
                     }
+
                     return ItemDrop != null;
                 }
 
@@ -59,7 +64,8 @@ namespace HaldorExpansion.Features.Berserker
                 GameObject helmet = PrefabManager.Instance.CreateClonedPrefab(PrefabName, source.name);
                 if (helmet == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Failed to clone Flametal helmet for Berserker helmet.");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[Berserker] Failed to clone Flametal helmet for Berserker helmet.");
                     return false;
                 }
 
@@ -71,7 +77,9 @@ namespace HaldorExpansion.Features.Berserker
                 }
 
                 ConfigureShared(drop.m_itemData.m_shared);
+                ApplyIcon(drop.m_itemData.m_shared);
                 drop.m_itemData.m_dropPrefab = helmet;
+                BerserkerAppearance.Apply(helmet, BerserkerAppearance.Style.Helmet);
 
                 ItemManager.Instance.AddItem(new CustomItem(helmet, true));
                 EnsureRegisteredInObjectDB(helmet);
@@ -96,27 +104,13 @@ namespace HaldorExpansion.Features.Berserker
                 string recipeName = "Recipe_" + PrefabName;
                 if (ItemManager.Instance.GetRecipe(recipeName) != null) return;
 
-                GameObject source = ObjectDB.instance?.GetItemPrefab(SourcePrefabName);
-                ItemDrop sourceDrop = source != null ? source.GetComponent<ItemDrop>() : null;
-                if (sourceDrop == null) return;
-
-                Recipe sourceRecipe = ObjectDB.instance?.GetRecipe(sourceDrop.m_itemData);
-                if (sourceRecipe == null) return;
-
-                string craftingStation = sourceRecipe.m_craftingStation != null
-                    ? sourceRecipe.m_craftingStation.name
-                    : null;
-                string repairStation = sourceRecipe.m_repairStation != null
-                    ? sourceRecipe.m_repairStation.name
-                    : craftingStation;
-
                 var config = new RecipeConfig
                 {
                     Name = recipeName,
                     Item = PrefabName,
                     Amount = 1,
-                    CraftingStation = craftingStation,
-                    RepairStation = repairStation,
+                    CraftingStation = "forge",
+                    RepairStation = "forge",
                     MinStationLevel = 1,
                     Enabled = false,
                     Requirements = Array.Empty<RequirementConfig>()
@@ -141,6 +135,9 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_maxQuality = 1;
             shared.m_value = 0;
             shared.m_movementModifier = 0f;
+            shared.m_canBeReparied = true;
+            shared.m_useDurability = true;
+            BerserkerAppearance.ApplyArmorMaterial(shared, BerserkerAppearance.Style.Helmet);
 
             // The Flametal helmet supplies only the model/slot. Berserker mechanics are handled
             // by the feature runtime so they can scale from the owner's current Wrath stage.
@@ -154,6 +151,11 @@ namespace HaldorExpansion.Features.Berserker
             ReflectionAccess.SetFieldIfExists(se, "m_name", EffectNameKey);
             ReflectionAccess.SetFieldIfExists(se, "m_tooltip", EffectDescKey);
             shared.m_equipStatusEffect = se;
+        }
+
+        private static void ApplyIcon(ItemDrop.ItemData.SharedData shared)
+        {
+            EmbeddedIconLoader.TrySetEmbeddedIcon(shared, IconFileName);
         }
 
         private static void EnsureRegisteredInObjectDB(GameObject itemPrefab)
