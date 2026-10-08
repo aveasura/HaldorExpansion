@@ -48,23 +48,23 @@ namespace HaldorExpansion.Patches
         {
             LongItemTooltipView view = ItemTooltipController.Current;
             // Never change clamping for other windows or another mod's tooltip.
-            return view == null || !view.Alive || view.OriginalPanel != transform;
+            return !ItemTooltipController.Enabled || view == null || !view.Alive || view.OriginalPanel != transform;
         }
     }
 
     [HarmonyPatch(typeof(ScrollRect), nameof(ScrollRect.OnScroll))]
     internal static class ItemTooltipScrollPatch
     {
-        private static bool Prefix(ScrollRect __instance, PointerEventData eventData)
+        private static bool Prefix(ScrollRect __instance, PointerEventData __0)
         {
             LongItemTooltipView view = ItemTooltipController.Current;
-            if (view == null || !view.HasScroll || eventData == null ||
+            if (!ItemTooltipController.Enabled || view == null || !view.HasScroll || __0 == null ||
                 !view.Owner.transform.IsChildOf(__instance.transform) ||
-                !view.PointerOnOwner(eventData.position)) return true;
+                !view.PointerOnOwner(__0.position)) return true;
             // EventSystem delivers scroll during Update, before the tooltip's
             // LateUpdate polling. Wheel() deduplicates those two paths by frame.
-            view.Wheel(eventData.scrollDelta.y);
-            eventData.Use();
+            view.Wheel(__0.scrollDelta.y);
+            __0.Use();
             return false;
         }
     }

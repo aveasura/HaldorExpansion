@@ -54,6 +54,7 @@ namespace HaldorExpansion
             CestusInputRegistration.RegisterCestusInput(Config);
             HelOathConfiguration.Register(Config);
             BerserkerConfiguration.Register(Config);
+            ItemTooltipController.RegisterConfig(Config);
 
             ObjectDB_Awake_Patch.Initialize();
 

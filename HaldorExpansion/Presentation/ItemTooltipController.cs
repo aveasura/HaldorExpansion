@@ -1,4 +1,5 @@
 using System;
+using BepInEx.Configuration;
 using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.HelOath;
@@ -25,6 +26,18 @@ namespace HaldorExpansion.Presentation
             BerserkerHelmetItemRegistration.ItemKey
         };
 
+        private static ConfigEntry<bool> enabled;
+        internal static bool Enabled => enabled != null && enabled.Value;
+
+        internal static void RegisterConfig(ConfigFile config)
+        {
+            // Presentation-only preference: deliberately not synchronized by the server.
+            enabled = config.Bind("UI", "Enable long item tooltips", true,
+                "Fit oversized HaldorExpansion item tooltips to the screen and scroll their descriptions. " +
+                "Disable to use the original tooltip or another UI mod. Local client setting. " +
+                "Changes made through a configuration manager apply while playing.");
+        }
+
         internal static LongItemTooltipView Current { get; private set; }
         private static int lastWidth, lastHeight;
         private static Vector3 lastScale;
@@ -45,7 +58,7 @@ namespace HaldorExpansion.Presentation
 
         internal static void Attach(UITooltip owner, GameObject tooltip)
         {
-            if (Current != null || tooltip == null) return;
+            if (!Enabled || Current != null || tooltip == null) return;
             lastWidth = Screen.width;
             lastHeight = Screen.height;
             lastScale = tooltip.transform.lossyScale;
@@ -62,6 +75,13 @@ namespace HaldorExpansion.Presentation
 
         internal static void Refresh(UITooltip owner, GameObject tooltip)
         {
+            if (!Enabled)
+            {
+                Reset();
+                lastWidth = -1;
+                return;
+            }
+
             if (Current != null && (Current.Owner != owner || !IsModItem(owner))) Reset();
             try
             {
@@ -79,6 +99,13 @@ namespace HaldorExpansion.Presentation
 
         internal static void Tick(UITooltip owner, GameObject tooltip)
         {
+            if (!Enabled)
+            {
+                Reset();
+                lastWidth = -1;
+                return;
+            }
+
             if (Current != null && (!Current.Alive || Current.Owner != owner)) Reset();
             try
             {

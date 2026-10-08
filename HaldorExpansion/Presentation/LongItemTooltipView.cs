@@ -126,7 +126,8 @@ namespace HaldorExpansion.Presentation
             background.raycastTarget = false;
 
             title = CopyText(originalTitle, "HE_Topic", panel);
-            title.overflowMode = TextOverflowModes.Ellipsis;
+            // Valheim font has no ellipsis glyph; avoid TMP warning and fallback.
+            title.overflowMode = TextOverflowModes.Truncate;
             viewport = NewRect("HE_DescriptionViewport", panel);
             viewport.gameObject.AddComponent<RectMask2D>();
             body = CopyText(originalBody, "HE_Description", viewport);
