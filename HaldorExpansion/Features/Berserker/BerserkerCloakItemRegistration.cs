@@ -12,7 +12,9 @@ namespace HaldorExpansion.Features.Berserker
     internal static class BerserkerCloakItemRegistration
     {
         internal const string PrefabName = "CapeBerserker";
-        internal const string SourcePrefabName = "CapeDeerHide";
+
+        // Prefer the same proven Troll Cape source selection used by Pelt of Helheim.
+        private static readonly string[] SourcePrefabs = { "CapeTroll", "CapeTrollHide" };
         internal const string ItemKey = "$item_cape_berserker";
         internal const string ItemDescKey = "$item_cape_berserker_desc";
         internal const string EffectNameKey = "$se_cape_berserker";
@@ -53,11 +55,11 @@ namespace HaldorExpansion.Features.Berserker
                     return ItemDrop != null;
                 }
 
-                GameObject source = ObjectDB.instance.GetItemPrefab(SourcePrefabName);
+                GameObject source = FindSourcePrefab();
                 if (source == null)
                 {
                     HaldorExpansionPlugin.Log?.LogWarning(
-                        $"[Berserker] Source cape prefab not found: {SourcePrefabName}");
+                        $"[Berserker] Source Troll cloak prefab not found (CapeTroll / CapeTrollHide)");
                     return false;
                 }
 
@@ -65,7 +67,7 @@ namespace HaldorExpansion.Features.Berserker
                 if (cloak == null)
                 {
                     HaldorExpansionPlugin.Log?.LogWarning(
-                        "[Berserker] Failed to clone deer-hide cape for Berserker cloak.");
+                        "[Berserker] Failed to clone Troll cloak for Berserker cloak.");
                     return false;
                 }
 
@@ -124,6 +126,18 @@ namespace HaldorExpansion.Features.Berserker
             }
         }
 
+        private static GameObject FindSourcePrefab()
+        {
+            if (ObjectDB.instance == null) return null;
+            foreach (string name in SourcePrefabs)
+            {
+                GameObject source = ObjectDB.instance.GetItemPrefab(name);
+                if (source != null) return source;
+            }
+
+            return null;
+        }
+
         private static void ConfigureShared(ItemDrop.ItemData.SharedData shared)
         {
             if (shared == null) return;
@@ -135,12 +149,20 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_maxQuality = 1;
             shared.m_value = 0;
             shared.m_movementModifier = 0f;
+            shared.m_eitrRegenModifier = 0f;
             shared.m_canBeReparied = true;
             shared.m_useDurability = true;
+
+            // Keep Berserker durability and weight unchanged when switching models.
+            // This is a visual-only change, not a progression/stat adjustment.
+            shared.m_maxDurability = 400f;
+            shared.m_durabilityPerLevel = 0f;
+            shared.m_weight = 4f;
             BerserkerAppearance.ApplyArmorMaterial(shared, BerserkerAppearance.Style.Cloak);
 
-            // The deer cape is only the physical/visual base. Remove inherited equipment/set
-            // effects so all gameplay comes from the Berserker feature itself.
+            // Troll cape supplies only the visual prefab. Strip inherited set bonuses and
+            // damage modifiers; equip a Berserker-only visual status effect below.
+            // Berserker's gameplay stays in the existing runtime patches.
             shared.m_setName = string.Empty;
             shared.m_setSize = 0;
             shared.m_setStatusEffect = null;

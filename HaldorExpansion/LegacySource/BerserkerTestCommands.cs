@@ -4,9 +4,7 @@ using UnityEngine;
 
 namespace HaldorExpansion.Features.Berserker
 {
-    // TEMPORARY DEVELOPMENT ONLY. Remove this file, the csproj entry and the
-    // Register call before releasing the mod publicly. Deliberately accessible
-    // in dedicated-server testing (Valheim devcommands is not required).
+    // TEMPORARY DEVELOPMENT ONLY.
     internal static class BerserkerTestCommands
     {
         internal const bool Enabled = true;

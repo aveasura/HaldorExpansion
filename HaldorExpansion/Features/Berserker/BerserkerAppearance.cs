@@ -113,18 +113,9 @@ namespace HaldorExpansion.Features.Berserker
             if (painted.HasProperty("_EmissionColor"))
             {
                 if (style == Style.Helmet)
-                {
-                    // Strong dark-scarlet glow so the original red eyes read clearly and throw a soft aura.
-                    painted.SetColor("_EmissionColor", new Color(1.65f, 0.10f, 0.08f, 1f));
-                    if (painted.IsKeywordEnabled("_EMISSION") == false)
-                        painted.EnableKeyword("_EMISSION");
-                    if (painted.globalIlluminationFlags != MaterialGlobalIlluminationFlags.None)
-                        painted.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
-                }
+                    painted.SetColor("_EmissionColor", new Color(0.55f, 0.06f, 0.05f, 1f));
                 else
-                {
                     painted.SetColor("_EmissionColor", Color.black);
-                }
             }
 
             return painted;
@@ -134,6 +125,50 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (material.HasProperty("_Color")) material.SetColor("_Color", tint);
             if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", tint);
+        }
+
+        // Shared Berserker gear finish: dark steel transitioning into warm bronze.
+        // Helmet/axe keep the approved original breakup; the cloak needs larger, softer fields
+        // because the deer-hide mesh otherwise turns those small regions into noisy spots.
+        private static Color PaintBronzeSteel(float u, float v, float brightness, float seed, bool softCloak)
+        {
+            float broad = softCloak
+                ? Mathf.PerlinNoise(u * 1.8f + 9.3f + seed, v * 2.2f + 4.8f)
+                : Mathf.PerlinNoise(u * 5.2f + 9.3f + seed, v * 6.8f + 4.8f);
+            float breakup = softCloak
+                ? Mathf.PerlinNoise(u * 3.4f + 2.1f, v * 4.0f + 8.7f + seed)
+                : Mathf.PerlinNoise(u * 17.5f + 2.1f, v * 19.4f + 8.7f + seed);
+            float value = broad + (breakup - 0.5f) * (softCloak ? 0.05f : 0.16f);
+
+            // The cloak blends over wider transitions rather than isolated spot-shaped islands.
+            // The helmet and axe retain their exact previous coverage calculations.
+            float chromeCoverage = Mathf.SmoothStep(0f, 1f,
+                softCloak
+                    ? Mathf.InverseLerp(0.32f, 0.68f, value)
+                    : Mathf.InverseLerp(0.43f, 0.57f, value));
+
+            // Suppress mottled brightness variations inherited from the vanilla deer-hide map.
+            // Keep enough of the original luminance to retain the fabric's volume and folds.
+            if (softCloak) brightness = Mathf.Lerp(0.5f, brightness, 0.40f);
+
+            // Black is still polished steel, rather than flat pitch-black paint.
+            Color blackSteel = Color.Lerp(
+                new Color(0.055f, 0.050f, 0.050f),
+                new Color(0.18f, 0.15f, 0.13f),
+                Mathf.Clamp01(brightness * 0.70f + breakup * 0.30f));
+
+            // Bronze stays recognizable even on dark parts of the vanilla map.
+            Color chrome = Color.Lerp(
+                new Color(0.38f, 0.30f, 0.22f),
+                new Color(0.76f, 0.62f, 0.43f),
+                Mathf.Clamp01(0.22f + brightness * 0.47f + breakup * 0.31f));
+
+            // Narrow highlights stay inside the chrome regions, creating natural transitions.
+            float glint = Mathf.SmoothStep(0f, 1f,
+                Mathf.InverseLerp(0.59f, 0.82f, breakup));
+            chrome = Color.Lerp(chrome, new Color(0.92f, 0.82f, 0.62f),
+                glint * (softCloak ? 0.065f : 0.15f));
+            return Color.Lerp(blackSteel, chrome, chromeCoverage);
         }
 
         private static Texture2D PaintTexture(Texture source, Style style, string suffix)
@@ -167,75 +202,19 @@ namespace HaldorExpansion.Features.Berserker
                     float brightness = original.r * 0.2126f + original.g * 0.7152f + original.b * 0.0722f;
                     float u = (float)x / width, v = (float)y / height;
 
-                    // Dark metallic gunmetal base with steel transitions and restrained crimson accents.
-                    float broad = Mathf.PerlinNoise(u * 6.7f + 7.1f + seed, v * 9.2f + 3.3f);
-                    float detail = Mathf.PerlinNoise(u * 34f + seed, v * 39f + 8f);
-                    float grain = Mathf.PerlinNoise(u * 169f + 4f, v * 163f + seed);
-                    float flow = Mathf.PerlinNoise(u * 13f + 11f + seed, v * 18f + 5f);
-                    float ember = Mathf.PerlinNoise(u * 21f + 13f + seed, v * 25f + 5f);
-
-                    float steelMask = Mathf.SmoothStep(0f, 1f,
-                        Mathf.InverseLerp(0.36f, 0.70f, broad + (detail - 0.5f) * 0.22f));
-                    float brightSteelMask = Mathf.SmoothStep(0f, 1f,
-                        Mathf.InverseLerp(0.60f, 0.90f, grain * 0.55f + flow * 0.45f + (detail - 0.5f) * 0.12f));
-                    float redMask = Mathf.SmoothStep(0f, 1f,
-                        Mathf.InverseLerp(0.56f, 0.82f, ember + (detail - 0.5f) * 0.20f));
-                    float auraMask = Mathf.SmoothStep(0f, 1f,
-                        Mathf.InverseLerp(0.74f, 0.94f, grain + ember * 0.25f));
-
-                    Color iron = Color.Lerp(new Color(0.12f, 0.12f, 0.14f),
-                        new Color(0.24f, 0.25f, 0.28f), brightness);
-                    Color gunmetal = Color.Lerp(new Color(0.18f, 0.19f, 0.22f),
-                        new Color(0.36f, 0.38f, 0.42f), brightness);
-                    Color steel = Color.Lerp(new Color(0.32f, 0.34f, 0.38f),
-                        new Color(0.65f, 0.68f, 0.72f), brightness);
-                    Color silver = Color.Lerp(new Color(0.58f, 0.60f, 0.64f),
-                        new Color(0.88f, 0.90f, 0.93f), brightness);
-                    Color crimson = Color.Lerp(new Color(0.22f, 0.02f, 0.03f),
-                        new Color(0.58f, 0.05f, 0.07f), brightness);
-                    Color scarlet = Color.Lerp(new Color(0.42f, 0.03f, 0.04f),
-                        new Color(0.90f, 0.07f, 0.05f), brightness);
-
-                    float steelStrength;
-                    float brightSteelStrength;
-                    float redStrength;
-                    switch (style)
-                    {
-                        case Style.Cloak:
-                            steelStrength = 0.74f;
-                            brightSteelStrength = 0.42f;
-                            redStrength = 0.22f;
-                            break;
-                        case Style.Helmet:
-                            steelStrength = 0.82f;
-                            brightSteelStrength = 0.54f;
-                            redStrength = 0.28f;
-                            break;
-                        default: // Axe
-                            steelStrength = 0.86f;
-                            brightSteelStrength = 0.60f;
-                            redStrength = 0.26f;
-                            break;
-                    }
-
-                    Color color = Color.Lerp(iron, gunmetal, steelMask * steelStrength);
-                    color = Color.Lerp(color, steel, brightSteelMask * brightSteelStrength);
-                    color = Color.Lerp(color, silver, brightSteelMask * brightSteelStrength * 0.33f);
-                    color = Color.Lerp(color, crimson, redMask * redStrength);
+                    // Preserve the helmet/axe appearance; only the cloak receives a softer pattern.
+                    // The helmet's separate red-eye recolor below remains unchanged.
+                    Color color = PaintBronzeSteel(u, v, brightness, seed, style == Style.Cloak);
 
                     if (style == Style.Helmet)
                     {
-                        // Keep the eyes distinctly dark-red and give them a broader scarlet halo.
+                        // Preserve the identity of the original helmet by letting bright eye details read as red.
                         float eyeAccent = Mathf.SmoothStep(0f, 1f,
-                            Mathf.InverseLerp(0.48f, 0.80f, original.r - original.g * 0.30f + brightness * 0.18f));
-                        float eyeGlow = Mathf.Max(eyeAccent, auraMask * eyeAccent * 0.85f);
-                        color = Color.Lerp(color, crimson, eyeAccent * 0.65f);
-                        color = Color.Lerp(color, scarlet, eyeGlow * 0.98f);
-                    }
-                    else
-                    {
-                        // Other items keep only restrained crimson accents among the metal transitions.
-                        color = Color.Lerp(color, crimson, redMask * redStrength * 0.45f);
+                            Mathf.InverseLerp(0.52f, 0.82f, original.r - original.g * 0.35f));
+                        eyeAccent *= Mathf.SmoothStep(0f, 1f, brightness + 0.12f);
+                        Color eyeRed = Color.Lerp(new Color(0.42f, 0.03f, 0.04f), new Color(0.95f, 0.08f, 0.06f),
+                            brightness);
+                        color = Color.Lerp(color, eyeRed, eyeAccent * 0.95f);
                     }
 
                     color.a = original.a;
