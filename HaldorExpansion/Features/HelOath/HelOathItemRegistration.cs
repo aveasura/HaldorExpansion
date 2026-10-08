@@ -1,9 +1,10 @@
+using System;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.HelOath
@@ -33,7 +34,10 @@ namespace HaldorExpansion.Features.HelOath
                 if (ObjectDB.instance == null)
                     return false;
 
-                GameObject existing = ObjectDB.instance.GetItemPrefab(HelOathPrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(HelOathPrefabName);
+                if (existing != null && existing == HelOathPrefab && HelOathItemDrop != null)
+                    return true;
+
                 if (existing != null)
                 {
                     HelOathAppearance.Apply(existing);
@@ -47,11 +51,12 @@ namespace HaldorExpansion.Features.HelOath
                         HelOathItemDrop.m_itemData.m_dropPrefab = existing;
                     }
 
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Hel Oath already in ObjectDB: {HelOathPrefabName}");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Hel Oath already in ObjectDB: {HelOathPrefabName}");
                     return HelOathItemDrop != null;
                 }
 
-                GameObject source = ObjectDB.instance.GetItemPrefab(HelOathSourcePrefab);
+                GameObject source = ItemPrefabLookup.Source(HelOathSourcePrefab);
                 if (source == null)
                 {
                     HaldorExpansionPlugin.Log?.LogWarning(
@@ -76,7 +81,7 @@ namespace HaldorExpansion.Features.HelOath
 
                 ConfigureHelOathShared(drop.m_itemData.m_shared);
                 ApplyHelOathIcon(drop.m_itemData.m_shared);
-                
+
                 drop.m_itemData.m_dropPrefab = helOathGo;
 
                 HelOathAppearance.Apply(helOathGo);
@@ -112,7 +117,7 @@ namespace HaldorExpansion.Features.HelOath
             shared.m_movementModifier = HelOathMovementModifier;
             shared.m_backstabBonus = HelOathBackstabBonus;
             shared.m_attackForce = 20f;
-            
+
             shared.m_attack.m_drawStaminaDrain = 10f;
 
             shared.m_damages = new HitData.DamageTypes();
@@ -165,14 +170,16 @@ namespace HaldorExpansion.Features.HelOath
                 GameObject sourcePrefab = ObjectDB.instance?.GetItemPrefab(HelOathSourcePrefab);
                 if (sourcePrefab == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source prefab not found for Hel Oath recipe");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source prefab not found for Hel Oath recipe");
                     return;
                 }
 
                 ItemDrop sourceDrop = sourcePrefab.GetComponent<ItemDrop>();
                 if (sourceDrop == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source ItemDrop not found for Hel Oath recipe");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source ItemDrop not found for Hel Oath recipe");
                     return;
                 }
 
@@ -202,14 +209,15 @@ namespace HaldorExpansion.Features.HelOath
                 };
 
                 ItemManager.Instance.AddRecipe(new CustomRecipe(recipeConfig));
-                HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Registered recipe via Jotunn for {HelOathPrefabName}");
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Registered recipe via Jotunn for {HelOathPrefabName}");
             }
             catch (Exception e)
             {
                 HaldorExpansionPlugin.Log?.LogError($"[HaldorExpansion] RegisterHelOathRecipe error: {e}");
             }
         }
-        
+
         private static void ApplyHelOathIcon(ItemDrop.ItemData.SharedData shared)
         {
             if (shared == null)

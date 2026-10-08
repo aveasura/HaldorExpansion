@@ -1,10 +1,11 @@
+using System;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Features.SteelHeart;
+using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Cestus
@@ -24,9 +25,9 @@ namespace HaldorExpansion.Features.Cestus
 
         internal const string CestusItemKey = "$item_weapon_gritcestus";
         internal const string CestusItemDescKey = "$item_weapon_gritcestus_desc";
-        
+
         private const float GritCestusWeight = 2f;
-        
+
         private const int GritCestusMaxQuality = 1;
         private const float GritCestusMaxDurability = 900f;
         private const float GritCestusDurabilityPerLevel = 0f;
@@ -59,7 +60,10 @@ namespace HaldorExpansion.Features.Cestus
                 if (ObjectDB.instance == null)
                     return false;
 
-                GameObject existing = ObjectDB.instance.GetItemPrefab(GritCestusPrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(GritCestusPrefabName);
+                if (existing != null && existing == GritCestusPrefab && GritCestusItemDrop != null)
+                    return true;
+
                 if (existing != null)
                 {
                     GritCestusPrefab = existing;
@@ -72,11 +76,12 @@ namespace HaldorExpansion.Features.Cestus
                         GritCestusItemDrop.m_itemData.m_dropPrefab = existing;
                     }
 
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Cestus already in ObjectDB: {GritCestusPrefabName}");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Cestus already in ObjectDB: {GritCestusPrefabName}");
                     return GritCestusItemDrop != null;
                 }
 
-                GameObject source = ObjectDB.instance.GetItemPrefab(GritCestusSourcePrefab);
+                GameObject source = ItemPrefabLookup.Source(GritCestusSourcePrefab);
                 if (source == null)
                 {
                     HaldorExpansionPlugin.Log?.LogWarning(
@@ -187,7 +192,7 @@ namespace HaldorExpansion.Features.Cestus
 
             shared.m_canBeReparied = true;
             shared.m_useDurability = true;
-            
+
             SteelHeartSet.ApplySteelHeartSet(shared);
         }
 
@@ -217,14 +222,16 @@ namespace HaldorExpansion.Features.Cestus
                 GameObject sourcePrefab = ObjectDB.instance?.GetItemPrefab(GritCestusSourcePrefab);
                 if (sourcePrefab == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source prefab not found for cestus recipe");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source prefab not found for cestus recipe");
                     return;
                 }
 
                 ItemDrop sourceDrop = sourcePrefab.GetComponent<ItemDrop>();
                 if (sourceDrop == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source ItemDrop not found for cestus recipe");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source ItemDrop not found for cestus recipe");
                     return;
                 }
 
@@ -252,7 +259,8 @@ namespace HaldorExpansion.Features.Cestus
                 };
 
                 ItemManager.Instance.AddRecipe(new CustomRecipe(recipeConfig));
-                HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Registered recipe via Jotunn for {GritCestusPrefabName}");
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Registered recipe via Jotunn for {GritCestusPrefabName}");
             }
             catch (Exception e)
             {
@@ -273,7 +281,7 @@ namespace HaldorExpansion.Features.Cestus
 
             shared.m_equipStatusEffect = se;
         }
-        
+
         private static void ApplyBoneCrushersIcon(ItemDrop.ItemData.SharedData shared)
         {
             if (shared == null)
@@ -281,7 +289,8 @@ namespace HaldorExpansion.Features.Cestus
 
             if (!EmbeddedIconLoader.TrySetEmbeddedIcon(shared, "Bone_crushers.png"))
             {
-                HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Embedded icon missing for Bone crushers: Bone_crushers.png");
+                HaldorExpansionPlugin.Log?.LogWarning(
+                    "[HaldorExpansion] Embedded icon missing for Bone crushers: Bone_crushers.png");
             }
         }
     }

@@ -1,8 +1,9 @@
+using System;
+using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.ShadowCrossbow
@@ -30,7 +31,10 @@ namespace HaldorExpansion.Features.ShadowCrossbow
                 if (ObjectDB.instance == null)
                     return false;
 
-                GameObject existing = ObjectDB.instance.GetItemPrefab(ShadowCrossbowPrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(ShadowCrossbowPrefabName);
+                if (existing != null && existing == ShadowCrossbowPrefab && ShadowCrossbowItemDrop != null)
+                    return true;
+
                 if (existing != null)
                 {
                     ShadowCrossbowPrefab = existing;
@@ -42,11 +46,12 @@ namespace HaldorExpansion.Features.ShadowCrossbow
                         ApplyShadowCrossbowIcon(ShadowCrossbowItemDrop.m_itemData.m_shared);
                     }
 
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Shadow crossbow already in ObjectDB: {ShadowCrossbowPrefabName}");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Shadow crossbow already in ObjectDB: {ShadowCrossbowPrefabName}");
                     return ShadowCrossbowItemDrop != null;
                 }
 
-                GameObject source = ObjectDB.instance.GetItemPrefab(ShadowCrossbowSourcePrefab);
+                GameObject source = ItemPrefabLookup.Source(ShadowCrossbowSourcePrefab);
                 if (source == null)
                 {
                     HaldorExpansionPlugin.Log?.LogWarning(
@@ -110,7 +115,7 @@ namespace HaldorExpansion.Features.ShadowCrossbow
             shared.m_damages.m_pierce = ShadowCrossbowBasePierceDamage;
             shared.m_damagesPerLevel = new HitData.DamageTypes();
 
-            shared.m_maxDurability = 800f;
+            shared.m_maxDurability = 400f;
             shared.m_durabilityPerLevel = 0f;
             shared.m_useDurability = true;
             shared.m_canBeReparied = true;
@@ -134,21 +139,24 @@ namespace HaldorExpansion.Features.ShadowCrossbow
                 GameObject sourcePrefab = ObjectDB.instance?.GetItemPrefab(ShadowCrossbowSourcePrefab);
                 if (sourcePrefab == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source prefab not found for shadow crossbow recipe");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source prefab not found for shadow crossbow recipe");
                     return;
                 }
 
                 ItemDrop sourceDrop = sourcePrefab.GetComponent<ItemDrop>();
                 if (sourceDrop == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source ItemDrop not found for shadow crossbow recipe");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source ItemDrop not found for shadow crossbow recipe");
                     return;
                 }
 
                 Recipe sourceRecipe = ObjectDB.instance.GetRecipe(sourceDrop.m_itemData);
                 if (sourceRecipe == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source recipe not found for shadow crossbow");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source recipe not found for shadow crossbow");
                     return;
                 }
 
@@ -171,7 +179,8 @@ namespace HaldorExpansion.Features.ShadowCrossbow
                 };
 
                 ItemManager.Instance.AddRecipe(new CustomRecipe(recipeConfig));
-                HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Registered recipe via Jotunn for {ShadowCrossbowPrefabName}");
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Registered recipe via Jotunn for {ShadowCrossbowPrefabName}");
             }
             catch (Exception e)
             {
@@ -186,7 +195,8 @@ namespace HaldorExpansion.Features.ShadowCrossbow
 
             if (!EmbeddedIconLoader.TrySetEmbeddedIcon(shared, "Shadow_crossbow.png"))
             {
-                HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Embedded icon missing for Shadow Crossbow: Shadow_crossbow.png");
+                HaldorExpansionPlugin.Log?.LogWarning(
+                    "[HaldorExpansion] Embedded icon missing for Shadow Crossbow: Shadow_crossbow.png");
             }
         }
     }

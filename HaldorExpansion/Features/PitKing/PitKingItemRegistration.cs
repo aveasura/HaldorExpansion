@@ -1,10 +1,11 @@
+using System;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Features.SteelHeart;
+using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.PitKing
@@ -50,7 +51,10 @@ namespace HaldorExpansion.Features.PitKing
                 if (ObjectDB.instance == null)
                     return false;
 
-                GameObject existing = ObjectDB.instance.GetItemPrefab(PitKingChestPrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(PitKingChestPrefabName);
+                if (existing != null && existing == PitKingChestPrefab && PitKingChestItemDrop != null)
+                    return true;
+
                 if (existing != null)
                 {
                     PitKingChestPrefab = existing;
@@ -62,14 +66,16 @@ namespace HaldorExpansion.Features.PitKing
                         ApplyPitKingChestIcon(PitKingChestItemDrop.m_itemData.m_shared);
                     }
 
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Pit King chest already in ObjectDB: {PitKingChestPrefabName}");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Pit King chest already in ObjectDB: {PitKingChestPrefabName}");
                     return PitKingChestItemDrop != null;
                 }
 
-                GameObject source = ObjectDB.instance.GetItemPrefab(PitKingChestSourcePrefab);
+                GameObject source = ItemPrefabLookup.Source(PitKingChestSourcePrefab);
                 if (source == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning($"[HaldorExpansion] Source chest prefab not found: {PitKingChestSourcePrefab}");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        $"[HaldorExpansion] Source chest prefab not found: {PitKingChestSourcePrefab}");
                     return false;
                 }
 
@@ -83,7 +89,8 @@ namespace HaldorExpansion.Features.PitKing
                 ItemDrop drop = chestGo.GetComponent<ItemDrop>();
                 if (drop == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] ItemDrop missing on cloned Pit King chest prefab");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] ItemDrop missing on cloned Pit King chest prefab");
                     return false;
                 }
 
@@ -144,28 +151,32 @@ namespace HaldorExpansion.Features.PitKing
             {
                 if (ItemManager.Instance.GetRecipe("Recipe_" + PitKingChestPrefabName) != null)
                 {
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Recipe already registered: Recipe_{PitKingChestPrefabName}");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Recipe already registered: Recipe_{PitKingChestPrefabName}");
                     return;
                 }
 
                 GameObject sourcePrefab = ObjectDB.instance?.GetItemPrefab(PitKingChestSourcePrefab);
                 if (sourcePrefab == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source prefab not found for Pit King recipe");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source prefab not found for Pit King recipe");
                     return;
                 }
 
                 ItemDrop sourceDrop = sourcePrefab.GetComponent<ItemDrop>();
                 if (sourceDrop == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source ItemDrop not found for Pit King recipe");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source ItemDrop not found for Pit King recipe");
                     return;
                 }
 
                 Recipe sourceRecipe = ObjectDB.instance.GetRecipe(sourceDrop.m_itemData);
                 if (sourceRecipe == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source recipe not found for Pit King chest");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source recipe not found for Pit King chest");
                     return;
                 }
 
@@ -188,14 +199,15 @@ namespace HaldorExpansion.Features.PitKing
                 };
 
                 ItemManager.Instance.AddRecipe(new CustomRecipe(recipeConfig));
-                HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Registered recipe via Jotunn for {PitKingChestPrefabName}");
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Registered recipe via Jotunn for {PitKingChestPrefabName}");
             }
             catch (Exception e)
             {
                 HaldorExpansionPlugin.Log?.LogError($"[HaldorExpansion] RegisterPitKingChestRecipe error: {e}");
             }
         }
-        
+
         private static void ApplyPitKingChestIcon(ItemDrop.ItemData.SharedData shared)
         {
             if (shared == null)
@@ -203,7 +215,8 @@ namespace HaldorExpansion.Features.PitKing
 
             if (!EmbeddedIconLoader.TrySetEmbeddedIcon(shared, "pit_king_chest.png"))
             {
-                HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Embedded icon missing for Pit King Chest: pit_king_chest.png");
+                HaldorExpansionPlugin.Log?.LogWarning(
+                    "[HaldorExpansion] Embedded icon missing for Pit King Chest: pit_king_chest.png");
             }
         }
     }

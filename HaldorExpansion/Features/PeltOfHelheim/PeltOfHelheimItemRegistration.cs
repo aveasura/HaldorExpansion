@@ -1,10 +1,11 @@
 using System;
 using System.Reflection;
+using HaldorExpansion.Integration;
+using HaldorExpansion.Presentation;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using UnityEngine;
-using HaldorExpansion.Presentation;
 
 namespace HaldorExpansion.Features.PeltOfHelheim
 {
@@ -35,7 +36,10 @@ namespace HaldorExpansion.Features.PeltOfHelheim
             {
                 if (ObjectDB.instance == null) return false;
 
-                GameObject existing = ObjectDB.instance.GetItemPrefab(PrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(PrefabName);
+                if (existing != null && existing == CapePrefab && CapeItemDrop != null)
+                    return true;
+
                 if (existing != null)
                 {
                     CapePrefab = existing;
@@ -46,6 +50,7 @@ namespace HaldorExpansion.Features.PeltOfHelheim
                         CapeItemDrop.m_itemData.m_dropPrefab = existing;
                         PeltOfHelheimAppearance.ApplyToPrefab(existing);
                     }
+
                     return CapeItemDrop != null;
                 }
 
@@ -136,9 +141,10 @@ namespace HaldorExpansion.Features.PeltOfHelheim
             if (ObjectDB.instance == null) return null;
             foreach (string name in SourcePrefabs)
             {
-                GameObject source = ObjectDB.instance.GetItemPrefab(name);
+                GameObject source = ItemPrefabLookup.Source(name);
                 if (source != null) return source;
             }
+
             return null;
         }
 
@@ -148,10 +154,10 @@ namespace HaldorExpansion.Features.PeltOfHelheim
 
             shared.m_name = ItemKey;
             shared.m_description = ItemDescKey;
-            
+
             shared.m_armor = 4f;
             shared.m_maxDurability = 1800f;
-            
+
             shared.m_maxQuality = 1;
             shared.m_armorPerLevel = 0f;
             shared.m_durabilityPerLevel = 0f;
@@ -171,10 +177,10 @@ namespace HaldorExpansion.Features.PeltOfHelheim
 
             if (shared.m_armorMaterial != null)
                 shared.m_armorMaterial = PeltOfHelheimAppearance.MakeBlackMaterial(shared.m_armorMaterial);
-            
+
             ApplyPeltIcon(shared);
         }
-        
+
         private static void ApplyPeltIcon(ItemDrop.ItemData.SharedData shared)
         {
             if (shared == null) return;

@@ -1,42 +1,11 @@
-using HaldorExpansion.Configuration;
-using HaldorExpansion.Features.StaminaCape;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using HaldorExpansion.Configuration;
+using HaldorExpansion.Features.StaminaCape;
 using HarmonyLib;
-using UnityEngine;
 
 namespace HaldorExpansion
 {
-[HarmonyPatch(typeof(ObjectDB), "Awake")]
-    internal static class StaminaCapeObjectDBAwakePatch
-    {
-        private static void Postfix()
-        {
-            StaminaCapeItemRegistration.ResetCaches();
-
-            if (HaldorExpansionPlugin.Instance != null)
-            {
-                HaldorExpansionPlugin.Instance.StartCoroutine(DelayedEnsure());
-            }
-        }
-
-        private static IEnumerator DelayedEnsure()
-        {
-            yield return null;
-
-            yield return new WaitUntil(() =>
-                ObjectDB.instance != null &&
-                ObjectDB.instance.m_items != null &&
-                ObjectDB.instance.m_items.Count > 0 &&
-                ObjectDB.instance.m_recipes != null &&
-                ObjectDB.instance.m_recipes.Count > 0);
-            
-            StaminaCapeItemRegistration.EnsureReady();
-            StaminaCapeItemRegistration.RegisterRecipe();
-        }
-    }
-
     [HarmonyPatch(typeof(Player), "Update")]
     internal static class StaminaCapeInventoryFixPatch
     {
@@ -89,7 +58,7 @@ namespace HaldorExpansion
 
             if (__instance.m_items == null)
                 __instance.m_items = new List<Trader.TradeItem>();
-            
+
             StaminaCapeItemRegistration.EnsureReady();
             TryAddCape(__instance);
         }

@@ -1,23 +1,26 @@
-using HaldorExpansion.Features.HelOath;
 using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Brisingamen;
-using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
-using HaldorExpansion.Features.PitKing;
+using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.PeltOfHelheim;
+using HaldorExpansion.Features.PitKing;
 using HaldorExpansion.Features.ShadowCrossbow;
+using HaldorExpansion.Features.StaminaCape;
 using HaldorExpansion.Features.WoundedBeast;
 
 namespace HaldorExpansion.Integration
 {
     internal static class ItemCacheReset
     {
-
         internal static void ResetItemCaches()
         {
             HelOathItemRegistration.HelOathPrefab = null;
             HelOathItemRegistration.HelOathItemDrop = null;
+            BerserkerItemRegistration.Prefab = null;
+            BerserkerItemRegistration.ItemDrop = null;
+            StaminaCapeItemRegistration.ResetCaches();
             BerserkerCloakItemRegistration.ResetCaches();
             BerserkerHelmetItemRegistration.ResetCaches();
             BrisingamenItemRegistration.RingPrefab = null;

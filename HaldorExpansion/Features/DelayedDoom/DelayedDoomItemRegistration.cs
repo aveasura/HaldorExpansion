@@ -1,9 +1,10 @@
+using System;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.DelayedDoom
@@ -17,7 +18,7 @@ namespace HaldorExpansion.Features.DelayedDoom
 
         internal static GameObject DelayedDoomChestPrefab;
         internal static ItemDrop DelayedDoomChestItemDrop;
-        
+
         private static void ApplyDelayedDoomChestVisualEffect(ItemDrop.ItemData.SharedData shared)
         {
             if (shared == null)
@@ -39,7 +40,10 @@ namespace HaldorExpansion.Features.DelayedDoom
                 if (ObjectDB.instance == null)
                     return false;
 
-                GameObject existing = ObjectDB.instance.GetItemPrefab(DelayedDoomChestPrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(DelayedDoomChestPrefabName);
+                if (existing != null && existing == DelayedDoomChestPrefab && DelayedDoomChestItemDrop != null)
+                    return true;
+
                 if (existing != null)
                 {
                     DelayedDoomChestPrefab = existing;
@@ -56,21 +60,24 @@ namespace HaldorExpansion.Features.DelayedDoom
                         shared.m_useDurability = true;
                     }
 
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Delayed Doom chest already in ObjectDB: {DelayedDoomChestPrefabName}");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Delayed Doom chest already in ObjectDB: {DelayedDoomChestPrefabName}");
                     return DelayedDoomChestItemDrop != null;
                 }
 
-                GameObject source = ObjectDB.instance.GetItemPrefab(DelayedDoomChestSourcePrefab);
+                GameObject source = ItemPrefabLookup.Source(DelayedDoomChestSourcePrefab);
                 if (source == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning($"[HaldorExpansion] Source chest prefab not found: {DelayedDoomChestSourcePrefab}");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        $"[HaldorExpansion] Source chest prefab not found: {DelayedDoomChestSourcePrefab}");
                     return false;
                 }
 
                 GameObject chestGo = PrefabManager.Instance.CreateClonedPrefab(DelayedDoomChestPrefabName, source.name);
                 if (chestGo == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Failed to clone delayed doom chest prefab");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Failed to clone delayed doom chest prefab");
                     return false;
                 }
 
@@ -136,7 +143,8 @@ namespace HaldorExpansion.Features.DelayedDoom
             {
                 if (ItemManager.Instance.GetRecipe("Recipe_" + DelayedDoomChestPrefabName) != null)
                 {
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Recipe already registered: Recipe_{DelayedDoomChestPrefabName}");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Recipe already registered: Recipe_{DelayedDoomChestPrefabName}");
                     return;
                 }
 
@@ -180,14 +188,15 @@ namespace HaldorExpansion.Features.DelayedDoom
                 };
 
                 ItemManager.Instance.AddRecipe(new CustomRecipe(recipeConfig));
-                HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Registered recipe via Jotunn for {DelayedDoomChestPrefabName}");
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Registered recipe via Jotunn for {DelayedDoomChestPrefabName}");
             }
             catch (Exception e)
             {
                 HaldorExpansionPlugin.Log?.LogError($"[HaldorExpansion] RegisterDelayedDoomChestRecipe error: {e}");
             }
         }
-        
+
         private static void ApplyDelayedDoomChestIcon(ItemDrop.ItemData.SharedData shared)
         {
             if (shared == null)
@@ -195,7 +204,8 @@ namespace HaldorExpansion.Features.DelayedDoom
 
             if (!EmbeddedIconLoader.TrySetEmbeddedIcon(shared, "delayed_doom_chest.png"))
             {
-                HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Embedded icon missing for Delayed doom chest: delayed_doom_chest.png");
+                HaldorExpansionPlugin.Log?.LogWarning(
+                    "[HaldorExpansion] Embedded icon missing for Delayed doom chest: delayed_doom_chest.png");
             }
         }
     }

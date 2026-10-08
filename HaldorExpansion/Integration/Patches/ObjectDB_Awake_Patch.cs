@@ -1,45 +1,53 @@
-using HaldorExpansion.Features.HelOath;
 using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Brisingamen;
-using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
-using HaldorExpansion.Features.PitKing;
+using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.PeltOfHelheim;
+using HaldorExpansion.Features.PitKing;
 using HaldorExpansion.Features.ShadowCrossbow;
+using HaldorExpansion.Features.StaminaCape;
 using HaldorExpansion.Features.WoundedBeast;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Trading;
-using System.Collections;
 using HarmonyLib;
-using UnityEngine;
+using Jotunn.Managers;
 
 namespace HaldorExpansion.Patches
 {
     [HarmonyPatch(typeof(ObjectDB), "Awake")]
     internal static class ObjectDB_Awake_Patch
     {
+        private static bool initialized;
+
+        internal static void Initialize()
+        {
+            if (initialized) return;
+            initialized = true;
+            PrefabManager.OnVanillaPrefabsAvailable += EnsureItemsReady;
+            ItemManager.OnItemsRegisteredFejd += CompleteRegistration;
+        }
+
+        internal static void Shutdown()
+        {
+            if (!initialized) return;
+            PrefabManager.OnVanillaPrefabsAvailable -= EnsureItemsReady;
+            ItemManager.OnItemsRegisteredFejd -= CompleteRegistration;
+            initialized = false;
+        }
+
         private static void Postfix()
         {
             ItemCacheReset.ResetItemCaches();
-
-            if (HaldorExpansionPlugin.Instance != null)
-            {
-                HaldorExpansionPlugin.Instance.StartCoroutine(DelayedEnsure());
-            }
+            // Empty menu DB is populated later by CopyOtherDB. A world DB is
+            // already populated here.
+            // !do not yield a frame before players load!.
+            CompleteRegistration();
         }
 
-        private static IEnumerator DelayedEnsure()
+        private static void EnsureItemsReady()
         {
-            yield return null;
-
-            yield return new WaitUntil(() =>
-                ObjectDB.instance != null &&
-                ObjectDB.instance.m_items != null &&
-                ObjectDB.instance.m_items.Count > 0 &&
-                ObjectDB.instance.m_recipes != null &&
-                ObjectDB.instance.m_recipes.Count > 0);
-
             BrisingamenItemRegistration.EnsureRingReady();
             NornThreadItemRegistration.EnsureReady();
             DelayedDoomItemRegistration.EnsureDelayedDoomChestReady();
@@ -47,15 +55,31 @@ namespace HaldorExpansion.Patches
             CestusItemRegistration.EnsureCestusReady();
             ShadowCrossbowItemRegistration.EnsureShadowCrossbowReady();
             HelOathItemRegistration.EnsureHelOathReady();
-            HelOathTouchStatus.EnsureRegistered();
             BerserkerItemRegistration.EnsureReady();
             BerserkerCloakItemRegistration.EnsureReady();
             BerserkerHelmetItemRegistration.EnsureReady();
-            BerserkerWrathStatus.EnsureRegistered();
-            BerserkerRagnarokExhaustion.EnsureRegistered();
             WoundedBeastItemRegistration.EnsureWoundedBeastCapeReady();
             PeltOfHelheimItemRegistration.EnsureReady();
+
+            StaminaCapeItemRegistration.EnsureReady();
+        }
+
+        private static void CompleteRegistration()
+        {
+            if (ObjectDB.instance?.m_items == null || ObjectDB.instance.m_items.Count == 0)
+                return;
+
+            EnsureItemsReady();
+            HelOathTouchStatus.EnsureRegistered();
+            BerserkerWrathStatus.EnsureRegistered();
+            BerserkerRagnarokExhaustion.EnsureRegistered();
             PeltOfHelheimStatus.EnsureRegistered();
+            TrophyValueUpdater.ApplyTrophyValues(ObjectDB.instance);
+
+            // Recipes are independent of item visibility. Never block item creation
+            // on this condition (the preview only needs prefabs).
+            if (ObjectDB.instance.m_recipes == null || ObjectDB.instance.m_recipes.Count == 0)
+                return;
 
             ShadowCrossbowItemRegistration.RegisterShadowCrossbowRecipe();
             HelOathItemRegistration.RegisterHelOathRecipe();
@@ -68,7 +92,7 @@ namespace HaldorExpansion.Patches
             BerserkerCloakItemRegistration.RegisterRecipe();
             BerserkerHelmetItemRegistration.RegisterRecipe();
 
-            TrophyValueUpdater.ApplyTrophyValues(ObjectDB.instance);
+            StaminaCapeItemRegistration.RegisterRecipe();
         }
     }
 }

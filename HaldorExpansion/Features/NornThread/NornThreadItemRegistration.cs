@@ -1,9 +1,10 @@
+using System;
+using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System;
-using System.Reflection;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.NornThread
@@ -31,7 +32,10 @@ namespace HaldorExpansion.Features.NornThread
                 if (ObjectDB.instance == null)
                     return false;
 
-                GameObject existing = ObjectDB.instance.GetItemPrefab(PrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(PrefabName);
+                if (existing != null && existing == Prefab && NornThreadItemDrop != null)
+                    return true;
+
                 if (existing != null)
                 {
                     Prefab = existing;
@@ -45,6 +49,7 @@ namespace HaldorExpansion.Features.NornThread
                         ReflectionAccess.SetFieldIfExists(existingShared, "m_consumeStatusEffect", null);
                         ApplyIcon(existingShared);
                     }
+
                     return NornThreadItemDrop != null;
                 }
 
@@ -53,7 +58,8 @@ namespace HaldorExpansion.Features.NornThread
                     source = FindUtilitySource(ObjectDB.instance);
                 if (source == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Norn Thread utility source not found in ObjectDB (yet)");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Norn Thread utility source not found in ObjectDB (yet)");
                     return false;
                 }
 
@@ -105,8 +111,10 @@ namespace HaldorExpansion.Features.NornThread
                 if (!_readyLogged)
                 {
                     _readyLogged = true;
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Norn Thread registered: {PrefabName} (source={source.name})");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Norn Thread registered: {PrefabName} (source={source.name})");
                 }
+
                 return true;
             }
             catch (Exception e)
@@ -126,6 +134,7 @@ namespace HaldorExpansion.Features.NornThread
                 if (drop.m_itemData.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Utility)
                     return go;
             }
+
             return null;
         }
 
@@ -157,7 +166,8 @@ namespace HaldorExpansion.Features.NornThread
                 }
                 catch (Exception e)
                 {
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Norn Thread: could not clear inherited adrenaline field {field.Name}: {e.Message}");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Norn Thread: could not clear inherited adrenaline field {field.Name}: {e.Message}");
                 }
             }
 
@@ -174,7 +184,8 @@ namespace HaldorExpansion.Features.NornThread
                 }
                 catch (Exception e)
                 {
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Norn Thread: could not clear inherited adrenaline property {property.Name}: {e.Message}");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Norn Thread: could not clear inherited adrenaline property {property.Name}: {e.Message}");
                 }
             }
         }
@@ -183,7 +194,8 @@ namespace HaldorExpansion.Features.NornThread
         {
             if (shared == null) return;
             if (!EmbeddedIconLoader.TrySetEmbeddedIcon(shared, "norn_thread.png"))
-                HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Embedded icon missing for Norn Thread: norn_thread.png");
+                HaldorExpansionPlugin.Log?.LogWarning(
+                    "[HaldorExpansion] Embedded icon missing for Norn Thread: norn_thread.png");
         }
     }
 }

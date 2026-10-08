@@ -1,16 +1,16 @@
+using System;
+using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Integration;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System.Reflection;
-using System;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.WoundedBeast
 {
     internal static class WoundedBeastItemRegistration
     {
-        
         internal const string WoundedBeastCapePrefabName = "CapeWoundedBeast";
         internal const string WoundedBeastCapeSourcePrefab = "CapeWolf";
         internal const int WoundedBeastCapePrice = 2500;
@@ -30,7 +30,10 @@ namespace HaldorExpansion.Features.WoundedBeast
                 if (ObjectDB.instance == null)
                     return false;
 
-                GameObject existing = ObjectDB.instance.GetItemPrefab(WoundedBeastCapePrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(WoundedBeastCapePrefabName);
+                if (existing != null && existing == WoundedBeastCapePrefab && WoundedBeastCapeItemDrop != null)
+                    return true;
+
                 if (existing != null)
                 {
                     WoundedBeastCapePrefab = existing;
@@ -42,21 +45,24 @@ namespace HaldorExpansion.Features.WoundedBeast
                         WoundedBeastCapeItemDrop.m_itemData.m_dropPrefab = existing;
                     }
 
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Wounded Beast cape already in ObjectDB: {WoundedBeastCapePrefabName}");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Wounded Beast cape already in ObjectDB: {WoundedBeastCapePrefabName}");
                     return WoundedBeastCapeItemDrop != null;
                 }
 
-                GameObject source = ObjectDB.instance.GetItemPrefab(WoundedBeastCapeSourcePrefab);
+                GameObject source = ItemPrefabLookup.Source(WoundedBeastCapeSourcePrefab);
                 if (source == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning($"[HaldorExpansion] Source cape prefab not found: {WoundedBeastCapeSourcePrefab}");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        $"[HaldorExpansion] Source cape prefab not found: {WoundedBeastCapeSourcePrefab}");
                     return false;
                 }
 
                 GameObject capeGo = PrefabManager.Instance.CreateClonedPrefab(WoundedBeastCapePrefabName, source.name);
                 if (capeGo == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Failed to clone Wounded Beast cape prefab");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Failed to clone Wounded Beast cape prefab");
                     return false;
                 }
 
@@ -76,7 +82,8 @@ namespace HaldorExpansion.Features.WoundedBeast
                 WoundedBeastCapePrefab = capeGo;
                 WoundedBeastCapeItemDrop = drop;
 
-                HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Wounded Beast cape registered: {WoundedBeastCapePrefabName} (source={source.name})");
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Wounded Beast cape registered: {WoundedBeastCapePrefabName} (source={source.name})");
                 return true;
             }
             catch (Exception e)
@@ -100,21 +107,24 @@ namespace HaldorExpansion.Features.WoundedBeast
                 GameObject sourcePrefab = ObjectDB.instance?.GetItemPrefab(WoundedBeastCapeSourcePrefab);
                 if (sourcePrefab == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source cape prefab not found for Wounded Beast recipe");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source cape prefab not found for Wounded Beast recipe");
                     return;
                 }
 
                 ItemDrop sourceDrop = sourcePrefab.GetComponent<ItemDrop>();
                 if (sourceDrop == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source cape ItemDrop not found for Wounded Beast recipe");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source cape ItemDrop not found for Wounded Beast recipe");
                     return;
                 }
 
                 Recipe sourceRecipe = ObjectDB.instance.GetRecipe(sourceDrop.m_itemData);
                 if (sourceRecipe == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Source cape recipe not found for Wounded Beast cape");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Source cape recipe not found for Wounded Beast cape");
                     return;
                 }
 
@@ -139,7 +149,8 @@ namespace HaldorExpansion.Features.WoundedBeast
                 };
 
                 ItemManager.Instance.AddRecipe(new CustomRecipe(recipeConfig));
-                HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Registered recipe via Jotunn for {WoundedBeastCapePrefabName}");
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Registered recipe via Jotunn for {WoundedBeastCapePrefabName}");
             }
             catch (Exception e)
             {
@@ -166,7 +177,8 @@ namespace HaldorExpansion.Features.WoundedBeast
             }
             catch (Exception e)
             {
-                HaldorExpansionPlugin.Log?.LogError($"[HaldorExpansion] EnsureWoundedBeastCapeRegisteredInObjectDB error: {e}");
+                HaldorExpansionPlugin.Log?.LogError(
+                    $"[HaldorExpansion] EnsureWoundedBeastCapeRegisteredInObjectDB error: {e}");
             }
         }
 

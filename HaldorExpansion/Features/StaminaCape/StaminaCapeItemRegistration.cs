@@ -1,8 +1,9 @@
+using System;
+using System.Reflection;
+using HaldorExpansion.Integration;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System.Reflection;
-using System;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.StaminaCape
@@ -20,7 +21,7 @@ namespace HaldorExpansion.Features.StaminaCape
 
         internal static GameObject CapePrefab;
         internal static ItemDrop CapeItemDrop;
-        
+
 
         internal static void ResetCaches()
         {
@@ -32,11 +33,13 @@ namespace HaldorExpansion.Features.StaminaCape
         {
             try
             {
-
                 if (ObjectDB.instance == null)
                     return false;
 
-                GameObject existing = ObjectDB.instance.GetItemPrefab(PrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(PrefabName);
+                if (existing != null && existing == CapePrefab && CapeItemDrop != null)
+                    return true;
+
                 if (existing != null)
                 {
                     CapePrefab = existing;
@@ -56,7 +59,7 @@ namespace HaldorExpansion.Features.StaminaCape
                     return CapeItemDrop != null;
                 }
 
-                GameObject source = ObjectDB.instance.GetItemPrefab(SourcePrefab);
+                GameObject source = ItemPrefabLookup.Source(SourcePrefab);
                 if (source == null)
                 {
                     HaldorExpansionPlugin.Log?.LogWarning(
@@ -143,7 +146,7 @@ namespace HaldorExpansion.Features.StaminaCape
                     : null;
 
                 string repairStation = "forge";
-                
+
                 var recipeConfig = new RecipeConfig
                 {
                     Name = recipeName,
@@ -178,10 +181,10 @@ namespace HaldorExpansion.Features.StaminaCape
             shared.m_armor = 4f;
             shared.m_maxQuality = 1;
             shared.m_weight = 1f;
-            
+
             shared.m_maxDurability = 1800f;
             shared.m_durabilityPerLevel = 0f;
-            
+
             shared.m_value = 0;
             shared.m_canBeReparied = true;
             shared.m_useDurability = true;
@@ -195,7 +198,7 @@ namespace HaldorExpansion.Features.StaminaCape
             {
                 shared.m_damageModifiers.RemoveAll(mod => mod.m_type == HitData.DamageType.Frost);
             }
-            
+
             ApplyVisualEffect(shared);
         }
 

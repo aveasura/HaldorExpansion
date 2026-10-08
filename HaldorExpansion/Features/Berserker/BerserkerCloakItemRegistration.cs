@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
 using Jotunn.Entities;
@@ -39,7 +40,10 @@ namespace HaldorExpansion.Features.Berserker
             {
                 if (ObjectDB.instance == null) return false;
 
-                GameObject existing = ObjectDB.instance.GetItemPrefab(PrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(PrefabName);
+                if (existing != null && existing == Prefab && ItemDrop != null)
+                    return true;
+
                 if (existing != null)
                 {
                     Prefab = existing;
@@ -131,7 +135,7 @@ namespace HaldorExpansion.Features.Berserker
             if (ObjectDB.instance == null) return null;
             foreach (string name in SourcePrefabs)
             {
-                GameObject source = ObjectDB.instance.GetItemPrefab(name);
+                GameObject source = ItemPrefabLookup.Source(name);
                 if (source != null) return source;
             }
 

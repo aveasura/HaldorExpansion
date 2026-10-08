@@ -1,12 +1,13 @@
-using HaldorExpansion.Features.HelOath;
-using HaldorExpansion.Features.Berserker;
-using HaldorExpansion.Configuration;
-using HaldorExpansion.Diagnostics;
-using HaldorExpansion.Features.Cestus;
-using HaldorExpansion.Presentation;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
+using HaldorExpansion.Configuration;
+using HaldorExpansion.Diagnostics;
+using HaldorExpansion.Features.Berserker;
+using HaldorExpansion.Features.Cestus;
+using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Patches;
+using HaldorExpansion.Presentation;
 using HarmonyLib;
 using Jotunn;
 using Jotunn.Utils;
@@ -54,12 +55,19 @@ namespace HaldorExpansion
             HelOathConfiguration.Register(Config);
             BerserkerConfiguration.Register(Config);
 
+            ObjectDB_Awake_Patch.Initialize();
+
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), ModGuid);
 
             if (DebugLogging)
             {
                 AdrenalineDiagnostics.DumpAdrenalineReflection();
             }
+        }
+
+        private void OnDestroy()
+        {
+            ObjectDB_Awake_Patch.Shutdown();
         }
     }
 }

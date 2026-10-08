@@ -1,8 +1,9 @@
+using System;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Brisingamen
@@ -27,7 +28,10 @@ namespace HaldorExpansion.Features.Brisingamen
                 if (ObjectDB.instance == null)
                     return false;
 
-                GameObject existing = ObjectDB.instance.GetItemPrefab(RingPrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(RingPrefabName);
+                if (existing != null && existing == RingPrefab && RingItemDrop != null)
+                    return true;
+
                 if (existing != null)
                 {
                     RingPrefab = existing;
@@ -47,10 +51,11 @@ namespace HaldorExpansion.Features.Brisingamen
                     return RingItemDrop != null;
                 }
 
-                GameObject src = FindCarryWeightSource(ObjectDB.instance);
+                GameObject src = ItemPrefabLookup.Source("BeltStrength") ?? FindCarryWeightSource(ObjectDB.instance);
                 if (src == null)
                 {
-                    HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Carry-weight source item not found in ObjectDB (yet)");
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[HaldorExpansion] Carry-weight source item not found in ObjectDB (yet)");
                     return false;
                 }
 
@@ -121,7 +126,8 @@ namespace HaldorExpansion.Features.Brisingamen
                 if (!_ringReadyLogged)
                 {
                     _ringReadyLogged = true;
-                    HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Ring registered: {RingPrefabName} (source={src.name})");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Ring registered: {RingPrefabName} (source={src.name})");
                 }
 
                 return true;
@@ -181,7 +187,8 @@ namespace HaldorExpansion.Features.Brisingamen
 
             if (!EmbeddedIconLoader.TrySetEmbeddedIcon(shared, "brisingamen.png"))
             {
-                HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Embedded icon missing for brisingamen: brisingamen.png");
+                HaldorExpansionPlugin.Log?.LogWarning(
+                    "[HaldorExpansion] Embedded icon missing for brisingamen: brisingamen.png");
             }
         }
     }
