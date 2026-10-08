@@ -186,6 +186,10 @@
         <Compile Include="Features\DelayedDoom\DelayedDoomRuntime.cs"/>
         <Compile Include="Combat\HitDamageMath.cs"/>
         <Compile Include="Features\DelayedDoom\DelayedDoomFoodRegen.cs"/>
+        <Compile Include="Presentation\TooltipLayoutMath.cs"/>
+        <Compile Include="Presentation\LongItemTooltipView.cs"/>
+        <Compile Include="Presentation\ItemTooltipController.cs"/>
+        <Compile Include="Integration\Patches\ItemTooltipPatches.cs"/>
         <Compile Include="Presentation\EmbeddedIconLoader.cs"/>
         <Compile Include="Presentation\ModLocalization.cs"/>
         <Compile Include="Features\PitKing\PitKingItemRegistration.cs"/>
@@ -232,6 +236,18 @@
             <HintPath>$(R2ModmanProfileDir)\BepInEx\plugins\ValheimModding-Jotunn\Jotunn.dll</HintPath>
         </Reference>
 
+        <Reference Include="assembly_guiutils">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\assembly_guiutils.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="assembly_utils">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\assembly_utils.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="Unity.TextMeshPro">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
         <Reference Include="assembly_valheim">
             <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\assembly_valheim.dll</HintPath>
         </Reference>

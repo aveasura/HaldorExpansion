@@ -41,8 +41,7 @@ namespace HaldorExpansion.Patches
         {
             ItemCacheReset.ResetItemCaches();
             // Empty menu DB is populated later by CopyOtherDB. A world DB is
-            // already populated here.
-            // !do not yield a frame before players load!.
+            // already populated here; do not yield a frame before players load.
             CompleteRegistration();
         }
 

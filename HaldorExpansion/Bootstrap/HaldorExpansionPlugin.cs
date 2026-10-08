@@ -67,6 +67,7 @@ namespace HaldorExpansion
 
         private void OnDestroy()
         {
+            ItemTooltipController.Reset();
             ObjectDB_Awake_Patch.Shutdown();
         }
     }

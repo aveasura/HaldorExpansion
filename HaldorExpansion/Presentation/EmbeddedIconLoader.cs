@@ -11,7 +11,7 @@ namespace HaldorExpansion.Presentation
     {
         private const string EmbeddedIconPrefix = "HaldorExpansion.Assets.Icons.";
 
-        // Prefabs and their icons live across menu/world transitions. !Do not clear this!
+        // Prefabs and their icons live across menu/world transitions. Do not clear this
         // cache on ObjectDB.Awake: inventory items can still reference these sprites.
         private static readonly Dictionary<string, Sprite> Icons = new Dictionary<string, Sprite>();
         private static readonly MethodInfo LoadImageMethod = FindLoadImageMethod();

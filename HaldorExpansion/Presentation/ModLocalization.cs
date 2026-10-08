@@ -20,6 +20,7 @@ namespace HaldorExpansion.Presentation
 
             loc.AddTranslation("Russian", new Dictionary<string, string>
             {
+                ["$he_tooltip_scroll"] = "Прокрутка: колесо мыши / PgUp, PgDn",
                 [HelOathItemRegistration.HelOathItemKey] = "Клятва Хель",
                 [HelOathItemRegistration.HelOathItemDescKey] =
                     "Холод Хельхейма дремлет в его тетиве. Каждая пролитая им кровь приближает исполнение Клятвы — и когда она будет исполнена, откроются Объятия Хель.\n\n" +
@@ -197,6 +198,7 @@ namespace HaldorExpansion.Presentation
 
             loc.AddTranslation("English", new Dictionary<string, string>
             {
+                ["$he_tooltip_scroll"] = "Scroll: mouse wheel / PgUp, PgDn",
                 [HelOathItemRegistration.HelOathItemKey] = "Hel's Oath",
                 [HelOathItemRegistration.HelOathItemDescKey] =
                     "Helheim's cold slumbers in its string. Every drop of blood it spills brings the Oath closer to fulfillment — and when it is fulfilled, Hel's Embrace is revealed.\n\n" +
