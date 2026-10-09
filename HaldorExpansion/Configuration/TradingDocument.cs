@@ -27,7 +27,8 @@ namespace HaldorExpansion.Configuration
             return copy;
         }
 
-        internal static TradingDocument Parse(string text, TradingDocument defaults)
+        internal static TradingDocument Parse(string text, TradingDocument defaults, bool complete = true,
+            ISet<string> keys = null)
         {
             if (text == null || text.Length > 262144) throw new FormatException("Trading file exceeds 256 KiB.");
             var result = defaults.Copy();
@@ -89,13 +90,16 @@ namespace HaldorExpansion.Configuration
 
             if (!seen.Contains("shop") || !seen.Contains("sell"))
                 throw new FormatException("Both shop: and sell: sections are required.");
-            foreach (string section in new[] { "shop", "sell" })
-            foreach (string item in (section == "shop" ? defaults.Shop : defaults.Sell).Keys)
-            foreach (string field in (section == "shop"
-                         ? new[] { "price", "enabled", "stack", "requiredGlobalKey" }
-                         : new[] { "price" }))
-                if (!seen.Contains(section + "/" + item + "/" + field))
-                    throw new FormatException("Incomplete trading file: missing " + section + "/" + item + "/" + field);
+            if (complete)
+                foreach (string section in new[] { "shop", "sell" })
+                foreach (string item in (section == "shop" ? defaults.Shop : defaults.Sell).Keys)
+                foreach (string field in (section == "shop"
+                             ? new[] { "price", "enabled", "stack", "requiredGlobalKey" }
+                             : new[] { "price" }))
+                    if (!seen.Contains(section + "/" + item + "/" + field))
+                        throw new FormatException("Incomplete trading file: missing " + section + "/" + item + "/" +
+                                                  field);
+            if (keys != null) keys.UnionWith(seen);
             return result;
         }
 

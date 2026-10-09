@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using HaldorExpansion.Configuration;
 using HaldorExpansion.Features.Berserker;
@@ -271,6 +273,63 @@ namespace HaldorExpansion.Trading
         {
             trader.m_items.RemoveAll(item => IsOwned(item) && item.m_prefab != null &&
                                              !TradingCatalog.Enabled(item.m_prefab.name));
+        }
+
+        // The fixed catalog order is independent of when an item was re-enabled.
+        // Keep non-HaldorExpansion entries in their own order and never sort their internals.
+        internal static void RestoreOrder(Trader trader)
+        {
+            var positions = new Dictionary<string, int>(StringComparer.Ordinal);
+            foreach (TradeSetting item in TradingCatalog.Defaults.Shop.Values)
+                if (item.Category != "Shop Progression - Custom Items" && !positions.ContainsKey(item.Id))
+                    positions.Add(item.Id, positions.Count);
+
+            foreach (string prefab in new[]
+                     {
+                         BrisingamenItemRegistration.RingPrefabName, NornThreadItemRegistration.PrefabName,
+                         StaminaCapeItemRegistration.PrefabName,
+                         WoundedBeastItemRegistration.WoundedBeastCapePrefabName,
+                         PeltOfHelheimItemRegistration.PrefabName, BerserkerCloakItemRegistration.PrefabName,
+                         BerserkerHelmetItemRegistration.PrefabName,
+                         DelayedDoomItemRegistration.DelayedDoomChestPrefabName,
+                         PitKingItemRegistration.PitKingChestPrefabName, BerserkerItemRegistration.PrefabName,
+                         CestusItemRegistration.GritCestusPrefabName,
+                         ShadowCrossbowItemRegistration.ShadowCrossbowPrefabName,
+                         HelOathItemRegistration.HelOathPrefabName
+                     })
+                if (!positions.ContainsKey(prefab))
+                    positions.Add(prefab, positions.Count);
+
+            var other = new List<Trader.TradeItem>();
+            var owned = new List<Trader.TradeItem>();
+            int firstOwned = -1;
+            foreach (Trader.TradeItem item in trader.m_items)
+            {
+                if (IsOwned(item))
+                {
+                    if (firstOwned < 0) firstOwned = other.Count;
+                    owned.Add(item);
+                }
+                else other.Add(item);
+            }
+
+            if (owned.Count < 2) return;
+
+            owned.Sort((left, right) =>
+            {
+                int l, r;
+                if (!positions.TryGetValue(left.m_prefab != null ? left.m_prefab.name : "", out l)) l = int.MaxValue;
+                if (!positions.TryGetValue(right.m_prefab != null ? right.m_prefab.name : "", out r)) r = int.MaxValue;
+                return l.CompareTo(r);
+            });
+            other.InsertRange(firstOwned, owned);
+            for (int i = 0; i < other.Count; i++)
+                if (!ReferenceEquals(other[i], trader.m_items[i]))
+                {
+                    trader.m_items.Clear();
+                    trader.m_items.AddRange(other);
+                    break;
+                }
         }
 
         private static bool HasPrefab(Trader trader, string prefabName)

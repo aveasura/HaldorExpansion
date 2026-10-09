@@ -63,6 +63,24 @@ namespace HaldorExpansion.Configuration
         internal void Finish()
         {
             bool migrated = File.Exists(legacyPath);
+            string schemaPath = Path.Combine(folder, ".format-schema");
+            ConfigSchema previous = File.Exists(schemaPath) ? ConfigSchema.Read(schemaPath) : null;
+            if (previous != null && (newGeneral || newBalance || newTrading))
+                throw new FormatException("A configuration file is missing. Restore it before upgrading.");
+
+            Dictionary<string, string> generalDisk =
+                newGeneral ? null : ConfigText.Parse(File.ReadAllText(General.ConfigFilePath));
+            Dictionary<string, string> balanceDisk =
+                newBalance ? null : ConfigText.Parse(File.ReadAllText(Balance.ConfigFilePath));
+            string tradingDisk = newTrading ? null : File.ReadAllText(tradePath);
+            if (previous != null)
+            {
+                ConfigSchema.Require(previous.General, ConfigSchema.Signature(generalDisk.Keys), "general.cfg");
+                ConfigSchema.Require(previous.Balance, ConfigSchema.Signature(balanceDisk.Keys), "balance.cfg");
+                ConfigSchema.Require(previous.Trading,
+                    ConfigSchema.TradingSignature(tradingDisk, TradingCatalog.Defaults, false), "trading.yml");
+            }
+
             if (migrated)
             {
                 var old = ConfigText.Parse(File.ReadAllText(legacyPath));
@@ -73,20 +91,40 @@ namespace HaldorExpansion.Configuration
 
             localTrading = newTrading
                 ? TradingCatalog.FromEntries()
-                : TradingDocument.Parse(File.ReadAllText(tradePath), TradingCatalog.Defaults);
+                : TradingDocument.Parse(tradingDisk, TradingCatalog.Defaults, complete: previous == null);
             TradingDocument.Parse(localTrading.Serialize(), TradingCatalog.Defaults);
             Validate(General, Values(General));
             Validate(Balance, Values(Balance));
-            if (!newGeneral)
-                Validate(General, ConfigText.Parse(File.ReadAllText(General.ConfigFilePath)), complete: true);
-            if (!newBalance)
-                Validate(Balance, ConfigText.Parse(File.ReadAllText(Balance.ConfigFilePath)), complete: true);
-            if (newGeneral) General.Save();
-            if (newBalance) Balance.Save();
-            if (newTrading) ConfigText.WriteAtomic(tradePath, localTrading.Serialize());
+            if (!newGeneral) Validate(General, generalDisk, complete: previous == null);
+            if (!newBalance) Validate(Balance, balanceDisk, complete: previous == null);
+
+            var current = new ConfigSchema
+            {
+                General = ConfigSchema.Signature(Values(General).Keys),
+                Balance = ConfigSchema.Signature(Values(Balance).Keys),
+                Trading = ConfigSchema.TradingSignature(TradingCatalog.Defaults.Serialize(), TradingCatalog.Defaults)
+            };
+            bool updateGeneral = newGeneral || (previous != null && previous.General != current.General);
+            bool updateBalance = newBalance || (previous != null && previous.Balance != current.Balance);
+            bool updateTrading = newTrading || (previous != null && previous.Trading != current.Trading);
+            if (updateGeneral || updateBalance || updateTrading)
+            {
+                string backups = Path.Combine(folder, "backups");
+                Directory.CreateDirectory(backups);
+                if (!newGeneral && updateGeneral) Backup(General.ConfigFilePath, backups);
+                if (!newBalance && updateBalance) Backup(Balance.ConfigFilePath, backups);
+                if (!newTrading && updateTrading) Backup(tradePath, backups);
+                if (previous != null) Backup(schemaPath, backups);
+            }
+
+            if (updateGeneral) General.Save();
+            if (updateBalance) Balance.Save();
+            if (updateTrading) ConfigText.WriteAtomic(tradePath, localTrading.Serialize());
             Validate(General, ConfigText.Parse(File.ReadAllText(General.ConfigFilePath)), complete: true);
             Validate(Balance, ConfigText.Parse(File.ReadAllText(Balance.ConfigFilePath)), complete: true);
             TradingDocument.Parse(File.ReadAllText(tradePath), TradingCatalog.Defaults);
+            if (previous == null || updateGeneral || updateBalance || updateTrading)
+                ConfigText.WriteAtomic(schemaPath, current.Serialize());
             if (migrated)
             {
                 string backups = Path.Combine(folder, "backups");
@@ -115,6 +153,14 @@ namespace HaldorExpansion.Configuration
             };
             General.SettingChanged += (sender, args) => localizationDirty = true;
             initialized = true;
+        }
+
+        private static void Backup(string path, string backups)
+        {
+            string backup = Path.Combine(backups, Path.GetFileName(path) + "-" +
+                                                  DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + "-" +
+                                                  Guid.NewGuid().ToString("N") + ".bak");
+            File.Copy(path, backup);
         }
 
         private static Dictionary<string, string> Values(ConfigFile file)

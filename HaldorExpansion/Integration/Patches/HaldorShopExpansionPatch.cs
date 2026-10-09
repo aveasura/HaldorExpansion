@@ -45,29 +45,31 @@ namespace HaldorExpansion.Patches
                 __instance.m_items = new List<Trader.TradeItem>();
 
             HaldorShopUpdater.RemoveDisabledItems(__instance);
-            // добавляет Хальдору обычные предметы из массива ShopItems
+
             HaldorShopUpdater.TryAddConfiguredItems(__instance);
 
-            // Аксессуары
+            // accessories
             HaldorShopUpdater.TryAddRing(__instance);
             HaldorShopUpdater.TryAddNornThread(__instance);
 
-            // Плащи
+            // cloaks
             HaldorShopUpdater.TryAddStaminaCape(__instance);
             HaldorShopUpdater.TryAddWoundedBeastCape(__instance);
             HaldorShopUpdater.TryAddPeltOfHelheim(__instance);
             HaldorShopUpdater.TryAddBerserkerCloak(__instance);
 
-            // Доспехи
+            // armors
             HaldorShopUpdater.TryAddBerserkerHelmet(__instance);
             HaldorShopUpdater.TryAddDelayedDoomChest(__instance);
             HaldorShopUpdater.TryAddPitKingChest(__instance);
 
-            // Оружие
+            // weapons
             HaldorShopUpdater.TryAddBerserkerAxe(__instance);
             HaldorShopUpdater.TryAddCestus(__instance);
             HaldorShopUpdater.TryAddShadowCrossbow(__instance);
             HaldorShopUpdater.TryAddHelOath(__instance);
+
+            HaldorShopUpdater.RestoreOrder(__instance);
         }
     }
 }
