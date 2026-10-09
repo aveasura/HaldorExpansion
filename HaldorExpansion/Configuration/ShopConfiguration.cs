@@ -38,7 +38,7 @@ namespace HaldorExpansion.Configuration
 
             BindShopItemConfig("Shop Progression - Custom Items", NornThreadItemRegistration.PrefabName,
                 "Thread of the Norns", NornThreadItemRegistration.Price);
-            
+
             BindShopItemConfig("Shop Progression - Custom Items",
                 WoundedBeastItemRegistration.WoundedBeastCapePrefabName, "Cloak of the Wounded Beast",
                 WoundedBeastItemRegistration.WoundedBeastCapePrice);
@@ -49,13 +49,13 @@ namespace HaldorExpansion.Configuration
             BindShopItemConfig("Shop Progression - Custom Items", PeltOfHelheimItemRegistration.PrefabName,
                 "Pelt of Helheim", PeltOfHelheimItemRegistration.Price);
 
-            BindShopItemConfig("Shop Progression - Custom Items", BerserkerItemRegistration.PrefabName,
+            BindShopItemConfig("Shop Progression - Custom Items", BerserkerIds.AxePrefab,
                 "Berserker Greataxe", BerserkerItemRegistration.Price);
 
-            BindShopItemConfig("Shop Progression - Custom Items", BerserkerCloakItemRegistration.PrefabName,
+            BindShopItemConfig("Shop Progression - Custom Items", BerserkerIds.CloakPrefab,
                 "Berserker Cloak", BerserkerCloakItemRegistration.Price);
 
-            BindShopItemConfig("Shop Progression - Custom Items", BerserkerHelmetItemRegistration.PrefabName,
+            BindShopItemConfig("Shop Progression - Custom Items", BerserkerIds.HelmetPrefab,
                 "Berserker Helmet", BerserkerHelmetItemRegistration.Price);
 
             BindShopItemConfig("Shop Progression - Custom Items",

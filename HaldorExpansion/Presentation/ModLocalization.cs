@@ -57,8 +57,8 @@ namespace HaldorExpansion.Presentation
                 [BerserkerIds.ExhaustionDescriptionKey] =
                     "После Рагнарёка скорость передвижения снижена на 25% на 3 секунды.",
 
-                [BerserkerItemRegistration.ItemKey] = ItemNames.BerserkerGreataxeRu,
-                [BerserkerItemRegistration.ItemDescKey] =
+                [BerserkerIds.AxeItemKey] = ItemNames.BerserkerGreataxeRu,
+                [BerserkerIds.AxeDescriptionKey] =
                     "Тяжёлая двуручная секира, жаждущая крови. " +
                     "Чем сильнее ранен владелец, тем смертоноснее удары.\n\n" +
                     "<color=#9EDFF2><b>Ярость (I–V)</b></color>: попадания дают +10% скорости атаки " +
@@ -81,7 +81,8 @@ namespace HaldorExpansion.Presentation
                 [BerserkerIds.WrathKeyPrefix + "2_desc"] =
                     "+20% к скорости атаки. -10% затрат выносливости на все действия. Без новых попаданий Ярость начнёт угасать.",
                 [BerserkerIds.WrathKeyPrefix + "3"] = "Ярость III",
-                [BerserkerIds.WrathKeyPrefix + "3_desc"] = "+30% к скорости атаки. -15% затрат выносливости на все действия.",
+                [BerserkerIds.WrathKeyPrefix + "3_desc"] =
+                    "+30% к скорости атаки. -15% затрат выносливости на все действия.",
                 [BerserkerIds.WrathKeyPrefix + "4"] = "Ярость IV",
                 [BerserkerIds.WrathKeyPrefix + "4_desc"] =
                     "+40% к скорости атаки. -20% затрат выносливости на все действия. Ещё немного — и Ярость сорвётся в Бешенство.",
@@ -90,21 +91,21 @@ namespace HaldorExpansion.Presentation
                     "Бешенство. +50% к скорости атаки. -25% затрат выносливости на все действия. Открывает Расплату; с Плащом берсерка и достаточным Кровавым долгом становится доступен Рагнарёк.",
 
                 // Плащ берсерка
-                [BerserkerCloakItemRegistration.ItemKey] = ItemNames.BerserkerCloakRu,
-                [BerserkerCloakItemRegistration.ItemDescKey] =
+                [BerserkerIds.CloakItemKey] = ItemNames.BerserkerCloakRu,
+                [BerserkerIds.CloakDescriptionKey] =
                     "Плащ для тех, кто принимает удар вместо того, чтобы отступить. Чем кровавее становится бой, тем быстрее приближается Рагнарёк.",
-                [BerserkerCloakItemRegistration.EffectNameKey] = "Предвестник Рагнарёка",
-                [BerserkerCloakItemRegistration.EffectDescKey] =
+                [BerserkerIds.CloakEffectKey] = "Предвестник Рагнарёка",
+                [BerserkerIds.CloakEffectDescriptionKey] =
                     "+30% получаемого урона.\n" +
                     "+50% к накоплению Кровавого долга.\n" +
                     "Пробуждает Рагнарёк.",
 
                 // Шлем берсерка
-                [BerserkerHelmetItemRegistration.ItemKey] = ItemNames.BerserkerHelmetRu,
-                [BerserkerHelmetItemRegistration.ItemDescKey] =
+                [BerserkerIds.HelmetItemKey] = ItemNames.BerserkerHelmetRu,
+                [BerserkerIds.HelmetDescriptionKey] =
                     "Тяжёлый шлем, который крепнет вместе с Яростью владельца. Чем яростнее бой, тем труднее сломить его натиск.",
-                [BerserkerHelmetItemRegistration.EffectNameKey] = "Несокрушимая ярость",
-                [BerserkerHelmetItemRegistration.EffectDescKey] =
+                [BerserkerIds.HelmetEffectKey] = "Несокрушимая ярость",
+                [BerserkerIds.HelmetEffectDescriptionKey] =
                     "Каждая стадия Ярости:\n" +
                     "+4 брони.\n" +
                     "-15% накопления ошеломления.\n" +
@@ -235,8 +236,8 @@ namespace HaldorExpansion.Presentation
                 [BerserkerIds.ExhaustionDescriptionKey] =
                     "After Ragnarok, movement speed is reduced by 25% for 3 seconds.",
 
-                [BerserkerItemRegistration.ItemKey] = ItemNames.BerserkerGreataxeEn,
-                [BerserkerItemRegistration.ItemDescKey] =
+                [BerserkerIds.AxeItemKey] = ItemNames.BerserkerGreataxeEn,
+                [BerserkerIds.AxeDescriptionKey] =
                     "A mighty two-handed axe that thirsts for blood. " +
                     "The more wounded its wielder, the deadlier its blows.\n\n" +
                     "<color=#9EDFF2><b>Wrath (I–V)</b></color>: hits grant +10% attack speed " +
@@ -268,21 +269,21 @@ namespace HaldorExpansion.Presentation
                     "Frenzy. +50% attack speed. -25% stamina cost for all actions. Unlocks Reckoning; with the Berserker Cloak and enough Blood Debt, Ragnarok becomes available.",
 
                 // Berserker Cloak
-                [BerserkerCloakItemRegistration.ItemKey] = ItemNames.BerserkerCloakEn,
-                [BerserkerCloakItemRegistration.ItemDescKey] =
+                [BerserkerIds.CloakItemKey] = ItemNames.BerserkerCloakEn,
+                [BerserkerIds.CloakDescriptionKey] =
                     "A cloak for those who take the blow instead of yielding. The bloodier the battle becomes, the closer Ragnarok draws.",
-                [BerserkerCloakItemRegistration.EffectNameKey] = "Harbinger of Ragnarok",
-                [BerserkerCloakItemRegistration.EffectDescKey] =
+                [BerserkerIds.CloakEffectKey] = "Harbinger of Ragnarok",
+                [BerserkerIds.CloakEffectDescriptionKey] =
                     "+30% incoming damage.\n" +
                     "+50% Blood Debt generation.\n" +
                     "Awakens Ragnarok.",
 
                 // Berserker Helmet
-                [BerserkerHelmetItemRegistration.ItemKey] = ItemNames.BerserkerHelmetEn,
-                [BerserkerHelmetItemRegistration.ItemDescKey] =
+                [BerserkerIds.HelmetItemKey] = ItemNames.BerserkerHelmetEn,
+                [BerserkerIds.HelmetDescriptionKey] =
                     "A heavy helm that hardens with its wielder's Wrath. The fiercer the battle becomes, the harder the berserker is to break.",
-                [BerserkerHelmetItemRegistration.EffectNameKey] = "Unbroken Wrath",
-                [BerserkerHelmetItemRegistration.EffectDescKey] =
+                [BerserkerIds.HelmetEffectKey] = "Unbroken Wrath",
+                [BerserkerIds.HelmetEffectDescriptionKey] =
                     "Each Wrath stage:\n" +
                     "+4 armor.\n" +
                     "-15% incoming stagger buildup.\n" +
@@ -387,7 +388,7 @@ namespace HaldorExpansion.Presentation
             if (BerserkerConfiguration.HitsPerWrathStage == null) return text;
             float speed = BerserkerConfiguration.WrathAttackSpeedFractionPerStage * 100f;
             float stamina = BerserkerConfiguration.WrathStaminaReductionFractionPerStage * 100f;
-            string axe = text[BerserkerItemRegistration.ItemDescKey];
+            string axe = text[BerserkerIds.AxeDescriptionKey];
             axe = axe.Replace("+10%", "+" + Number(speed) + "%").Replace("-5%", "-" + Number(stamina) + "%")
                 .Replace("30%", Number(BerserkerConfiguration.ReckoningLifeStealFraction * 100f) + "%")
                 .Replace("x1+", "x" + Number(BerserkerConfiguration.ReckoningMinimumDebtValue / 100f) + "+")
@@ -398,7 +399,7 @@ namespace HaldorExpansion.Presentation
                     "Consumes " + Number(BerserkerConfiguration.ReckoningSpendFraction * 100f) + "% of the debt");
             if (BerserkerConfiguration.RagnarokButton != null)
                 axe = axe.Replace("(E)", "(" + BerserkerConfiguration.RagnarokButton.Config.BoxedValue + ")");
-            text[BerserkerItemRegistration.ItemDescKey] = axe;
+            text[BerserkerIds.AxeDescriptionKey] = axe;
             for (int stage = 1; stage <= 5; stage++)
             {
                 string key = BerserkerIds.WrathKeyPrefix + stage + "_desc";

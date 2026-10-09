@@ -12,7 +12,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 if (player == null || ObjectDB.instance == null) return false;
 
-                GameObject prefab = ObjectDB.instance.GetItemPrefab(BerserkerCloakItemRegistration.PrefabName);
+                GameObject prefab = ObjectDB.instance.GetItemPrefab(BerserkerIds.CloakPrefab);
                 ItemDrop prefabDrop = prefab != null ? prefab.GetComponent<ItemDrop>() : null;
                 if (prefabDrop == null) return false;
 
@@ -23,7 +23,7 @@ namespace HaldorExpansion.Features.Berserker
                 foreach (ItemDrop.ItemData item in items)
                 {
                     if (item == null || item.m_shared == null ||
-                        item.m_shared.m_name != BerserkerCloakItemRegistration.ItemKey) continue;
+                        item.m_shared.m_name != BerserkerIds.CloakItemKey) continue;
 
                     found = true;
                     int quality = Mathf.Max(1, item.m_quality);

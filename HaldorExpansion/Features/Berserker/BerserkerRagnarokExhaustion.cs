@@ -8,7 +8,6 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerRagnarokExhaustion
     {
-        private const string EffectName = BerserkerIds.ExhaustionStatus;
         private static SE_Stats prototype;
         private static ObjectDB registeredDb;
 
@@ -23,7 +22,7 @@ namespace HaldorExpansion.Features.Berserker
 
             foreach (StatusEffect existing in ObjectDB.instance.m_StatusEffects)
             {
-                if (existing != null && existing.name == EffectName)
+                if (existing != null && existing.name == BerserkerIds.ExhaustionStatus)
                 {
                     prototype = existing as SE_Stats;
                     Configure(prototype);
@@ -32,7 +31,7 @@ namespace HaldorExpansion.Features.Berserker
             }
 
             prototype = ScriptableObject.CreateInstance<SE_Stats>();
-            prototype.name = EffectName;
+            prototype.name = BerserkerIds.ExhaustionStatus;
             Configure(prototype);
 
             Sprite[] icons = BerserkerItemRegistration.ItemDrop?.m_itemData?.m_shared?.m_icons;

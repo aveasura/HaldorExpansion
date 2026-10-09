@@ -8,13 +8,12 @@ namespace HaldorExpansion.Features.Berserker
     // This also supports a dedicated server and ordinary multiplayer world ownership.
     internal static class BerserkerHelmetLifeStealNetwork
     {
-        private const string HealRpc = BerserkerIds.HelmetLifeStealRpc;
         private static readonly FieldInfo CharacterView = AccessTools.Field(typeof(Character), "m_nview");
 
         internal static void Register(Player player, ZNetView view)
         {
             if (player == null || view == null || !view.IsValid()) return;
-            view.Register<float>(HealRpc, (sender, actualEnemyHealthLost) =>
+            view.Register<float>(BerserkerIds.HelmetLifeStealRpc, (sender, actualEnemyHealthLost) =>
             {
                 if (!view.IsOwner()) return;
                 BerserkerHelmetRuntime.ApplyLifeSteal(player, actualEnemyHealthLost);
@@ -28,7 +27,7 @@ namespace HaldorExpansion.Features.Berserker
 
             ZNetView view = CharacterView?.GetValue(attacker) as ZNetView;
             if (view == null || !view.IsValid()) return;
-            view.InvokeRPC(HealRpc, actualEnemyHealthLost);
+            view.InvokeRPC(BerserkerIds.HelmetLifeStealRpc, actualEnemyHealthLost);
         }
     }
 

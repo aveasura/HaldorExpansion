@@ -12,12 +12,9 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerItemRegistration
     {
-        internal const string PrefabName = BerserkerIds.AxePrefab;
         internal const string SourcePrefabName = "BattleaxeGold_BloodLightning";
-        internal const string ItemKey = BerserkerIds.AxeItemKey;
         internal const int Price = 2500;
         internal const string IconFileName = "berserker_axe.png";
-        internal const string ItemDescKey = BerserkerIds.AxeDescriptionKey;
         internal const float BaseSlashDamage = 95f;
         internal const float SecondaryBaseDamage = 130f;
         internal const float MovementModifier = -0.15f;
@@ -38,7 +35,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 if (ObjectDB.instance == null) return false;
 
-                GameObject existing = ItemPrefabLookup.Registered(PrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(BerserkerIds.AxePrefab);
                 if (existing != null && existing == Prefab && ItemDrop != null)
                     return true;
 
@@ -66,7 +63,7 @@ namespace HaldorExpansion.Features.Berserker
                     return false;
                 }
 
-                GameObject clone = PrefabManager.Instance.CreateClonedPrefab(PrefabName, source.name);
+                GameObject clone = PrefabManager.Instance.CreateClonedPrefab(BerserkerIds.AxePrefab, source.name);
                 if (clone == null)
                 {
                     HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Failed to clone Thunderblood Greataxe prefab.");
@@ -109,7 +106,7 @@ namespace HaldorExpansion.Features.Berserker
                 var config = new RecipeConfig
                 {
                     Name = recipeName,
-                    Item = PrefabName,
+                    Item = BerserkerIds.AxePrefab,
                     Amount = 1,
                     CraftingStation = "forge",
                     RepairStation = "forge",
@@ -135,8 +132,8 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (shared == null) return;
 
-            shared.m_name = ItemKey;
-            shared.m_description = ItemDescKey;
+            shared.m_name = BerserkerIds.AxeItemKey;
+            shared.m_description = BerserkerIds.AxeDescriptionKey;
             shared.m_value = 0;
             shared.m_canBeReparied = true;
             shared.m_useDurability = true;

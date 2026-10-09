@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.Berserker
 {
@@ -11,8 +12,6 @@ namespace HaldorExpansion.Features.Berserker
     // every client can render the same escalating visual language around the player.
     internal static class BerserkerWrathEffects
     {
-        private const string WrathKey = BerserkerIds.WrathStageZdoKey;
-
         private sealed class VisualState
         {
             internal int Stage = -1;
@@ -33,7 +32,7 @@ namespace HaldorExpansion.Features.Berserker
         internal static void Register(Player player, ZNetView view)
         {
             if (player == null || view == null || !view.IsValid()) return;
-            if (view.IsOwner()) view.GetZDO().Set(WrathKey, 0);
+            if (view.IsOwner()) view.GetZDO().Set(BerserkerIds.WrathStageZdoKey, 0);
         }
 
         internal static void Sync(Player player, int stage)
@@ -41,7 +40,8 @@ namespace HaldorExpansion.Features.Berserker
             var view = View(player);
             if (view == null || !view.IsValid() || !view.IsOwner()) return;
             stage = Mathf.Clamp(stage, 0, BerserkerState.MaxWrathStage);
-            if (view.GetZDO().GetInt(WrathKey) != stage) view.GetZDO().Set(WrathKey, stage);
+            if (view.GetZDO().GetInt(BerserkerIds.WrathStageZdoKey) != stage)
+                view.GetZDO().Set(BerserkerIds.WrathStageZdoKey, stage);
             UpdatePlayer(player);
         }
 
@@ -50,7 +50,7 @@ namespace HaldorExpansion.Features.Berserker
             if (!CanRender || player == null) return;
             ZNetView view = View(player);
             int stage = view != null && view.IsValid() && !player.IsDead()
-                ? Mathf.Clamp(view.GetZDO().GetInt(WrathKey), 0, BerserkerState.MaxWrathStage)
+                ? Mathf.Clamp(view.GetZDO().GetInt(BerserkerIds.WrathStageZdoKey), 0, BerserkerState.MaxWrathStage)
                 : 0;
 
             VisualState state;
@@ -63,7 +63,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 var oldAura = state.Root.GetComponent<BerserkerWrathAura>();
                 if (oldAura != null) oldAura.BeginFadeOut(0.45f);
-                else UnityEngine.Object.Destroy(state.Root);
+                else Object.Destroy(state.Root);
             }
 
             state.Root = null;
@@ -206,7 +206,7 @@ namespace HaldorExpansion.Features.Berserker
             renderer.receiveShadows = false;
             ps.Play();
             ps.Emit(stage >= 5 ? 34 : 14 + stage * 4);
-            UnityEngine.Object.Destroy(root, stage >= 5 ? 1.10f : 0.95f);
+            Object.Destroy(root, stage >= 5 ? 1.10f : 0.95f);
         }
 
         private static void PlayStageSound(Player player, int stage)
@@ -285,7 +285,7 @@ namespace HaldorExpansion.Features.Berserker
                 }
             }
 
-            UnityEngine.Object.Destroy(root, lifetime);
+            Object.Destroy(root, lifetime);
         }
 
         private static AudioClip FindStageSound()
@@ -361,7 +361,7 @@ namespace HaldorExpansion.Features.Berserker
             var setData = typeof(AudioClip).GetMethod("SetData", new[] { typeof(float[]), typeof(int) });
             if (setData == null)
             {
-                UnityEngine.Object.Destroy(clip);
+                Object.Destroy(clip);
                 return null;
             }
 
@@ -372,7 +372,7 @@ namespace HaldorExpansion.Features.Berserker
             }
             catch (Exception)
             {
-                UnityEngine.Object.Destroy(clip);
+                Object.Destroy(clip);
                 return null;
             }
         }
@@ -514,7 +514,7 @@ namespace HaldorExpansion.Features.Berserker
                 bool foot = i < 2;
                 bool rising = i >= 10;
                 bool plumeTip = i == 11;
-                var clone = UnityEngine.Object.Instantiate(clouds.gameObject, transform);
+                var clone = Object.Instantiate(clouds.gameObject, transform);
                 clone.name = foot ? "Wrath_ThunderbloodFootCloud_" + i : "Wrath_ThunderbloodCloud_" + i;
                 clone.transform.localPosition = centers[i];
                 clone.transform.localRotation = Quaternion.identity;
@@ -623,7 +623,7 @@ namespace HaldorExpansion.Features.Berserker
             for (int i = 0; i < positions.Length; i++)
             {
                 bool central = i == 2;
-                var clone = UnityEngine.Object.Instantiate(sourceCloud, transform);
+                var clone = Instantiate(sourceCloud, transform);
                 clone.name = central ? "Wrath_ThunderbloodGroundMist" : "Wrath_ThunderbloodBootMist_" + i;
                 clone.transform.localPosition = positions[i];
                 clone.transform.localRotation = Quaternion.identity;
@@ -688,7 +688,7 @@ namespace HaldorExpansion.Features.Berserker
             fadeDuration = Mathf.Max(0.15f, duration);
             foreach (var ps in GetComponentsInChildren<ParticleSystem>())
                 ps.Stop(false, ParticleSystemStopBehavior.StopEmitting);
-            UnityEngine.Object.Destroy(gameObject, fadeDuration + 1.15f);
+            Destroy(gameObject, fadeDuration + 1.15f);
         }
 
         private void CreateSmokePocket(Material material, Vector3 localPos, float rate, float size, float radius,

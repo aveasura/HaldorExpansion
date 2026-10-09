@@ -13,8 +13,6 @@ namespace HaldorExpansion.Features.Berserker
     internal static class BerserkerRagnarokMeteorFx
     {
         private const string MeteorPrefabName = "projectile_meteor";
-        private const string Marker = BerserkerIds.MeteorOwnerZdoKey;
-        private const string IntensityKey = BerserkerIds.MeteorIntensityZdoKey;
         private const string ThunderbloodPrefab = "BattleaxeGold_BloodLightning";
 
         private static readonly string[] ImpactPrefabs =
@@ -39,8 +37,8 @@ namespace HaldorExpansion.Features.Berserker
 
             // Only the owner generates the hit effect prefabs. Removing those
             // vanilla ORANGE particles doesn't alter SpawnOnHit, DoAOE or damage.
-            view.GetZDO().Set(Marker, true);
-            view.GetZDO().Set(IntensityKey, Mathf.Clamp(intensity, 1f, 1.8f));
+            view.GetZDO().Set(BerserkerIds.MeteorOwnerZdoKey, true);
+            view.GetZDO().Set(BerserkerIds.MeteorIntensityZdoKey, Mathf.Clamp(intensity, 1f, 1.8f));
             BerserkerMeteorImpactState impact = meteor.GetComponent<BerserkerMeteorImpactState>();
             if (impact == null) impact = meteor.AddComponent<BerserkerMeteorImpactState>();
             impact.Caster = caster;
@@ -63,9 +61,9 @@ namespace HaldorExpansion.Features.Berserker
                 go.GetComponent<BerserkerMeteorVisual>() != null) return;
             ZNetView view = go.GetComponent<ZNetView>();
             if (view == null || !view.IsValid() || view.GetZDO() == null ||
-                !view.GetZDO().GetBool(Marker)) return;
+                !view.GetZDO().GetBool(BerserkerIds.MeteorOwnerZdoKey)) return;
 
-            float intensity = Mathf.Clamp(view.GetZDO().GetFloat(IntensityKey, 1f), 1f, 1.8f);
+            float intensity = Mathf.Clamp(view.GetZDO().GetFloat(BerserkerIds.MeteorIntensityZdoKey, 1f), 1f, 1.8f);
             BerserkerEffects.AttachMeteorVisualByIntensity(go, intensity);
         }
 
@@ -455,7 +453,7 @@ namespace HaldorExpansion.Features.Berserker
 
             ZNetView view = projectile.GetComponent<ZNetView>();
             if (view == null || !view.IsValid() || !view.IsOwner() ||
-                view.GetZDO() == null || !view.GetZDO().GetBool(Marker)) return;
+                view.GetZDO() == null || !view.GetZDO().GetBool(BerserkerIds.MeteorOwnerZdoKey)) return;
 
             BerserkerMeteorImpactState state = projectile.GetComponent<BerserkerMeteorImpactState>();
             if (state == null || state.Emitted) return;

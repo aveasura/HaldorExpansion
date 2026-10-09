@@ -7,10 +7,10 @@ namespace HaldorExpansion.Features.Berserker
         internal static bool IsAxe(ItemDrop.ItemData item)
         {
             if (item == null || item.m_shared == null) return false;
-            if (item.m_shared.m_name == BerserkerItemRegistration.ItemKey) return true;
+            if (item.m_shared.m_name == BerserkerIds.AxeItemKey) return true;
 
             GameObject dropPrefab = item.m_dropPrefab;
-            return dropPrefab != null && dropPrefab.name == BerserkerItemRegistration.PrefabName;
+            return dropPrefab != null && dropPrefab.name == BerserkerIds.AxePrefab;
         }
 
         internal static bool Equipped(Player player)

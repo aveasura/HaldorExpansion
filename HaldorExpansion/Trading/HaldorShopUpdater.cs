@@ -33,7 +33,7 @@ namespace HaldorExpansion.Trading
 
             ItemDrop drop = BerserkerItemRegistration.ItemDrop;
             if (drop == null) return;
-            if (HasPrefab(trader, BerserkerItemRegistration.PrefabName)) return;
+            if (HasPrefab(trader, BerserkerIds.AxePrefab)) return;
 
             AddTradeItem(trader, drop, BerserkerItemRegistration.Price, 1);
             HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Berserker axe added to Haldor shop");
@@ -45,7 +45,7 @@ namespace HaldorExpansion.Trading
 
             ItemDrop drop = BerserkerCloakItemRegistration.ItemDrop;
             if (drop == null) return;
-            if (HasPrefab(trader, BerserkerCloakItemRegistration.PrefabName)) return;
+            if (HasPrefab(trader, BerserkerIds.CloakPrefab)) return;
 
             AddTradeItem(trader, drop, BerserkerCloakItemRegistration.Price, 1);
             HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Berserker cloak added to Haldor shop");
@@ -57,7 +57,7 @@ namespace HaldorExpansion.Trading
 
             ItemDrop drop = BerserkerHelmetItemRegistration.ItemDrop;
             if (drop == null) return;
-            if (HasPrefab(trader, BerserkerHelmetItemRegistration.PrefabName)) return;
+            if (HasPrefab(trader, BerserkerIds.HelmetPrefab)) return;
 
             AddTradeItem(trader, drop, BerserkerHelmetItemRegistration.Price, 1);
             HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Berserker helmet added to Haldor shop");
@@ -289,10 +289,10 @@ namespace HaldorExpansion.Trading
                          BrisingamenItemRegistration.RingPrefabName, NornThreadItemRegistration.PrefabName,
                          StaminaCapeItemRegistration.PrefabName,
                          WoundedBeastItemRegistration.WoundedBeastCapePrefabName,
-                         PeltOfHelheimItemRegistration.PrefabName, BerserkerCloakItemRegistration.PrefabName,
-                         BerserkerHelmetItemRegistration.PrefabName,
+                         PeltOfHelheimItemRegistration.PrefabName, BerserkerIds.CloakPrefab,
+                         BerserkerIds.HelmetPrefab,
                          DelayedDoomItemRegistration.DelayedDoomChestPrefabName,
-                         PitKingItemRegistration.PitKingChestPrefabName, BerserkerItemRegistration.PrefabName,
+                         PitKingItemRegistration.PitKingChestPrefabName, BerserkerIds.AxePrefab,
                          CestusItemRegistration.GritCestusPrefabName,
                          ShadowCrossbowItemRegistration.ShadowCrossbowPrefabName,
                          HelOathItemRegistration.HelOathPrefabName

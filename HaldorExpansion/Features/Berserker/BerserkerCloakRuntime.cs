@@ -22,8 +22,8 @@ namespace HaldorExpansion.Features.Berserker
                 if (item == null || !item.m_equipped || item.m_shared == null) continue;
 
                 string prefab = item.m_dropPrefab != null ? item.m_dropPrefab.name : null;
-                if (prefab == BerserkerCloakItemRegistration.PrefabName ||
-                    item.m_shared.m_name == BerserkerCloakItemRegistration.ItemKey)
+                if (prefab == BerserkerIds.CloakPrefab ||
+                    item.m_shared.m_name == BerserkerIds.CloakItemKey)
                     return true;
             }
 

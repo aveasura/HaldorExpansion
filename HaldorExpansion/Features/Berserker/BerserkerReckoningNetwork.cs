@@ -7,9 +7,6 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerReckoningNetwork
     {
-        private const string DamageRpc = BerserkerIds.ReckoningDamageRpc;
-        private const string HealRpc = BerserkerIds.ReckoningHealRpc;
-
         private static readonly FieldInfo CharacterView = AccessTools.Field(typeof(Character), "m_nview");
         private static readonly MethodInfo WeakSpot = AccessTools.Method(typeof(Character), "FindWeakSpotIndex");
         private static readonly FieldInfo HitCollider = AccessTools.Field(typeof(HitData), "m_hitCollider");
@@ -23,13 +20,14 @@ namespace HaldorExpansion.Features.Berserker
             ZNetView view = View(character);
             if (view == null || !view.IsValid()) return;
 
-            view.Register<ZPackage>(DamageRpc, (sender, package) => ReceiveDamage(character, view, sender, package));
+            view.Register<ZPackage>(BerserkerIds.ReckoningDamageRpc,
+                (sender, package) => ReceiveDamage(character, view, sender, package));
             if (character is Player player)
             {
                 BerserkerEffects.Register(player, view);
                 BerserkerWrathEffects.Register(player, view);
                 BerserkerHelmetLifeStealNetwork.Register(player, view);
-                view.Register<Vector3, float>(HealRpc, (sender, point, finalDamage) =>
+                view.Register<Vector3, float>(BerserkerIds.ReckoningHealRpc, (sender, point, finalDamage) =>
                 {
                     if (!view.IsOwner()) return;
                     float actualHeal = BerserkerRuntime.ApplyReckoningHeal(player, finalDamage);
@@ -81,7 +79,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 ZPackage package = new ZPackage();
                 hit.Serialize(ref package);
-                targetView.InvokeRPC(DamageRpc, package);
+                targetView.InvokeRPC(BerserkerIds.ReckoningDamageRpc, package);
                 BerserkerRuntime.CommitReckoning(attacker, debt);
             }
             catch (Exception e)
@@ -145,7 +143,7 @@ namespace HaldorExpansion.Features.Berserker
                 }
 
                 if (finalDamage > 0f)
-                    attackerView.InvokeRPC(HealRpc, hit.m_point, finalDamage);
+                    attackerView.InvokeRPC(BerserkerIds.ReckoningHealRpc, hit.m_point, finalDamage);
             }
             catch (Exception e)
             {

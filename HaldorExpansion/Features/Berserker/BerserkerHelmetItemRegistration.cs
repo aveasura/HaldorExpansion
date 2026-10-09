@@ -12,12 +12,7 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerHelmetItemRegistration
     {
-        internal const string PrefabName = BerserkerIds.HelmetPrefab;
         internal const string SourcePrefabName = "HelmetFlametal";
-        internal const string ItemKey = BerserkerIds.HelmetItemKey;
-        internal const string ItemDescKey = BerserkerIds.HelmetDescriptionKey;
-        internal const string EffectNameKey = BerserkerIds.HelmetEffectKey;
-        internal const string EffectDescKey = BerserkerIds.HelmetEffectDescriptionKey;
 
         internal const int Price = 2500;
         internal const string IconFileName = "berserker_helmet.png";
@@ -38,7 +33,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 if (ObjectDB.instance == null) return false;
 
-                GameObject existing = ItemPrefabLookup.Registered(PrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(BerserkerIds.HelmetPrefab);
                 if (existing != null && existing == Prefab && ItemDrop != null)
                     return true;
 
@@ -65,7 +60,7 @@ namespace HaldorExpansion.Features.Berserker
                     return false;
                 }
 
-                GameObject helmet = PrefabManager.Instance.CreateClonedPrefab(PrefabName, source.name);
+                GameObject helmet = PrefabManager.Instance.CreateClonedPrefab(BerserkerIds.HelmetPrefab, source.name);
                 if (helmet == null)
                 {
                     HaldorExpansionPlugin.Log?.LogWarning(
@@ -91,7 +86,7 @@ namespace HaldorExpansion.Features.Berserker
                 Prefab = helmet;
                 ItemDrop = drop;
                 HaldorExpansionPlugin.DebugLog(
-                    $"[Berserker] Helmet registered: {PrefabName} (source={source.name})");
+                    $"[Berserker] Helmet registered: {BerserkerIds.HelmetPrefab} (source={source.name})");
                 return true;
             }
             catch (Exception e)
@@ -111,7 +106,7 @@ namespace HaldorExpansion.Features.Berserker
                 var config = new RecipeConfig
                 {
                     Name = recipeName,
-                    Item = PrefabName,
+                    Item = BerserkerIds.HelmetPrefab,
                     Amount = 1,
                     CraftingStation = "forge",
                     RepairStation = "forge",
@@ -132,8 +127,8 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (shared == null) return;
 
-            shared.m_name = ItemKey;
-            shared.m_description = ItemDescKey;
+            shared.m_name = BerserkerIds.HelmetItemKey;
+            shared.m_description = BerserkerIds.HelmetDescriptionKey;
             shared.m_armor = BaseArmor;
             shared.m_armorPerLevel = 0f;
             shared.m_maxQuality = 1;
@@ -152,8 +147,8 @@ namespace HaldorExpansion.Features.Berserker
 
             SE_Stats se = ScriptableObject.CreateInstance<SE_Stats>();
             se.name = BerserkerIds.HelmetVisualStatus;
-            ReflectionAccess.SetFieldIfExists(se, "m_name", EffectNameKey);
-            ReflectionAccess.SetFieldIfExists(se, "m_tooltip", EffectDescKey);
+            ReflectionAccess.SetFieldIfExists(se, "m_name", BerserkerIds.HelmetEffectKey);
+            ReflectionAccess.SetFieldIfExists(se, "m_tooltip", BerserkerIds.HelmetEffectDescriptionKey);
             shared.m_equipStatusEffect = se;
         }
 

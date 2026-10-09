@@ -12,7 +12,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 if (player == null || ObjectDB.instance == null) return false;
 
-                GameObject prefab = ObjectDB.instance.GetItemPrefab(BerserkerHelmetItemRegistration.PrefabName);
+                GameObject prefab = ObjectDB.instance.GetItemPrefab(BerserkerIds.HelmetPrefab);
                 ItemDrop prefabDrop = prefab != null ? prefab.GetComponent<ItemDrop>() : null;
                 if (prefabDrop == null) return false;
 
@@ -24,7 +24,7 @@ namespace HaldorExpansion.Features.Berserker
                 {
                     // Identify our own prefab, never the vanilla HelmetBerserkerHood.
                     if (item == null || item.m_shared == null || item.m_dropPrefab == null ||
-                        item.m_dropPrefab.name != BerserkerHelmetItemRegistration.PrefabName) continue;
+                        item.m_dropPrefab.name != BerserkerIds.HelmetPrefab) continue;
 
                     found = true;
                     int quality = Mathf.Max(1, item.m_quality);

@@ -22,8 +22,8 @@ namespace HaldorExpansion.Presentation
             CestusItemRegistration.CestusItemKey, HelOathItemRegistration.HelOathItemKey,
             ShadowCrossbowItemRegistration.ShadowCrossbowItemKey, WoundedBeastItemRegistration.WoundedBeastCapeItemKey,
             StaminaCapeItemRegistration.ItemKey, PeltOfHelheimItemRegistration.ItemKey,
-            BerserkerItemRegistration.ItemKey, BerserkerCloakItemRegistration.ItemKey,
-            BerserkerHelmetItemRegistration.ItemKey
+            BerserkerIds.AxeItemKey, BerserkerIds.CloakItemKey,
+            BerserkerIds.HelmetItemKey
         };
 
         private static ConfigEntry<bool> enabled;

@@ -9,7 +9,6 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerWrathStatus
     {
-        private const string EffectName = BerserkerIds.WrathStatus;
         private static SE_Stats prototype;
         private static StatusEffect active;
         private static int activeStage;
@@ -28,7 +27,7 @@ namespace HaldorExpansion.Features.Berserker
 
             foreach (StatusEffect existing in ObjectDB.instance.m_StatusEffects)
             {
-                if (existing != null && existing.name == EffectName)
+                if (existing != null && existing.name == BerserkerIds.WrathStatus)
                 {
                     prototype = existing as SE_Stats;
                     return;
@@ -36,7 +35,7 @@ namespace HaldorExpansion.Features.Berserker
             }
 
             var se = ScriptableObject.CreateInstance<SE_Stats>();
-            se.name = EffectName;
+            se.name = BerserkerIds.WrathStatus;
             Configure(se, 1);
 
             Sprite icon = GetAxeIcon();
@@ -141,7 +140,7 @@ namespace HaldorExpansion.Features.Berserker
                     if (ps.Length == 0) continue;
 
                     object first;
-                    if (ps[0].ParameterType == typeof(int)) first = StableHash(EffectName);
+                    if (ps[0].ParameterType == typeof(int)) first = StableHash(BerserkerIds.WrathStatus);
                     else if (typeof(StatusEffect).IsAssignableFrom(ps[0].ParameterType)) first = active ?? prototype;
                     else continue;
 

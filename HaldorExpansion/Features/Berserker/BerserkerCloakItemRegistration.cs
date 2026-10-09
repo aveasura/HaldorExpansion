@@ -12,14 +12,8 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerCloakItemRegistration
     {
-        internal const string PrefabName = BerserkerIds.CloakPrefab;
-
         // Prefer the same proven Troll Cape source selection used by Pelt of Helheim.
         private static readonly string[] SourcePrefabs = { "CapeTroll", "CapeTrollHide" };
-        internal const string ItemKey = BerserkerIds.CloakItemKey;
-        internal const string ItemDescKey = BerserkerIds.CloakDescriptionKey;
-        internal const string EffectNameKey = BerserkerIds.CloakEffectKey;
-        internal const string EffectDescKey = BerserkerIds.CloakEffectDescriptionKey;
 
         internal const int Price = 2500;
         internal const string IconFileName = "berserker_cloak.png";
@@ -40,7 +34,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 if (ObjectDB.instance == null) return false;
 
-                GameObject existing = ItemPrefabLookup.Registered(PrefabName);
+                GameObject existing = ItemPrefabLookup.Registered(BerserkerIds.CloakPrefab);
                 if (existing != null && existing == Prefab && ItemDrop != null)
                     return true;
 
@@ -67,7 +61,7 @@ namespace HaldorExpansion.Features.Berserker
                     return false;
                 }
 
-                GameObject cloak = PrefabManager.Instance.CreateClonedPrefab(PrefabName, source.name);
+                GameObject cloak = PrefabManager.Instance.CreateClonedPrefab(BerserkerIds.CloakPrefab, source.name);
                 if (cloak == null)
                 {
                     HaldorExpansionPlugin.Log?.LogWarning(
@@ -93,7 +87,7 @@ namespace HaldorExpansion.Features.Berserker
                 Prefab = cloak;
                 ItemDrop = drop;
                 HaldorExpansionPlugin.DebugLog(
-                    $"[Berserker] Cloak registered: {PrefabName} (source={source.name})");
+                    $"[Berserker] Cloak registered: {BerserkerIds.CloakPrefab} (source={source.name})");
                 return true;
             }
             catch (Exception e)
@@ -113,7 +107,7 @@ namespace HaldorExpansion.Features.Berserker
                 var config = new RecipeConfig
                 {
                     Name = recipeName,
-                    Item = PrefabName,
+                    Item = BerserkerIds.CloakPrefab,
                     Amount = 1,
                     CraftingStation = "forge",
                     RepairStation = "forge",
@@ -146,8 +140,8 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (shared == null) return;
 
-            shared.m_name = ItemKey;
-            shared.m_description = ItemDescKey;
+            shared.m_name = BerserkerIds.CloakItemKey;
+            shared.m_description = BerserkerIds.CloakDescriptionKey;
             shared.m_armor = Armor;
             shared.m_armorPerLevel = 0f;
             shared.m_maxQuality = 1;
@@ -174,8 +168,8 @@ namespace HaldorExpansion.Features.Berserker
 
             SE_Stats se = ScriptableObject.CreateInstance<SE_Stats>();
             se.name = BerserkerIds.CloakVisualStatus;
-            ReflectionAccess.SetFieldIfExists(se, "m_name", EffectNameKey);
-            ReflectionAccess.SetFieldIfExists(se, "m_tooltip", EffectDescKey);
+            ReflectionAccess.SetFieldIfExists(se, "m_name", BerserkerIds.CloakEffectKey);
+            ReflectionAccess.SetFieldIfExists(se, "m_tooltip", BerserkerIds.CloakEffectDescriptionKey);
             shared.m_equipStatusEffect = se;
         }
 

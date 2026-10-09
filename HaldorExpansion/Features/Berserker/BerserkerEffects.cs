@@ -13,14 +13,6 @@ namespace HaldorExpansion.Features.Berserker
     // gameplay damage, Debt spending and Wrath state remain in their own runtimes.
     internal static class BerserkerEffects
     {
-        private const string ReckoningSwingRpc = BerserkerIds.ReckoningSwingRpc;
-        private const string ReckoningImpactRpc = BerserkerIds.ReckoningImpactRpc;
-        private const string ReckoningHealFxRpc = BerserkerIds.ReckoningHealFxRpc;
-        private const string RagnarokCastRpc = BerserkerIds.RagnarokCastRpc;
-        private const string RagnarokStopRpc = BerserkerIds.RagnarokStopRpc;
-        private const string RagnarokReleaseRpc = BerserkerIds.RagnarokReleaseRpc;
-        private const string RagnarokMeteorImpactRpc = BerserkerIds.RagnarokMeteorImpactRpc;
-
         private static readonly FieldInfo CharacterView = AccessTools.Field(typeof(Character), "m_nview");
         private static readonly FieldInfo RightVisual = AccessTools.Field(typeof(VisEquipment), "m_rightItemInstance");
         private static readonly FieldInfo LeftVisual = AccessTools.Field(typeof(VisEquipment), "m_leftItemInstance");
@@ -45,47 +37,47 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (player == null || view == null) return;
 
-            view.Register<float>(ReckoningSwingRpc, (sender, debt) =>
+            view.Register<float>(BerserkerIds.ReckoningSwingRpc, (sender, debt) =>
             {
                 if (!ValidVisualRpc(view, sender) || !FinitePositive(debt) || !CanRender) return;
                 PlayReckoningSwing(player, debt);
             });
 
-            view.Register<Vector3, float>(ReckoningImpactRpc, (sender, point, debt) =>
+            view.Register<Vector3, float>(BerserkerIds.ReckoningImpactRpc, (sender, point, debt) =>
             {
                 if (!ValidVisualRpc(view, sender) || !FiniteVector(point) || !FinitePositive(debt) ||
                     !CanRender) return;
                 PlayReckoningImpact(player, point, debt);
             });
 
-            view.Register<Vector3, float>(ReckoningHealFxRpc, (sender, point, heal) =>
+            view.Register<Vector3, float>(BerserkerIds.ReckoningHealFxRpc, (sender, point, heal) =>
             {
                 if (!ValidVisualRpc(view, sender) || !FiniteVector(point) || !FinitePositive(heal) ||
                     !CanRender) return;
                 BerserkerReckoningFx.Heal(player, point, heal);
             });
 
-            view.Register<float, float>(RagnarokCastRpc, (sender, duration, impactRadius) =>
+            view.Register<float, float>(BerserkerIds.RagnarokCastRpc, (sender, duration, impactRadius) =>
             {
                 if (!ValidVisualRpc(view, sender) || !FinitePositive(duration) || duration > 10f ||
                     !FinitePositive(impactRadius) || impactRadius > 11.1f || !CanRender) return;
                 PlayRagnarokCast(player, duration, impactRadius);
             });
 
-            view.Register<bool>(RagnarokStopRpc, (sender, ignored) =>
+            view.Register<bool>(BerserkerIds.RagnarokStopRpc, (sender, ignored) =>
             {
                 if (!ValidVisualRpc(view, sender) || !CanRender) return;
                 StopRagnarokCast(player);
             });
 
-            view.Register<Vector3, float>(RagnarokReleaseRpc, (sender, targetPoint, debt) =>
+            view.Register<Vector3, float>(BerserkerIds.RagnarokReleaseRpc, (sender, targetPoint, debt) =>
             {
                 if (!ValidVisualRpc(view, sender) || !FiniteVector(targetPoint) || !FinitePositive(debt) ||
                     !CanRender) return;
                 PlayRagnarokRelease(player, targetPoint, debt);
             });
 
-            view.Register<Vector3, float, float>(RagnarokMeteorImpactRpc,
+            view.Register<Vector3, float, float>(BerserkerIds.RagnarokMeteorImpactRpc,
                 (sender, point, intensity, explosionRadius) =>
                 {
                     if (!ValidVisualRpc(view, sender) || !FiniteVector(point) ||
@@ -100,7 +92,8 @@ namespace HaldorExpansion.Features.Berserker
             float value = SafeDebt(debt);
             if (player == null || value <= 0f) return;
             ZNetView view = View(player);
-            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, ReckoningSwingRpc, value);
+            if (view != null && view.IsValid())
+                view.InvokeRPC(ZNetView.Everybody, BerserkerIds.ReckoningSwingRpc, value);
             else if (CanRender) PlayReckoningSwing(player, value);
         }
 
@@ -109,7 +102,8 @@ namespace HaldorExpansion.Features.Berserker
             float value = SafeDebt(debt);
             if (player == null || value <= 0f || !FiniteVector(point)) return;
             ZNetView view = View(player);
-            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, ReckoningImpactRpc, point, value);
+            if (view != null && view.IsValid())
+                view.InvokeRPC(ZNetView.Everybody, BerserkerIds.ReckoningImpactRpc, point, value);
             else if (CanRender) PlayReckoningImpact(player, point, value);
         }
 
@@ -118,7 +112,7 @@ namespace HaldorExpansion.Features.Berserker
             if (player == null || !FiniteVector(point) || !FinitePositive(actualHeal)) return;
             ZNetView view = View(player);
             if (view != null && view.IsValid())
-                view.InvokeRPC(ZNetView.Everybody, ReckoningHealFxRpc, point, actualHeal);
+                view.InvokeRPC(ZNetView.Everybody, BerserkerIds.ReckoningHealFxRpc, point, actualHeal);
             else if (CanRender) BerserkerReckoningFx.Heal(player, point, actualHeal);
         }
 
@@ -127,7 +121,7 @@ namespace HaldorExpansion.Features.Berserker
             if (player == null || !FinitePositive(duration) || !FinitePositive(impactRadius)) return;
             ZNetView view = View(player);
             if (view != null && view.IsValid())
-                view.InvokeRPC(ZNetView.Everybody, RagnarokCastRpc, duration, impactRadius);
+                view.InvokeRPC(ZNetView.Everybody, BerserkerIds.RagnarokCastRpc, duration, impactRadius);
             else if (CanRender) PlayRagnarokCast(player, duration, impactRadius);
         }
 
@@ -135,7 +129,7 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (player == null) return;
             ZNetView view = View(player);
-            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, RagnarokStopRpc, true);
+            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, BerserkerIds.RagnarokStopRpc, true);
             else if (CanRender) StopRagnarokCast(player);
         }
 
@@ -145,7 +139,7 @@ namespace HaldorExpansion.Features.Berserker
             if (player == null || value <= 0f || !FiniteVector(targetPoint)) return;
             ZNetView view = View(player);
             if (view != null && view.IsValid())
-                view.InvokeRPC(ZNetView.Everybody, RagnarokReleaseRpc, targetPoint, value);
+                view.InvokeRPC(ZNetView.Everybody, BerserkerIds.RagnarokReleaseRpc, targetPoint, value);
             else if (CanRender) PlayRagnarokRelease(player, targetPoint, value);
         }
 
@@ -170,7 +164,8 @@ namespace HaldorExpansion.Features.Berserker
             if (!FiniteVector(point) || !FinitePositive(intensity) || !FinitePositive(explosionRadius)) return;
             ZNetView view = View(caster);
             if (view != null && view.IsValid() && view.IsOwner())
-                view.InvokeRPC(ZNetView.Everybody, RagnarokMeteorImpactRpc, point, intensity, explosionRadius);
+                view.InvokeRPC(ZNetView.Everybody, BerserkerIds.RagnarokMeteorImpactRpc, point, intensity,
+                    explosionRadius);
             else if (CanRender)
                 PlayMeteorImpact(point, intensity, explosionRadius);
         }
@@ -279,7 +274,7 @@ namespace HaldorExpansion.Features.Berserker
             object value = hashField.GetValue(equipment);
             if (!(value is int)) return false;
             GameObject prefab = ObjectDB.instance.GetItemPrefab((int)value);
-            return prefab != null && prefab.name == BerserkerItemRegistration.PrefabName;
+            return prefab != null && prefab.name == BerserkerIds.AxePrefab;
         }
 
         private static ZNetView View(Character character)

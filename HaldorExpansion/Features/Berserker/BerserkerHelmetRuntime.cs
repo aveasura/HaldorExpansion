@@ -13,10 +13,10 @@ namespace HaldorExpansion.Features.Berserker
         internal static bool IsHelmet(ItemDrop.ItemData item)
         {
             if (item == null || item.m_shared == null) return false;
-            if (item.m_shared.m_name == BerserkerHelmetItemRegistration.ItemKey) return true;
+            if (item.m_shared.m_name == BerserkerIds.HelmetItemKey) return true;
 
             GameObject dropPrefab = item.m_dropPrefab;
-            return dropPrefab != null && dropPrefab.name == BerserkerHelmetItemRegistration.PrefabName;
+            return dropPrefab != null && dropPrefab.name == BerserkerIds.HelmetPrefab;
         }
 
         internal static bool HasEquipped(Player player)
