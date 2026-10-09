@@ -1,8 +1,7 @@
+using System;
+using System.Reflection;
 using HaldorExpansion.Compatibility;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Berserker
@@ -53,7 +52,8 @@ namespace HaldorExpansion.Features.Berserker
             object seman = GetSEMan(player);
             if (seman == null) return;
 
-            foreach (MethodInfo method in typeof(SEMan).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            foreach (MethodInfo method in typeof(SEMan).GetMethods(BindingFlags.Instance | BindingFlags.Public |
+                                                                   BindingFlags.NonPublic))
             {
                 if (method.Name != "AddStatusEffect") continue;
                 ParameterInfo[] ps = method.GetParameters();
@@ -63,11 +63,16 @@ namespace HaldorExpansion.Features.Berserker
                     method.Invoke(seman, BuildArgs(ps, prototype));
                     return;
                 }
-                catch (TargetInvocationException) { }
-                catch (ArgumentException) { }
+                catch (TargetInvocationException)
+                {
+                }
+                catch (ArgumentException)
+                {
+                }
             }
 
-            HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Could not apply Ragnarok Exhaustion with the current SEMan API.");
+            HaldorExpansionPlugin.Log?.LogWarning(
+                "[Berserker] Could not apply Ragnarok Exhaustion with the current SEMan API.");
         }
 
         private static void Configure(SE_Stats stats)
@@ -76,14 +81,17 @@ namespace HaldorExpansion.Features.Berserker
             ReflectionAccess.SetFieldIfExists(stats, "m_name", "$se_berserker_ragnarok_exhaustion");
             ReflectionAccess.SetFieldIfExists(stats, "m_tooltip", "$se_berserker_ragnarok_exhaustion_desc");
             ReflectionAccess.SetFieldIfExists(stats, "m_ttl", BerserkerConfiguration.RagnarokExhaustionDurationValue);
-            ReflectionAccess.SetFieldIfExists(stats, "m_speedModifier", -BerserkerConfiguration.RagnarokExhaustionMovePenaltyFraction);
+            ReflectionAccess.SetFieldIfExists(stats, "m_speedModifier",
+                -BerserkerConfiguration.RagnarokExhaustionMovePenaltyFraction);
         }
 
         private static object GetSEMan(Player player)
         {
-            FieldInfo field = AccessTools.Field(typeof(Character), "m_seman") ?? AccessTools.Field(typeof(Player), "m_seman");
+            FieldInfo field = AccessTools.Field(typeof(Character), "m_seman") ??
+                              AccessTools.Field(typeof(Player), "m_seman");
             if (field != null) return field.GetValue(player);
-            MethodInfo getter = AccessTools.Method(typeof(Character), "GetSEMan") ?? AccessTools.Method(typeof(Player), "GetSEMan");
+            MethodInfo getter = AccessTools.Method(typeof(Character), "GetSEMan") ??
+                                AccessTools.Method(typeof(Player), "GetSEMan");
             return getter?.Invoke(player, null);
         }
 
@@ -101,6 +109,7 @@ namespace HaldorExpansion.Features.Berserker
                 else if (p.ParameterType.IsValueType) args[i] = Activator.CreateInstance(p.ParameterType);
                 else args[i] = null;
             }
+
             return args;
         }
     }
