@@ -13,13 +13,13 @@ namespace HaldorExpansion.Features.Berserker
     // gameplay damage, Debt spending and Wrath state remain in their own runtimes.
     internal static class BerserkerEffects
     {
-        private const string ReckoningSwingRpc = "HE_BerserkerReckoningSwingFx_v1";
-        private const string ReckoningImpactRpc = "HE_BerserkerReckoningImpactFx_v1";
-        private const string ReckoningHealFxRpc = "HE_BerserkerReckoningHealFx_v1";
-        private const string RagnarokCastRpc = "HE_BerserkerRagnarokCastFx_v4";
-        private const string RagnarokStopRpc = "HE_BerserkerRagnarokStopFx_v1";
-        private const string RagnarokReleaseRpc = "HE_BerserkerRagnarokReleaseFx_v1";
-        private const string RagnarokMeteorImpactRpc = "HE_BerserkerRagnarokMeteorImpactFx_v2";
+        private const string ReckoningSwingRpc = BerserkerIds.ReckoningSwingRpc;
+        private const string ReckoningImpactRpc = BerserkerIds.ReckoningImpactRpc;
+        private const string ReckoningHealFxRpc = BerserkerIds.ReckoningHealFxRpc;
+        private const string RagnarokCastRpc = BerserkerIds.RagnarokCastRpc;
+        private const string RagnarokStopRpc = BerserkerIds.RagnarokStopRpc;
+        private const string RagnarokReleaseRpc = BerserkerIds.RagnarokReleaseRpc;
+        private const string RagnarokMeteorImpactRpc = BerserkerIds.RagnarokMeteorImpactRpc;
 
         private static readonly FieldInfo CharacterView = AccessTools.Field(typeof(Character), "m_nview");
         private static readonly FieldInfo RightVisual = AccessTools.Field(typeof(VisEquipment), "m_rightItemInstance");

@@ -13,8 +13,8 @@ namespace HaldorExpansion.Features.Berserker
     internal static class BerserkerRagnarokMeteorFx
     {
         private const string MeteorPrefabName = "projectile_meteor";
-        private const string Marker = "HE_BerserkerRagnarokMeteor_v1";
-        private const string IntensityKey = "HE_BerserkerMeteorIntensity_v1";
+        private const string Marker = BerserkerIds.MeteorOwnerZdoKey;
+        private const string IntensityKey = BerserkerIds.MeteorIntensityZdoKey;
         private const string ThunderbloodPrefab = "BattleaxeGold_BloodLightning";
 
         private static readonly string[] ImpactPrefabs =

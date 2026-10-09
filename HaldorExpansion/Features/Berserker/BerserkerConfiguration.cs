@@ -143,9 +143,9 @@ namespace HaldorExpansion.Features.Berserker
                 "Ragnarok key. Requires Wrath V, the configured Blood Debt minimum and Berserker Cloak.");
             RagnarokButton = new ButtonConfig
             {
-                Name = "HE_BerserkerRagnarok",
+                Name = BerserkerIds.RagnarokButtonName,
                 Config = ragnarokKey,
-                HintToken = "$he_berserker_ragnarok_ability",
+                HintToken = BerserkerIds.RagnarokAbilityKey,
                 BlockOtherInputs = true
             };
             InputManager.Instance.AddButton(HaldorExpansionPlugin.ModGuid, RagnarokButton);

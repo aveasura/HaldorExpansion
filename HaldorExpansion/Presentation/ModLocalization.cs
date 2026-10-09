@@ -49,12 +49,12 @@ namespace HaldorExpansion.Presentation
                 ["$se_hel_touch_5_desc"] =
                     "+25% к скорости передвижения.\n-20% затрат выносливости на все действия.\nОбъятия Хель значительно усилены.",
                 // Берсерк
-                ["$se_berserker_blood_debt"] = "Кровавый долг",
-                ["$he_berserker_ragnarok_ability"] = "Рагнарёк",
-                ["$msg_berserker_ragnarok_no_target"] = "Рагнарёк: нет цели",
-                ["$msg_berserker_ragnarok_cast"] = "Рагнарёк",
-                ["$se_berserker_ragnarok_exhaustion"] = "Истощение",
-                ["$se_berserker_ragnarok_exhaustion_desc"] =
+                [BerserkerIds.BloodDebtKey] = "Кровавый долг",
+                [BerserkerIds.RagnarokAbilityKey] = "Рагнарёк",
+                [BerserkerIds.RagnarokNoTargetKey] = "Рагнарёк: нет цели",
+                [BerserkerIds.RagnarokCastKey] = "Рагнарёк",
+                [BerserkerIds.ExhaustionKey] = "Истощение",
+                [BerserkerIds.ExhaustionDescriptionKey] =
                     "После Рагнарёка скорость передвижения снижена на 25% на 3 секунды.",
 
                 [BerserkerItemRegistration.ItemKey] = ItemNames.BerserkerGreataxeRu,
@@ -74,19 +74,19 @@ namespace HaldorExpansion.Presentation
                     "Обращает всю <color=#9EDFF2><b>Ярость</b></color> и <color=#9EDFF2><b>Кровавый долг</b></color> " +
                     "в предвестие конца, перед которым содрогнутся даже боги.",
 
-                ["$se_berserker_wrath_1"] = "Ярость I",
-                ["$se_berserker_wrath_1_desc"] =
+                [BerserkerIds.WrathKeyPrefix + "1"] = "Ярость I",
+                [BerserkerIds.WrathKeyPrefix + "1_desc"] =
                     "+10% к скорости атаки. -5% затрат выносливости на все действия. Продолжайте атаковать, чтобы усиливать Ярость.",
-                ["$se_berserker_wrath_2"] = "Ярость II",
-                ["$se_berserker_wrath_2_desc"] =
+                [BerserkerIds.WrathKeyPrefix + "2"] = "Ярость II",
+                [BerserkerIds.WrathKeyPrefix + "2_desc"] =
                     "+20% к скорости атаки. -10% затрат выносливости на все действия. Без новых попаданий Ярость начнёт угасать.",
-                ["$se_berserker_wrath_3"] = "Ярость III",
-                ["$se_berserker_wrath_3_desc"] = "+30% к скорости атаки. -15% затрат выносливости на все действия.",
-                ["$se_berserker_wrath_4"] = "Ярость IV",
-                ["$se_berserker_wrath_4_desc"] =
+                [BerserkerIds.WrathKeyPrefix + "3"] = "Ярость III",
+                [BerserkerIds.WrathKeyPrefix + "3_desc"] = "+30% к скорости атаки. -15% затрат выносливости на все действия.",
+                [BerserkerIds.WrathKeyPrefix + "4"] = "Ярость IV",
+                [BerserkerIds.WrathKeyPrefix + "4_desc"] =
                     "+40% к скорости атаки. -20% затрат выносливости на все действия. Ещё немного — и Ярость сорвётся в Бешенство.",
-                ["$se_berserker_wrath_5"] = "Ярость V",
-                ["$se_berserker_wrath_5_desc"] =
+                [BerserkerIds.WrathKeyPrefix + "5"] = "Ярость V",
+                [BerserkerIds.WrathKeyPrefix + "5_desc"] =
                     "Бешенство. +50% к скорости атаки. -25% затрат выносливости на все действия. Открывает Расплату; с Плащом берсерка и достаточным Кровавым долгом становится доступен Рагнарёк.",
 
                 // Плащ берсерка
@@ -227,12 +227,12 @@ namespace HaldorExpansion.Presentation
                 ["$se_hel_touch_5_desc"] =
                     "+25% movement speed.\n-20% stamina cost for all actions.\nHel's Embrace is greatly empowered.",
                 // Berserker
-                ["$se_berserker_blood_debt"] = "Blood Debt",
-                ["$he_berserker_ragnarok_ability"] = "Ragnarok",
-                ["$msg_berserker_ragnarok_no_target"] = "Ragnarok: no target",
-                ["$msg_berserker_ragnarok_cast"] = "Ragnarok",
-                ["$se_berserker_ragnarok_exhaustion"] = "Exhaustion",
-                ["$se_berserker_ragnarok_exhaustion_desc"] =
+                [BerserkerIds.BloodDebtKey] = "Blood Debt",
+                [BerserkerIds.RagnarokAbilityKey] = "Ragnarok",
+                [BerserkerIds.RagnarokNoTargetKey] = "Ragnarok: no target",
+                [BerserkerIds.RagnarokCastKey] = "Ragnarok",
+                [BerserkerIds.ExhaustionKey] = "Exhaustion",
+                [BerserkerIds.ExhaustionDescriptionKey] =
                     "After Ragnarok, movement speed is reduced by 25% for 3 seconds.",
 
                 [BerserkerItemRegistration.ItemKey] = ItemNames.BerserkerGreataxeEn,
@@ -252,19 +252,19 @@ namespace HaldorExpansion.Presentation
                     "Turns all <color=#9EDFF2><b>Wrath</b></color> and <color=#9EDFF2><b>Blood Debt</b></color> " +
                     "into a harbinger of the end, before which even the gods shall tremble.",
 
-                ["$se_berserker_wrath_1"] = "Wrath I",
-                ["$se_berserker_wrath_1_desc"] =
+                [BerserkerIds.WrathKeyPrefix + "1"] = "Wrath I",
+                [BerserkerIds.WrathKeyPrefix + "1_desc"] =
                     "+10% attack speed. -5% stamina cost for all actions. Keep attacking to drive Wrath higher.",
-                ["$se_berserker_wrath_2"] = "Wrath II",
-                ["$se_berserker_wrath_2_desc"] =
+                [BerserkerIds.WrathKeyPrefix + "2"] = "Wrath II",
+                [BerserkerIds.WrathKeyPrefix + "2_desc"] =
                     "+20% attack speed. -10% stamina cost for all actions. Without new hits Wrath will begin to fade.",
-                ["$se_berserker_wrath_3"] = "Wrath III",
-                ["$se_berserker_wrath_3_desc"] = "+30% attack speed. -15% stamina cost for all actions.",
-                ["$se_berserker_wrath_4"] = "Wrath IV",
-                ["$se_berserker_wrath_4_desc"] =
+                [BerserkerIds.WrathKeyPrefix + "3"] = "Wrath III",
+                [BerserkerIds.WrathKeyPrefix + "3_desc"] = "+30% attack speed. -15% stamina cost for all actions.",
+                [BerserkerIds.WrathKeyPrefix + "4"] = "Wrath IV",
+                [BerserkerIds.WrathKeyPrefix + "4_desc"] =
                     "+40% attack speed. -20% stamina cost for all actions. One step remains before Wrath breaks into Frenzy.",
-                ["$se_berserker_wrath_5"] = "Wrath V",
-                ["$se_berserker_wrath_5_desc"] =
+                [BerserkerIds.WrathKeyPrefix + "5"] = "Wrath V",
+                [BerserkerIds.WrathKeyPrefix + "5_desc"] =
                     "Frenzy. +50% attack speed. -25% stamina cost for all actions. Unlocks Reckoning; with the Berserker Cloak and enough Blood Debt, Ragnarok becomes available.",
 
                 // Berserker Cloak
@@ -401,13 +401,13 @@ namespace HaldorExpansion.Presentation
             text[BerserkerItemRegistration.ItemDescKey] = axe;
             for (int stage = 1; stage <= 5; stage++)
             {
-                string key = "$se_berserker_wrath_" + stage + "_desc";
+                string key = BerserkerIds.WrathKeyPrefix + stage + "_desc";
                 text[key] = text[key].Replace("+" + (stage * 10) + "%",
                         "+" + Number(Math.Min(200f, stage * speed)) + "%")
                     .Replace("-" + (stage * 5) + "%", "-" + Number(Math.Min(90f, stage * stamina)) + "%");
             }
 
-            text["$se_berserker_ragnarok_exhaustion_desc"] = ru
+            text[BerserkerIds.ExhaustionDescriptionKey] = ru
                 ? "После Рагнарёка скорость передвижения снижена на " +
                   Number(BerserkerConfiguration.RagnarokExhaustionMovePenaltyFraction * 100f) + "% на " +
                   Number(BerserkerConfiguration.RagnarokExhaustionDurationValue) + " сек."

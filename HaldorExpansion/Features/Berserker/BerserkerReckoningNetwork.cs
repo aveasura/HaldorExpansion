@@ -7,8 +7,8 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerReckoningNetwork
     {
-        private const string DamageRpc = "HE_BerserkerReckoningDamage_v1";
-        private const string HealRpc = "HE_BerserkerReckoningHeal_v1";
+        private const string DamageRpc = BerserkerIds.ReckoningDamageRpc;
+        private const string HealRpc = BerserkerIds.ReckoningHealRpc;
 
         private static readonly FieldInfo CharacterView = AccessTools.Field(typeof(Character), "m_nview");
         private static readonly MethodInfo WeakSpot = AccessTools.Method(typeof(Character), "FindWeakSpotIndex");

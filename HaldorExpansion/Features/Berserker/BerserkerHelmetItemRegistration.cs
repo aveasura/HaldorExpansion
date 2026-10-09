@@ -12,13 +12,12 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerHelmetItemRegistration
     {
-        internal const string PrefabName = "HelmetBerserker";
+        internal const string PrefabName = BerserkerIds.HelmetPrefab;
         internal const string SourcePrefabName = "HelmetFlametal";
-        // Vanilla HelmetBerserkerHood uses the old localization key; keep ours distinct.
-        internal const string ItemKey = "$he_item_helmet_berserker";
-        internal const string ItemDescKey = "$he_item_helmet_berserker_desc";
-        internal const string EffectNameKey = "$se_helmet_berserker";
-        internal const string EffectDescKey = "$se_helmet_berserker_desc";
+        internal const string ItemKey = BerserkerIds.HelmetItemKey;
+        internal const string ItemDescKey = BerserkerIds.HelmetDescriptionKey;
+        internal const string EffectNameKey = BerserkerIds.HelmetEffectKey;
+        internal const string EffectDescKey = BerserkerIds.HelmetEffectDescriptionKey;
 
         internal const int Price = 2500;
         internal const string IconFileName = "berserker_helmet.png";
@@ -106,7 +105,7 @@ namespace HaldorExpansion.Features.Berserker
         {
             try
             {
-                string recipeName = "Recipe_HE_" + PrefabName;
+                string recipeName = BerserkerIds.HelmetRecipe;
                 if (ItemManager.Instance.GetRecipe(recipeName) != null) return;
 
                 var config = new RecipeConfig
@@ -152,7 +151,7 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_damageModifiers?.Clear();
 
             SE_Stats se = ScriptableObject.CreateInstance<SE_Stats>();
-            se.name = "SE_BerserkerHelmetVisual";
+            se.name = BerserkerIds.HelmetVisualStatus;
             ReflectionAccess.SetFieldIfExists(se, "m_name", EffectNameKey);
             ReflectionAccess.SetFieldIfExists(se, "m_tooltip", EffectDescKey);
             shared.m_equipStatusEffect = se;

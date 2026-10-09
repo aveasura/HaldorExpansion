@@ -12,14 +12,12 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerItemRegistration
     {
-        // Working internal/name choice for the gameplay prototype. User-facing naming can be changed later
-        // without changing the gameplay architecture.
-        internal const string PrefabName = "BattleaxeBerserker";
+        internal const string PrefabName = BerserkerIds.AxePrefab;
         internal const string SourcePrefabName = "BattleaxeGold_BloodLightning";
-        internal const string ItemKey = "$item_weapon_berserker_greataxe";
+        internal const string ItemKey = BerserkerIds.AxeItemKey;
         internal const int Price = 2500;
         internal const string IconFileName = "berserker_axe.png";
-        internal const string ItemDescKey = "$item_weapon_berserker_greataxe_desc";
+        internal const string ItemDescKey = BerserkerIds.AxeDescriptionKey;
         internal const float BaseSlashDamage = 95f;
         internal const float SecondaryBaseDamage = 130f;
         internal const float MovementModifier = -0.15f;
@@ -105,7 +103,7 @@ namespace HaldorExpansion.Features.Berserker
         {
             try
             {
-                string recipeName = "Recipe_" + PrefabName;
+                string recipeName = BerserkerIds.AxeRecipe;
                 if (ItemManager.Instance.GetRecipe(recipeName) != null) return;
 
                 var config = new RecipeConfig

@@ -12,14 +12,14 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerCloakItemRegistration
     {
-        internal const string PrefabName = "CapeBerserker";
+        internal const string PrefabName = BerserkerIds.CloakPrefab;
 
         // Prefer the same proven Troll Cape source selection used by Pelt of Helheim.
         private static readonly string[] SourcePrefabs = { "CapeTroll", "CapeTrollHide" };
-        internal const string ItemKey = "$item_cape_berserker";
-        internal const string ItemDescKey = "$item_cape_berserker_desc";
-        internal const string EffectNameKey = "$se_cape_berserker";
-        internal const string EffectDescKey = "$se_cape_berserker_desc";
+        internal const string ItemKey = BerserkerIds.CloakItemKey;
+        internal const string ItemDescKey = BerserkerIds.CloakDescriptionKey;
+        internal const string EffectNameKey = BerserkerIds.CloakEffectKey;
+        internal const string EffectDescKey = BerserkerIds.CloakEffectDescriptionKey;
 
         internal const int Price = 2500;
         internal const string IconFileName = "berserker_cloak.png";
@@ -107,7 +107,7 @@ namespace HaldorExpansion.Features.Berserker
         {
             try
             {
-                string recipeName = "Recipe_" + PrefabName;
+                string recipeName = BerserkerIds.CloakRecipe;
                 if (ItemManager.Instance.GetRecipe(recipeName) != null) return;
 
                 var config = new RecipeConfig
@@ -173,7 +173,7 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_damageModifiers?.Clear();
 
             SE_Stats se = ScriptableObject.CreateInstance<SE_Stats>();
-            se.name = "SE_BerserkerCloakVisual";
+            se.name = BerserkerIds.CloakVisualStatus;
             ReflectionAccess.SetFieldIfExists(se, "m_name", EffectNameKey);
             ReflectionAccess.SetFieldIfExists(se, "m_tooltip", EffectDescKey);
             shared.m_equipStatusEffect = se;

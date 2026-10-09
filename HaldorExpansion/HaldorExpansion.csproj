@@ -80,10 +80,12 @@
     <ItemGroup>
         <Compile Include="Configuration\TradingDocument.cs"/>
         <Compile Include="Configuration\TradingCatalog.cs"/>
+        <Compile Include="Configuration\BerserkerTradingMigration.cs"/>
         <Compile Include="Configuration\ConfigText.cs"/>
         <Compile Include="Configuration\ConfigSchema.cs"/>
         <Compile Include="Configuration\ConfigurationRuntime.cs"/>
         <Compile Include="Configuration\ItemNames.cs"/>
+        <Compile Include="Features\Berserker\BerserkerIds.cs"/>
         <Compile Include="Features\Berserker\BerserkerConfiguration.cs"/>
         <Compile Include="Features\Berserker\BerserkerState.cs"/>
         <Compile Include="Features\Berserker\BerserkerDebtState.cs"/>

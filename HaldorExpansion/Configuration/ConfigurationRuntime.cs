@@ -73,12 +73,16 @@ namespace HaldorExpansion.Configuration
             Dictionary<string, string> balanceDisk =
                 newBalance ? null : ConfigText.Parse(File.ReadAllText(Balance.ConfigFilePath));
             string tradingDisk = newTrading ? null : File.ReadAllText(tradePath);
+            bool oldBerserkerIds = !newTrading && BerserkerTradingMigration.NeedsUpgrade(tradingDisk);
+            TradingDocument parseDefaults = oldBerserkerIds
+                ? BerserkerTradingMigration.LegacyDefaults(TradingCatalog.Defaults)
+                : TradingCatalog.Defaults;
             if (previous != null)
             {
                 ConfigSchema.Require(previous.General, ConfigSchema.Signature(generalDisk.Keys), "general.cfg");
                 ConfigSchema.Require(previous.Balance, ConfigSchema.Signature(balanceDisk.Keys), "balance.cfg");
                 ConfigSchema.Require(previous.Trading,
-                    ConfigSchema.TradingSignature(tradingDisk, TradingCatalog.Defaults, false), "trading.yml");
+                    ConfigSchema.TradingSignature(tradingDisk, parseDefaults, false), "trading.yml");
             }
 
             if (migrated)
@@ -91,7 +95,9 @@ namespace HaldorExpansion.Configuration
 
             localTrading = newTrading
                 ? TradingCatalog.FromEntries()
-                : TradingDocument.Parse(tradingDisk, TradingCatalog.Defaults, complete: previous == null);
+                : TradingDocument.Parse(tradingDisk, parseDefaults, complete: previous == null);
+            if (oldBerserkerIds)
+                localTrading = BerserkerTradingMigration.Upgrade(localTrading, TradingCatalog.Defaults);
             TradingDocument.Parse(localTrading.Serialize(), TradingCatalog.Defaults);
             Validate(General, Values(General));
             Validate(Balance, Values(Balance));
@@ -106,7 +112,8 @@ namespace HaldorExpansion.Configuration
             };
             bool updateGeneral = newGeneral || (previous != null && previous.General != current.General);
             bool updateBalance = newBalance || (previous != null && previous.Balance != current.Balance);
-            bool updateTrading = newTrading || (previous != null && previous.Trading != current.Trading);
+            bool updateTrading = newTrading || oldBerserkerIds ||
+                                 (previous != null && previous.Trading != current.Trading);
             if (updateGeneral || updateBalance || updateTrading)
             {
                 string backups = Path.Combine(folder, "backups");

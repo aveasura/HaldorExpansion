@@ -11,7 +11,7 @@ namespace HaldorExpansion.Features.Berserker
     // every client can render the same escalating visual language around the player.
     internal static class BerserkerWrathEffects
     {
-        private const string WrathKey = "he_berserker_wrath_stage";
+        private const string WrathKey = BerserkerIds.WrathStageZdoKey;
 
         private sealed class VisualState
         {
@@ -236,7 +236,10 @@ namespace HaldorExpansion.Features.Berserker
                 cue.maxDistance = 26f;
                 cue.dopplerLevel = 0f;
                 cue.pitch = stage >= 5 ? 0.76f : 1.08f - (stage - 1) * 0.05f;
-                cue.volume = Mathf.Min(1f, (local ? (stage >= 5 ? 1.00f : 0.88f + stage * 0.03f) : (stage >= 5 ? 0.48f : 0.24f + stage * 0.035f)) * sfx);
+                cue.volume = Mathf.Min(1f,
+                    (local
+                        ? (stage >= 5 ? 1.00f : 0.88f + stage * 0.03f)
+                        : (stage >= 5 ? 0.48f : 0.24f + stage * 0.035f)) * sfx);
                 cue.Play();
                 lifetime = Mathf.Max(lifetime, fallback.length / Mathf.Max(0.01f, cue.pitch) + 0.25f);
             }
@@ -253,9 +256,13 @@ namespace HaldorExpansion.Features.Berserker
                 body.maxDistance = 32f;
                 body.dopplerLevel = 0f;
                 body.pitch = stage >= 5 ? 0.84f : 0.96f - (stage - 1) * 0.035f;
-                body.volume = Mathf.Min(1f, (local ? (stage >= 5 ? 0.68f : 0.48f + stage * 0.04f) : (stage >= 5 ? 0.32f : 0.16f + stage * 0.03f)) * sfx);
+                body.volume = Mathf.Min(1f,
+                    (local
+                        ? (stage >= 5 ? 0.68f : 0.48f + stage * 0.04f)
+                        : (stage >= 5 ? 0.32f : 0.16f + stage * 0.03f)) * sfx);
                 body.PlayDelayed(fallback != null ? 0.015f : 0f);
-                lifetime = Mathf.Max(lifetime, (fallback != null ? 0.015f : 0f) + primary.length / Mathf.Max(0.01f, body.pitch) + 0.25f);
+                lifetime = Mathf.Max(lifetime,
+                    (fallback != null ? 0.015f : 0f) + primary.length / Mathf.Max(0.01f, body.pitch) + 0.25f);
             }
 
             if (stage >= 5)
@@ -308,6 +315,7 @@ namespace HaldorExpansion.Features.Berserker
                 var clip = FromPrefab(ZNetScene.instance?.GetPrefab(name));
                 if (clip != null) return clip;
             }
+
             return null;
         }
 
@@ -319,10 +327,12 @@ namespace HaldorExpansion.Features.Berserker
                 var source = sound != null ? sound.GetComponent<AudioSource>() : null;
                 if (source != null && source.clip != null) return source.clip;
             }
+
             foreach (var source in prefab.GetComponentsInChildren<AudioSource>(true))
             {
                 if (source != null && source.clip != null) return source.clip;
             }
+
             return null;
         }
 
@@ -354,6 +364,7 @@ namespace HaldorExpansion.Features.Berserker
                 UnityEngine.Object.Destroy(clip);
                 return null;
             }
+
             try
             {
                 setData.Invoke(clip, new object[] { data, 0 });
@@ -395,36 +406,58 @@ namespace HaldorExpansion.Features.Berserker
             bool awakened = stage >= 5;
 
             // Volumetric haze around the whole silhouette.
-            CreateSmokePocket(particleMaterial, new Vector3(0f, 0.18f, 0f), smokeRate * 1.10f, smokeSize * 1.08f, 0.52f, awakened);
-            CreateSmokePocket(particleMaterial, new Vector3(-0.42f, 0.46f, 0.06f), smokeRate * 1.05f, smokeSize * 1.00f, 0.42f, awakened);
-            CreateSmokePocket(particleMaterial, new Vector3(0.42f, 0.46f, 0.06f), smokeRate * 1.05f, smokeSize * 1.00f, 0.42f, awakened);
-            CreateSmokePocket(particleMaterial, new Vector3(0f, 0.86f, 0.36f), smokeRate * 1.12f, smokeSize * 1.16f, 0.50f, awakened);
-            CreateSmokePocket(particleMaterial, new Vector3(0f, 0.94f, -0.36f), smokeRate * 1.12f, smokeSize * 1.16f, 0.50f, awakened);
-            CreateSmokePocket(particleMaterial, new Vector3(-0.38f, 1.30f, 0f), smokeRate * 1.00f, smokeSize * 1.02f, 0.36f, awakened);
-            CreateSmokePocket(particleMaterial, new Vector3(0.38f, 1.30f, 0f), smokeRate * 1.00f, smokeSize * 1.02f, 0.36f, awakened);
-            CreateSmokePocket(particleMaterial, new Vector3(0f, 1.58f, 0f), smokeRate * 0.94f, smokeSize * 0.94f, 0.40f, awakened);
+            CreateSmokePocket(particleMaterial, new Vector3(0f, 0.18f, 0f), smokeRate * 1.10f, smokeSize * 1.08f, 0.52f,
+                awakened);
+            CreateSmokePocket(particleMaterial, new Vector3(-0.42f, 0.46f, 0.06f), smokeRate * 1.05f, smokeSize * 1.00f,
+                0.42f, awakened);
+            CreateSmokePocket(particleMaterial, new Vector3(0.42f, 0.46f, 0.06f), smokeRate * 1.05f, smokeSize * 1.00f,
+                0.42f, awakened);
+            CreateSmokePocket(particleMaterial, new Vector3(0f, 0.86f, 0.36f), smokeRate * 1.12f, smokeSize * 1.16f,
+                0.50f, awakened);
+            CreateSmokePocket(particleMaterial, new Vector3(0f, 0.94f, -0.36f), smokeRate * 1.12f, smokeSize * 1.16f,
+                0.50f, awakened);
+            CreateSmokePocket(particleMaterial, new Vector3(-0.38f, 1.30f, 0f), smokeRate * 1.00f, smokeSize * 1.02f,
+                0.36f, awakened);
+            CreateSmokePocket(particleMaterial, new Vector3(0.38f, 1.30f, 0f), smokeRate * 1.00f, smokeSize * 1.02f,
+                0.36f, awakened);
+            CreateSmokePocket(particleMaterial, new Vector3(0f, 1.58f, 0f), smokeRate * 0.94f, smokeSize * 0.94f, 0.40f,
+                awakened);
 
-            CreateEmberPocket(particleMaterial, new Vector3(0f, 0.32f, 0f), emberRate * 0.80f, 0.052f + stage * 0.004f, 0.28f, 0.16f + stage * 0.03f);
-            CreateEmberPocket(particleMaterial, new Vector3(0f, 1.00f, 0f), emberRate * 0.95f, 0.060f + stage * 0.004f, 0.34f, 0.18f + stage * 0.03f);
+            CreateEmberPocket(particleMaterial, new Vector3(0f, 0.32f, 0f), emberRate * 0.80f, 0.052f + stage * 0.004f,
+                0.28f, 0.16f + stage * 0.03f);
+            CreateEmberPocket(particleMaterial, new Vector3(0f, 1.00f, 0f), emberRate * 0.95f, 0.060f + stage * 0.004f,
+                0.34f, 0.18f + stage * 0.03f);
             if (stage >= 3)
             {
-                CreateEmberPocket(particleMaterial, new Vector3(-0.22f, 1.24f, 0f), emberRate * 0.80f, 0.066f, 0.18f, 0.18f + stage * 0.028f);
-                CreateEmberPocket(particleMaterial, new Vector3(0.22f, 1.24f, 0f), emberRate * 0.80f, 0.066f, 0.18f, 0.18f + stage * 0.028f);
+                CreateEmberPocket(particleMaterial, new Vector3(-0.22f, 1.24f, 0f), emberRate * 0.80f, 0.066f, 0.18f,
+                    0.18f + stage * 0.028f);
+                CreateEmberPocket(particleMaterial, new Vector3(0.22f, 1.24f, 0f), emberRate * 0.80f, 0.066f, 0.18f,
+                    0.18f + stage * 0.028f);
             }
 
             // Same silhouette language for all stages: smoky tongues on 1-4, awakened red inferno on 5.
             float tongueRateBase = awakened ? 10.5f : Mathf.Lerp(4.2f, 7.2f, stage01);
             float tongueScale = awakened ? 1.18f : Mathf.Lerp(0.82f, 1.00f, stage01);
-            CreateFlameJet(particleMaterial, new Vector3(0f, 0.00f, 0f), tongueRateBase * 1.00f, 0.24f * tongueScale, 0.46f * tongueScale, 0.46f * tongueScale, awakened);
-            CreateFlameJet(particleMaterial, new Vector3(-0.34f, 0.18f, 0f), tongueRateBase * 0.88f, 0.18f * tongueScale, 0.34f * tongueScale, 0.26f * tongueScale, awakened);
-            CreateFlameJet(particleMaterial, new Vector3(0.34f, 0.18f, 0f), tongueRateBase * 0.88f, 0.18f * tongueScale, 0.34f * tongueScale, 0.26f * tongueScale, awakened);
-            CreateFlameJet(particleMaterial, new Vector3(-0.24f, 0.76f, 0.08f), tongueRateBase * 0.82f, 0.16f * tongueScale, 0.30f * tongueScale, 0.18f * tongueScale, awakened);
-            CreateFlameJet(particleMaterial, new Vector3(0.24f, 0.76f, 0.08f), tongueRateBase * 0.82f, 0.16f * tongueScale, 0.30f * tongueScale, 0.18f * tongueScale, awakened);
-            CreateFlameJet(particleMaterial, new Vector3(0f, 0.94f, 0.24f), tongueRateBase * 0.92f, 0.20f * tongueScale, 0.38f * tongueScale, 0.24f * tongueScale, awakened);
-            CreateFlameJet(particleMaterial, new Vector3(0f, 1.00f, -0.24f), tongueRateBase * 0.92f, 0.20f * tongueScale, 0.38f * tongueScale, 0.24f * tongueScale, awakened);
-            CreateFlameJet(particleMaterial, new Vector3(-0.18f, 1.38f, 0f), tongueRateBase * 0.72f, 0.15f * tongueScale, 0.28f * tongueScale, 0.16f * tongueScale, awakened);
-            CreateFlameJet(particleMaterial, new Vector3(0.18f, 1.38f, 0f), tongueRateBase * 0.72f, 0.15f * tongueScale, 0.28f * tongueScale, 0.16f * tongueScale, awakened);
-            CreateFlameJet(particleMaterial, new Vector3(0f, 1.64f, 0f), tongueRateBase * 0.62f, 0.14f * tongueScale, 0.26f * tongueScale, 0.14f * tongueScale, awakened);
+            CreateFlameJet(particleMaterial, new Vector3(0f, 0.00f, 0f), tongueRateBase * 1.00f, 0.24f * tongueScale,
+                0.46f * tongueScale, 0.46f * tongueScale, awakened);
+            CreateFlameJet(particleMaterial, new Vector3(-0.34f, 0.18f, 0f), tongueRateBase * 0.88f,
+                0.18f * tongueScale, 0.34f * tongueScale, 0.26f * tongueScale, awakened);
+            CreateFlameJet(particleMaterial, new Vector3(0.34f, 0.18f, 0f), tongueRateBase * 0.88f, 0.18f * tongueScale,
+                0.34f * tongueScale, 0.26f * tongueScale, awakened);
+            CreateFlameJet(particleMaterial, new Vector3(-0.24f, 0.76f, 0.08f), tongueRateBase * 0.82f,
+                0.16f * tongueScale, 0.30f * tongueScale, 0.18f * tongueScale, awakened);
+            CreateFlameJet(particleMaterial, new Vector3(0.24f, 0.76f, 0.08f), tongueRateBase * 0.82f,
+                0.16f * tongueScale, 0.30f * tongueScale, 0.18f * tongueScale, awakened);
+            CreateFlameJet(particleMaterial, new Vector3(0f, 0.94f, 0.24f), tongueRateBase * 0.92f, 0.20f * tongueScale,
+                0.38f * tongueScale, 0.24f * tongueScale, awakened);
+            CreateFlameJet(particleMaterial, new Vector3(0f, 1.00f, -0.24f), tongueRateBase * 0.92f,
+                0.20f * tongueScale, 0.38f * tongueScale, 0.24f * tongueScale, awakened);
+            CreateFlameJet(particleMaterial, new Vector3(-0.18f, 1.38f, 0f), tongueRateBase * 0.72f,
+                0.15f * tongueScale, 0.28f * tongueScale, 0.16f * tongueScale, awakened);
+            CreateFlameJet(particleMaterial, new Vector3(0.18f, 1.38f, 0f), tongueRateBase * 0.72f, 0.15f * tongueScale,
+                0.28f * tongueScale, 0.16f * tongueScale, awakened);
+            CreateFlameJet(particleMaterial, new Vector3(0f, 1.64f, 0f), tongueRateBase * 0.62f, 0.14f * tongueScale,
+                0.26f * tongueScale, 0.14f * tongueScale, awakened);
 
             if (awakened)
                 CreateFlameCrown(particleMaterial);
@@ -461,19 +494,19 @@ namespace HaldorExpansion.Features.Berserker
             {
                 // Feet and ankles (same low coverage as the previous version).
                 new Vector3(-0.23f, 0.09f, 0.02f),
-                new Vector3( 0.23f, 0.09f, 0.02f),
-                new Vector3( 0.00f, 0.22f, 0.00f),
+                new Vector3(0.23f, 0.09f, 0.02f),
+                new Vector3(0.00f, 0.22f, 0.00f),
                 // Main volume follows legs, torso and shoulders.
                 new Vector3(-0.36f, 0.58f, 0.00f),
-                new Vector3( 0.36f, 0.58f, 0.00f),
-                new Vector3( 0.00f, 0.88f, 0.30f),
-                new Vector3( 0.00f, 0.88f,-0.30f),
+                new Vector3(0.36f, 0.58f, 0.00f),
+                new Vector3(0.00f, 0.88f, 0.30f),
+                new Vector3(0.00f, 0.88f, -0.30f),
                 new Vector3(-0.29f, 1.32f, 0.00f),
-                new Vector3( 0.29f, 1.32f, 0.00f),
-                new Vector3( 0.00f, 1.54f, 0.00f),
+                new Vector3(0.29f, 1.32f, 0.00f),
+                new Vector3(0.00f, 1.54f, 0.00f),
                 // Narrow, upward-moving smoke above the helmet. No broad cap.
-                new Vector3( 0.00f, 1.80f, 0.00f),
-                new Vector3( 0.00f, 2.06f, 0.00f)
+                new Vector3(0.00f, 1.80f, 0.00f),
+                new Vector3(0.00f, 2.06f, 0.00f)
             };
 
             for (int i = 0; i < centers.Length; i++)
@@ -551,6 +584,7 @@ namespace HaldorExpansion.Features.Berserker
                     renderer.shadowCastingMode = ShadowCastingMode.Off;
                     renderer.receiveShadows = false;
                 }
+
                 ps.Play();
             }
 
@@ -571,6 +605,7 @@ namespace HaldorExpansion.Features.Berserker
                 glow.intensity = 0.48f;
                 glow.shadows = LightShadows.None;
             }
+
             return true;
         }
 
@@ -581,8 +616,8 @@ namespace HaldorExpansion.Features.Berserker
             Vector3[] positions =
             {
                 new Vector3(-0.27f, 0.09f, 0.08f),
-                new Vector3( 0.27f, 0.09f, 0.08f),
-                new Vector3( 0.00f, 0.06f, 0.06f)
+                new Vector3(0.27f, 0.09f, 0.08f),
+                new Vector3(0.00f, 0.06f, 0.06f)
             };
 
             for (int i = 0; i < positions.Length; i++)
@@ -640,6 +675,7 @@ namespace HaldorExpansion.Features.Berserker
                     renderer.shadowCastingMode = ShadowCastingMode.Off;
                     renderer.receiveShadows = false;
                 }
+
                 ps.Play();
             }
         }
@@ -655,7 +691,8 @@ namespace HaldorExpansion.Features.Berserker
             UnityEngine.Object.Destroy(gameObject, fadeDuration + 1.15f);
         }
 
-        private void CreateSmokePocket(Material material, Vector3 localPos, float rate, float size, float radius, bool awakened)
+        private void CreateSmokePocket(Material material, Vector3 localPos, float rate, float size, float radius,
+            bool awakened)
         {
             var go = new GameObject(awakened ? "WrathInfernoSmoke" : "WrathSmokePocket");
             go.transform.SetParent(transform, false);
@@ -727,7 +764,8 @@ namespace HaldorExpansion.Features.Berserker
             ps.Play();
         }
 
-        private void CreateEmberPocket(Material material, Vector3 localPos, float rate, float size, float radius, float alpha)
+        private void CreateEmberPocket(Material material, Vector3 localPos, float rate, float size, float radius,
+            float alpha)
         {
             var go = new GameObject("WrathEmberPocket");
             go.transform.SetParent(transform, false);
@@ -778,7 +816,8 @@ namespace HaldorExpansion.Features.Berserker
             ps.Play();
         }
 
-        private void CreateFlameJet(Material material, Vector3 localPos, float rate, float sizeMin, float sizeMax, float radius, bool awakened)
+        private void CreateFlameJet(Material material, Vector3 localPos, float rate, float sizeMin, float sizeMax,
+            float radius, bool awakened)
         {
             var go = new GameObject(awakened ? "WrathInfernoTongue" : "WrathSmokeTongue");
             go.transform.SetParent(transform, false);
@@ -842,7 +881,8 @@ namespace HaldorExpansion.Features.Berserker
                 new[]
                 {
                     new GradientColorKey(awakened ? new Color(1f, 0.92f, 0.54f) : new Color(0.56f, 0.56f, 0.56f), 0f),
-                    new GradientColorKey(awakened ? new Color(1f, 0.28f, 0.10f) : new Color(0.34f, 0.34f, 0.34f), 0.40f),
+                    new GradientColorKey(awakened ? new Color(1f, 0.28f, 0.10f) : new Color(0.34f, 0.34f, 0.34f),
+                        0.40f),
                     new GradientColorKey(awakened ? new Color(0.26f, 0.03f, 0.02f) : new Color(0.14f, 0.14f, 0.14f), 1f)
                 },
                 new[]
@@ -959,7 +999,8 @@ namespace HaldorExpansion.Features.Berserker
                 float orbit = Mathf.Lerp(0.06f, stage >= 4 ? 0.22f : 0.16f, u);
                 float side = Mathf.Sin(angle) * orbit;
                 float depth = Mathf.Cos(angle) * orbit * 0.70f;
-                float y = Mathf.Lerp(anchor.y, stage >= 4 ? 1.74f : 1.52f, u) + Mathf.Sin(time * 1.7f + u * 6.5f + index) * 0.04f;
+                float y = Mathf.Lerp(anchor.y, stage >= 4 ? 1.74f : 1.52f, u) +
+                          Mathf.Sin(time * 1.7f + u * 6.5f + index) * 0.04f;
                 line.SetPosition(i, new Vector3(anchor.x + side, y, anchor.z + depth));
             }
         }

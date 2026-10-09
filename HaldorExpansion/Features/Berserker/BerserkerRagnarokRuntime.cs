@@ -124,7 +124,7 @@ namespace HaldorExpansion.Features.Berserker
                 // Reset on release (not activation) so interrupted casts do not
                 // discard stacks, and sync the approved Wrath aura out for others.
                 BerserkerRuntime.ConsumeWrathForRagnarok(player);
-                player.Message(MessageHud.MessageType.Center, "$msg_berserker_ragnarok_cast");
+                player.Message(MessageHud.MessageType.Center, BerserkerIds.RagnarokCastKey);
 
                 int count = BerserkerRagnarokMath.MeteorCount(debtAtActivation);
                 float perMeteor = BerserkerRagnarokMath.PerMeteorDamage(debtAtActivation);

@@ -8,7 +8,7 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerRagnarokExhaustion
     {
-        private const string EffectName = "SE_BerserkerRagnarokExhaustion";
+        private const string EffectName = BerserkerIds.ExhaustionStatus;
         private static SE_Stats prototype;
         private static ObjectDB registeredDb;
 
@@ -78,8 +78,8 @@ namespace HaldorExpansion.Features.Berserker
         private static void Configure(SE_Stats stats)
         {
             if (stats == null) return;
-            ReflectionAccess.SetFieldIfExists(stats, "m_name", "$se_berserker_ragnarok_exhaustion");
-            ReflectionAccess.SetFieldIfExists(stats, "m_tooltip", "$se_berserker_ragnarok_exhaustion_desc");
+            ReflectionAccess.SetFieldIfExists(stats, "m_name", BerserkerIds.ExhaustionKey);
+            ReflectionAccess.SetFieldIfExists(stats, "m_tooltip", BerserkerIds.ExhaustionDescriptionKey);
             ReflectionAccess.SetFieldIfExists(stats, "m_ttl", BerserkerConfiguration.RagnarokExhaustionDurationValue);
             ReflectionAccess.SetFieldIfExists(stats, "m_speedModifier",
                 -BerserkerConfiguration.RagnarokExhaustionMovePenaltyFraction);

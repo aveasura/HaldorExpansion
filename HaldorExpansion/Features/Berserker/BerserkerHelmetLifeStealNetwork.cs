@@ -8,7 +8,7 @@ namespace HaldorExpansion.Features.Berserker
     // This also supports a dedicated server and ordinary multiplayer world ownership.
     internal static class BerserkerHelmetLifeStealNetwork
     {
-        private const string HealRpc = "HE_BerserkerHelmetLifeSteal_v1";
+        private const string HealRpc = BerserkerIds.HelmetLifeStealRpc;
         private static readonly FieldInfo CharacterView = AccessTools.Field(typeof(Character), "m_nview");
 
         internal static void Register(Player player, ZNetView view)

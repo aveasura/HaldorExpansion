@@ -88,6 +88,42 @@ class ConfigurationTests
         Reject(() => ConfigSchema.Require(oldSignature,
                 ConfigSchema.TradingSignature(truncated, expanded, false), "trading.yml"),
             "truncated old trading document is not mistaken for an upgrade");
+        var berserker = defaults.Copy();
+        foreach (string id in new[]
+                 {
+                     BerserkerIds.AxePrefab, BerserkerIds.CloakPrefab,
+                     BerserkerIds.HelmetPrefab
+                 })
+            berserker.Shop.Add(id, new TradeSetting
+            {
+                Id = id, Label = id, Category = "Custom Items",
+                Price = 2500, Stack = 1
+            });
+        var legacyBerserker = BerserkerTradingMigration.LegacyDefaults(berserker);
+        legacyBerserker.Shop["HelmetBerserker"].Price = 1234;
+        legacyBerserker.Shop["CapeBerserker"].Enabled = false;
+        legacyBerserker.Shop["BattleaxeBerserker"].RequiredKey = "defeated_queen";
+        string oldTrading = legacyBerserker.Serialize();
+        Check(BerserkerTradingMigration.NeedsUpgrade(oldTrading) &&
+              !BerserkerTradingMigration.NeedsUpgrade(berserker.Serialize()),
+            "detect pre-release Berserker item IDs only");
+        string oldTradingSignature = ConfigSchema.TradingSignature(oldTrading, legacyBerserker);
+        ConfigSchema.Require(oldTradingSignature,
+            ConfigSchema.TradingSignature(oldTrading, legacyBerserker, false), "trading.yml");
+        var converted = BerserkerTradingMigration.Upgrade(
+            TradingDocument.Parse(oldTrading, legacyBerserker), berserker);
+        Check(converted.Shop[BerserkerIds.HelmetPrefab].Price == 1234 &&
+              !converted.Shop[BerserkerIds.CloakPrefab].Enabled &&
+              converted.Shop[BerserkerIds.AxePrefab].RequiredKey == "defeated_queen",
+            "Berserker ID migration preserves price, availability and progression");
+        Check(!BerserkerTradingMigration.NeedsUpgrade(converted.Serialize()) &&
+              ConfigSchema.TradingSignature(converted.Serialize(), berserker) ==
+              ConfigSchema.TradingSignature(berserker.Serialize(), berserker),
+            "migrated file contains only new full-schema IDs");
+        Reject(() => ConfigSchema.Require(oldTradingSignature,
+                ConfigSchema.TradingSignature(oldTrading.Replace("    enabled: true\n", ""),
+                    legacyBerserker, false), "trading.yml"),
+            "truncated old ID config is rejected before migration");
         string cfgText = "[UI]\nA = 42\nB = true\n";
         string cfgSignature = ConfigSchema.Signature(ConfigText.Parse(cfgText).Keys);
         Check(cfgSignature == ConfigSchema.Signature(ConfigText.Parse(cfgText.Replace("42", "123")).Keys),
