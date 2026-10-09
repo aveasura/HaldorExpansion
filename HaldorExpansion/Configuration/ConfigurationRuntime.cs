@@ -24,12 +24,46 @@ namespace HaldorExpansion.Configuration
         private bool newGeneral, newBalance, newTrading, initialized, wasClient;
         private static bool tradeDirty;
         private bool localizationDirty, applyingConfig, balanceSavePending;
-        private float nextPoll;
+        private float nextPoll, nextFullRead;
+        private ConfigEntry<float> pollInterval;
+        private readonly Dictionary<string, FileStamp> fileStamps = new Dictionary<string, FileStamp>();
         private readonly Dictionary<string, string> accepted = new Dictionary<string, string>();
         private readonly Dictionary<string, string> pending = new Dictionary<string, string>();
         private CustomRPC tradingRpc;
         private TradingDocument localTrading;
         private static bool IsClient => ZNet.instance != null && !ZNet.instance.IsServer();
+
+        private float PollInterval => pollInterval != null && pollInterval.Value >= 0.5f &&
+                                      !float.IsInfinity(pollInterval.Value)
+            ? pollInterval.Value
+            : 2f;
+
+        private struct FileStamp
+        {
+            internal readonly DateTime LastWriteUtc;
+            internal readonly long Length;
+
+            internal FileStamp(DateTime lastWriteUtc, long length)
+            {
+                LastWriteUtc = lastWriteUtc;
+                Length = length;
+            }
+
+            internal bool SameAs(FileStamp other) => LastWriteUtc == other.LastWriteUtc && Length == other.Length;
+        }
+
+        private static bool TryGetStamp(string path, out FileStamp stamp)
+        {
+            var info = new FileInfo(path);
+            if (!info.Exists)
+            {
+                stamp = default(FileStamp);
+                return false;
+            }
+
+            stamp = new FileStamp(info.LastWriteTimeUtc, info.Length);
+            return true;
+        }
 
         internal static void RequestTradeRefresh()
         {
@@ -50,6 +84,13 @@ namespace HaldorExpansion.Configuration
             if (!newGeneral) ConfigText.Parse(File.ReadAllText(generalPath));
             if (!newBalance) ConfigText.Parse(File.ReadAllText(balancePath));
             General = new ConfigFile(generalPath, false, plugin.Info.Metadata) { SaveOnConfigSet = false };
+            pollInterval = General.Bind("Configuration", "Config check interval (seconds)", 2f,
+                new ConfigDescription(
+                    "How often to check general.cfg, balance.cfg and trading.yml for external changes. " +
+                    "Checks file timestamps and sizes before reading; modified files are verified twice " +
+                    "before applying. Minimum 0.5 seconds. Local setting, applies while playing. " +
+                    "Интервал проверки изменений конфигов в секундах. По умолчанию 2, минимум 0.5.",
+                    new AcceptableValueRange<float>(0.5f, float.MaxValue)));
             Balance = new ConfigFile(balancePath, false, plugin.Info.Metadata) { SaveOnConfigSet = false };
             TradeEntries = new ConfigFile(Path.Combine(folder, ".trading-memory"), false) { SaveOnConfigSet = false };
             var field = AccessTools.Field(typeof(BaseUnityPlugin), "<Config>k__BackingField");
@@ -150,7 +191,13 @@ namespace HaldorExpansion.Configuration
             General.SaveOnConfigSet = true;
             Balance.SaveOnConfigSet = false;
             foreach (string path in new[] { General.ConfigFilePath, Balance.ConfigFilePath, tradePath })
+            {
                 accepted[path] = File.ReadAllText(path);
+                FileStamp stamp;
+                if (TryGetStamp(path, out stamp)) fileStamps[path] = stamp;
+            }
+
+            nextFullRead = Time.unscaledTime + 60f;
             tradingRpc = NetworkManager.Instance.AddRPC("TradingConfigV1", RejectClientUpdate, ReceiveTrading);
             SynchronizationManager.Instance.AddInitialSynchronization(tradingRpc, MakePackage);
             Balance.SettingChanged += (sender, args) =>
@@ -231,10 +278,12 @@ namespace HaldorExpansion.Configuration
             wasClient = client;
             if (Time.unscaledTime >= nextPoll)
             {
-                nextPoll = Time.unscaledTime + 0.5f;
-                Poll(General.ConfigFilePath, General, false);
-                Poll(Balance.ConfigFilePath, Balance, client);
-                Poll(tradePath, null, client);
+                nextPoll = Time.unscaledTime + PollInterval;
+                bool fullRead = Time.unscaledTime >= nextFullRead;
+                if (fullRead) nextFullRead = Time.unscaledTime + 60f;
+                Poll(General.ConfigFilePath, General, false, fullRead);
+                Poll(Balance.ConfigFilePath, Balance, client, fullRead);
+                Poll(tradePath, null, client, fullRead);
             }
 
             if (balanceSavePending)
@@ -246,6 +295,9 @@ namespace HaldorExpansion.Configuration
                     {
                         Balance.Save();
                         accepted[Balance.ConfigFilePath] = File.ReadAllText(Balance.ConfigFilePath);
+                        FileStamp stamp;
+                        if (TryGetStamp(Balance.ConfigFilePath, out stamp)) fileStamps[Balance.ConfigFilePath] = stamp;
+                        pending.Remove(Balance.ConfigFilePath);
                     }
                     catch (Exception e)
                     {
@@ -276,12 +328,28 @@ namespace HaldorExpansion.Configuration
             }
         }
 
-        private void Poll(string path, ConfigFile file, bool remoteAuthority)
+        private void Poll(string path, ConfigFile file, bool remoteAuthority, bool fullRead)
         {
             try
             {
-                if (!File.Exists(path)) return;
+                FileStamp stamp;
+                if (!TryGetStamp(path, out stamp))
+                {
+                    fileStamps.Remove(path);
+                    pending.Remove(path);
+                    return;
+                }
+
+                FileStamp previousStamp;
+                if (!fullRead && !pending.ContainsKey(path) && accepted[path].Length != 0 &&
+                    fileStamps.TryGetValue(path, out previousStamp) && previousStamp.SameAs(stamp))
+                    return;
+
                 string text = File.ReadAllText(path);
+                FileStamp afterRead;
+                if (!TryGetStamp(path, out afterRead) || !afterRead.SameAs(stamp))
+                    return; // File changed while being read; retry on the next poll.
+                fileStamps[path] = stamp;
                 if (accepted[path] == text)
                 {
                     pending.Remove(path);

@@ -31,6 +31,11 @@ namespace HaldorExpansion.Presentation
             return true;
         }
 
+        internal static Sprite LoadUiIcon(string iconFileName)
+        {
+            return LoadEmbeddedIcon(EmbeddedIconPrefix + iconFileName);
+        }
+
         private static Sprite LoadEmbeddedIcon(string resourceName)
         {
             Sprite cached;

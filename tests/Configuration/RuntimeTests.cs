@@ -1,4 +1,8 @@
+using System;
+using System.IO;
 using System.Reflection;
+using BepInEx.Configuration;
+using HaldorExpansion.Configuration;
 
 class RuntimeTests
 {
@@ -20,6 +24,8 @@ class RuntimeTests
         var runtime = new ConfigurationRuntime();
         var general = new ConfigFile(Path.Combine(dir, "general.cfg"), false) { SaveOnConfigSet = false };
         general.Bind("Compatibility", "Enable long item tooltips", true, "");
+        var interval = general.Bind("Configuration", "Config check interval (seconds)", 2f,
+            new ConfigDescription("Config file polling interval", new AcceptableValueRange<float>(0.5f, float.MaxValue)));
         if (expanded) general.Bind("Compatibility", "New setting", 42, "");
         var balance = new ConfigFile(Path.Combine(dir, "balance.cfg"), false) { SaveOnConfigSet = false };
         balance.Bind("Berserker Greataxe / Секира берсерка", "Hits per Wrath stage", 2f, "");
@@ -42,6 +48,7 @@ class RuntimeTests
         }
 
         Set(runtime, "<General>k__BackingField", general);
+        Set(runtime, "pollInterval", interval);
         Set(runtime, "<Balance>k__BackingField", balance);
         Set(runtime, "<TradeEntries>k__BackingField", trade);
         Set(runtime, "folder", dir);
@@ -60,6 +67,25 @@ class RuntimeTests
         File.WriteAllText(Path.Combine(dir, "legacy.cfg"),
             "[UI]\nEnable long item tooltips = false\n[Berserker]\nHits per Wrath stage = 4\n[Shop]\nIron Price = -10\nIron RequiredGlobalKey = defeated_bonemass\n[Sell]\nTrophy Price = -2\n");
         r.Finish();
+        var interval = (ConfigEntry<float>)r.General["Configuration", "Config check interval (seconds)"];
+        Check(interval.Value == 2f, "default config polling interval is two seconds");
+        Check(!interval.Description.AcceptableValues.IsValid(0.25f) &&
+              interval.Description.AcceptableValues.IsValid(0.5f), "poll interval minimum is half a second");
+        string generalPath = r.General.ConfigFilePath;
+        string originalGeneral = File.ReadAllText(generalPath);
+        DateTime originalStamp = File.GetLastWriteTimeUtc(generalPath);
+        Check(originalGeneral.Contains("Config check interval (seconds) = 2"), "polling setting persisted to general.cfg");
+        File.WriteAllText(generalPath, originalGeneral.Replace("Config check interval (seconds) = 2",
+            "Config check interval (seconds) = 3"));
+        File.SetLastWriteTimeUtc(generalPath, originalStamp);
+        var poll = typeof(ConfigurationRuntime).GetMethod("Poll", BindingFlags.Instance | BindingFlags.NonPublic);
+        poll.Invoke(r, new object[] { generalPath, r.General, false, false });
+        Check(interval.Value == 2f, "unchanged metadata skips disk reload");
+        poll.Invoke(r, new object[] { generalPath, r.General, false, true });
+        Check(interval.Value == 2f, "changed content must be confirmed on a second poll");
+        poll.Invoke(r, new object[] { generalPath, r.General, false, true });
+        Check(interval.Value == 3f, "periodic content check recovers same-metadata edits");
+        interval.Value = 0.5f; // Existing runtime tests intentionally use faster polling to keep their time steps.
         Check(!(bool)r.General["Compatibility", "Enable long item tooltips"].BoxedValue, "legacy UI value preserved");
         Check((float)r.Balance["Berserker Greataxe / Секира берсерка", "Hits per Wrath stage"].BoxedValue == 4,
             "legacy balance preserved");

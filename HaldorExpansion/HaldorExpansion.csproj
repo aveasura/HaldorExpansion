@@ -273,6 +273,10 @@
             <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
         </Reference>
 
+        <Reference Include="UnityEngine.UIModule">
+            <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+        </Reference>
+
         <Reference Include="UnityEngine.UI">
             <HintPath>$(ValheimInstallDir)\valheim_Data\Managed\UnityEngine.UI.dll</HintPath>
         </Reference>
@@ -318,6 +322,22 @@
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="Assets\Icons\shop_all.png">
+            <LogicalName>HaldorExpansion.Assets.Icons.shop_all.png</LogicalName>
+        </EmbeddedResource>
+
+        <EmbeddedResource Include="Assets\Icons\shop_equipment.png">
+            <LogicalName>HaldorExpansion.Assets.Icons.shop_equipment.png</LogicalName>
+        </EmbeddedResource>
+
+        <EmbeddedResource Include="Assets\Icons\shop_resources.png">
+            <LogicalName>HaldorExpansion.Assets.Icons.shop_resources.png</LogicalName>
+        </EmbeddedResource>
+
+        <EmbeddedResource Include="Assets\Icons\shop_other.png">
+            <LogicalName>HaldorExpansion.Assets.Icons.shop_other.png</LogicalName>
+        </EmbeddedResource>
+
         <EmbeddedResource Include="Assets\Icons\brisingamen.png">
             <LogicalName>HaldorExpansion.Assets.Icons.brisingamen.png</LogicalName>
         </EmbeddedResource>

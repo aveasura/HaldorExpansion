@@ -2,6 +2,7 @@ using System;
 using HaldorExpansion.Features.Cestus;
 using UnityEngine;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.Berserker
 {
@@ -15,6 +16,7 @@ namespace HaldorExpansion.Features.Berserker
         private static RectTransform trackRect;
         private static Image fillImage;
         private static Text numberText;
+        private static long displayedCycles = long.MinValue;
         private static Sprite fallbackSprite;
         private static bool warnedMissingHealthBar;
         private static float nextGeometryCheckAt;
@@ -57,8 +59,15 @@ namespace HaldorExpansion.Features.Berserker
             double remainder = debt <= 0d ? 0d : debt - completedCycles * perCycle;
             double progress = remainder / perCycle;
 
-            fillImage.fillAmount = (float)Math.Max(0d, Math.Min(1d, progress));
-            numberText.text = "x" + completedCycles.ToString();
+            float nextFill = (float)Math.Max(0d, Math.Min(1d, progress));
+            if (fillImage.fillAmount != nextFill)
+                fillImage.fillAmount = nextFill;
+
+            if (displayedCycles != completedCycles)
+            {
+                numberText.text = "x" + completedCycles.ToString();
+                displayedCycles = completedCycles;
+            }
         }
 
         private static void Ensure(Hud hud)
@@ -67,7 +76,7 @@ namespace HaldorExpansion.Features.Berserker
                 trackRect.parent == healthReference.parent && fillImage != null && numberText != null)
                 return;
 
-            if (trackRect != null) UnityEngine.Object.Destroy(trackRect.gameObject);
+            if (trackRect != null) Object.Destroy(trackRect.gameObject);
             attachedHud = hud;
             healthReference = null;
             trackRect = null;
@@ -85,6 +94,7 @@ namespace HaldorExpansion.Features.Berserker
                     warnedMissingHealthBar = true;
                     HaldorExpansionPlugin.Log?.LogWarning("[Berserker] Blood Debt HUD: health GuiBar not found.");
                 }
+
                 return;
             }
 
@@ -120,7 +130,8 @@ namespace HaldorExpansion.Features.Berserker
             fillImage.fillMethod = Image.FillMethod.Vertical;
             fillImage.fillOrigin = (int)Image.OriginVertical.Bottom;
             fillImage.fillAmount = 0f;
-            fillImage.color = new Color(0.62f, 0.29f, 0.35f, 0.72f); // Semi-transparent blood-red for more visual depth.
+            fillImage.color =
+                new Color(0.62f, 0.29f, 0.35f, 0.72f); // Semi-transparent blood-red for more visual depth.
             fillImage.raycastTarget = false;
 
             // Rounded number is separate from the gauge fill (no title/large panel).
@@ -143,6 +154,7 @@ namespace HaldorExpansion.Features.Berserker
             numberText.fontStyle = FontStyle.Bold;
             numberText.color = new Color(0.95f, 0.91f, 0.91f, 1f);
             numberText.text = "x0";
+            displayedCycles = 0L;
             Text referenceText = healthBar.GetComponent<Text>();
             if (referenceText == null)
                 referenceText = healthBar.GetComponentInChildren<Text>(true);
@@ -233,6 +245,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 dest.material = source.material;
             }
+
             // Reuse the vanilla texture, but fill our tall, narrow meter instead
             // of preserving the original (horizontal) HP sprite aspect ratio.
             dest.preserveAspect = false;
