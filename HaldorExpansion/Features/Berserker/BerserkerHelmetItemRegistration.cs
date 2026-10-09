@@ -14,8 +14,9 @@ namespace HaldorExpansion.Features.Berserker
     {
         internal const string PrefabName = "HelmetBerserker";
         internal const string SourcePrefabName = "HelmetFlametal";
-        internal const string ItemKey = "$item_helmet_berserker";
-        internal const string ItemDescKey = "$item_helmet_berserker_desc";
+        // Vanilla HelmetBerserkerHood uses the old localization key; keep ours distinct.
+        internal const string ItemKey = "$he_item_helmet_berserker";
+        internal const string ItemDescKey = "$he_item_helmet_berserker_desc";
         internal const string EffectNameKey = "$se_helmet_berserker";
         internal const string EffectDescKey = "$se_helmet_berserker_desc";
 
@@ -105,7 +106,7 @@ namespace HaldorExpansion.Features.Berserker
         {
             try
             {
-                string recipeName = "Recipe_" + PrefabName;
+                string recipeName = "Recipe_HE_" + PrefabName;
                 if (ItemManager.Instance.GetRecipe(recipeName) != null) return;
 
                 var config = new RecipeConfig

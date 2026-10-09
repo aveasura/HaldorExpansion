@@ -22,8 +22,9 @@ namespace HaldorExpansion.Features.Berserker
                 bool found = false;
                 foreach (ItemDrop.ItemData item in items)
                 {
-                    if (item == null || item.m_shared == null ||
-                        item.m_shared.m_name != BerserkerHelmetItemRegistration.ItemKey) continue;
+                    // Identify the prefab, not the name: vanilla HelmetBerserkerHood shared our old item key.
+                    if (item == null || item.m_shared == null || item.m_dropPrefab == null ||
+                        item.m_dropPrefab.name != BerserkerHelmetItemRegistration.PrefabName) continue;
 
                     found = true;
                     int quality = Mathf.Max(1, item.m_quality);
