@@ -1,5 +1,5 @@
-using System;
-using System.Reflection;
+
+
 // Behavioral regression tests. The state class is loaded from the actual source build.
 class StateTests
 {
@@ -47,13 +47,14 @@ class StateTests
             s.Tick(20f);
             Check(!s.Prepared && s.Charge == 0f, "Unequip cancels casting and prepared shot");
             s.Equip("bow-a");
-            s.AddDamage(1000f,1000f,20f,s.Epoch);
-            Check(s.Activate(20f,0f,true), "Instant activation accepts full charge");
+            s.AddDamage(1000f, 1000f, 20f, s.Epoch);
+            Check(s.Activate(20f, 0f, true), "Instant activation accepts full charge");
             s.Tick(20f);
             Check(s.Prepared && !s.Casting, "Instant activation has no animation lock");
             Check(s.TryFire(20f), "Instant prepared shot fires immediately");
-            s.Equip(null); s.Equip("bow-a");
-            s.AddDamage(1000f,1000f,21f,s.Epoch);
+            s.Equip(null);
+            s.Equip("bow-a");
+            s.AddDamage(1000f, 1000f, 21f, s.Epoch);
             Check(s.Charge == 0f, "Weapon switch cannot bypass special-shot cooldown");
 
             // Fresh state for Hel's Touch timing and Touch V snapshot behavior.
@@ -65,7 +66,8 @@ class StateTests
             s.UpdateTouch(40f, true, 3f);
             Check(s.TouchStacks == 0, "Touch cannot start before Hel's Oath actually damages an enemy");
             s.RegisterBowDamage(40f, true, 3f);
-            Check(s.TouchAwakened && s.TouchStacks == 0, "First bow damage awakens Touch without granting an instant stack");
+            Check(s.TouchAwakened && s.TouchStacks == 0,
+                "First bow damage awakens Touch without granting an instant stack");
             s.UpdateTouch(42.99f, true, 3f);
             Check(s.TouchStacks == 0, "Touch does not arrive before the configured interval");
             s.UpdateTouch(43f, true, 3f);
@@ -75,7 +77,8 @@ class StateTests
 
             float chargeBeforeReset = s.Charge;
             s.RegisterCombatHit(55.5f, true, 3f);
-            Check(s.TouchStacks == 4 && s.Charge == chargeBeforeReset, "A combat hit removes one Touch stack and preserves Embrace charge");
+            Check(s.TouchStacks == 4 && s.Charge == chargeBeforeReset,
+                "A combat hit removes one Touch stack and preserves Embrace charge");
             s.UpdateTouch(58.49f, true, 3f);
             Check(s.TouchStacks == 4, "Combat hit restarts the no-hit timer");
             s.UpdateTouch(58.5f, true, 3f);
@@ -85,7 +88,8 @@ class StateTests
             s.RegisterCombatHit(58.8f, true, 3f);
             s.RegisterCombatHit(58.9f, true, 3f);
             s.RegisterCombatHit(59.0f, true, 3f);
-            Check(s.TouchStacks == 0 && s.TouchAwakened, "Repeated combat hits can strip stacks while the Touch cycle remains awakened");
+            Check(s.TouchStacks == 0 && s.TouchAwakened,
+                "Repeated combat hits can strip stacks while the Touch cycle remains awakened");
             s.UpdateTouch(74f, true, 3f);
             Check(s.TouchStacks == 5, "Touch can rebuild to V after repeated damage without another outgoing hit");
 
@@ -93,12 +97,14 @@ class StateTests
             s.AddDamage(900f, 1000f, 74f, s.Epoch);
             Check(s.Charge == 100f, "Touch building does not interfere with Embrace charge");
             Check(s.Activate(74f, 0f, true), "Touch V can activate Embrace");
-            Check(s.TouchStacks == 0 && !s.TouchAwakened && s.PreparedWithTouchV, "Activation consumes Touch and its awakened cycle while snapshotting Touch V");
+            Check(s.TouchStacks == 0 && !s.TouchAwakened && s.PreparedWithTouchV,
+                "Activation consumes Touch and its awakened cycle while snapshotting Touch V");
             s.Tick(74f);
             bool touchV;
             Check(s.TryFire(74f, out touchV) && touchV, "Prepared arrow remembers Touch V after stacks disappear");
             s.RegisterBowDamage(74.1f, true, 3f);
-            Check(s.TouchAwakened, "Real damage from the fired special shot can awaken a fresh Touch cycle without recharging Embrace");
+            Check(s.TouchAwakened,
+                "Real damage from the fired special shot can awaken a fresh Touch cycle without recharging Embrace");
 
             s = new HaldorExpansion.Features.HelOath.HelOathState();
             s.Equip("bow-touch-loss");
@@ -118,7 +124,8 @@ class StateTests
 
             // Returning before complete decay restores the saved stage but does not grant offline catch-up.
             s.UpdateTouch(92f, true, 3f);
-            Check(s.TouchStacks == 1 && s.TouchAwakened, "Re-equipping the required loadout restores the retained Touch stage");
+            Check(s.TouchStacks == 1 && s.TouchAwakened,
+                "Re-equipping the required loadout restores the retained Touch stage");
             s.UpdateTouch(94.99f, true, 3f);
             Check(s.TouchStacks == 1, "Touch growth timer restarts after returning to the loadout");
             s.UpdateTouch(95f, true, 3f);
@@ -133,7 +140,8 @@ class StateTests
             Check(s.TouchStacks == 0 && !s.TouchAwakened, "Touch fully expires after the final retained stack decays");
             s.Equip("bow-touch-loss");
             s.UpdateTouch(110f, true, 3f);
-            Check(s.TouchStacks == 0 && !s.TouchAwakened, "Fully expired Touch requires new bow damage to awaken again");
+            Check(s.TouchStacks == 0 && !s.TouchAwakened,
+                "Fully expired Touch requires new bow damage to awaken again");
 
             // A retained raw Touch V must never empower Embrace while the Fenris requirement is inactive.
             s.RegisterBowDamage(110f, true, 3f);
@@ -144,14 +152,23 @@ class StateTests
             Check(s.Activate(125.1f, 0f, false), "Embrace remains usable after the Fenris requirement is removed");
             Check(!s.PreparedWithTouchV, "Inactive retained Touch V cannot empower Embrace");
 
-            Console.WriteLine("PASS: charge, cast, prepared shot, cooldown, stale credit, per-bow restore, Touch timing/hit-decrement/V snapshot, grace/decay/loadout gating and invalid input scenarios");
+            Console.WriteLine(
+                "PASS: charge, cast, prepared shot, cooldown, stale credit, per-bow restore, Touch timing/hit-decrement/V snapshot, grace/decay/loadout gating and invalid input scenarios");
             DamageMathTests.Run();
             ProgressionTests.Run();
             ChargeCreditTests.Run();
             DotTests.Run();
             return 0;
         }
-        catch(Exception e) { Console.Error.WriteLine("FAIL: " + e.Message); return 1; }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine("FAIL: " + e.Message);
+            return 1;
+        }
     }
-    static void Check(bool value, string message) { if (!value) throw new Exception(message); }
+
+    static void Check(bool value, string message)
+    {
+        if (!value) throw new Exception(message);
+    }
 }

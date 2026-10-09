@@ -1,7 +1,8 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
-using Jotunn.Managers;
-using UnityEngine;
+using HaldorExpansion.Patches;
 
 class LifecycleTests
 {
@@ -19,15 +20,15 @@ class LifecycleTests
         var type = typeof(ObjectDB_Awake_Patch);
         var init = type.GetMethod("Initialize", BindingFlags.Static | BindingFlags.NonPublic);
         if (init != null) init.Invoke(null, null);
-        PrefabManager.FireVanilla();
+        Jotunn.Managers.PrefabManager.FireVanilla();
         Check(Probe.Items.Count == 13, "all 13 items are prepared before menu DB copy, without recipes");
         Check(Probe.Recipes == 0, "early item preparation does not require recipes");
         Probe.Items.Clear();
-        ObjectDB.instance.m_items.Add(new GameObject());
+        ObjectDB.instance.m_items.Add(new UnityEngine.GameObject());
         type.GetMethod("Postfix", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, null);
         Check(Probe.Items.Count == 13, "populated DB initializes synchronously even with zero recipes");
         ObjectDB.instance.m_recipes.Add(new object());
-        ItemManager.FireMenuRegistered();
+        Jotunn.Managers.ItemManager.FireMenuRegistered();
         Check(Probe.Recipes > 0, "recipe registration runs after menu DB is populated");
         if (failures != 0) Environment.Exit(1);
     }
@@ -48,7 +49,7 @@ static class Probe
 public class ObjectDB
 {
     public static ObjectDB instance;
-    public List<GameObject> m_items = new List<GameObject>();
+    public List<UnityEngine.GameObject> m_items = new List<UnityEngine.GameObject>();
     public List<object> m_recipes = new List<object>();
 }
 
@@ -96,7 +97,7 @@ namespace HaldorExpansion
         {
             foreach (var r in routines)
             {
-                var w = r.Current as WaitUntil;
+                var w = r.Current as UnityEngine.WaitUntil;
                 if (w == null || w.Predicate()) r.MoveNext();
             }
         }

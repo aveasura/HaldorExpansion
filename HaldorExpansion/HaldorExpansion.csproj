@@ -24,7 +24,7 @@
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
     </PropertyGroup>
-    
+
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
         <DebugSymbols>true</DebugSymbols>
@@ -78,6 +78,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Configuration\TradingDocument.cs"/>
+        <Compile Include="Configuration\TradingCatalog.cs"/>
+        <Compile Include="Configuration\ConfigText.cs"/>
+        <Compile Include="Configuration\ConfigurationRuntime.cs"/>
+        <Compile Include="Configuration\ItemNames.cs"/>
         <Compile Include="Features\Berserker\BerserkerConfiguration.cs"/>
         <Compile Include="Features\Berserker\BerserkerState.cs"/>
         <Compile Include="Features\Berserker\BerserkerDebtState.cs"/>

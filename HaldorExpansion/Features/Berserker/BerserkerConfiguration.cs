@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using HaldorExpansion.Configuration;
 using Jotunn.Configs;
 using Jotunn.Extensions;
 using Jotunn.Managers;
@@ -27,98 +28,119 @@ namespace HaldorExpansion.Features.Berserker
         internal static ConfigEntry<float> RagnarokExhaustionMovePenaltyPercent;
         internal static ButtonConfig RagnarokButton;
 
-        internal static void Register(ConfigFile config)
+        internal static void Register(ConfigFile config, ConfigFile input)
         {
             HitsPerWrathStage = config.BindConfig(
-                "Berserker",
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
                 "Hits per Wrath stage",
                 2f,
                 "Valid enemy hits with the Berserker Greataxe required to gain one Wrath stage. " +
-                "This is intentionally low for the first gameplay prototype.",
-                synced: true);
+                "Applies to subsequent hits. / Применяется к последующим попаданиям.",
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0.25f, 100f));
 
             WrathDecayInterval = config.BindConfig(
-                "Berserker",
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
                 "Wrath decay interval",
                 10f,
                 "Seconds without a valid Berserker Greataxe hit before one Wrath stage is lost. " +
                 "Each lost stage restarts the same interval.",
-                synced: true);
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0.5f, 300f));
 
             BloodDebtPerFullHealthBar = config.BindConfig(
-                "Berserker", "Blood Debt per full Max HP lost", 411.765f,
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Blood Debt per full Max HP lost", 411.765f,
                 "Blood Debt granted for losing 100% of Max HP cumulatively to hostile creatures, measured from real post-defense HP loss. " +
-                "This Max-HP-normalized value keeps Debt generation consistent across progression.", synced: true);
+                "This Max-HP-normalized value keeps Debt generation consistent across progression.", synced: true,
+                acceptableValues: new AcceptableValueRange<float>(0f, 1000000f));
 
             BloodDebtIncomingGraceSeconds = config.BindConfig(
-                "Berserker", "Blood Debt incoming damage grace seconds", 10f,
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Blood Debt incoming damage grace seconds", 10f,
                 "Blood Debt cannot decay until this many seconds have passed since the last eligible hostile-creature HP loss.",
-                synced: true);
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 600f));
 
             BloodDebtOutgoingGraceSeconds = config.BindConfig(
-                "Berserker", "Blood Debt axe hit grace seconds", 5f,
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Blood Debt axe hit grace seconds", 5f,
                 "Blood Debt cannot decay until this many seconds have passed since the last valid Berserker Greataxe hit.",
-                synced: true);
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 600f));
 
             BloodDebtPrimaryHitGain = config.BindConfig(
-                "Berserker", "Blood Debt per primary axe hit", 7f,
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Blood Debt per primary axe hit", 7f,
                 "Blood Debt granted by each valid primary Berserker Greataxe hit. Reckoning never grants this Debt.",
-                synced: true);
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 1000000f));
 
             BloodDebtSecondaryHitGain = config.BindConfig(
-                "Berserker", "Blood Debt per secondary axe hit", 11f,
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Blood Debt per secondary axe hit", 11f,
                 "Blood Debt granted by each valid normal secondary Berserker Greataxe hit. Reckoning never grants this Debt.",
-                synced: true);
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 1000000f));
 
             BloodDebtDecayPercentPerSecond = config.BindConfig(
-                "Berserker", "Blood Debt decay percent per second", 2.4f,
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Blood Debt decay percent per second", 2.4f,
                 "Exponential percent-per-second decrease while out of combat. No maximum Blood Debt limit.",
-                synced: true);
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 100f));
 
             ReckoningMinimumDebt = config.BindConfig(
-                "Berserker", "Reckoning minimum Blood Debt", 100f,
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Reckoning minimum Blood Debt", 100f,
                 "Minimum Blood Debt required for the secondary greataxe attack to become Reckoning at Wrath V.",
-                synced: true);
+                synced: true, acceptableValues: new AcceptableValueRange<float>(1f, 1000000f));
 
             ReckoningSpendPercent = config.BindConfig(
-                "Berserker", "Reckoning Blood Debt spend percent", 50f,
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Reckoning Blood Debt spend percent", 50f,
                 "Percent of the current Blood Debt consumed on a successful Reckoning hit. Bonus damage is calculated from the amount actually spent.",
-                synced: true);
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 100f));
 
             ReckoningLifeStealPercent = config.BindConfig(
-                "Berserker", "Reckoning lifesteal percent", 30f,
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Reckoning lifesteal percent", 30f,
                 "Percent of the main target's final direct post-defense Reckoning damage restored as health. Overkill damage still counts.",
-                synced: true);
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 100f));
 
             WrathAttackSpeedPercentPerStage = config.BindConfig(
-                "Berserker", "Wrath attack speed percent per stage", 10f,
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Wrath attack speed percent per stage", 10f,
                 "Attack animation speed gained per active Wrath stage while wielding the Berserker Greataxe.",
-                synced: true);
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 100f));
 
             WrathStaminaCostReductionPercentPerStage = config.BindConfig(
-                "Berserker", "Wrath stamina cost reduction percent per stage", 5f,
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Wrath stamina cost reduction percent per stage", 5f,
                 "Stamina cost reduction for all normal actions per active Wrath stage while wielding the Berserker Greataxe.",
-                synced: true);
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 19f));
 
             RagnarokMinimumDebt = config.BindConfig(
-                "Berserker", "Ragnarok minimum Blood Debt", 500f,
-                "Minimum Blood Debt required to cast the prototype Ragnarok ability at Wrath V.", synced: true);
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Ragnarok minimum Blood Debt", 500f,
+                "Minimum Blood Debt required to cast the Ragnarok ability at Wrath V.", synced: true,
+                acceptableValues: new AcceptableValueRange<float>(100f, 1000000f));
 
             RagnarokCastDuration = config.BindConfig(
-                "Berserker", "Ragnarok cast duration seconds", 1.5f,
-                "Prototype cast time before the meteor rain is released.", synced: true);
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Ragnarok cast duration seconds", 1.5f,
+                "Cast time before the meteor rain is released.", synced: true,
+                acceptableValues: new AcceptableValueRange<float>(0.1f, 10f));
 
             RagnarokExhaustionDuration = config.BindConfig(
-                "Berserker", "Ragnarok exhaustion duration seconds", 3f,
-                "Duration of Exhaustion after Ragnarok resolves.", synced: true);
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Ragnarok exhaustion duration seconds", 3f,
+                "Duration of Exhaustion after Ragnarok resolves.", synced: true,
+                acceptableValues: new AcceptableValueRange<float>(0f, 30f));
 
             RagnarokExhaustionMovePenaltyPercent = config.BindConfig(
-                "Berserker", "Ragnarok exhaustion movement penalty percent", 25f,
-                "Movement-speed penalty applied by Exhaustion after Ragnarok.", synced: true);
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Ragnarok exhaustion movement penalty percent", 25f,
+                "Movement-speed penalty applied by Exhaustion after Ragnarok.", synced: true,
+                acceptableValues: new AcceptableValueRange<float>(0f, 90f));
 
-            ConfigEntry<KeyCode> ragnarokKey = config.Bind(
-                "Berserker", "Ragnarok Ability Key", KeyCode.E,
-                "Prototype key for casting Ragnarok at Wrath V with at least x5 Blood Debt. The final set requirement will be added later.");
+            ConfigEntry<KeyCode> ragnarokKey = input.Bind(
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Ragnarok Ability Key", KeyCode.E,
+                "Ragnarok key. Requires Wrath V, the configured Blood Debt minimum and Berserker Cloak.");
             RagnarokButton = new ButtonConfig
             {
                 Name = "HE_BerserkerRagnarok",

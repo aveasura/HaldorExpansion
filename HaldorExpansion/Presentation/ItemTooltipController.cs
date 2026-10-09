@@ -32,7 +32,7 @@ namespace HaldorExpansion.Presentation
         internal static void RegisterConfig(ConfigFile config)
         {
             // Presentation-only preference: deliberately not synchronized by the server.
-            enabled = config.Bind("UI", "Enable long item tooltips", true,
+            enabled = config.Bind("Compatibility", "Enable long item tooltips", true,
                 "Fit oversized HaldorExpansion item tooltips to the screen and scroll their descriptions. " +
                 "Disable to use the original tooltip or another UI mod. Local client setting. " +
                 "Changes made through a configuration manager apply while playing.");

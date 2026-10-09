@@ -1,8 +1,8 @@
-using HaldorExpansion.Trading;
-using BepInEx.Configuration;
-using Jotunn.Extensions;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using BepInEx.Configuration;
+using HaldorExpansion.Trading;
+using Jotunn.Extensions;
 
 namespace HaldorExpansion.Configuration
 {
@@ -33,6 +33,8 @@ namespace HaldorExpansion.Configuration
                 "Fallback sell price for trophy prefabs that are not explicitly listed below, including trophies added by other mods or future game updates. " +
                 "Set to 0 to disable selling unlisted trophies. Negative values are treated as 0.",
                 synced: true);
+            TradingCatalog.Sell("UnlistedTrophy", "Остальные трофеи / Unlisted trophies", "General",
+                DefaultTrophySellPriceConfig);
             WatchSellPriceEntry(DefaultTrophySellPriceConfig);
 
             // Meadows.
@@ -156,6 +158,7 @@ namespace HaldorExpansion.Configuration
                 synced: true);
 
             HaldorSellPrices[prefabName] = entry;
+            TradingCatalog.Sell(prefabName, displayName, section, entry);
             WatchSellPriceEntry(entry);
         }
 
@@ -178,10 +181,7 @@ namespace HaldorExpansion.Configuration
 
         private static void OnHaldorSellPriceChanged(object sender, EventArgs e)
         {
-            if (ObjectDB.instance != null)
-            {
-                TrophyValueUpdater.ApplyTrophyValues(ObjectDB.instance);
-            }
+            ConfigurationRuntime.RequestTradeRefresh();
         }
 
         internal static int GetConfiguredHaldorSellPrice(string prefabName, int fallbackPrice)

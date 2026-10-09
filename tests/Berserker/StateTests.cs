@@ -1,6 +1,3 @@
-using System;
-using HaldorExpansion.Features.Berserker;
-
 internal static class BerserkerStateTests
 {
     static int Main(string[] args)
@@ -105,9 +102,9 @@ internal static class BerserkerStateTests
         Check(debt.Amount >= 823000000d, "Nonfinite inputs do not poison debt");
         debt.Reset();
         Check(debt.Amount == 0d, "Death/owner reset clears debt");
-        Console.WriteLine("PASS: Blood Debt Max-HP normalization, dual grace decay, outgoing hit gains, partial spending and unlimited growth");
+        Console.WriteLine(
+            "PASS: Blood Debt Max-HP normalization, dual grace decay, outgoing hit gains, partial spending and unlimited growth");
     }
-
 
 
     private static void VerifyReckoning()
@@ -149,13 +146,15 @@ internal static class BerserkerStateTests
         double consumed = debt.ConsumeAll();
         Check(NearlyDouble(consumed, 500d) && debt.Amount == 0d,
             "Ragnarok still consumes the entire exact Blood Debt amount");
-        Console.WriteLine("PASS: Reckoning softer segmented bonus, half-spend resource model, uncapped lifesteal and Ragnarok full consumption");
+        Console.WriteLine(
+            "PASS: Reckoning softer segmented bonus, half-spend resource model, uncapped lifesteal and Ragnarok full consumption");
     }
 
     private static bool NearlyDouble(double a, double b)
         => Math.Abs(a - b) <= 0.0001d;
 
     private static bool Nearly(float a, float b) => Math.Abs(a - b) <= 0.0001f;
+
     private static void Check(bool value, string message)
     {
         if (!value) throw new Exception(message);

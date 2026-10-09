@@ -1,13 +1,15 @@
-using HaldorExpansion.Features.HelOath;
-using HaldorExpansion.Features.Berserker;
+using System.Runtime.CompilerServices;
 using HaldorExpansion.Configuration;
+using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Brisingamen;
-using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
-using HaldorExpansion.Features.PitKing;
+using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.PeltOfHelheim;
+using HaldorExpansion.Features.PitKing;
 using HaldorExpansion.Features.ShadowCrossbow;
+using HaldorExpansion.Features.StaminaCape;
 using HaldorExpansion.Features.WoundedBeast;
 using UnityEngine;
 
@@ -15,54 +17,13 @@ namespace HaldorExpansion.Trading
 {
     internal static class HaldorShopUpdater
     {
-        private sealed class ShopItemDefinition
+        internal static void TryAddStaminaCape(Trader trader)
         {
-            public string PrefabName { get; private set; }
-            public int Price { get; private set; }
-            public int Stack { get; private set; }
-            public bool UseMaxStack { get; private set; }
-
-            public ShopItemDefinition(string prefabName, int price, int stack, bool useMaxStack = false)
-            {
-                PrefabName = prefabName;
-                Price = price;
-                Stack = stack;
-                UseMaxStack = useMaxStack;
-            }
+            StaminaCapeItemRegistration.EnsureReady();
+            var drop = StaminaCapeItemRegistration.CapeItemDrop;
+            if (drop == null || HasPrefab(trader, StaminaCapeItemRegistration.PrefabName)) return;
+            AddTradeItem(trader, drop, StaminaCapeItemRegistration.Price, 1);
         }
-
-        private static readonly ShopItemDefinition[] ShopItems =
-        {
-            new ShopItemDefinition("Iron", 225, 30),
-            new ShopItemDefinition("Copper", 310, 30),
-            new ShopItemDefinition("Tin", 180, 30),
-            new ShopItemDefinition("Silver", 550, 30),
-            new ShopItemDefinition("Flametal", 800, 30),
-
-            new ShopItemDefinition("Stone", 20, 1, true),
-            new ShopItemDefinition("Grausten", 25, 1, true),
-            new ShopItemDefinition("BlackMarble", 40, 1, true),
-
-            new ShopItemDefinition("Wood", 10, 1, true),
-            new ShopItemDefinition("RoundLog", 10, 1, true),
-            new ShopItemDefinition("ElderBark", 30, 1, true),
-            new ShopItemDefinition("FineWood", 150, 1, true),
-            new ShopItemDefinition("YggdrasilWood", 250, 1, true),
-            new ShopItemDefinition("Ashwood", 30, 1, true),
-            new ShopItemDefinition("Blackwood", 100, 1, true),
-            new ShopItemDefinition("CharredWood", 50, 1, true),
-
-            new ShopItemDefinition("JuteRed", 250, 1, true),
-            new ShopItemDefinition("JuteBlue", 250, 1, true),
-
-            new ShopItemDefinition("Resin", 100, 1, true),
-            new ShopItemDefinition("Feathers", 150, 100),
-            new ShopItemDefinition("GreydwarfEye", 200, 1, true),
-            new ShopItemDefinition("Tar", 250, 1, true),
-            new ShopItemDefinition("Crystal", 250, 1, true),
-            new ShopItemDefinition("Needle", 250, 1, true)
-        };
-        
 
         internal static void TryAddBerserkerAxe(Trader trader)
         {
@@ -126,7 +87,7 @@ namespace HaldorExpansion.Trading
             AddTradeItem(trader, capeDrop, WoundedBeastItemRegistration.WoundedBeastCapePrice, 1);
             HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Wounded Beast cape added to Haldor shop");
         }
-        
+
         internal static void TryAddHelOath(Trader trader)
         {
             HelOathItemRegistration.EnsureHelOathReady();
@@ -141,7 +102,7 @@ namespace HaldorExpansion.Trading
             AddTradeItem(trader, crossbowDrop, HelOathItemRegistration.HelOathPrice, 1);
             HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Shadow crossbow added to Haldor shop");
         }
-        
+
         internal static void TryAddShadowCrossbow(Trader trader)
         {
             ShadowCrossbowItemRegistration.EnsureShadowCrossbowReady();
@@ -156,7 +117,7 @@ namespace HaldorExpansion.Trading
             AddTradeItem(trader, crossbowDrop, ShadowCrossbowItemRegistration.ShadowCrossbowPrice, 1);
             HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Shadow crossbow added to Haldor shop");
         }
-        
+
         internal static void TryAddPitKingChest(Trader trader)
         {
             PitKingItemRegistration.EnsurePitKingChestReady();
@@ -171,7 +132,7 @@ namespace HaldorExpansion.Trading
             AddTradeItem(trader, chestDrop, PitKingItemRegistration.PitKingChestPrice, 1);
             HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Pit King chest added to Haldor shop");
         }
-        
+
         internal static void TryAddCestus(Trader trader)
         {
             CestusItemRegistration.EnsureCestusReady();
@@ -214,24 +175,24 @@ namespace HaldorExpansion.Trading
             if (ObjectDB.instance == null)
                 return;
 
-            foreach (ShopItemDefinition item in ShopItems)
+            foreach (TradeSetting item in TradingCatalog.Defaults.Shop.Values)
             {
-                TryAddConfiguredItem(trader, item);
+                if (item.Category != "Shop Progression - Custom Items") TryAddConfiguredItem(trader, item);
             }
         }
 
-        private static void TryAddConfiguredItem(Trader trader, ShopItemDefinition item)
+        private static void TryAddConfiguredItem(Trader trader, TradeSetting item)
         {
             if (ObjectDB.instance == null)
                 return;
 
-            if (HasPrefab(trader, item.PrefabName))
+            if (HasPrefab(trader, item.Id))
                 return;
 
-            GameObject prefab = ObjectDB.instance.GetItemPrefab(item.PrefabName);
+            GameObject prefab = ObjectDB.instance.GetItemPrefab(item.Id);
             if (prefab == null)
             {
-                HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Prefab not found: " + item.PrefabName);
+                HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Prefab not found: " + item.Id);
                 return;
             }
 
@@ -239,21 +200,21 @@ namespace HaldorExpansion.Trading
             if (itemDrop == null)
             {
                 HaldorExpansionPlugin.Log?.LogWarning(
-                    "[HaldorExpansion] ItemDrop missing on prefab: " + item.PrefabName);
+                    "[HaldorExpansion] ItemDrop missing on prefab: " + item.Id);
                 return;
             }
 
             int stack = ResolveStack(itemDrop, item);
 
             AddTradeItem(trader, itemDrop, item.Price, stack);
-            int configuredPrice = ShopConfiguration.GetShopPrice(item.PrefabName, item.Price);
-            HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Added " + item.PrefabName + " x" + stack + " for " +
-                                               configuredPrice + " coins");
+            int configuredPrice = ShopConfiguration.GetShopPrice(item.Id, item.Price);
+            HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Added " + item.Id + " x" + stack + " for " +
+                                           configuredPrice + " coins");
         }
 
-        private static int ResolveStack(ItemDrop itemDrop, ShopItemDefinition item)
+        private static int ResolveStack(ItemDrop itemDrop, TradeSetting item)
         {
-            if (!item.UseMaxStack)
+            if (item.Stack != 0)
                 return item.Stack;
 
             if (itemDrop.m_itemData != null && itemDrop.m_itemData.m_shared != null)
@@ -296,8 +257,25 @@ namespace HaldorExpansion.Trading
             HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Thread of the Norns added to Haldor shop");
         }
 
+        // Only remove entries created by this mod; other traders/mods keep ownership.
+        private static readonly ConditionalWeakTable<Trader.TradeItem, object> Owned =
+            new ConditionalWeakTable<Trader.TradeItem, object>();
+
+        private static bool IsOwned(Trader.TradeItem item)
+        {
+            object value;
+            return Owned.TryGetValue(item, out value);
+        }
+
+        internal static void RemoveDisabledItems(Trader trader)
+        {
+            trader.m_items.RemoveAll(item => IsOwned(item) && item.m_prefab != null &&
+                                             !TradingCatalog.Enabled(item.m_prefab.name));
+        }
+
         private static bool HasPrefab(Trader trader, string prefabName)
         {
+            if (!TradingCatalog.Enabled(prefabName)) return true;
             string requiredGlobalKey = ShopConfiguration.GetShopRequiredGlobalKey(prefabName);
 
             foreach (Trader.TradeItem tradeItem in trader.m_items)
@@ -308,6 +286,8 @@ namespace HaldorExpansion.Trading
                     // server config is synchronized/changed after the TradeItem exists.
                     tradeItem.m_requiredGlobalKey = requiredGlobalKey;
                     tradeItem.m_price = ShopConfiguration.GetShopPrice(prefabName, tradeItem.m_price);
+                    tradeItem.m_stack = TradingCatalog.Stack(prefabName, tradeItem.m_stack,
+                        tradeItem.m_prefab.m_itemData.m_shared.m_maxStackSize);
                     return true;
                 }
             }
@@ -324,11 +304,11 @@ namespace HaldorExpansion.Trading
             // Valheim 1.0 expanded Trader.TradeItem with UI/progression fields.
             // StoreGui.FillList expects these reference fields to be initialized;
             // leaving them null (the pre-1.0 behavior) causes a NullReferenceException.
-            trader.m_items.Add(new Trader.TradeItem
+            var tradeItem = new Trader.TradeItem
             {
                 m_prefab = itemDrop,
                 m_price = ShopConfiguration.GetShopPrice(prefabName, price),
-                m_stack = stack,
+                m_stack = TradingCatalog.Stack(prefabName, stack, shared != null ? shared.m_maxStackSize : stack),
                 m_requiredGlobalKey = ShopConfiguration.GetShopRequiredGlobalKey(prefabName),
                 m_levelUpEffect = false,
                 m_buyPlayerEffects = new EffectList(),
@@ -338,7 +318,9 @@ namespace HaldorExpansion.Trading
                 m_buyKey = string.Empty,
                 m_incrementKey = string.Empty,
                 m_incrementAmount = 0
-            });
+            };
+            trader.m_items.Add(tradeItem);
+            Owned.Add(tradeItem, new object());
         }
     }
 }

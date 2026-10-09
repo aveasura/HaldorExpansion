@@ -1,9 +1,7 @@
-
 namespace HaldorExpansion.Configuration
 {
     internal static class ConfigKey
     {
-
         internal static string SanitizeConfigKey(string value)
         {
             if (string.IsNullOrWhiteSpace(value))

@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using HaldorExpansion.Configuration;
 using Jotunn.Configs;
 using Jotunn.Managers;
 using UnityEngine;
@@ -7,17 +8,16 @@ namespace HaldorExpansion.Features.Cestus
 {
     internal static class CestusInputRegistration
     {
-
         internal static ConfigEntry<KeyCode> CestusAbilityKeyConfig;
         internal static ButtonConfig CestusAbilityButton;
 
-        internal static void RegisterCestusInput(BepInEx.Configuration.ConfigFile Config)
+        internal static void RegisterCestusInput(ConfigFile Config)
         {
             CestusAbilityKeyConfig = Config.Bind(
-                "Cestus",
+                ItemNames.ConfigSection(ItemNames.BoneCrushersEn, ItemNames.BoneCrushersRu),
                 "Ability Key",
                 KeyCode.Mouse2,
-                "Key for activating the Cestus ability.\n" +
+                "Key for activating Bone Crushers / Костоломы.\n" +
                 "Mouse0 = Left Mouse Button.\n" +
                 "Mouse1 = Right Mouse Button.\n" +
                 "Mouse2 = Middle Mouse Button.\n" +

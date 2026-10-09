@@ -1,17 +1,17 @@
-using HaldorExpansion.Features.HelOath;
+using System.Collections.Generic;
+using BepInEx.Configuration;
 using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Brisingamen;
-using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
-using HaldorExpansion.Features.PitKing;
+using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.PeltOfHelheim;
+using HaldorExpansion.Features.PitKing;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.StaminaCape;
 using HaldorExpansion.Features.WoundedBeast;
-using BepInEx.Configuration;
 using Jotunn.Extensions;
-using System.Collections.Generic;
 
 namespace HaldorExpansion.Configuration
 {
@@ -31,21 +31,49 @@ namespace HaldorExpansion.Configuration
         internal void RegisterShopProgressionConfig(ConfigFile config)
         {
             Config = config;
-            // Custom HaldorExpansion items.
-            BindShopItemConfig("Shop Progression - Custom Items", BrisingamenItemRegistration.RingPrefabName, "Corrupted Brisingamen", BrisingamenItemRegistration.RingPrice);
-            BindShopItemConfig("Shop Progression - Custom Items", NornThreadItemRegistration.PrefabName, "Thread of the Norns", NornThreadItemRegistration.Price);
-            BindShopItemConfig("Shop Progression - Custom Items", WoundedBeastItemRegistration.WoundedBeastCapePrefabName, "Cloak of the Wounded Beast", WoundedBeastItemRegistration.WoundedBeastCapePrice);
-            BindShopItemConfig("Shop Progression - Custom Items", StaminaCapeItemRegistration.PrefabName, "Fractured Breath Cape", StaminaCapeItemRegistration.Price);
-            BindShopItemConfig("Shop Progression - Custom Items", PeltOfHelheimItemRegistration.PrefabName, "Pelt of Helheim", PeltOfHelheimItemRegistration.Price);
-            BindShopItemConfig("Shop Progression - Custom Items", BerserkerItemRegistration.PrefabName, "Berserker Greataxe", BerserkerItemRegistration.Price);
-            BindShopItemConfig("Shop Progression - Custom Items", BerserkerCloakItemRegistration.PrefabName, "Berserker Cloak", BerserkerCloakItemRegistration.Price);
-            BindShopItemConfig("Shop Progression - Custom Items", BerserkerHelmetItemRegistration.PrefabName, "Berserker Helmet", BerserkerHelmetItemRegistration.Price);
-            BindShopItemConfig("Shop Progression - Custom Items", DelayedDoomItemRegistration.DelayedDoomChestPrefabName, "Cuirass of Silent Reckoning", DelayedDoomItemRegistration.DelayedDoomChestPrice);
-            BindShopItemConfig("Shop Progression - Custom Items", PitKingItemRegistration.PitKingChestPrefabName, "Pit King's Cuirass", PitKingItemRegistration.PitKingChestPrice);
-            BindShopItemConfig("Shop Progression - Custom Items", CestusItemRegistration.GritCestusPrefabName, "Grit Cestus", CestusItemRegistration.GritCestusPrice);
-            BindShopItemConfig("Shop Progression - Custom Items", ShadowCrossbowItemRegistration.ShadowCrossbowPrefabName, "Crossbow of the Shadow Hunt", ShadowCrossbowItemRegistration.ShadowCrossbowPrice);
 
-            BindShopItemConfig("Shop Progression - Custom Items", HelOathItemRegistration.HelOathPrefabName, "Hel Oath", HelOathItemRegistration.HelOathPrice);
+            // Custom HaldorExpansion items.
+            BindShopItemConfig("Shop Progression - Custom Items", BrisingamenItemRegistration.RingPrefabName,
+                "Corrupted Brisingamen", BrisingamenItemRegistration.RingPrice);
+
+            BindShopItemConfig("Shop Progression - Custom Items", NornThreadItemRegistration.PrefabName,
+                "Thread of the Norns", NornThreadItemRegistration.Price);
+            
+            BindShopItemConfig("Shop Progression - Custom Items",
+                WoundedBeastItemRegistration.WoundedBeastCapePrefabName, "Cloak of the Wounded Beast",
+                WoundedBeastItemRegistration.WoundedBeastCapePrice);
+
+            BindShopItemConfig("Shop Progression - Custom Items", StaminaCapeItemRegistration.PrefabName,
+                "Fractured Breath Cape", StaminaCapeItemRegistration.Price);
+
+            BindShopItemConfig("Shop Progression - Custom Items", PeltOfHelheimItemRegistration.PrefabName,
+                "Pelt of Helheim", PeltOfHelheimItemRegistration.Price);
+
+            BindShopItemConfig("Shop Progression - Custom Items", BerserkerItemRegistration.PrefabName,
+                "Berserker Greataxe", BerserkerItemRegistration.Price);
+
+            BindShopItemConfig("Shop Progression - Custom Items", BerserkerCloakItemRegistration.PrefabName,
+                "Berserker Cloak", BerserkerCloakItemRegistration.Price);
+
+            BindShopItemConfig("Shop Progression - Custom Items", BerserkerHelmetItemRegistration.PrefabName,
+                "Berserker Helmet", BerserkerHelmetItemRegistration.Price);
+
+            BindShopItemConfig("Shop Progression - Custom Items",
+                DelayedDoomItemRegistration.DelayedDoomChestPrefabName, "Cuirass of Silent Reckoning",
+                DelayedDoomItemRegistration.DelayedDoomChestPrice);
+
+            BindShopItemConfig("Shop Progression - Custom Items", PitKingItemRegistration.PitKingChestPrefabName,
+                "Pit King's Cuirass", PitKingItemRegistration.PitKingChestPrice);
+
+            BindShopItemConfig("Shop Progression - Custom Items", CestusItemRegistration.GritCestusPrefabName,
+                "Grit Cestus", CestusItemRegistration.GritCestusPrice);
+
+            BindShopItemConfig("Shop Progression - Custom Items",
+                ShadowCrossbowItemRegistration.ShadowCrossbowPrefabName, "Crossbow of the Shadow Hunt",
+                ShadowCrossbowItemRegistration.ShadowCrossbowPrice);
+
+            BindShopItemConfig("Shop Progression - Custom Items", HelOathItemRegistration.HelOathPrefabName, "Hel Oath",
+                HelOathItemRegistration.HelOathPrice);
 
             // Metals.
             BindShopItemConfig("Shop Progression - Metals", "Iron", "Iron", 225);
@@ -106,6 +134,8 @@ namespace HaldorExpansion.Configuration
         {
             BindShopPrice(section, prefabName, displayName, defaultPrice);
             BindShopRequiredGlobalKey(section, prefabName, displayName);
+            TradingCatalog.Shop(prefabName, displayName, section, ShopPrices[prefabName],
+                ShopRequiredGlobalKeys[prefabName]);
         }
 
         private void BindShopPrice(string section, string prefabName, string displayName, int defaultPrice)

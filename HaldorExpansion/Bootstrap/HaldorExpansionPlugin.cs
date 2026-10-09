@@ -21,7 +21,7 @@ namespace HaldorExpansion
     {
         internal const string ModGuid = "aveasura.haldor.expansion";
         private const string ModName = "Haldor Expansion";
-        private const string ModVersion = "1.2.0";
+        private const string ModVersion = "1.3.0";
 
         internal static ManualLogSource Log;
         internal static HaldorExpansionPlugin Instance;
@@ -29,6 +29,8 @@ namespace HaldorExpansion
         private static readonly bool DebugLogging = false;
 
         // Keep config binding state scoped to this plugin instance.
+        private readonly ConfigurationRuntime _configuration = new ConfigurationRuntime();
+
         private readonly ShopConfiguration _shopConfiguration = new ShopConfiguration();
         private readonly SellPriceConfiguration _sellPriceConfiguration = new SellPriceConfiguration();
 
@@ -45,17 +47,19 @@ namespace HaldorExpansion
             Instance = this;
             Log = Logger;
 
-            _shopConfiguration.RegisterShopProgressionConfig(Config);
-            _sellPriceConfiguration.RegisterHaldorSellPriceConfig(Config);
-            ModLocalization.AddLocalizations();
+            _configuration.Open(this);
+            _shopConfiguration.RegisterShopProgressionConfig(_configuration.TradeEntries);
+            _sellPriceConfiguration.RegisterHaldorSellPriceConfig(_configuration.TradeEntries);
 
             // Bind every configuration entry before Harmony patching. A compatibility issue in one
             // Harmony target must never leave later runtime systems with null ConfigEntry fields.
             CestusInputRegistration.RegisterCestusInput(Config);
-            HelOathConfiguration.Register(Config);
-            BerserkerConfiguration.Register(Config);
+            HelOathConfiguration.Register(_configuration.Balance, Config);
+            BerserkerConfiguration.Register(_configuration.Balance, Config);
             ItemTooltipController.RegisterConfig(Config);
 
+            _configuration.Finish();
+            ModLocalization.AddLocalizations();
             ObjectDB_Awake_Patch.Initialize();
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), ModGuid);
@@ -64,6 +68,11 @@ namespace HaldorExpansion
             {
                 AdrenalineDiagnostics.DumpAdrenalineReflection();
             }
+        }
+
+        private void Update()
+        {
+            _configuration.Update();
         }
 
         private void OnDestroy()

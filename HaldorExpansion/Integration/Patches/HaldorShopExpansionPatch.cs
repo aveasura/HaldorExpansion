@@ -1,7 +1,6 @@
-using HaldorExpansion.Features.HelOath;
-using HaldorExpansion.Trading;
 using System.Collections.Generic;
 using System.Reflection;
+using HaldorExpansion.Trading;
 using HarmonyLib;
 
 namespace HaldorExpansion.Patches
@@ -9,7 +8,6 @@ namespace HaldorExpansion.Patches
     [HarmonyPatch]
     internal static class HaldorShopExpansionPatch
     {
-
         static MethodBase TargetMethod()
         {
             MethodInfo fallback = null;
@@ -32,7 +30,9 @@ namespace HaldorExpansion.Patches
             return fallback;
         }
 
-        static void Prefix(Trader __instance)
+        static void Prefix(Trader __instance) => Refresh(__instance);
+
+        internal static void Refresh(Trader __instance)
         {
             if (!HaldorShopUpdater.IsHaldor(__instance))
                 return;
@@ -44,23 +44,25 @@ namespace HaldorExpansion.Patches
             if (__instance.m_items == null)
                 __instance.m_items = new List<Trader.TradeItem>();
 
+            HaldorShopUpdater.RemoveDisabledItems(__instance);
             // добавляет Хальдору обычные предметы из массива ShopItems
             HaldorShopUpdater.TryAddConfiguredItems(__instance);
-            
+
             // Аксессуары
             HaldorShopUpdater.TryAddRing(__instance);
             HaldorShopUpdater.TryAddNornThread(__instance);
-            
+
             // Плащи
+            HaldorShopUpdater.TryAddStaminaCape(__instance);
             HaldorShopUpdater.TryAddWoundedBeastCape(__instance);
             HaldorShopUpdater.TryAddPeltOfHelheim(__instance);
             HaldorShopUpdater.TryAddBerserkerCloak(__instance);
-            
+
             // Доспехи
             HaldorShopUpdater.TryAddBerserkerHelmet(__instance);
             HaldorShopUpdater.TryAddDelayedDoomChest(__instance);
             HaldorShopUpdater.TryAddPitKingChest(__instance);
-            
+
             // Оружие
             HaldorShopUpdater.TryAddBerserkerAxe(__instance);
             HaldorShopUpdater.TryAddCestus(__instance);
