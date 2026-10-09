@@ -24,6 +24,10 @@ namespace HaldorExpansion.Presentation
 
             loc.AddTranslation("Russian", WithConfiguredValues(new Dictionary<string, string>
             {
+                ["$aveasura_he_shop_all"] = "Всё",
+                ["$aveasura_he_shop_equipment"] = "Снаряжение",
+                ["$aveasura_he_shop_resources"] = "Ресурсы",
+                ["$aveasura_he_shop_other"] = "Прочее",
                 ["$he_tooltip_scroll"] = "Прокрутка: колесо мыши / PgUp, PgDn",
                 [HelOathItemRegistration.HelOathItemKey] = ItemNames.HelOathRu,
                 [HelOathItemRegistration.HelOathItemDescKey] =
@@ -203,6 +207,10 @@ namespace HaldorExpansion.Presentation
 
             loc.AddTranslation("English", WithConfiguredValues(new Dictionary<string, string>
             {
+                ["$aveasura_he_shop_all"] = "All",
+                ["$aveasura_he_shop_equipment"] = "Equipment",
+                ["$aveasura_he_shop_resources"] = "Resources",
+                ["$aveasura_he_shop_other"] = "Other",
                 ["$he_tooltip_scroll"] = "Scroll: mouse wheel / PgUp, PgDn",
                 [HelOathItemRegistration.HelOathItemKey] = ItemNames.HelOathEn,
                 [HelOathItemRegistration.HelOathItemDescKey] =

@@ -57,6 +57,7 @@ namespace HaldorExpansion
             HelOathConfiguration.Register(_configuration.Balance, Config);
             BerserkerConfiguration.Register(_configuration.Balance, Config);
             ItemTooltipController.RegisterConfig(Config);
+            TradingUiConfiguration.Register(Config);
 
             _configuration.Finish();
             ModLocalization.AddLocalizations();
@@ -78,6 +79,7 @@ namespace HaldorExpansion
         private void OnDestroy()
         {
             ItemTooltipController.Reset();
+            HaldorTabsController.Reset();
             ObjectDB_Awake_Patch.Shutdown();
         }
     }
