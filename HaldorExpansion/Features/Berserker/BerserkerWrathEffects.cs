@@ -16,6 +16,8 @@ namespace HaldorExpansion.Features.Berserker
         {
             internal int Stage = -1;
             internal GameObject Root;
+            internal bool Inferno;
+            internal BerserkerWrathAura Aura;
         }
 
         private static readonly ConditionalWeakTable<Player, VisualState> Visuals =
@@ -23,6 +25,8 @@ namespace HaldorExpansion.Features.Berserker
 
         private static readonly System.Reflection.FieldInfo NetworkViewField =
             AccessTools.Field(typeof(Character), "m_nview");
+
+        private const string InfernoLevelZdoKey = BerserkerIds.Prefix + "berserker_inferno_level";
 
         private static Material auraMaterial;
         private static Material lineMaterial;
@@ -35,7 +39,11 @@ namespace HaldorExpansion.Features.Berserker
         internal static void Register(Player player, ZNetView view)
         {
             if (player == null || view == null || !view.IsValid()) return;
-            if (view.IsOwner()) view.GetZDO().Set(BerserkerIds.WrathStageZdoKey, 0);
+            if (view.IsOwner())
+            {
+                view.GetZDO().Set(BerserkerIds.WrathStageZdoKey, 0);
+                view.GetZDO().Set(InfernoLevelZdoKey, -1);
+            }
         }
 
         internal static void Sync(Player player, int stage)
@@ -50,16 +58,34 @@ namespace HaldorExpansion.Features.Berserker
 
         internal static void UpdatePlayer(Player player)
         {
-            if (!CanRender || player == null) return;
+            if (player == null) return;
             ZNetView view = View(player);
+            if (view != null && view.IsValid() && view.IsOwner() && player == Player.m_localPlayer)
+            {
+                bool ready = !player.IsDead() && BerserkerRuntime.State.Frenzy &&
+                    BerserkerEquipment.Equipped(player) && BerserkerCloakRuntime.HasEquipped(player);
+                int level = CalculateInfernoLevel(BerserkerRuntime.Debt.Amount,
+                    BerserkerConfiguration.RagnarokMinimumDebtValue, ready);
+                if (view.GetZDO().GetInt(InfernoLevelZdoKey, -1) != level)
+                    view.GetZDO().Set(InfernoLevelZdoKey, level);
+            }
+            if (!CanRender) return;
             int stage = view != null && view.IsValid() && !player.IsDead()
                 ? Mathf.Clamp(view.GetZDO().GetInt(BerserkerIds.WrathStageZdoKey), 0, BerserkerState.MaxWrathStage)
                 : 0;
 
+            int infernoLevel = stage == BerserkerState.MaxWrathStage && view != null && view.IsValid()
+                ? view.GetZDO().GetInt(InfernoLevelZdoKey, -1) : -1;
+            bool inferno = infernoLevel >= 0;
+
             VisualState state;
             if (stage <= 0 && !Visuals.TryGetValue(player, out state)) return;
             state = Visuals.GetValue(player, ignored => new VisualState());
-            if (state.Stage == stage && (stage <= 0 || state.Root != null)) return;
+            if (state.Stage == stage && state.Inferno == inferno && (stage <= 0 || state.Root != null))
+            {
+                if (inferno && state.Aura != null) state.Aura.SetInfernoLevel(infernoLevel);
+                return;
+            }
 
             int previous = state.Stage;
             if (state.Root != null)
@@ -70,13 +96,16 @@ namespace HaldorExpansion.Features.Berserker
             }
 
             state.Root = null;
+            state.Aura = null;
             state.Stage = stage;
+            state.Inferno = inferno;
             if (stage <= 0) return;
 
             var root = new GameObject("Berserker_WrathAura_" + stage);
             root.transform.SetParent(player.transform, false);
             root.transform.localPosition = Vector3.zero;
-            root.AddComponent<BerserkerWrathAura>().Initialize(stage, GetAuraMaterial(), GetLineMaterial());
+            state.Aura = root.AddComponent<BerserkerWrathAura>();
+            state.Aura.Initialize(stage, GetAuraMaterial(), GetLineMaterial(), infernoLevel);
             state.Root = root;
 
             if (stage > previous)
@@ -84,6 +113,25 @@ namespace HaldorExpansion.Features.Berserker
                 PlayStagePulse(player.GetCenterPoint(), stage);
                 PlayStageSound(player, stage);
             }
+        }
+
+        internal static float CaptureInfernoStrength(Player player)
+        {
+            VisualState state;
+            if (player != null && Visuals.TryGetValue(player, out state) && state.Inferno && state.Aura != null)
+                return state.Aura.CurrentInfernoStrength;
+            int level = CalculateInfernoLevel(BerserkerRuntime.Debt.Amount,
+                BerserkerConfiguration.RagnarokMinimumDebtValue, true);
+            return BerserkerWrathAura.StrengthForLevel(level);
+        }
+
+        // -1 = ordinary Wrath aura; 0 = configured threshold; +1 per full 100 Debt.
+        internal static int CalculateInfernoLevel(double debt, double minimumDebt, bool ready)
+        {
+            if (!ready || double.IsNaN(debt) || double.IsInfinity(debt) ||
+                double.IsNaN(minimumDebt) || double.IsInfinity(minimumDebt) || minimumDebt <= 0d ||
+                debt + 0.0001d < minimumDebt) return -1;
+            return (int)Math.Min(int.MaxValue, Math.Floor(Math.Max(0d, debt - minimumDebt) / 100d));
         }
 
         internal static LineRenderer MakeSoftLine(Transform parent, float width, int count, bool loop)
@@ -383,6 +431,24 @@ namespace HaldorExpansion.Features.Berserker
 
     internal sealed class BerserkerWrathAura : MonoBehaviour
     {
+        // Только аура игрока. Материал и параметры метеоритов не изменяются.
+        // Min — на пороге из конфига, Max — предел при большом долге.
+        private const float InfernoBrightnessMin = 0.62f;
+        private const float InfernoBrightnessMax = 1.00f;
+        private const float InfernoSaturationMin = 0.80f;
+        private const float InfernoSaturationMax = 1.00f;
+        // 0 = невидимо, 1 = непрозрачно (с учётом маски текстуры).
+        private const float InfernoOpacityMin = 0.42f;
+        private const float InfernoOpacityMax = 0.68f;
+        // Столько дополнительных x1 дают половину усиления к пределу.
+        private const float InfernoHalfStrengthExtraStacks = 5f;
+        private const float InfernoSizeMin = 0.85f;
+        private const float InfernoSizeMax = 1.25f;
+        private const float InfernoEmissionMin = 11f;
+        private const float InfernoEmissionMax = 20f;
+        private const float InfernoLightMin = 0.24f;
+        private const float InfernoLightMax = 0.70f;
+
         private const int WispPoints = 32;
 
         private readonly LineRenderer[] wisps = new LineRenderer[2];
@@ -392,11 +458,27 @@ namespace HaldorExpansion.Features.Berserker
         private bool fadingOut;
         private float fadeStarted;
         private float fadeDuration;
+        private Light infernoGlow;
+        private readonly System.Collections.Generic.List<ParticleSystem> infernoFlames =
+            new System.Collections.Generic.List<ParticleSystem>(13);
+        private int infernoLevel = -1;
+        private float infernoStrength;
+        private float infernoTargetStrength;
+        private float appliedInfernoStrength;
 
-        internal void Initialize(int wrathStage, Material particleMaterial, Material lineMaterial)
+        internal void Initialize(int wrathStage, Material particleMaterial, Material lineMaterial, int debtLevel = -1)
         {
             stage = Mathf.Clamp(wrathStage, 1, BerserkerState.MaxWrathStage);
             bornAt = Time.time;
+
+            // Original Wrath I-V remains the default; fire signals enough Debt for Ragnarök.
+            if (debtLevel >= 0 && TryCreateAwakenedInferno())
+            {
+                SetInfernoLevel(debtLevel);
+                infernoStrength = infernoTargetStrength;
+                ApplyInfernoStrength(infernoStrength);
+                return;
+            }
 
             // Prefer the original Thunderblood wispy-smoke material and animated
             // flipbook. The procedural implementation remains as a fallback.
@@ -474,6 +556,173 @@ namespace HaldorExpansion.Features.Berserker
                     wisps[i].startColor = wisps[i].endColor = new Color(0.58f, 0.12f, 0.12f, 0f);
                 }
             }
+        }
+
+        private bool TryCreateAwakenedInferno()
+        {
+            Material material = BerserkerRagnarokMeteorFx.TornFlameMaterial();
+            if (material == null) return false;
+
+            // Overlapping pockets cover the silhouette from every viewing angle.
+            // Outward drift exposes the flames beyond armor rather than inside it.
+            Vector3[] centers =
+            {
+                new Vector3(-0.25f, 0.12f, 0.02f),
+                new Vector3(0.25f, 0.12f, 0.02f),
+                new Vector3(-0.28f, 0.54f, 0.00f),
+                new Vector3(0.28f, 0.54f, 0.00f),
+                new Vector3(0.00f, 0.85f, 0.32f),
+                new Vector3(0.00f, 0.85f, -0.32f),
+                new Vector3(-0.53f, 1.03f, 0.02f),
+                new Vector3(0.53f, 1.03f, 0.02f),
+                new Vector3(-0.40f, 1.43f, 0.00f),
+                new Vector3(0.40f, 1.43f, 0.00f),
+                new Vector3(0.00f, 1.38f, 0.30f),
+                new Vector3(0.00f, 1.38f, -0.30f),
+                new Vector3(0.00f, 1.78f, 0.00f)
+            };
+
+            for (int i = 0; i < centers.Length; i++)
+                CreateInfernoFlames(material, centers[i], i);
+
+            var lightObject = new GameObject("Wrath_InfernoGlow");
+            lightObject.transform.SetParent(transform, false);
+            lightObject.transform.localPosition = Vector3.up * 1.05f;
+            infernoGlow = lightObject.AddComponent<Light>();
+            infernoGlow.type = LightType.Point;
+            infernoGlow.color = new Color(1f, 0.18f, 0.045f);
+            infernoGlow.range = 3.2f;
+            infernoGlow.intensity = 0f;
+            infernoGlow.shadows = LightShadows.None;
+            return true;
+        }
+
+        private void CreateInfernoFlames(Material material, Vector3 center, int index)
+        {
+            var go = new GameObject("Wrath_InfernoFlames_" + index);
+            go.transform.SetParent(transform, false);
+            go.transform.localPosition = center;
+            var ps = go.AddComponent<ParticleSystem>();
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            var main = ps.main;
+            main.loop = true;
+            main.playOnAwake = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.48f, 0.82f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.30f, 0.52f);
+            main.startSpeed = 0f;
+            main.startColor = Color.white;
+            main.startRotation = new ParticleSystem.MinMaxCurve(-0.12f, 0.12f);
+            main.maxParticles = 24;
+            main.simulationSpace = ParticleSystemSimulationSpace.Local;
+            main.scalingMode = ParticleSystemScalingMode.Local;
+
+            var emission = ps.emission;
+            emission.enabled = true;
+            emission.rateOverTime = 16f;
+            var shape = ps.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radius = 0.20f;
+
+            Vector3 outward = new Vector3(center.x, 0f, center.z).normalized;
+            var velocity = ps.velocityOverLifetime;
+            velocity.enabled = true;
+            velocity.space = ParticleSystemSimulationSpace.Local;
+            velocity.x = new ParticleSystem.MinMaxCurve(outward.x * 0.38f - 0.12f, outward.x * 0.38f + 0.12f);
+            velocity.y = new ParticleSystem.MinMaxCurve(0.65f, 1.25f);
+            velocity.z = new ParticleSystem.MinMaxCurve(outward.z * 0.38f - 0.12f, outward.z * 0.38f + 0.12f);
+            var noise = ps.noise;
+            noise.enabled = true;
+            noise.strength = 0.23f;
+            noise.frequency = 2.1f;
+            noise.scrollSpeed = 1.6f;
+            noise.octaveCount = 2;
+            noise.quality = ParticleSystemNoiseQuality.Medium;
+            noise.damping = true;
+
+            var color = ps.colorOverLifetime;
+            color.enabled = true;
+            var size = ps.sizeOverLifetime;
+            size.enabled = true;
+            size.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(
+                new Keyframe(0f, 0.55f), new Keyframe(0.18f, 1f), new Keyframe(1f, 0.08f)));
+
+            var renderer = ps.GetComponent<ParticleSystemRenderer>();
+            renderer.sharedMaterial = material;
+            renderer.renderMode = ParticleSystemRenderMode.Stretch;
+            renderer.lengthScale = 1.85f;
+            renderer.velocityScale = 0.035f;
+            renderer.cameraVelocityScale = 0f;
+            renderer.shadowCastingMode = ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            infernoFlames.Add(ps);
+            ps.Play(false);
+        }
+
+        internal void SetInfernoLevel(int level)
+        {
+            if (infernoLevel == level) return;
+            infernoLevel = level;
+            infernoTargetStrength = StrengthForLevel(level);
+        }
+
+        internal float CurrentInfernoStrength => infernoStrength;
+
+        internal static float StrengthForLevel(int level)
+        {
+            float extra = Mathf.Max(0, level);
+            return extra / (extra + Mathf.Max(0.01f, InfernoHalfStrengthExtraStacks));
+        }
+
+        private static Color TuneInfernoColor(Color color, float strength)
+        {
+            float hue, saturation, value;
+            Color.RGBToHSV(color, out hue, out saturation, out value);
+            return Color.HSVToRGB(hue,
+                Mathf.Clamp01(saturation * Mathf.Lerp(InfernoSaturationMin, InfernoSaturationMax, strength)),
+                Mathf.Clamp01(value * Mathf.Lerp(InfernoBrightnessMin, InfernoBrightnessMax, strength)));
+        }
+
+        internal static Gradient InfernoGradient(float strength)
+        {
+            strength = Mathf.Clamp01(strength);
+            // Crimson -> orange -> pale golden heart. Edges keep the blood-red identity.
+            Color hot = TuneInfernoColor(Color.Lerp(new Color(1f, 0.22f, 0.08f),
+                new Color(1f, 0.88f, 0.48f), strength), strength);
+            Color middle = TuneInfernoColor(Color.Lerp(new Color(0.85f, 0.055f, 0.025f),
+                new Color(1f, 0.38f, 0.065f), strength), strength);
+            float opacity = Mathf.Clamp01(Mathf.Lerp(InfernoOpacityMin, InfernoOpacityMax, strength));
+            var gradient = new Gradient();
+            gradient.SetKeys(new[]
+            {
+                new GradientColorKey(hot, 0f),
+                new GradientColorKey(middle, 0.30f),
+                new GradientColorKey(TuneInfernoColor(new Color(0.52f, 0.025f, 0.035f), strength), 0.75f),
+                new GradientColorKey(new Color(0.18f, 0.005f, 0.012f), 1f)
+            }, new[]
+            {
+                new GradientAlphaKey(0f, 0f), new GradientAlphaKey(opacity, 0.10f),
+                new GradientAlphaKey(opacity * 0.70f, 0.48f), new GradientAlphaKey(0f, 1f)
+            });
+            return gradient;
+        }
+
+        private void ApplyInfernoStrength(float strength)
+        {
+            appliedInfernoStrength = strength;
+            Gradient gradient = InfernoGradient(strength);
+            float scale = Mathf.Lerp(InfernoSizeMin, InfernoSizeMax, strength);
+            foreach (ParticleSystem ps in infernoFlames)
+            {
+                if (ps == null) continue;
+                var main = ps.main;
+                main.startSize = new ParticleSystem.MinMaxCurve(0.30f * scale, 0.52f * scale);
+                var color = ps.colorOverLifetime;
+                color.color = new ParticleSystem.MinMaxGradient(gradient);
+                var emission = ps.emission;
+                emission.rateOverTime = Mathf.Lerp(InfernoEmissionMin, InfernoEmissionMax, strength);
+            }
+            if (infernoGlow != null) infernoGlow.color = gradient.Evaluate(0.30f);
         }
 
         private bool TryCreateThunderbloodCloudAura()
@@ -981,6 +1230,18 @@ namespace HaldorExpansion.Features.Berserker
                 : Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(age / 0.22f));
 
             float time = Time.time;
+            if (infernoGlow != null)
+            {
+                if (!fadingOut && infernoStrength != infernoTargetStrength)
+                {
+                    infernoStrength = Mathf.MoveTowards(infernoStrength, infernoTargetStrength, Time.deltaTime * 0.65f);
+                    if (Mathf.Abs(infernoStrength - appliedInfernoStrength) >= 0.015f ||
+                        infernoStrength == infernoTargetStrength)
+                        ApplyInfernoStrength(infernoStrength);
+                }
+                infernoGlow.intensity = Mathf.Lerp(InfernoLightMin, InfernoLightMax, infernoStrength) *
+                    (1f + Mathf.Sin(time * 11f) * 0.08f) * fade;
+            }
             for (int i = 0; i < wisps.Length; i++) UpdateWisp(wisps[i], i, time, fade);
         }
 

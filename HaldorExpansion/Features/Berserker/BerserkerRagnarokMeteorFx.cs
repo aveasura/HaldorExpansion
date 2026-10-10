@@ -150,6 +150,8 @@ namespace HaldorExpansion.Features.Berserker
         private static Material flameMaterial;
         private static Material smokeMaterial;
 
+        internal static Material TornFlameMaterial() => FlightMaterial(true);
+
         private static Material FlightMaterial(bool flame)
         {
             Material cached = flame ? flameMaterial : smokeMaterial;

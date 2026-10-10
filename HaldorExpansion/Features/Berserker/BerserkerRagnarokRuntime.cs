@@ -82,14 +82,15 @@ namespace HaldorExpansion.Features.Berserker
             float castSeconds = BerserkerConfiguration.RagnarokCastDurationValue;
             // Freeze gameplay scaling at E. The telegraph RPC carries this same radius.
             double debtAtActivation = BerserkerRuntime.Debt.Amount;
+            float auraStrength = BerserkerWrathEffects.CaptureInfernoStrength(player);
             casting = true;
             inputLockedUntil = Time.time + castSeconds;
-            BerserkerRagnarokFx.BeginLocalSkywardAura(player);
+            BerserkerRagnarokFx.BeginLocalSkywardAura(player, auraStrength);
             castRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(
-                CastRoutine(player, castSeconds, debtAtActivation));
+                CastRoutine(player, castSeconds, debtAtActivation, auraStrength));
         }
 
-        private static IEnumerator CastRoutine(Player player, float castSeconds, double debtAtActivation)
+        private static IEnumerator CastRoutine(Player player, float castSeconds, double debtAtActivation, float auraStrength)
         {
             try
             {
@@ -97,7 +98,7 @@ namespace HaldorExpansion.Features.Berserker
                 ClearHumanoidAttackState(player);
                 ClearHumanoidBlockState(player);
                 BerserkerEffects.BroadcastRagnarokCast(player, castSeconds,
-                    BerserkerRagnarokMath.MeteorImpactRadius(debtAtActivation));
+                    BerserkerRagnarokMath.MeteorImpactRadius(debtAtActivation), auraStrength);
 
                 // Once the activation conditions passed and E started the cast, Ragnarök is
                 // committed. Do not re-check Wrath, Debt, equipment, attack/dodge state, etc.

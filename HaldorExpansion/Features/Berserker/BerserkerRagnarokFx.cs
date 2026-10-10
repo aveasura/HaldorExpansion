@@ -42,7 +42,7 @@ namespace HaldorExpansion.Features.Berserker
         private static bool searchedCastAudio;
         private static AudioClip castAudio;
 
-        internal static void OnCast(Player player, Transform castVisualRoot, float duration)
+        internal static void OnCast(Player player, Transform castVisualRoot, float duration, float auraStrength)
         {
             if (player == null || castVisualRoot == null) return;
             // Local caster already started BOTH sounds and the smoke stopwatch at E.
@@ -53,32 +53,27 @@ namespace HaldorExpansion.Features.Berserker
 
             PlayCastSound(player);
             PlayCastBell(player);
-            BeginSkywardAura(player);
+            BeginSkywardAura(player, auraStrength);
         }
 
         // Called immediately after an accepted E press, before entering the
         // coroutine / sending any RPCs. The two editable timers are E-relative.
-        internal static void BeginLocalSkywardAura(Player player)
+        internal static void BeginLocalSkywardAura(Player player, float auraStrength)
         {
             if (player == null || !BerserkerEffects.CanRender) return;
             // Both sounds begin with accepted E, independently of the delayed smoke.
             PlayCastSound(player);
             PlayCastBell(player);
-            BeginSkywardAura(player);
+            BeginSkywardAura(player, auraStrength);
         }
 
-        private static void BeginSkywardAura(Player player)
+        private static void BeginSkywardAura(Player player, float auraStrength)
         {
             if (player == null) return;
 
-            // Ragnarök is not a new aura: it TEARS the established Wrath V aura
-            // off the berserker and carries that same Thunderblood smoke skyward.
-            // Begin at boots, hips and shoulders and build a tall, moving column.
-            // All emission is local cosmetics; no networked prefab is spawned.
-            // Separate from the cast telegraph's GameObject: that visual is
-            // destroyed on meteor release, which previously cut smoke off early.
-            // Delay and duration control ONLY the cosmetic emitters. The cast,
-            // emote, voice and meteor release are completely independent.
+            // Freeze the body's palette at accepted E; RPC observers use the same snapshot.
+            // World-space torn flames leave the player and survive the end of the cast.
+            Gradient palette = BerserkerWrathAura.InfernoGradient(auraStrength);
             foreach (var previous in player.GetComponentsInChildren<BerserkerRagnarokAscension>())
                 if (previous != null)
                     previous.Finish();
@@ -110,24 +105,19 @@ namespace HaldorExpansion.Features.Berserker
 
             for (int i = 0; i < sources.Length; i++)
             {
-                // Deep crimson near the body, lighter red as the rage ascends.
                 bool high = i >= 8;
-                Color tint = high
-                    ? new Color(1.00f, 0.29f, 0.24f, 0.52f)
-                    : new Color(0.98f, 0.17f, 0.16f, 0.58f);
-                float radius = high ? 0.30f : 0.42f;
-                float rate = high ? 21f : 27f;
-                ParticleSystem ps = MakeAscendingCloud(smokeRoot.transform, sources[i], tint, radius, rate,
-                    SkywardAuraEmissionSeconds);
+                float radius = high ? 0.24f : 0.34f;
+                float rate = high ? 12f : 16f;
+                ParticleSystem ps = MakeAscendingFlame(smokeRoot.transform, sources[i], palette,
+                    radius, rate, auraStrength);
                 ascent.Register(ps, rate);
             }
 
-            // Thin heated shards follow the same vertical motion as the smoke;
-            // they remain secondary to the native WispySmoke flipbook texture.
+            // Small hot sparks follow the same palette and upward flow.
             ParticleSystem sparks = BerserkerEffects.MakeParticles(smokeRoot.transform, BerserkerEffects.SoftMaterial(),
                 true, 0.86f, 0.040f, 0.10f, 0.35f, 1.30f, 190);
             var main = sparks.main;
-            main.startColor = new Color(1f, 0.48f, 0.28f, 0.72f);
+            main.startColor = palette.Evaluate(0.12f);
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             var shape = sparks.shape;
             shape.shapeType = ParticleSystemShapeType.Sphere;
@@ -160,7 +150,12 @@ namespace HaldorExpansion.Features.Berserker
             foreach (Vector3 anchor in lightningAnchors)
             {
                 ParticleSystem lightning = CreateThunderbloodLightning(smokeRoot.transform, anchor, false);
-                if (lightning != null) ascent.RegisterSparks(lightning, 10f);
+                if (lightning != null)
+                {
+                    var lightningMain = lightning.main;
+                    lightningMain.startColor = palette.Evaluate(0.12f);
+                    ascent.RegisterSparks(lightning, 10f);
+                }
             }
         }
 
@@ -452,6 +447,52 @@ namespace HaldorExpansion.Features.Berserker
             return ps;
         }
 
+        private static ParticleSystem MakeAscendingFlame(Transform parent, Vector3 origin, Gradient palette,
+            float radius, float rate, float strength)
+        {
+            Material material = BerserkerRagnarokMeteorFx.TornFlameMaterial();
+            if (material == null) return null;
+            float scale = Mathf.Lerp(0.85f, 1.25f, Mathf.Clamp01(strength));
+            ParticleSystem ps = BerserkerEffects.MakeParticles(parent, material, true, 1.8f,
+                0.36f * scale, 0.68f * scale, 0f, 0f, 80);
+            ps.name = "Ragnarok_AscendingFlame";
+            ps.transform.localPosition = origin;
+            var main = ps.main;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(1.20f, 1.80f);
+            main.startColor = Color.white;
+            main.startRotation = new ParticleSystem.MinMaxCurve(-0.10f, 0.10f);
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.scalingMode = ParticleSystemScalingMode.Local;
+            var shape = ps.shape;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radius = radius;
+            var emission = ps.emission;
+            emission.rateOverTime = rate;
+            var velocity = ps.velocityOverLifetime;
+            velocity.enabled = true;
+            velocity.space = ParticleSystemSimulationSpace.World;
+            velocity.x = new ParticleSystem.MinMaxCurve(-0.18f, 0.18f);
+            velocity.y = new ParticleSystem.MinMaxCurve(9f, 14f);
+            velocity.z = new ParticleSystem.MinMaxCurve(-0.18f, 0.18f);
+            var noise = ps.noise;
+            noise.enabled = true;
+            noise.strength = 0.28f;
+            noise.frequency = 2.1f;
+            noise.scrollSpeed = 1.6f;
+            noise.octaveCount = 2;
+            noise.quality = ParticleSystemNoiseQuality.Medium;
+            noise.damping = true;
+            var color = ps.colorOverLifetime;
+            color.enabled = true;
+            color.color = new ParticleSystem.MinMaxGradient(palette);
+            var renderer = ps.GetComponent<ParticleSystemRenderer>();
+            renderer.renderMode = ParticleSystemRenderMode.Stretch;
+            renderer.lengthScale = 1.85f;
+            renderer.velocityScale = 0.035f;
+            renderer.cameraVelocityScale = 0f;
+            return ps;
+        }
+
         private static ParticleSystem MakeAscendingCloud(Transform parent, Vector3 origin, Color tint,
             float radius, float rate, float duration)
         {
@@ -549,9 +590,7 @@ namespace HaldorExpansion.Features.Berserker
             var emission = ps.emission;
             emission.rateOverTime = 0f;
 
-            // Keep the native Thunderblood smoke material and flipbook; narrow
-            // the top of each smoke wisp as its lifetime ends instead of
-            // letting the sky column finish as a large, rounded cloud.
+            // Taper each rising flame to a narrow tip over its lifetime.
             var size = ps.sizeOverLifetime;
             size.enabled = true;
             size.size = new ParticleSystem.MinMaxCurve(1f,

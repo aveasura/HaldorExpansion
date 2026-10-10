@@ -57,11 +57,13 @@ namespace HaldorExpansion.Features.Berserker
                 BerserkerReckoningFx.Heal(player, point, heal);
             });
 
-            view.Register<float, float>(BerserkerIds.RagnarokCastRpc, (sender, duration, impactRadius) =>
+            view.Register<float, float, float>(BerserkerIds.RagnarokCastRpc, (sender, duration, impactRadius, auraStrength) =>
             {
                 if (!ValidVisualRpc(view, sender) || !FinitePositive(duration) || duration > 10f ||
-                    !FinitePositive(impactRadius) || impactRadius > 11.1f || !CanRender) return;
-                PlayRagnarokCast(player, duration, impactRadius);
+                    !FinitePositive(impactRadius) || impactRadius > 11.1f ||
+                    float.IsNaN(auraStrength) || float.IsInfinity(auraStrength) ||
+                    auraStrength < 0f || auraStrength > 1f || !CanRender) return;
+                PlayRagnarokCast(player, duration, impactRadius, auraStrength);
             });
 
             view.Register<bool>(BerserkerIds.RagnarokStopRpc, (sender, ignored) =>
@@ -116,13 +118,13 @@ namespace HaldorExpansion.Features.Berserker
             else if (CanRender) BerserkerReckoningFx.Heal(player, point, actualHeal);
         }
 
-        internal static void BroadcastRagnarokCast(Player player, float duration, float impactRadius)
+        internal static void BroadcastRagnarokCast(Player player, float duration, float impactRadius, float auraStrength)
         {
             if (player == null || !FinitePositive(duration) || !FinitePositive(impactRadius)) return;
             ZNetView view = View(player);
             if (view != null && view.IsValid())
-                view.InvokeRPC(ZNetView.Everybody, BerserkerIds.RagnarokCastRpc, duration, impactRadius);
-            else if (CanRender) PlayRagnarokCast(player, duration, impactRadius);
+                view.InvokeRPC(ZNetView.Everybody, BerserkerIds.RagnarokCastRpc, duration, impactRadius, auraStrength);
+            else if (CanRender) PlayRagnarokCast(player, duration, impactRadius, auraStrength);
         }
 
         internal static void BroadcastRagnarokStop(Player player)
@@ -205,7 +207,7 @@ namespace HaldorExpansion.Features.Berserker
             BerserkerReckoningFx.Impact(player, point, EffectIntensity(debt));
         }
 
-        private static void PlayRagnarokCast(Player player, float duration, float impactRadius)
+        private static void PlayRagnarokCast(Player player, float duration, float impactRadius, float auraStrength)
         {
             if (player == null || player.IsDead()) return;
             PlayerVisualState state = PlayerVisuals.GetValue(player, ignored => new PlayerVisualState());
@@ -215,7 +217,7 @@ namespace HaldorExpansion.Features.Berserker
             root.transform.SetParent(player.transform, false);
             BerserkerRagnarokCastVisual cast = root.AddComponent<BerserkerRagnarokCastVisual>();
             cast.Initialize(player, impactRadius, duration, SoftMaterial(), SolidMaterial());
-            BerserkerRagnarokFx.OnCast(player, root.transform, duration);
+            BerserkerRagnarokFx.OnCast(player, root.transform, duration, auraStrength);
             state.RagnarokCast = cast;
         }
 

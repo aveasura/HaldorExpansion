@@ -48,7 +48,7 @@ namespace HaldorExpansion.Features.Berserker
         internal const string ReckoningSwingRpc = Prefix + "berserker_reckoning_swing_fx_v1";
         internal const string ReckoningImpactRpc = Prefix + "berserker_reckoning_impact_fx_v1";
         internal const string ReckoningHealFxRpc = Prefix + "berserker_reckoning_heal_fx_v1";
-        internal const string RagnarokCastRpc = Prefix + "berserker_ragnarok_cast_fx_v4";
+        internal const string RagnarokCastRpc = Prefix + "berserker_ragnarok_cast_fx_v5";
         internal const string RagnarokStopRpc = Prefix + "berserker_ragnarok_stop_fx_v1";
         internal const string RagnarokReleaseRpc = Prefix + "berserker_ragnarok_release_fx_v1";
         internal const string RagnarokMeteorImpactRpc = Prefix + "berserker_ragnarok_meteor_impact_fx_v2";
