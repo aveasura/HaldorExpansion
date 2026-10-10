@@ -236,6 +236,8 @@ namespace HaldorExpansion.Features.Berserker
             hit.m_damage.m_slash = damage * 0.45f;
             hit.m_damage.m_blunt = damage * 0.45f;
             hit.m_damage.m_fire = damage * 0.10f;
+            hit.m_damage.m_chop = damage;
+            hit.m_toolTier = 4;
             hit.m_pushForce = MeteorPushForce;
             hit.m_skill = Skills.SkillType.Axes;
             hit.m_blockable = true;
