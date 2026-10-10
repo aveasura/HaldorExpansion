@@ -140,6 +140,7 @@ namespace HaldorExpansion.Configuration
             if (oldBerserkerIds)
                 localTrading = BerserkerTradingMigration.Upgrade(localTrading, TradingCatalog.Defaults);
             TradingDocument.Parse(localTrading.Serialize(), TradingCatalog.Defaults);
+
             Validate(General, Values(General));
             Validate(Balance, Values(Balance));
             if (!newGeneral) Validate(General, generalDisk, complete: previous == null);

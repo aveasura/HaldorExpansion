@@ -9,6 +9,7 @@ namespace HaldorExpansion.Features.Berserker
 
         private static Player owner;
         private static int lastSyncedStage = -1;
+        internal const int ReckoningMinimumWrathStage = 2;
 
         internal static int EffectiveWrathStage(Player player)
         {
@@ -20,7 +21,12 @@ namespace HaldorExpansion.Features.Berserker
         internal static float WrathAttackSpeedMultiplier(Player player)
         {
             int stage = EffectiveWrathStage(player);
-            return Mathf.Clamp(1f + stage * BerserkerConfiguration.WrathAttackSpeedFractionPerStage, 0.1f, 3f);
+            float wrathBonus = BerserkerConfiguration.WrathAttackSpeedBonusFraction(stage);
+            float exhaustionPenalty = BerserkerRagnarokExhaustion.IsActive(player)
+                ? BerserkerConfiguration.RagnarokExhaustionAttackPenaltyFraction
+                : 0f;
+            // Wrath and Exhaustion combine additively, not as separate multipliers.
+            return Mathf.Max(0.1f, 1f + wrathBonus - exhaustionPenalty);
         }
 
         internal static float WrathStaminaMultiplier(Player player)
@@ -116,7 +122,7 @@ namespace HaldorExpansion.Features.Berserker
             bonus = 0f;
             if (player == null || player != Player.m_localPlayer || player.IsDead()) return false;
             EnsureOwner(player);
-            if (!State.Frenzy || !BerserkerEquipment.Equipped(player)) return false;
+            if (State.WrathStage < ReckoningMinimumWrathStage || !BerserkerEquipment.Equipped(player)) return false;
 
             double currentDebt = Debt.Amount;
             if (currentDebt + 0.0001d < BerserkerConfiguration.ReckoningMinimumDebtValue) return false;

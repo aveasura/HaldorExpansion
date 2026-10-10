@@ -24,7 +24,7 @@ namespace HaldorExpansion.Features.Berserker
     }
 
     // The mouse-wheel alternative attack reaches StartAttack with secondaryAttack=true.
-    // Mark the exact cloned Attack instance so that, when Wrath V and enough Debt are present,
+    // Mark the exact cloned Attack instance so that, when Wrath II+ and enough Debt are present,
     // that same hit becomes Reckoning without a separate prepare/arm button.
     [HarmonyPatch(typeof(Humanoid), "StartAttack", new Type[] { typeof(Character), typeof(bool) })]
     internal static class BerserkerSecondaryAttackIntentPatch
@@ -78,11 +78,11 @@ namespace HaldorExpansion.Features.Berserker
     {
         private static bool Prefix(Character __instance, HitData hit)
         {
-            // Credit Wrath first so a hit that reaches Wrath V may immediately qualify
+            // Credit Wrath first so a hit that reaches Wrath II may immediately qualify
             // that same secondary swing as Reckoning, matching the original behaviour.
             bool credited = BerserkerAttackScope.TryCredit(__instance, hit);
 
-            // A valid secondary hit becomes Reckoning directly when Wrath V + minimum Debt are present.
+            // A valid secondary hit becomes Reckoning directly when Wrath II+ and minimum Debt are present.
             // Route it through the owner-side RPC so lifesteal uses final post-defense direct damage.
             bool reckoning = BerserkerAttackScope.TryInterceptReckoning(__instance, hit);
 
@@ -142,9 +142,10 @@ namespace HaldorExpansion.Features.Berserker
                 baseSpeed = state.LastBaseSpeed;
 
             Attack currentAttack = CurrentAttackField != null ? CurrentAttackField.GetValue(player) as Attack : null;
-            int stage = BerserkerRuntime.EffectiveWrathStage(player);
-            bool shouldBoost = stage > 0 && player.InAttack() && currentAttack != null &&
-                               BerserkerEquipment.Equipped(player);
+            bool attacking = player.InAttack() && currentAttack != null;
+            float attackMultiplier = attacking ? BerserkerRuntime.WrathAttackSpeedMultiplier(player) : 1f;
+            // Exhaustion slows attacks even with no Wrath stacks or after switching weapons.
+            bool shouldBoost = attacking && Mathf.Abs(attackMultiplier - 1f) > 0.0001f;
 
             if (!shouldBoost)
             {
@@ -156,7 +157,7 @@ namespace HaldorExpansion.Features.Berserker
                 return;
             }
 
-            float newSpeed = baseSpeed * BerserkerRuntime.WrathAttackSpeedMultiplier(player);
+            float newSpeed = baseSpeed * attackMultiplier;
             if (Mathf.Abs(___m_animator.speed - newSpeed) > 0.0001f)
                 ___m_animator.speed = newSpeed;
 

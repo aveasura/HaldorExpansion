@@ -63,6 +63,21 @@ internal static class LocalizationTests
             ModLocalization.AddLocalizations();
             CheckCatalogs();
             Check(Words("English")[BerserkerIds.AxeDescriptionKey].Contains("Ragnarök (E)"), "Default bound Ragnarok key");
+            float[] defaultSpeeds = { 20f, 32f, 43f, 52f, 60f };
+            foreach (string language in new[] { "Russian", "English" })
+            {
+                string axeDescription = Words(language)[BerserkerIds.AxeDescriptionKey];
+                foreach (float speed in defaultSpeeds)
+                    Check(axeDescription.Contains(Number(speed)), "Default curve appears in axe description");
+                for (int stage = 1; stage <= 5; stage++)
+                    Check(Words(language)[BerserkerIds.WrathKeyPrefix + stage + "_desc"]
+                        .Contains("+" + Number(defaultSpeeds[stage - 1]) + "%"), "Default Wrath attack speed stage " + stage);
+                Check(axeDescription.Contains(language == "Russian" ? "Ярость II+" : "Wrath II+"),
+                    "Reckoning unlock requirement describes Wrath II");
+                string exhaustionDefault = Words(language)[BerserkerIds.ExhaustionDescriptionKey];
+                Check(exhaustionDefault.Contains("40%") && exhaustionDefault.Contains("25%") &&
+                      exhaustionDefault.Contains("7"), "Default Exhaustion contains all penalties and duration");
+            }
             BerserkerConfiguration.WrathAttackSpeedPercentPerStage.Value = 13f;
             BerserkerConfiguration.WrathStaminaCostReductionPercentPerStage.Value = 7f;
             BerserkerConfiguration.ReckoningLifeStealPercent.Value = 37f;
@@ -70,6 +85,8 @@ internal static class LocalizationTests
             BerserkerConfiguration.ReckoningMinimumDebt.Value = 250f;
             BerserkerConfiguration.RagnarokMinimumDebt.Value = 750f;
             BerserkerConfiguration.RagnarokExhaustionMovePenaltyPercent.Value = 42f;
+            BerserkerConfiguration.RagnarokExhaustionAttackPenaltyPercent.Value = 23f;
+            BerserkerConfiguration.RagnarokExhaustionStaminaRegenPenaltyPercent.Value = 47f;
             BerserkerConfiguration.RagnarokExhaustionDuration.Value = 4.5f;
             BerserkerConfiguration.RagnarokButton.Config.BoxedValue = KeyCode.F;
             // Russian culture must not change decimal formatting in either catalog.
@@ -81,16 +98,21 @@ internal static class LocalizationTests
             {
                 var words = Words(language);
                 string axe = words[BerserkerIds.AxeDescriptionKey];
-                foreach (string fragment in new[] { "+13%", "-7%", "37%", "63%", "x2.5+", "x7.5+", "(F)" })
+                foreach (string fragment in new[] { "-7%", "37%", "63%", "x2.5+", "x7.5+", "(F)" })
                     Check(axe.Contains(fragment), language + " configured axe fragment " + fragment);
+                float[] expectedSpeeds = { 26f, 41.6f, 55.9f, 67.6f, 78f };
                 for (int stage = 1; stage <= 5; stage++)
                 {
+                    string speed = Number(expectedSpeeds[stage - 1]);
                     string wrath = words[BerserkerIds.WrathKeyPrefix + stage + "_desc"];
-                    Check(wrath.Contains("+" + stage * 13 + "%"), "Configured stage attack speed");
+                    Check(wrath.Contains("+" + speed + "%"), "Configured stage attack speed");
+                    Check(axe.Contains(speed), "Configured attack speed appears in axe description");
                     Check(wrath.Contains("-" + stage * 7 + "%"), "Configured stage stamina");
                 }
                 string exhaustion = words[BerserkerIds.ExhaustionDescriptionKey];
-                Check(exhaustion.Contains("42%") && exhaustion.Contains("4.5"), "Configured exhaustion");
+                Check(exhaustion.Contains("42%") && exhaustion.Contains("23%") &&
+                      exhaustion.Contains("47%") && exhaustion.Contains("4.5"),
+                    "Configured movement, attack, regeneration and duration of Exhaustion");
             }
             Check(Localization.instance.Words[BerserkerIds.AxeDescriptionKey.TrimStart('$')] == Words("Russian")[BerserkerIds.AxeDescriptionKey], "Native current-language words refreshed");
             BerserkerConfiguration.WrathAttackSpeedPercentPerStage.Value = 100f;

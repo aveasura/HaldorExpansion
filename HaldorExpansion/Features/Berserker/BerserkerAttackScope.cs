@@ -7,7 +7,7 @@ namespace HaldorExpansion.Features.Berserker
 {
     // Attack.DoMeleeAttack invokes Character.Damage locally before the routed damage RPC.
     // StartAttack marks the exact cloned Attack instance used for the mouse-wheel secondary swing.
-    // If Wrath V and enough Blood Debt are present when that swing connects, it becomes Reckoning directly.
+    // If Wrath II+ and enough Blood Debt are present when that swing connects, it becomes Reckoning directly.
     internal static class BerserkerAttackScope
     {
         private static readonly FieldInfo AttackCharacterField = AccessTools.Field(typeof(Attack), "m_character");

@@ -26,6 +26,8 @@ namespace HaldorExpansion.Features.Berserker
         internal static ConfigEntry<float> RagnarokCastDuration;
         internal static ConfigEntry<float> RagnarokExhaustionDuration;
         internal static ConfigEntry<float> RagnarokExhaustionMovePenaltyPercent;
+        internal static ConfigEntry<float> RagnarokExhaustionAttackPenaltyPercent;
+        internal static ConfigEntry<float> RagnarokExhaustionStaminaRegenPenaltyPercent;
         internal static ButtonConfig RagnarokButton;
 
         internal static void Register(ConfigFile config, ConfigFile input)
@@ -86,7 +88,7 @@ namespace HaldorExpansion.Features.Berserker
             ReckoningMinimumDebt = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
                 "Reckoning minimum Blood Debt", 100f,
-                "Minimum Blood Debt required for the secondary greataxe attack to become Reckoning at Wrath V.",
+                "Minimum Blood Debt required for the secondary greataxe attack to become Reckoning at Wrath II or higher.",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(1f, 1000000f));
 
             ReckoningSpendPercent = config.BindConfig(
@@ -104,7 +106,9 @@ namespace HaldorExpansion.Features.Berserker
             WrathAttackSpeedPercentPerStage = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
                 "Wrath attack speed percent per stage", 10f,
-                "Attack animation speed gained per active Wrath stage while wielding the Berserker Greataxe.",
+                "Base speed bonus for the non-linear Wrath curve while wielding the Berserker Greataxe. " +
+                "Default 10 gives Wrath I–V: +20/+32/+43/+52/+60% attack speed. " +
+                "Changing this value scales all five stage bonuses proportionally.",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 100f));
 
             WrathStaminaCostReductionPercentPerStage = config.BindConfig(
@@ -127,15 +131,27 @@ namespace HaldorExpansion.Features.Berserker
 
             RagnarokExhaustionDuration = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
-                "Ragnarok exhaustion duration seconds", 3f,
+                "Ragnarok exhaustion duration seconds", 7f,
                 "Duration of Exhaustion after Ragnarok resolves.", synced: true,
                 acceptableValues: new AcceptableValueRange<float>(0f, 30f));
 
             RagnarokExhaustionMovePenaltyPercent = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
-                "Ragnarok exhaustion movement penalty percent", 25f,
+                "Ragnarok exhaustion movement penalty percent", 40f,
                 "Movement-speed penalty applied by Exhaustion after Ragnarok.", synced: true,
                 acceptableValues: new AcceptableValueRange<float>(0f, 90f));
+
+            RagnarokExhaustionAttackPenaltyPercent = config.BindConfig(
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Ragnarok exhaustion attack speed penalty percent", 25f,
+                "Attack-speed penalty applied by Exhaustion after Ragnarok. Subtracts from Wrath's attack-speed bonus.",
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 90f));
+
+            RagnarokExhaustionStaminaRegenPenaltyPercent = config.BindConfig(
+                ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
+                "Ragnarok exhaustion stamina regeneration penalty percent", 40f,
+                "Stamina-regeneration penalty applied by Exhaustion after Ragnarok.",
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 90f));
 
             ConfigEntry<KeyCode> ragnarokKey = input.Bind(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
@@ -171,6 +187,14 @@ namespace HaldorExpansion.Features.Berserker
         internal static float WrathAttackSpeedFractionPerStage =>
             FiniteClamp(WrathAttackSpeedPercentPerStage.Value, 0f, 100f, 10f) * 0.01f;
 
+        // Keep the existing config key for compatibility: its value scales the curve.
+        // The defaults are 20/32/43/52/60% for Wrath I/II/III/IV/V.
+        private static readonly float[] WrathSpeedStageFactors = { 0f, 2f, 3.2f, 4.3f, 5.2f, 6f };
+
+        internal static float WrathAttackSpeedBonusFraction(int stage) =>
+            Mathf.Clamp(WrathSpeedStageFactors[Mathf.Clamp(stage, 0, BerserkerState.MaxWrathStage)] *
+                        WrathAttackSpeedFractionPerStage, 0f, 2f);
+
         internal static float WrathStaminaReductionFractionPerStage =>
             FiniteClamp(WrathStaminaCostReductionPercentPerStage.Value, 0f, 19f, 5f) * 0.01f;
 
@@ -178,10 +202,16 @@ namespace HaldorExpansion.Features.Berserker
         internal static float RagnarokCastDurationValue => FiniteClamp(RagnarokCastDuration.Value, 0.1f, 10f, 1.5f);
 
         internal static float RagnarokExhaustionDurationValue =>
-            FiniteClamp(RagnarokExhaustionDuration.Value, 0f, 30f, 3f);
+            FiniteClamp(RagnarokExhaustionDuration.Value, 0f, 30f, 7f);
 
         internal static float RagnarokExhaustionMovePenaltyFraction =>
-            FiniteClamp(RagnarokExhaustionMovePenaltyPercent.Value, 0f, 90f, 25f) * 0.01f;
+            FiniteClamp(RagnarokExhaustionMovePenaltyPercent.Value, 0f, 90f, 40f) * 0.01f;
+
+        internal static float RagnarokExhaustionAttackPenaltyFraction =>
+            FiniteClamp(RagnarokExhaustionAttackPenaltyPercent.Value, 0f, 90f, 25f) * 0.01f;
+
+        internal static float RagnarokExhaustionStaminaRegenPenaltyFraction =>
+            FiniteClamp(RagnarokExhaustionStaminaRegenPenaltyPercent.Value, 0f, 90f, 40f) * 0.01f;
 
         private static float FiniteClamp(float value, float min, float max, float fallback)
             => float.IsNaN(value) || float.IsInfinity(value) ? fallback : Mathf.Clamp(value, min, max);

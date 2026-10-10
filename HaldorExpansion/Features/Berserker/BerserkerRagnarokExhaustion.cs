@@ -74,6 +74,12 @@ namespace HaldorExpansion.Features.Berserker
                 "[Berserker] Could not apply Ragnarok Exhaustion with the current SEMan API.");
         }
 
+        internal static bool IsActive(Player player)
+        {
+            return player != null && prototype != null &&
+                   player.GetSEMan()?.GetStatusEffect(prototype.NameHash()) != null;
+        }
+
         private static void Configure(SE_Stats stats)
         {
             if (stats == null) return;
@@ -82,6 +88,8 @@ namespace HaldorExpansion.Features.Berserker
             ReflectionAccess.SetFieldIfExists(stats, "m_ttl", BerserkerConfiguration.RagnarokExhaustionDurationValue);
             ReflectionAccess.SetFieldIfExists(stats, "m_speedModifier",
                 -BerserkerConfiguration.RagnarokExhaustionMovePenaltyFraction);
+            ReflectionAccess.SetFieldIfExists(stats, "m_staminaRegenMultiplier",
+                1f - BerserkerConfiguration.RagnarokExhaustionStaminaRegenPenaltyFraction);
         }
 
         private static object GetSEMan(Player player)

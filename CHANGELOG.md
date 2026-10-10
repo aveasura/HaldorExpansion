@@ -11,7 +11,7 @@ All notable changes to HaldorExpansion will be documented in this file.
 - **Reckoning:** A powerful secondary attack that consumes Blood Debt to deal additional damage and restore health.
 - **Ragnarök:** A devastating meteor-based ability featuring dynamic damage scaling, 12–30 meteors, expanding impact areas, warning effects, and enhanced visual and sound effects.
 - **Berserker Helmet:** Added Wrath-based defensive bonuses and lifesteal that scales with damage actually dealt to enemies.
-- **Exhaustion:** A temporary movement penalty following Ragnarök to balance its destructive power.
+- **Exhaustion:** A 7-second debuff after Ragnarök with -40% movement speed, -25% attack speed, and -40% stamina regeneration. New Wrath stacks still offset the attack-speed penalty additively.
 - **Berserker Trading:** Added configurable availability, pricing, and progression requirements for Berserker equipment at Haldor's shop.
 - **Berserker Repairs:** Added forge repair support for Berserker equipment
 - **Live Configuration Reloading:** Changes to `general.cfg`, `balance.cfg`, and `trading.yml` are automatically detected and applied without restarting Valheim.

@@ -172,7 +172,7 @@ namespace HaldorExpansion.Presentation
                 [BerserkerIds.RagnarokCastKey] = "Рагнарёк",
                 [BerserkerIds.ExhaustionKey] = "Истощение",
                 [BerserkerIds.ExhaustionDescriptionKey] =
-                    "После Рагнарёка скорость передвижения снижена на 25% на 3 секунды.",
+                    "После Рагнарёка: −40% скорости передвижения, −25% скорости атаки и −40% восстановления выносливости на 7 секунд.",
 
                 [BerserkerIds.AxeItemKey] = ItemNames.BerserkerGreataxeRu,
                 [BerserkerIds.AxeItemKey + "_lore"] =
@@ -187,11 +187,12 @@ namespace HaldorExpansion.Presentation
                     "<color=#C9A56B><b>Сила реликвии</b></color>\n" +
                     "<color=#9EDFF2><b>Кровавая жажда</b></color>: +0,2% урона секирой за каждый недостающий HP.\n\n" +
                     "<color=#9EDFF2><b>Ярость (I–V)</b></color>: попадания секирой накапливают Ярость.\n" +
-                    "Каждая стадия: +{wrath_speed}% скорости атаки, -{wrath_stamina}% затрат выносливости.\n" +
+                    "Скорость атаки (I–V): +{wrath_speed_1}/{wrath_speed_2}/{wrath_speed_3}/{wrath_speed_4}/{wrath_speed_5}%.\n" +
+                    "Каждая стадия: -{wrath_stamina}% затрат выносливости.\n" +
                     "Без новых попаданий Ярость угасает.\n\n" +
                     "<color=#9EDFF2><b>Кровавый долг</b></color>: растёт от полученных ран и попаданий секирой.\n" +
                     "Усиливает Расплату и Рагнарёк. Вне боя угасает.\n\n" +
-                    "<color=#9EDFF2><b>Расплата (колёсико мыши)</b></color>: требует Ярость V и долг x{reckoning_debt}+.\n" +
+                    "<color=#9EDFF2><b>Расплата (колёсико мыши)</b></color>: требует Ярость II+ и долг x{reckoning_debt}+.\n" +
                     "Заменяет альтернативную атаку. При попадании расходует {reckoning_spend}% долга,\n" +
                     "наносит дополнительный урон и исцеляет на {reckoning_heal}% от прямого урона.\n\n" +
                     "<color=#e72517><b>Рагнарёк ({ragnarok_key})</b></color>: требует Ярость V, долг x{ragnarok_debt}+ и Плащ берсерка.\n" +
@@ -202,7 +203,7 @@ namespace HaldorExpansion.Presentation
                     "+{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия. Продолжайте атаковать, чтобы усиливать Ярость.",
                 [BerserkerIds.WrathKeyPrefix + "2"] = "Ярость II",
                 [BerserkerIds.WrathKeyPrefix + "2_desc"] =
-                    "+{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия. Без новых попаданий Ярость начнёт угасать.",
+                    "+{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия. Расплата доступна при достаточном Кровавом долге.",
                 [BerserkerIds.WrathKeyPrefix + "3"] = "Ярость III",
                 [BerserkerIds.WrathKeyPrefix + "3_desc"] =
                     "+{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия.",
@@ -211,7 +212,7 @@ namespace HaldorExpansion.Presentation
                     "+{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия. Ещё немного — и Ярость сорвётся в Бешенство.",
                 [BerserkerIds.WrathKeyPrefix + "5"] = "Ярость V",
                 [BerserkerIds.WrathKeyPrefix + "5_desc"] =
-                    "Бешенство. +{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия. Открывает Расплату; с Плащом берсерка и достаточным Кровавым долгом становится доступен Рагнарёк.",
+                    "Бешенство. +{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия. С Плащом берсерка и достаточным Кровавым долгом доступен Рагнарёк.",
 
                 // Плащ берсерка
                 [BerserkerIds.CloakItemKey] = ItemNames.BerserkerCloakRu,
@@ -542,7 +543,7 @@ namespace HaldorExpansion.Presentation
                 [BerserkerIds.RagnarokCastKey] = "Ragnarok",
                 [BerserkerIds.ExhaustionKey] = "Exhaustion",
                 [BerserkerIds.ExhaustionDescriptionKey] =
-                    "After Ragnarok, movement speed is reduced by 25% for 3 seconds.",
+                    "After Ragnarok: -40% movement speed, -25% attack speed and -40% stamina regeneration for 7 seconds.",
 
                 [BerserkerIds.AxeItemKey] = ItemNames.BerserkerGreataxeEn,
                 [BerserkerIds.AxeItemKey + "_lore"] =
@@ -557,11 +558,12 @@ namespace HaldorExpansion.Presentation
                     "<color=#C9A56B><b>Power of the Relic</b></color>\n" +
                     "<color=#9EDFF2><b>Bloodthirst</b></color>: +0.2% axe damage per missing HP.\n\n" +
                     "<color=#9EDFF2><b>Wrath (I–V)</b></color>: axe hits build Wrath.\n" +
-                    "Each stage: +{wrath_speed}% attack speed, -{wrath_stamina}% stamina cost.\n" +
+                    "Attack speed (I–V): +{wrath_speed_1}/{wrath_speed_2}/{wrath_speed_3}/{wrath_speed_4}/{wrath_speed_5}%.\n" +
+                    "Each stage: -{wrath_stamina}% stamina cost.\n" +
                     "Wrath fades without new hits.\n\n" +
                     "<color=#9EDFF2><b>Blood Debt</b></color>: builds from damage taken and axe hits.\n" +
                     "Empowers Reckoning and Ragnarök. Fades outside combat.\n\n" +
-                    "<color=#9EDFF2><b>Reckoning (middle mouse)</b></color>: requires Wrath V and Blood Debt x{reckoning_debt}+.\n" +
+                    "<color=#9EDFF2><b>Reckoning (middle mouse)</b></color>: requires Wrath II+ and Blood Debt x{reckoning_debt}+.\n" +
                     "Replaces the secondary attack. On hit, spends {reckoning_spend}% of Blood Debt,\n" +
                     "deals bonus damage, and heals for {reckoning_heal}% of direct damage dealt.\n\n" +
                     "<color=#e72517><b>Ragnarök ({ragnarok_key})</b></color>: requires Wrath V, Blood Debt x{ragnarok_debt}+, and the Berserker Cloak.\n" +
@@ -572,7 +574,7 @@ namespace HaldorExpansion.Presentation
                     "+{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions. Keep attacking to drive Wrath higher.",
                 [BerserkerIds.WrathKeyPrefix + "2"] = "Wrath II",
                 [BerserkerIds.WrathKeyPrefix + "2_desc"] =
-                    "+{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions. Without new hits Wrath will begin to fade.",
+                    "+{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions. Reckoning is available with enough Blood Debt.",
                 [BerserkerIds.WrathKeyPrefix + "3"] = "Wrath III",
                 [BerserkerIds.WrathKeyPrefix + "3_desc"] =
                     "+{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions.",
@@ -581,7 +583,7 @@ namespace HaldorExpansion.Presentation
                     "+{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions. One step remains before Wrath breaks into Frenzy.",
                 [BerserkerIds.WrathKeyPrefix + "5"] = "Wrath V",
                 [BerserkerIds.WrathKeyPrefix + "5_desc"] =
-                    "Frenzy. +{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions. Unlocks Reckoning; with the Berserker Cloak and enough Blood Debt, Ragnarok becomes available.",
+                    "Frenzy. +{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions. With the Berserker Cloak and enough Blood Debt, Ragnarök becomes available.",
 
                 // Berserker Cloak
                 [BerserkerIds.CloakItemKey] = ItemNames.BerserkerCloakEn,
@@ -794,10 +796,9 @@ namespace HaldorExpansion.Presentation
             text[BerserkerIds.CloakDescriptionKey] = text[BerserkerIds.CloakItemKey + "_lore"];
             text[BerserkerIds.HelmetDescriptionKey] = text[BerserkerIds.HelmetItemKey + "_lore"];
             if (BerserkerConfiguration.HitsPerWrathStage == null) return text;
-            float speed = BerserkerConfiguration.WrathAttackSpeedFractionPerStage * 100f;
             float stamina = BerserkerConfiguration.WrathStaminaReductionFractionPerStage * 100f;
             string axe = text[BerserkerIds.AxeDescriptionKey];
-            axe = axe.Replace("{wrath_speed}", Number(speed)).Replace("{wrath_stamina}", Number(stamina))
+            axe = axe.Replace("{wrath_stamina}", Number(stamina))
                 .Replace("{reckoning_heal}", Number(BerserkerConfiguration.ReckoningLifeStealFraction * 100f))
                 .Replace("{reckoning_debt}", Number(BerserkerConfiguration.ReckoningMinimumDebtValue / 100f))
                 .Replace("{ragnarok_debt}", Number(BerserkerConfiguration.RagnarokMinimumDebtValue / 100f))
@@ -805,13 +806,16 @@ namespace HaldorExpansion.Presentation
                 .Replace("{ragnarok_key}", BerserkerConfiguration.RagnarokButton != null
                     ? BerserkerConfiguration.RagnarokButton.Config.BoxedValue.ToString()
                     : "E");
-            text[BerserkerIds.AxeDescriptionKey] = axe;
-            for (int stage = 1; stage <= 5; stage++)
+            for (int stage = 1; stage <= BerserkerState.MaxWrathStage; stage++)
             {
+                float stageSpeed = BerserkerConfiguration.WrathAttackSpeedBonusFraction(stage) * 100f;
+                axe = axe.Replace("{wrath_speed_" + stage + "}", Number(stageSpeed));
                 string key = BerserkerIds.WrathKeyPrefix + stage + "_desc";
-                text[key] = text[key].Replace("{stage_speed}", Number(Math.Min(200f, stage * speed)))
+                text[key] = text[key].Replace("{stage_speed}", Number(stageSpeed))
                     .Replace("{stage_stamina}", Number(Math.Min(90f, stage * stamina)));
             }
+
+            text[BerserkerIds.AxeDescriptionKey] = axe;
 
             for (int stage = 1; stage <= HelOathState.MaxTouchStacks; stage++)
             {
@@ -824,11 +828,20 @@ namespace HaldorExpansion.Presentation
                 .Replace("{regen}", Number(DelayedDoomItemRegistration.DelayedDoomChestFoodRegenBonus));
 
             text[BerserkerIds.ExhaustionDescriptionKey] = ru
-                ? "После Рагнарёка скорость передвижения снижена на " +
-                  Number(BerserkerConfiguration.RagnarokExhaustionMovePenaltyFraction * 100f) + "% на " +
+                ? "После Рагнарёка: -" +
+                  Number(BerserkerConfiguration.RagnarokExhaustionMovePenaltyFraction * 100f) +
+                  "% скорости передвижения, -" +
+                  Number(BerserkerConfiguration.RagnarokExhaustionAttackPenaltyFraction * 100f) +
+                  "% скорости атаки и -" +
+                  Number(BerserkerConfiguration.RagnarokExhaustionStaminaRegenPenaltyFraction * 100f) +
+                  "% восстановления выносливости на " +
                   Number(BerserkerConfiguration.RagnarokExhaustionDurationValue) + " сек."
-                : "After Ragnarok, movement speed is reduced by " +
-                  Number(BerserkerConfiguration.RagnarokExhaustionMovePenaltyFraction * 100f) + "% for " +
+                : "After Ragnarok: -" +
+                  Number(BerserkerConfiguration.RagnarokExhaustionMovePenaltyFraction * 100f) + "% movement speed, -" +
+                  Number(BerserkerConfiguration.RagnarokExhaustionAttackPenaltyFraction * 100f) +
+                  "% attack speed and -" +
+                  Number(BerserkerConfiguration.RagnarokExhaustionStaminaRegenPenaltyFraction * 100f) +
+                  "% stamina regeneration for " +
                   Number(BerserkerConfiguration.RagnarokExhaustionDurationValue) + " seconds.";
             // Jotunn replaces its map but does not overwrite already-loaded native words.
             if (Localization.instance != null && (Localization.instance.GetSelectedLanguage() == "Russian") == ru)
