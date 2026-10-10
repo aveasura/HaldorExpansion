@@ -11,7 +11,7 @@ namespace HaldorExpansion.Features.NornThread
     internal static class NornThreadRuntime
     {
         internal const float SavedHealthRatio = 0.50f;
-        internal const float GraceDuration = 3f;
+        internal const float GraceDuration = 3.00f;
 
         private static readonly Dictionary<int, float> GraceUntil = new Dictionary<int, float>();
 

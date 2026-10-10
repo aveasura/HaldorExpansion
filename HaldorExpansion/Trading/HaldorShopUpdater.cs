@@ -344,6 +344,7 @@ namespace HaldorExpansion.Trading
                     // Keep already-added entries in sync as well. This matters when a
                     // server config is synchronized/changed after the TradeItem exists.
                     tradeItem.m_requiredGlobalKey = requiredGlobalKey;
+                    tradeItem.m_tooltip = ShopLoreCatalog.DescriptionFor(tradeItem.m_prefab.m_itemData.m_shared);
                     tradeItem.m_price = ShopConfiguration.GetShopPrice(prefabName, tradeItem.m_price);
                     tradeItem.m_stack = TradingCatalog.Stack(prefabName, tradeItem.m_stack,
                         tradeItem.m_prefab.m_itemData.m_shared.m_maxStackSize);
@@ -373,7 +374,7 @@ namespace HaldorExpansion.Trading
                 m_buyPlayerEffects = new EffectList(),
                 m_icon = null,
                 m_name = shared != null ? shared.m_name ?? string.Empty : string.Empty,
-                m_tooltip = shared != null ? shared.m_description ?? string.Empty : string.Empty,
+                m_tooltip = ShopLoreCatalog.DescriptionFor(shared),
                 m_buyKey = string.Empty,
                 m_incrementKey = string.Empty,
                 m_incrementAmount = 0

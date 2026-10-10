@@ -230,6 +230,7 @@
         <Compile Include="Features\WoundedBeast\WoundedBeastRuntime.cs"/>
         <Compile Include="Features\WoundedBeast\WoundedBeastItemRegistration.cs"/>
         <Compile Include="Features\WoundedBeast\WoundedBeastInventoryRebind.cs"/>
+        <Compile Include="Trading\ShopLoreCatalog.cs"/>
         <Compile Include="Trading\HaldorShopUpdater.cs"/>
         <Compile Include="Features\StaminaCape\StaminaCapeItemRegistration.cs"/>
         <Compile Include="Features\StaminaCape\StaminaCapeRuntime.cs"/>

@@ -44,9 +44,13 @@ namespace HaldorExpansion.Presentation
             try
             {
                 preparing = true;
-                // Match vanilla inventory/item tooltips, but calculate only the hovered row.
-                // Keeping FillList's short placeholder avoids full descriptions for every tab switch.
-                tooltip.Set(item.m_shared.m_name, item.GetTooltip(trade.m_stack), gui.m_tooltipAnchor, Vector2.zero);
+                // Show only the legend at Haldor. The full item tooltip belongs to the inventory.
+                // Fall back to vanilla behavior for items without a dedicated shop legend.
+                string loreKey = ShopLoreCatalog.ForItem(item.m_shared.m_name);
+                string description = loreKey != null && Localization.instance != null
+                    ? Localization.instance.Localize(loreKey)
+                    : item.GetTooltip(trade.m_stack);
+                tooltip.Set(item.m_shared.m_name, description, gui.m_tooltipAnchor, Vector2.zero);
             }
             catch (Exception error)
             {

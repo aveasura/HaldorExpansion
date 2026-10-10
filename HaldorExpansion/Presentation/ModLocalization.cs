@@ -28,6 +28,19 @@ namespace HaldorExpansion.Presentation
 
             loc.AddTranslation("Russian", WithConfiguredValues(new Dictionary<string, string>
             {
+                // Lore-only previews at Haldor (inventory descriptions remain separate).
+                [HelOathItemRegistration.HelOathItemKey + "_lore"] =
+                    "Холод Хельхейма дремлет в его тетиве. Каждая пролитая им кровь приближает исполнение Клятвы — и когда она будет исполнена, откроются Объятия Хель.",
+                [DelayedDoomIds.ItemKey + "_lore"] =
+                    "Она не спасает от расплаты — лишь даёт время нанести ответный удар.",
+                [CestusItemRegistration.CestusItemKey + "_lore"] =
+                    "Рождённые в грязи и закалённые кровью, эти кастеты признают лишь один закон: " +
+                    "кто выстоял под ударом, тот и забирает победу.\n" +
+                    "Ни одна стойка врага не выдержит их бешеного ритма ударов.",
+                [PeltOfHelheimItemRegistration.ItemKey + "_lore"] =
+                    "Чёрная шкура, напитанная холодом Хельхейма. Она отвечает лишь тому, кто довёл охоту до совершенства.",
+                [StaminaCapeItemRegistration.ItemKey + "_lore"] =
+                    "Пепел оседает на плечах тех, кто отказывается уступить даже истощению.",
                 [UiTextIds.ShopAll] = "Всё",
                 [UiTextIds.ShopEquipment] = "Снаряжение",
                 [UiTextIds.ShopResources] = "Ресурсы",
@@ -70,21 +83,28 @@ namespace HaldorExpansion.Presentation
                     "После Рагнарёка скорость передвижения снижена на 25% на 3 секунды.",
 
                 [BerserkerIds.AxeItemKey] = ItemNames.BerserkerGreataxeRu,
+                [BerserkerIds.AxeItemKey + "_lore"] =
+                    "<color=#C9A56B><b>I. Жажда крови</b></color>\n" +
+                    "<color=#B1ABA5><i>«Не всякая кровь, пролитая в битве, принадлежит побеждённому.»</i></color>\n\n" +
+                    "Говорят, эту секиру однажды поднял воин, которого уже сочли мёртвым. " +
+                    "Израненный и окружённый врагами, он сражался до тех пор, пока некому стало поднять оружие против него.\n\n" +
+                    "С тех пор железо помнит вкус той битвы. Чем ближе его хозяин к смерти, тем сильнее удары. " +
+                    "Каждая схватка разжигает Ярость, а пролитая кровь превращается в долг, который однажды придётся взыскать.\n\n" +
+                    "<color=#B1ABA5><i>«Пока сердце бьётся, расплата не окончена.»</i></color>",
                 [BerserkerIds.AxeDescriptionKey] =
-                    "Тяжёлая двуручная секира, жаждущая крови. " +
-                    "Чем сильнее ранен владелец, тем смертоноснее удары.\n\n" +
-                    "<color=#9EDFF2><b>Ярость (I–V)</b></color>: попадания дают +{wrath_speed}% скорости атаки " +
-                    "и -{wrath_stamina}% затрат выносливости за стадию. " +
-                    "Вне боя Ярость угасает.\n\n" +
-                    "<color=#9EDFF2><b>Кровавый долг</b></color>: растёт от полученных ран и ударов секирой. " +
-                    "Усиливает <color=#9EDFF2><b>Расплату</b></color> и <color=#e72517><b>Рагнарёк</b></color>. " +
-                    "Постепенно угасает вне боя.\n\n" +
-                    "<color=#9EDFF2><b>Расплата (колёсико)</b></color>: для активации требует - Ярость V, долг x{reckoning_debt}+. " +
-                    "Поглощает {reckoning_spend}% долга, усиливает удар " +
-                    "и исцеляет на {reckoning_heal}% от нанесенного урона.\n\n" +
-                    "<color=#e72517><b>Рагнарёк ({ragnarok_key})</b></color>: для активации требует - Ярость V, долг x{ragnarok_debt}+, Плащ берсерка. " +
-                    "Обращает всю <color=#9EDFF2><b>Ярость</b></color> и <color=#9EDFF2><b>Кровавый долг</b></color> " +
-                    "в предвестие конца, перед которым содрогнутся даже боги.",
+                    "<color=#C9A56B><b>Сила реликвии</b></color>\n" +
+                    "<color=#9EDFF2><b>Кровавая жажда</b></color>: +0,2% урона за каждый недостающий HP владельца.\n\n" +
+                    "<color=#9EDFF2><b>Ярость (I–V)</b></color>: попадания секирой накапливают Ярость. " +
+                    "Каждая стадия даёт +{wrath_speed}% скорости атаки и -{wrath_stamina}% затрат выносливости. " +
+                    "Без новых попаданий Ярость постепенно угасает.\n\n" +
+                    "<color=#9EDFF2><b>Кровавый долг</b></color>: накапливается от ран, нанесённых врагами, и попаданий секирой. " +
+                    "Усиливает Расплату и Рагнарёк; вне боя постепенно угасает.\n\n" +
+                    "<color=#9EDFF2><b>Расплата (колёсико)</b></color>: при Ярости V и долге x{reckoning_debt}+ " +
+                    "альтернативный удар становится Расплатой. При попадании расходует {reckoning_spend}% долга, " +
+                    "наносит дополнительный урон и исцеляет на {reckoning_heal}% от прямого урона цели.\n\n" +
+                    "<color=#e72517><b>Рагнарёк ({ragnarok_key})</b></color>: требует Ярость V, долг x{ragnarok_debt}+ " +
+                    "и надетый Плащ берсерка. Обрушивает на врагов метеоры, расходуя всю Ярость и Кровавый долг. " +
+                    "После призыва наступает Истощение.",
 
                 [BerserkerIds.WrathKeyPrefix + "1"] = "Ярость I",
                 [BerserkerIds.WrathKeyPrefix + "1_desc"] =
@@ -104,25 +124,42 @@ namespace HaldorExpansion.Presentation
 
                 // Плащ берсерка
                 [BerserkerIds.CloakItemKey] = ItemNames.BerserkerCloakRu,
-                [BerserkerIds.CloakDescriptionKey] =
-                    "Плащ для тех, кто принимает удар вместо того, чтобы отступить. Чем кровавее становится бой, тем быстрее приближается Рагнарёк.",
+                [BerserkerIds.CloakItemKey + "_lore"] =
+                    "<color=#C9A56B><b>III. Предвестник Рагнарёка</b></color>\n" +
+                    "<color=#B1ABA5><i>«Когда земля пресытится кровью, небеса продолжат бой.»</i></color>\n\n" +
+                    "Этот истлевший плащ не укрывает от клинков. Каждый удар проникает глубже, " +
+                    "каждая рана тяжелее прежней. И всё же его носитель не отступает.\n\n" +
+                    "Древняя сага гласит, что в своей последней битве берсерк воззвал к самому концу времён. " +
+                    "Небо почернело, и на землю обрушился дождь пылающих камней.\n\n" +
+                    "Когда пламя угасло, не осталось ни врагов, ни победителя. " +
+                    "Лишь изорванный плащ лежал среди пепла.\n\n" +
+                    "<color=#B1ABA5><i>«Рагнарёк не различает победителей и павших.»</i></color>",
                 [BerserkerIds.CloakEffectKey] = "Предвестник Рагнарёка",
                 [BerserkerIds.CloakEffectDescriptionKey] =
                     "+30% получаемого урона.\n" +
                     "+50% к накоплению Кровавого долга.\n" +
-                    "Пробуждает Рагнарёк.",
+                    "Рагнарёк: требуется секира берсерка, Ярость V и достаточный Кровавый долг. " +
+                    "Призыв расходует всю Ярость и долг, затем наступает Истощение.",
 
                 // Шлем берсерка
                 [BerserkerIds.HelmetItemKey] = ItemNames.BerserkerHelmetRu,
-                [BerserkerIds.HelmetDescriptionKey] =
-                    "Тяжёлый шлем, который крепнет вместе с Яростью владельца. Чем яростнее бой, тем труднее сломить его натиск.",
+                [BerserkerIds.HelmetItemKey + "_lore"] =
+                    "<color=#C9A56B><b>II. Несломленная воля</b></color>\n" +
+                    "<color=#B1ABA5><i>«Страх покидает человека задолго до того, как его покидает жизнь.»</i></color>\n\n" +
+                    "Никто не знает, сколько ударов выдержал этот шлем. Его железо иссечено клинками, " +
+                    "а под забралом навсегда остались следы чужой крови.\n\n" +
+                    "Говорят, в последней битве его владелец перестал чувствовать боль. " +
+                    "Удары врагов больше не могли сломить его, а каждый взмах секиры словно возвращал силы умирающему телу.\n\n" +
+                    "Но стоило Ярости угаснуть, как все старые раны вновь напоминали о себе.\n\n" +
+                    "<color=#B1ABA5><i>«Тот, кто забыл о боли, ещё не победил смерть.»</i></color>",
                 [BerserkerIds.HelmetEffectKey] = "Несокрушимая ярость",
                 [BerserkerIds.HelmetEffectDescriptionKey] =
                     "Каждая стадия Ярости:\n" +
                     "+4 брони.\n" +
                     "-15% накопления ошеломления.\n" +
                     "-1% получаемого урона.\n" +
-                    "+1% восстановления HP атак топором.",
+                    "+1% лечения от фактически отнятого HP прямыми ударами секиры по врагам " +
+                    "(до 5% на Ярости V).",
 
                 // Осквернённый Бризингамен
                 [BrisingamenIds.ItemKey] = ItemNames.BrisingamenRu,
@@ -135,7 +172,7 @@ namespace HaldorExpansion.Presentation
                     "Тонкая нить, сплетённая там, где даже смерть ещё не решена. Когда судьба обрывается, она рвётся первой.",
                 [NornThreadItemRegistration.EffectNameKey] = "Последняя нить",
                 [NornThreadItemRegistration.EffectDescKey] =
-                    "Смертельный урон уничтожает амулет вместо владельца и снимает весь долг отложенной расплаты. Здоровье становится равным 50% от значения до смертельного удара. После разрыва — 3 секунды защиты от потери здоровья.",
+                    "Смертельный урон уничтожает амулет вместо владельца и снимает весь долг отложенной расплаты. Здоровье становится равным 50% от значения до смертельного удара. После разрыва — 3 с защиты от потери здоровья.",
                 [NornThreadItemRegistration.BrokenMessageKey] = "Нить судьбы оборвалась.",
 
                 // Кираса безмолвной расплаты
@@ -219,6 +256,19 @@ namespace HaldorExpansion.Presentation
 
             loc.AddTranslation("English", WithConfiguredValues(new Dictionary<string, string>
             {
+                // Lore-only previews at Haldor (inventory descriptions remain separate).
+                [HelOathItemRegistration.HelOathItemKey + "_lore"] =
+                    "Helheim’s cold slumbers in its string. Every drop of blood it spills brings the Oath closer to fulfillment — and when it is fulfilled, Hel’s Embrace is revealed.",
+                [DelayedDoomIds.ItemKey + "_lore"] =
+                    "It does not spare you the reckoning — only grants you time to strike back.",
+                [CestusItemRegistration.CestusItemKey + "_lore"] =
+                    "Born in dirt and tempered in blood, these knuckles know only one law: " +
+                    "the one who endures the blow claims victory.\n" +
+                    "No foe can withstand the furious rhythm of their strikes.",
+                [PeltOfHelheimItemRegistration.ItemKey + "_lore"] =
+                    "A blackened pelt steeped in Helheim’s cold. It answers only to a hunter who has brought the chase to perfection.",
+                [StaminaCapeItemRegistration.ItemKey + "_lore"] =
+                    "Ash settles on the shoulders of those who refuse to yield even to exhaustion.",
                 [UiTextIds.ShopAll] = "All",
                 [UiTextIds.ShopEquipment] = "Equipment",
                 [UiTextIds.ShopResources] = "Resources",
@@ -261,21 +311,28 @@ namespace HaldorExpansion.Presentation
                     "After Ragnarok, movement speed is reduced by 25% for 3 seconds.",
 
                 [BerserkerIds.AxeItemKey] = ItemNames.BerserkerGreataxeEn,
+                [BerserkerIds.AxeItemKey + "_lore"] =
+                    "<color=#C9A56B><b>I. Thirst for Blood</b></color>\n" +
+                    "<color=#B1ABA5><i>“Not all blood spilled in battle belongs to the vanquished.”</i></color>\n\n" +
+                    "They say this axe was once raised by a warrior already counted among the dead. " +
+                    "Wounded and surrounded, he fought until none remained to raise a weapon against him.\n\n" +
+                    "Ever since, the iron remembers the taste of that battle. The closer its wielder draws to death, " +
+                    "the deadlier each blow becomes. Every clash kindles Wrath, and spilled blood becomes a debt that must one day be collected.\n\n" +
+                    "<color=#B1ABA5><i>“As long as the heart beats, the reckoning is not over.”</i></color>",
                 [BerserkerIds.AxeDescriptionKey] =
-                    "A mighty two-handed axe that thirsts for blood. " +
-                    "The more wounded its wielder, the deadlier its blows.\n\n" +
-                    "<color=#9EDFF2><b>Wrath (I–V)</b></color>: hits grant +{wrath_speed}% attack speed " +
-                    "and -{wrath_stamina}% stamina cost per stack. " +
-                    "Wrath fades outside combat.\n\n" +
-                    "<color=#9EDFF2><b>Blood Debt</b></color>: builds from wounds suffered and axe strikes. " +
-                    "Empowers <color=#9EDFF2><b>Reckoning</b></color> and <color=#e72517><b>Ragnarök</b></color>. " +
-                    "Gradually fades outside combat.\n\n" +
-                    "<color=#9EDFF2><b>Reckoning (middle mouse)</b></color>: requires Wrath V and Blood Debt x{reckoning_debt}+. " +
-                    "Consumes {reckoning_spend}% of the debt, empowers the strike, " +
-                    "and heals for {reckoning_heal}% of the damage dealt.\n\n" +
-                    "<color=#e72517><b>Ragnarök ({ragnarok_key})</b></color>: requires Wrath V, Blood Debt x{ragnarok_debt}+, and the Berserker Cloak. " +
-                    "Turns all <color=#9EDFF2><b>Wrath</b></color> and <color=#9EDFF2><b>Blood Debt</b></color> " +
-                    "into a harbinger of the end, before which even the gods shall tremble.",
+                    "<color=#C9A56B><b>Power of the Relic</b></color>\n" +
+                    "<color=#9EDFF2><b>Bloodthirst</b></color>: +0.2% axe damage for each point of missing HP.\n\n" +
+                    "<color=#9EDFF2><b>Wrath (I–V)</b></color>: axe hits build Wrath. Each stage grants " +
+                    "+{wrath_speed}% attack speed and -{wrath_stamina}% stamina cost. " +
+                    "Wrath gradually fades without new hits.\n\n" +
+                    "<color=#9EDFF2><b>Blood Debt</b></color>: builds from wounds dealt by enemies and from axe hits. " +
+                    "Empowers Reckoning and Ragnarök; gradually fades outside combat.\n\n" +
+                    "<color=#9EDFF2><b>Reckoning (middle mouse)</b></color>: at Wrath V and Blood Debt x{reckoning_debt}+, " +
+                    "the secondary attack becomes Reckoning. On hit, spends {reckoning_spend}% of the debt, " +
+                    "adds damage, and heals for {reckoning_heal}% of direct damage dealt to the target.\n\n" +
+                    "<color=#e72517><b>Ragnarök ({ragnarok_key})</b></color>: requires Wrath V, Blood Debt x{ragnarok_debt}+, " +
+                    "and the Berserker Cloak equipped. Calls down meteors, consuming all Wrath and Blood Debt. " +
+                    "Exhaustion follows the cast.",
 
                 [BerserkerIds.WrathKeyPrefix + "1"] = "Wrath I",
                 [BerserkerIds.WrathKeyPrefix + "1_desc"] =
@@ -295,25 +352,43 @@ namespace HaldorExpansion.Presentation
 
                 // Berserker Cloak
                 [BerserkerIds.CloakItemKey] = ItemNames.BerserkerCloakEn,
-                [BerserkerIds.CloakDescriptionKey] =
-                    "A cloak for those who take the blow instead of yielding. The bloodier the battle becomes, the closer Ragnarok draws.",
+                [BerserkerIds.CloakItemKey + "_lore"] =
+                    "<color=#C9A56B><b>III. Harbinger of Ragnarök</b></color>\n" +
+                    "<color=#B1ABA5><i>“When the earth has drunk its fill of blood, the heavens will carry on the battle.”</i></color>\n\n" +
+                    "This tattered cloak offers no shelter from blades. Every blow strikes deeper, " +
+                    "every wound weighs heavier. Still, its wearer will not yield.\n\n" +
+                    "An ancient saga tells that in his final battle, the berserker called upon the end of days itself. " +
+                    "The sky turned black, and a rain of burning stones fell upon the earth.\n\n" +
+                    "When the flames died, neither enemy nor victor remained. " +
+                    "Only a torn cloak lay among the ashes.\n\n" +
+                    "<color=#B1ABA5><i>“Ragnarök makes no distinction between victors and the fallen.”</i></color>",
                 [BerserkerIds.CloakEffectKey] = "Harbinger of Ragnarok",
                 [BerserkerIds.CloakEffectDescriptionKey] =
                     "+30% incoming damage.\n" +
                     "+50% Blood Debt generation.\n" +
-                    "Awakens Ragnarok.",
+                    "Ragnarök: requires the Berserker Greataxe, Wrath V, and sufficient Blood Debt. " +
+                    "The cast consumes all Wrath and Debt, then inflicts Exhaustion.",
 
                 // Berserker Helmet
                 [BerserkerIds.HelmetItemKey] = ItemNames.BerserkerHelmetEn,
-                [BerserkerIds.HelmetDescriptionKey] =
-                    "A heavy helm that hardens with its wielder's Wrath. The fiercer the battle becomes, the harder the berserker is to break.",
+                [BerserkerIds.HelmetItemKey + "_lore"] =
+                    "<color=#C9A56B><b>II. Unbroken Will</b></color>\n" +
+                    "<color=#B1ABA5><i>“Fear abandons a man long before life does.”</i></color>\n\n" +
+                    "No one knows how many blows this helm has endured. Its iron is scarred by blades, " +
+                    "and beneath its visor the traces of another's blood remain forever.\n\n" +
+                    "They say that in his final battle its wearer ceased to feel pain. " +
+                    "His enemies' blows could no longer break him, and every swing of the axe seemed " +
+                    "to restore strength to his dying body.\n\n" +
+                    "But once his Wrath faded, every old wound made itself known again.\n\n" +
+                    "<color=#B1ABA5><i>“He who has forgotten pain has not yet conquered death.”</i></color>",
                 [BerserkerIds.HelmetEffectKey] = "Unbroken Wrath",
                 [BerserkerIds.HelmetEffectDescriptionKey] =
                     "Each Wrath stage:\n" +
                     "+4 armor.\n" +
                     "-15% incoming stagger buildup.\n" +
                     "-1% incoming damage.\n" +
-                    "1% of axe damage dealt restored as HP.",
+                    "+1% healing from actual HP lost by enemies to direct axe hits " +
+                    "(up to 5% at Wrath V).",
 
                 // Corrupted Brisingamen
                 [BrisingamenIds.ItemKey] = ItemNames.BrisingamenEn,
@@ -414,6 +489,9 @@ namespace HaldorExpansion.Presentation
 
         private static Dictionary<string, string> WithConfiguredValues(Dictionary<string, string> text, bool ru)
         {
+            text[BerserkerIds.AxeDescriptionKey] = text[BerserkerIds.AxeItemKey + "_lore"] + "\n\n" + text[BerserkerIds.AxeDescriptionKey];
+            text[BerserkerIds.CloakDescriptionKey] = text[BerserkerIds.CloakItemKey + "_lore"];
+            text[BerserkerIds.HelmetDescriptionKey] = text[BerserkerIds.HelmetItemKey + "_lore"];
             if (BerserkerConfiguration.HitsPerWrathStage == null) return text;
             float speed = BerserkerConfiguration.WrathAttackSpeedFractionPerStage * 100f;
             float stamina = BerserkerConfiguration.WrathStaminaReductionFractionPerStage * 100f;
