@@ -107,7 +107,7 @@ namespace HaldorExpansion.Features.Berserker
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
                 "Wrath attack speed percent per stage", 10f,
                 "Base speed bonus for the non-linear Wrath curve while wielding the Berserker Greataxe. " +
-                "Default 10 gives Wrath I–V: +20/+32/+43/+52/+60% attack speed. " +
+                "Default 10 gives Wrath I–V: +20/+30/+38/+45/+50% attack speed. " +
                 "Changing this value scales all five stage bonuses proportionally.",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 100f));
 
@@ -188,8 +188,8 @@ namespace HaldorExpansion.Features.Berserker
             FiniteClamp(WrathAttackSpeedPercentPerStage.Value, 0f, 100f, 10f) * 0.01f;
 
         // Keep the existing config key for compatibility: its value scales the curve.
-        // The defaults are 20/32/43/52/60% for Wrath I/II/III/IV/V.
-        private static readonly float[] WrathSpeedStageFactors = { 0f, 2f, 3.2f, 4.3f, 5.2f, 6f };
+        // The defaults are 20/30/38/45/50% for Wrath I/II/III/IV/V.
+        private static readonly float[] WrathSpeedStageFactors = { 0f, 2f, 3f, 3.8f, 4.5f, 5f };
 
         internal static float WrathAttackSpeedBonusFraction(int stage) =>
             Mathf.Clamp(WrathSpeedStageFactors[Mathf.Clamp(stage, 0, BerserkerState.MaxWrathStage)] *

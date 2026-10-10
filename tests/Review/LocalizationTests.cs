@@ -63,7 +63,7 @@ internal static class LocalizationTests
             ModLocalization.AddLocalizations();
             CheckCatalogs();
             Check(Words("English")[BerserkerIds.AxeDescriptionKey].Contains("Ragnarök (E)"), "Default bound Ragnarok key");
-            float[] defaultSpeeds = { 20f, 32f, 43f, 52f, 60f };
+            float[] defaultSpeeds = { 20f, 30f, 38f, 45f, 50f };
             foreach (string language in new[] { "Russian", "English" })
             {
                 string axeDescription = Words(language)[BerserkerIds.AxeDescriptionKey];
@@ -100,7 +100,7 @@ internal static class LocalizationTests
                 string axe = words[BerserkerIds.AxeDescriptionKey];
                 foreach (string fragment in new[] { "-7%", "37%", "63%", "x2.5+", "x7.5+", "(F)" })
                     Check(axe.Contains(fragment), language + " configured axe fragment " + fragment);
-                float[] expectedSpeeds = { 26f, 41.6f, 55.9f, 67.6f, 78f };
+                float[] expectedSpeeds = { 26f, 39f, 49.4f, 58.5f, 65f };
                 for (int stage = 1; stage <= 5; stage++)
                 {
                     string speed = Number(expectedSpeeds[stage - 1]);
