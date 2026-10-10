@@ -7,9 +7,9 @@ using HarmonyLib;
 namespace HaldorExpansion.Patches
 {
     [HarmonyPatch(typeof(Character), "ApplyDamage")]
-    [HarmonyPriority(Priority.First)]
     internal static class WoundedBeastCapeApplyDamagePatch
     {
+        [HarmonyPriority(Priority.First)]
         static void Prefix(Character __instance, HitData __0)
         {
             Player player = __instance as Player;

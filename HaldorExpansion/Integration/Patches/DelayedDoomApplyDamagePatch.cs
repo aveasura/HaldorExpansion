@@ -8,7 +8,6 @@ using HarmonyLib;
 namespace HaldorExpansion.Patches
 {
     [HarmonyPatch(typeof(Character), "ApplyDamage")]
-    [HarmonyPriority(Priority.Last)]
     internal static class DelayedDoomApplyDamagePatch
     {
         private sealed class ApplyDamageState
@@ -26,6 +25,7 @@ namespace HaldorExpansion.Patches
             public float FinalIncomingDamage;
         }
 
+        [HarmonyPriority(Priority.Last)]
         static void Prefix(Character __instance, HitData __0, ref ApplyDamageState __state)
         {
             __state = null;
@@ -113,6 +113,7 @@ namespace HaldorExpansion.Patches
                 $"item={(consumed?.m_shared?.m_name ?? "<unknown>")}");
         }
 
+        [HarmonyPriority(Priority.Last)]
         static void Postfix(Character __instance, HitData __0, ApplyDamageState __state)
         {
             if (__state == null || __state.Player == null)

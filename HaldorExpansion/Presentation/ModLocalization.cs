@@ -178,7 +178,7 @@ namespace HaldorExpansion.Presentation
                     "Она создана для тех, кто выходит на арену не прятаться за сталью, а ломать кости голыми руками.",
                 [PitKingItemRegistration.PitKingChestEffectNameKey] = "Воля хозяина ямы",
                 [PitKingItemRegistration.PitKingChestEffectDescKey] =
-                    "+20 к максимуму здоровья. С экипированными Костоломами: +60 вместо +20.",
+                    "+20 к максимуму здоровья. \nС экипированными Костоломами: +60 вместо +20.",
 
                 [SteelHeartSet.SteelHeartSetNameKey] = "Стальное сердце",
                 [SteelHeartSet.SteelHeartSetDescKey] =
@@ -369,7 +369,7 @@ namespace HaldorExpansion.Presentation
                     "It was made for those who step into the pit not to hide behind steel, but to break bones with bare hands.",
                 [PitKingItemRegistration.PitKingChestEffectNameKey] = "Pit King's Vigor",
                 [PitKingItemRegistration.PitKingChestEffectDescKey] =
-                    "+20 maximum health. With Bone Crushers equipped: +60 instead of +20.",
+                    "+20 maximum health. \nWith Bone Crushers equipped: +60 instead of +20.",
 
                 [SteelHeartSet.SteelHeartSetNameKey] = "Steel Heart",
                 [SteelHeartSet.SteelHeartSetDescKey] =
