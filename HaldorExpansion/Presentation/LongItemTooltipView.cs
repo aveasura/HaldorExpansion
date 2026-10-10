@@ -186,7 +186,7 @@ namespace HaldorExpansion.Presentation
             lastTitle = originalTitle.text;
             body.text = lastBody;
             title.text = lastTitle;
-            hint.text = Localization.instance.Localize("$he_tooltip_scroll");
+            hint.text = Localization.instance.Localize(UiTextIds.TooltipScroll);
             screenWidth = Screen.width;
             screenHeight = Screen.height;
             scaleX = root.lossyScale.x;

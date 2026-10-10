@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Globalization;
 using HaldorExpansion.Configuration;
 using HaldorExpansion.Features.Berserker;
+using HaldorExpansion.Features.Brisingamen;
 using HaldorExpansion.Features.Cestus;
+using HaldorExpansion.Features.DelayedDoom;
 using HaldorExpansion.Features.HelOath;
 using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.PeltOfHelheim;
+using HaldorExpansion.Features.PitKing;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.StaminaCape;
+using HaldorExpansion.Features.SteelHeart;
 using HaldorExpansion.Features.WoundedBeast;
 using HarmonyLib;
 using Jotunn.Entities;
@@ -24,11 +28,11 @@ namespace HaldorExpansion.Presentation
 
             loc.AddTranslation("Russian", WithConfiguredValues(new Dictionary<string, string>
             {
-                ["$aveasura_he_shop_all"] = "Всё",
-                ["$aveasura_he_shop_equipment"] = "Снаряжение",
-                ["$aveasura_he_shop_resources"] = "Ресурсы",
-                ["$aveasura_he_shop_other"] = "Прочее",
-                ["$he_tooltip_scroll"] = "Прокрутка: колесо мыши / PgUp, PgDn",
+                [UiTextIds.ShopAll] = "Всё",
+                [UiTextIds.ShopEquipment] = "Снаряжение",
+                [UiTextIds.ShopResources] = "Ресурсы",
+                [UiTextIds.ShopOther] = "Прочее",
+                [UiTextIds.TooltipScroll] = "Прокрутка: колесо мыши / PgUp, PgDn",
                 [HelOathItemRegistration.HelOathItemKey] = ItemNames.HelOathRu,
                 [HelOathItemRegistration.HelOathItemDescKey] =
                     "Холод Хельхейма дремлет в его тетиве. Каждая пролитая им кровь приближает исполнение Клятвы — и когда она будет исполнена, откроются Объятия Хель.\n\n" +
@@ -39,19 +43,23 @@ namespace HaldorExpansion.Presentation
                 [HelOathItemRegistration.HelOathPassiveNameKey] = "Жертва Хель",
                 [HelOathItemRegistration.HelOathPassiveDescKey] =
                     "50% максимального здоровья превращается в максимальную выносливость.",
-                ["$he_hel_ability"] = "Объятия Хель",
-                ["$he_hel_prepared"] = "Клятва пробуждена",
-                ["$se_hel_touch_1"] = "Касание Хель I",
-                ["$se_hel_touch_1_desc"] = "+5% к скорости передвижения.\n-4% затрат выносливости на все действия.",
-                ["$se_hel_touch_2"] = "Касание Хель II",
-                ["$se_hel_touch_2_desc"] = "+10% к скорости передвижения.\n-8% затрат выносливости на все действия.",
-                ["$se_hel_touch_3"] = "Касание Хель III",
-                ["$se_hel_touch_3_desc"] = "+15% к скорости передвижения.\n-12% затрат выносливости на все действия.",
-                ["$se_hel_touch_4"] = "Касание Хель IV",
-                ["$se_hel_touch_4_desc"] = "+20% к скорости передвижения.\n-16% затрат выносливости на все действия.",
-                ["$se_hel_touch_5"] = "Касание Хель V",
-                ["$se_hel_touch_5_desc"] =
-                    "+25% к скорости передвижения.\n-20% затрат выносливости на все действия.\nОбъятия Хель значительно усилены.",
+                [HelOathIds.AbilityKey] = "Объятия Хель",
+                [HelOathIds.PreparedKey] = "Клятва пробуждена",
+                [HelOathIds.TouchNameKey(1)] = "Касание Хель I",
+                [HelOathIds.TouchDescriptionKey(1)] =
+                    "+{touch_speed}% к скорости передвижения.\n-{touch_stamina}% затрат выносливости на все действия.",
+                [HelOathIds.TouchNameKey(2)] = "Касание Хель II",
+                [HelOathIds.TouchDescriptionKey(2)] =
+                    "+{touch_speed}% к скорости передвижения.\n-{touch_stamina}% затрат выносливости на все действия.",
+                [HelOathIds.TouchNameKey(3)] = "Касание Хель III",
+                [HelOathIds.TouchDescriptionKey(3)] =
+                    "+{touch_speed}% к скорости передвижения.\n-{touch_stamina}% затрат выносливости на все действия.",
+                [HelOathIds.TouchNameKey(4)] = "Касание Хель IV",
+                [HelOathIds.TouchDescriptionKey(4)] =
+                    "+{touch_speed}% к скорости передвижения.\n-{touch_stamina}% затрат выносливости на все действия.",
+                [HelOathIds.TouchNameKey(5)] = "Касание Хель V",
+                [HelOathIds.TouchDescriptionKey(5)] =
+                    "+{touch_speed}% к скорости передвижения.\n-{touch_stamina}% затрат выносливости на все действия.\nОбъятия Хель значительно усилены.",
                 // Берсерк
                 [BerserkerIds.BloodDebtKey] = "Кровавый долг",
                 [BerserkerIds.RagnarokAbilityKey] = "Рагнарёк",
@@ -65,34 +73,34 @@ namespace HaldorExpansion.Presentation
                 [BerserkerIds.AxeDescriptionKey] =
                     "Тяжёлая двуручная секира, жаждущая крови. " +
                     "Чем сильнее ранен владелец, тем смертоноснее удары.\n\n" +
-                    "<color=#9EDFF2><b>Ярость (I–V)</b></color>: попадания дают +10% скорости атаки " +
-                    "и -5% затрат выносливости за стадию. " +
+                    "<color=#9EDFF2><b>Ярость (I–V)</b></color>: попадания дают +{wrath_speed}% скорости атаки " +
+                    "и -{wrath_stamina}% затрат выносливости за стадию. " +
                     "Вне боя Ярость угасает.\n\n" +
                     "<color=#9EDFF2><b>Кровавый долг</b></color>: растёт от полученных ран и ударов секирой. " +
                     "Усиливает <color=#9EDFF2><b>Расплату</b></color> и <color=#e72517><b>Рагнарёк</b></color>. " +
                     "Постепенно угасает вне боя.\n\n" +
-                    "<color=#9EDFF2><b>Расплата (колёсико)</b></color>: для активации требует - Ярость V, долг x1+. " +
-                    "Поглощает половину долга, усиливает удар " +
-                    "и исцеляет на 30% от нанесенного урона.\n\n" +
-                    "<color=#e72517><b>Рагнарёк (E)</b></color>: для активации требует - Ярость V, долг x5+, Плащ берсерка. " +
+                    "<color=#9EDFF2><b>Расплата (колёсико)</b></color>: для активации требует - Ярость V, долг x{reckoning_debt}+. " +
+                    "Поглощает {reckoning_spend}% долга, усиливает удар " +
+                    "и исцеляет на {reckoning_heal}% от нанесенного урона.\n\n" +
+                    "<color=#e72517><b>Рагнарёк ({ragnarok_key})</b></color>: для активации требует - Ярость V, долг x{ragnarok_debt}+, Плащ берсерка. " +
                     "Обращает всю <color=#9EDFF2><b>Ярость</b></color> и <color=#9EDFF2><b>Кровавый долг</b></color> " +
                     "в предвестие конца, перед которым содрогнутся даже боги.",
 
                 [BerserkerIds.WrathKeyPrefix + "1"] = "Ярость I",
                 [BerserkerIds.WrathKeyPrefix + "1_desc"] =
-                    "+10% к скорости атаки. -5% затрат выносливости на все действия. Продолжайте атаковать, чтобы усиливать Ярость.",
+                    "+{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия. Продолжайте атаковать, чтобы усиливать Ярость.",
                 [BerserkerIds.WrathKeyPrefix + "2"] = "Ярость II",
                 [BerserkerIds.WrathKeyPrefix + "2_desc"] =
-                    "+20% к скорости атаки. -10% затрат выносливости на все действия. Без новых попаданий Ярость начнёт угасать.",
+                    "+{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия. Без новых попаданий Ярость начнёт угасать.",
                 [BerserkerIds.WrathKeyPrefix + "3"] = "Ярость III",
                 [BerserkerIds.WrathKeyPrefix + "3_desc"] =
-                    "+30% к скорости атаки. -15% затрат выносливости на все действия.",
+                    "+{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия.",
                 [BerserkerIds.WrathKeyPrefix + "4"] = "Ярость IV",
                 [BerserkerIds.WrathKeyPrefix + "4_desc"] =
-                    "+40% к скорости атаки. -20% затрат выносливости на все действия. Ещё немного — и Ярость сорвётся в Бешенство.",
+                    "+{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия. Ещё немного — и Ярость сорвётся в Бешенство.",
                 [BerserkerIds.WrathKeyPrefix + "5"] = "Ярость V",
                 [BerserkerIds.WrathKeyPrefix + "5_desc"] =
-                    "Бешенство. +50% к скорости атаки. -25% затрат выносливости на все действия. Открывает Расплату; с Плащом берсерка и достаточным Кровавым долгом становится доступен Рагнарёк.",
+                    "Бешенство. +{stage_speed}% к скорости атаки. -{stage_stamina}% затрат выносливости на все действия. Открывает Расплату; с Плащом берсерка и достаточным Кровавым долгом становится доступен Рагнарёк.",
 
                 // Плащ берсерка
                 [BerserkerIds.CloakItemKey] = ItemNames.BerserkerCloakRu,
@@ -117,8 +125,8 @@ namespace HaldorExpansion.Presentation
                     "+1% восстановления HP атак топором.",
 
                 // Осквернённый Бризингамен
-                ["$item_brisingamen"] = ItemNames.BrisingamenRu,
-                ["$item_brisingamen_desc"] =
+                [BrisingamenIds.ItemKey] = ItemNames.BrisingamenRu,
+                [BrisingamenIds.DescriptionKey] =
                     "Легендарное золотое ожерелье, чья древняя сила облегчает даже самую тяжёлую ношу.",
 
                 // Нить Норн
@@ -128,16 +136,19 @@ namespace HaldorExpansion.Presentation
                 [NornThreadItemRegistration.EffectNameKey] = "Последняя нить",
                 [NornThreadItemRegistration.EffectDescKey] =
                     "Смертельный урон уничтожает амулет вместо владельца. Здоровье становится равным 50% от значения до смертельного удара. После разрыва — 1,5 с защиты от потери здоровья.",
-                ["$msg_norn_thread_broken"] = "Нить судьбы оборвалась.",
+                [NornThreadItemRegistration.BrokenMessageKey] = "Нить судьбы оборвалась.",
 
                 // Кираса безмолвной расплаты
-                ["$item_chest_delayeddoom"] = ItemNames.SilentReckoningRu,
-                ["$item_chest_delayeddoom_desc"] =
+                [DelayedDoomIds.ItemKey] = ItemNames.SilentReckoningRu,
+                [DelayedDoomIds.DescriptionKey] =
                     "Если удар после брони должен снести больше половины максимального здоровья, " +
                     "только часть урона проходит сразу, а остальное возвращается отложенной болью через несколько секунд.\n" +
                     "Она не спасает от расплаты — лишь даёт время нанести ответный удар.",
-                ["$se_delayeddoom_regen"] = "Безмолвная живучесть",
-                ["$se_delayeddoom_regen_desc"] = "+5 к восстановлению здоровья.",
+                [DelayedDoomIds.DebtNameKey] = "Отложенная расплата",
+                [DelayedDoomIds.DebtDescriptionKey] =
+                    "Кираса безмолвной расплаты откладывает часть полученного урона. Остаток долга постепенно отнимает здоровье.",
+                [DelayedDoomIds.RegenNameKey] = "Безмолвная живучесть",
+                [DelayedDoomIds.RegenDescriptionKey] = "+{regen} к восстановлению здоровья.",
 
                 // Арбалет теневой охоты
                 [ShadowCrossbowItemRegistration.ShadowCrossbowItemKey] = ItemNames.ShadowHuntRu,
@@ -161,15 +172,16 @@ namespace HaldorExpansion.Presentation
                     "-8 брони.",
 
                 // Накидка хозяина ямы
-                ["$item_chest_pitking"] = ItemNames.PitKingRu,
-                ["$item_chest_pitking_desc"] =
+                [PitKingItemRegistration.PitKingChestItemKey] = ItemNames.PitKingRu,
+                [PitKingItemRegistration.PitKingChestItemDescKey] =
                     "Её не создавали для защиты. " +
                     "Она создана для тех, кто выходит на арену не прятаться за сталью, а ломать кости голыми руками.",
-                ["$se_pitking_vigor"] = "Воля хозяина ямы",
-                ["$se_pitking_vigor_desc"] = "+60 к максимуму здоровья.",
+                [PitKingItemRegistration.PitKingChestEffectNameKey] = "Воля хозяина ямы",
+                [PitKingItemRegistration.PitKingChestEffectDescKey] =
+                    "+20 к максимуму здоровья. С экипированными Костоломами: +60 вместо +20.",
 
-                ["$itemset_steelheart"] = "Стальное сердце",
-                ["$itemset_steelheart_desc"] =
+                [SteelHeartSet.SteelHeartSetNameKey] = "Стальное сердце",
+                [SteelHeartSet.SteelHeartSetDescKey] =
                     "Сет с кастетом: активка кастета получает на 50% больше силы щита и урона ударной волны.",
 
                 // Шкура Хельхейма
@@ -183,14 +195,14 @@ namespace HaldorExpansion.Presentation
 
                 // Плащ раненого зверя
                 [WoundedBeastItemRegistration.WoundedBeastCapeItemKey] = ItemNames.WoundedBeastRu,
-                ["$item_cape_woundedbeast_desc"] =
+                [WoundedBeastItemRegistration.WoundedBeastCapeItemDescKey] =
                     "Пока кровь ещё не остыла, зверь отказывается падать.\n" +
                     "Чем ближе смерть, тем яростнее он цепляется за жизнь — но каждая рана вгрызается глубже.",
-                ["$se_cape_woundedbeast"] = "Раненый зверь",
-                ["$se_cape_woundedbeast_desc"] =
+                [WoundedBeastItemRegistration.WoundedBeastCapeEffectNameKey] = "Раненый зверь",
+                [WoundedBeastItemRegistration.WoundedBeastCapeEffectDescKey] =
                     "Получаемый урон +20%.\n" +
                     "Раз в секунду восстанавливает здоровье: чем ниже текущее здоровье, тем сильнее восстановление.\n" +
-                    "Огонь, яд и дух подавляют регенерацию на 2 секунды.\n\n" +
+                    "Пока действуют огонь, яд или дух, регенерация от плаща снижается в 2 раза.\n\n" +
                     "При использовании вместе с Кирасой безмолвной расплаты эффект лечения сокращается в 2 раза.",
 
                 // Плащ выжженной стойкости
@@ -207,11 +219,11 @@ namespace HaldorExpansion.Presentation
 
             loc.AddTranslation("English", WithConfiguredValues(new Dictionary<string, string>
             {
-                ["$aveasura_he_shop_all"] = "All",
-                ["$aveasura_he_shop_equipment"] = "Equipment",
-                ["$aveasura_he_shop_resources"] = "Resources",
-                ["$aveasura_he_shop_other"] = "Other",
-                ["$he_tooltip_scroll"] = "Scroll: mouse wheel / PgUp, PgDn",
+                [UiTextIds.ShopAll] = "All",
+                [UiTextIds.ShopEquipment] = "Equipment",
+                [UiTextIds.ShopResources] = "Resources",
+                [UiTextIds.ShopOther] = "Other",
+                [UiTextIds.TooltipScroll] = "Scroll: mouse wheel / PgUp, PgDn",
                 [HelOathItemRegistration.HelOathItemKey] = ItemNames.HelOathEn,
                 [HelOathItemRegistration.HelOathItemDescKey] =
                     "Helheim's cold slumbers in its string. Every drop of blood it spills brings the Oath closer to fulfillment — and when it is fulfilled, Hel's Embrace is revealed.\n\n" +
@@ -222,19 +234,23 @@ namespace HaldorExpansion.Presentation
                 [HelOathItemRegistration.HelOathPassiveNameKey] = "Hel's Sacrifice",
                 [HelOathItemRegistration.HelOathPassiveDescKey] =
                     "50% of maximum health is converted into maximum stamina.",
-                ["$he_hel_ability"] = "Hel's Embrace",
-                ["$he_hel_prepared"] = "Oath Awakened",
-                ["$se_hel_touch_1"] = "Hel's Touch I",
-                ["$se_hel_touch_1_desc"] = "+5% movement speed.\n-4% stamina cost for all actions.",
-                ["$se_hel_touch_2"] = "Hel's Touch II",
-                ["$se_hel_touch_2_desc"] = "+10% movement speed.\n-8% stamina cost for all actions.",
-                ["$se_hel_touch_3"] = "Hel's Touch III",
-                ["$se_hel_touch_3_desc"] = "+15% movement speed.\n-12% stamina cost for all actions.",
-                ["$se_hel_touch_4"] = "Hel's Touch IV",
-                ["$se_hel_touch_4_desc"] = "+20% movement speed.\n-16% stamina cost for all actions.",
-                ["$se_hel_touch_5"] = "Hel's Touch V",
-                ["$se_hel_touch_5_desc"] =
-                    "+25% movement speed.\n-20% stamina cost for all actions.\nHel's Embrace is greatly empowered.",
+                [HelOathIds.AbilityKey] = "Hel's Embrace",
+                [HelOathIds.PreparedKey] = "Oath Awakened",
+                [HelOathIds.TouchNameKey(1)] = "Hel's Touch I",
+                [HelOathIds.TouchDescriptionKey(1)] =
+                    "+{touch_speed}% movement speed.\n-{touch_stamina}% stamina cost for all actions.",
+                [HelOathIds.TouchNameKey(2)] = "Hel's Touch II",
+                [HelOathIds.TouchDescriptionKey(2)] =
+                    "+{touch_speed}% movement speed.\n-{touch_stamina}% stamina cost for all actions.",
+                [HelOathIds.TouchNameKey(3)] = "Hel's Touch III",
+                [HelOathIds.TouchDescriptionKey(3)] =
+                    "+{touch_speed}% movement speed.\n-{touch_stamina}% stamina cost for all actions.",
+                [HelOathIds.TouchNameKey(4)] = "Hel's Touch IV",
+                [HelOathIds.TouchDescriptionKey(4)] =
+                    "+{touch_speed}% movement speed.\n-{touch_stamina}% stamina cost for all actions.",
+                [HelOathIds.TouchNameKey(5)] = "Hel's Touch V",
+                [HelOathIds.TouchDescriptionKey(5)] =
+                    "+{touch_speed}% movement speed.\n-{touch_stamina}% stamina cost for all actions.\nHel's Embrace is greatly empowered.",
                 // Berserker
                 [BerserkerIds.BloodDebtKey] = "Blood Debt",
                 [BerserkerIds.RagnarokAbilityKey] = "Ragnarok",
@@ -248,33 +264,34 @@ namespace HaldorExpansion.Presentation
                 [BerserkerIds.AxeDescriptionKey] =
                     "A mighty two-handed axe that thirsts for blood. " +
                     "The more wounded its wielder, the deadlier its blows.\n\n" +
-                    "<color=#9EDFF2><b>Wrath (I–V)</b></color>: hits grant +10% attack speed " +
-                    "and -5% stamina cost per stack. " +
+                    "<color=#9EDFF2><b>Wrath (I–V)</b></color>: hits grant +{wrath_speed}% attack speed " +
+                    "and -{wrath_stamina}% stamina cost per stack. " +
                     "Wrath fades outside combat.\n\n" +
                     "<color=#9EDFF2><b>Blood Debt</b></color>: builds from wounds suffered and axe strikes. " +
                     "Empowers <color=#9EDFF2><b>Reckoning</b></color> and <color=#e72517><b>Ragnarök</b></color>. " +
                     "Gradually fades outside combat.\n\n" +
-                    "<color=#9EDFF2><b>Reckoning (middle mouse)</b></color>: requires Wrath V and Blood Debt x1+. " +
-                    "Consumes half the debt, empowers the strike, " +
-                    "and heals for 30% of the damage dealt.\n\n" +
-                    "<color=#e72517><b>Ragnarök (E)</b></color>: requires Wrath V, Blood Debt x5+, and the Berserker Cloak. " +
+                    "<color=#9EDFF2><b>Reckoning (middle mouse)</b></color>: requires Wrath V and Blood Debt x{reckoning_debt}+. " +
+                    "Consumes {reckoning_spend}% of the debt, empowers the strike, " +
+                    "and heals for {reckoning_heal}% of the damage dealt.\n\n" +
+                    "<color=#e72517><b>Ragnarök ({ragnarok_key})</b></color>: requires Wrath V, Blood Debt x{ragnarok_debt}+, and the Berserker Cloak. " +
                     "Turns all <color=#9EDFF2><b>Wrath</b></color> and <color=#9EDFF2><b>Blood Debt</b></color> " +
                     "into a harbinger of the end, before which even the gods shall tremble.",
 
                 [BerserkerIds.WrathKeyPrefix + "1"] = "Wrath I",
                 [BerserkerIds.WrathKeyPrefix + "1_desc"] =
-                    "+10% attack speed. -5% stamina cost for all actions. Keep attacking to drive Wrath higher.",
+                    "+{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions. Keep attacking to drive Wrath higher.",
                 [BerserkerIds.WrathKeyPrefix + "2"] = "Wrath II",
                 [BerserkerIds.WrathKeyPrefix + "2_desc"] =
-                    "+20% attack speed. -10% stamina cost for all actions. Without new hits Wrath will begin to fade.",
+                    "+{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions. Without new hits Wrath will begin to fade.",
                 [BerserkerIds.WrathKeyPrefix + "3"] = "Wrath III",
-                [BerserkerIds.WrathKeyPrefix + "3_desc"] = "+30% attack speed. -15% stamina cost for all actions.",
+                [BerserkerIds.WrathKeyPrefix + "3_desc"] =
+                    "+{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions.",
                 [BerserkerIds.WrathKeyPrefix + "4"] = "Wrath IV",
                 [BerserkerIds.WrathKeyPrefix + "4_desc"] =
-                    "+40% attack speed. -20% stamina cost for all actions. One step remains before Wrath breaks into Frenzy.",
+                    "+{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions. One step remains before Wrath breaks into Frenzy.",
                 [BerserkerIds.WrathKeyPrefix + "5"] = "Wrath V",
                 [BerserkerIds.WrathKeyPrefix + "5_desc"] =
-                    "Frenzy. +50% attack speed. -25% stamina cost for all actions. Unlocks Reckoning; with the Berserker Cloak and enough Blood Debt, Ragnarok becomes available.",
+                    "Frenzy. +{stage_speed}% attack speed. -{stage_stamina}% stamina cost for all actions. Unlocks Reckoning; with the Berserker Cloak and enough Blood Debt, Ragnarok becomes available.",
 
                 // Berserker Cloak
                 [BerserkerIds.CloakItemKey] = ItemNames.BerserkerCloakEn,
@@ -299,8 +316,8 @@ namespace HaldorExpansion.Presentation
                     "1% of axe damage dealt restored as HP.",
 
                 // Corrupted Brisingamen
-                ["$item_brisingamen"] = ItemNames.BrisingamenEn,
-                ["$item_brisingamen_desc"] =
+                [BrisingamenIds.ItemKey] = ItemNames.BrisingamenEn,
+                [BrisingamenIds.DescriptionKey] =
                     "A legendary golden necklace whose ancient power makes even the heaviest burden easier to bear.",
 
                 // Thread of the Norns
@@ -310,16 +327,19 @@ namespace HaldorExpansion.Presentation
                 [NornThreadItemRegistration.EffectNameKey] = "The Last Thread",
                 [NornThreadItemRegistration.EffectDescKey] =
                     "Lethal damage destroys the amulet instead of its wearer. Health becomes 50% of the amount held before the lethal hit. After breaking, health cannot be lost for 1.5 seconds.",
-                ["$msg_norn_thread_broken"] = "The thread of fate has snapped.",
+                [NornThreadItemRegistration.BrokenMessageKey] = "The thread of fate has snapped.",
 
                 // Cuirass of Silent Reckoning
-                ["$item_chest_delayeddoom"] = ItemNames.SilentReckoningEn,
-                ["$item_chest_delayeddoom_desc"] =
+                [DelayedDoomIds.ItemKey] = ItemNames.SilentReckoningEn,
+                [DelayedDoomIds.DescriptionKey] =
                     "If a hit would take more than half of your maximum health, " +
                     "only part of the damage is taken immediately, while the rest returns as increased delayed pain over the next few seconds.\n" +
                     "It does not save you from the reckoning — it only gives you time to strike back.",
-                ["$se_delayeddoom_regen"] = "Silent Vitality",
-                ["$se_delayeddoom_regen_desc"] = "+5 health regeneration.",
+                [DelayedDoomIds.DebtNameKey] = "Delayed Reckoning",
+                [DelayedDoomIds.DebtDescriptionKey] =
+                    "The Cuirass of Silent Reckoning has delayed part of the damage taken. The remaining debt gradually drains health.",
+                [DelayedDoomIds.RegenNameKey] = "Silent Vitality",
+                [DelayedDoomIds.RegenDescriptionKey] = "+{regen} health regeneration.",
 
                 // Crossbow of the Shadow Hunt
                 [ShadowCrossbowItemRegistration.ShadowCrossbowItemKey] = ItemNames.ShadowHuntEn,
@@ -343,15 +363,16 @@ namespace HaldorExpansion.Presentation
                     "-8 armor.",
 
                 // Pit King's Cuirass
-                ["$item_chest_pitking"] = ItemNames.PitKingEn,
-                ["$item_chest_pitking_desc"] =
+                [PitKingItemRegistration.PitKingChestItemKey] = ItemNames.PitKingEn,
+                [PitKingItemRegistration.PitKingChestItemDescKey] =
                     "It was not forged for protection. " +
                     "It was made for those who step into the pit not to hide behind steel, but to break bones with bare hands.",
-                ["$se_pitking_vigor"] = "Pit King's Vigor",
-                ["$se_pitking_vigor_desc"] = "+60 to maximum health.",
+                [PitKingItemRegistration.PitKingChestEffectNameKey] = "Pit King's Vigor",
+                [PitKingItemRegistration.PitKingChestEffectDescKey] =
+                    "+20 maximum health. With Bone Crushers equipped: +60 instead of +20.",
 
-                ["$itemset_steelheart"] = "Steel Heart",
-                ["$itemset_steelheart_desc"] =
+                [SteelHeartSet.SteelHeartSetNameKey] = "Steel Heart",
+                [SteelHeartSet.SteelHeartSetDescKey] =
                     "Set with the cestus: the cestus active ability gains 50% more barrier strength and shockwave damage.",
 
                 // Pelt of Helheim
@@ -365,14 +386,14 @@ namespace HaldorExpansion.Presentation
 
                 // Cloak of the Wounded Beast
                 [WoundedBeastItemRegistration.WoundedBeastCapeItemKey] = ItemNames.WoundedBeastEn,
-                ["$item_cape_woundedbeast_desc"] =
+                [WoundedBeastItemRegistration.WoundedBeastCapeItemDescKey] =
                     "While the blood still burns, the beast refuses to fall.\n" +
                     "The closer death comes, the more fiercely it clings to life — but every wound bites deeper.",
-                ["$se_cape_woundedbeast"] = "Wounded Beast",
-                ["$se_cape_woundedbeast_desc"] =
+                [WoundedBeastItemRegistration.WoundedBeastCapeEffectNameKey] = "Wounded Beast",
+                [WoundedBeastItemRegistration.WoundedBeastCapeEffectDescKey] =
                     "Incoming damage +20%.\n" +
                     "Restores health once per second: the lower your current health is, the stronger the regeneration becomes.\n" +
-                    "Fire, poison, and spirit suppress regeneration for 2 seconds.\n\n" +
+                    "While burning, poisoned, or affected by spirit damage, the cape regeneration is halved.\n\n" +
                     "When used together with the Cuirass of Silent Reckoning, its healing effect is halved.",
 
                 // Cloak of Burned Resolve
@@ -397,24 +418,31 @@ namespace HaldorExpansion.Presentation
             float speed = BerserkerConfiguration.WrathAttackSpeedFractionPerStage * 100f;
             float stamina = BerserkerConfiguration.WrathStaminaReductionFractionPerStage * 100f;
             string axe = text[BerserkerIds.AxeDescriptionKey];
-            axe = axe.Replace("+10%", "+" + Number(speed) + "%").Replace("-5%", "-" + Number(stamina) + "%")
-                .Replace("30%", Number(BerserkerConfiguration.ReckoningLifeStealFraction * 100f) + "%")
-                .Replace("x1+", "x" + Number(BerserkerConfiguration.ReckoningMinimumDebtValue / 100f) + "+")
-                .Replace("x5+", "x" + Number(BerserkerConfiguration.RagnarokMinimumDebtValue / 100f) + "+")
-                .Replace("Поглощает половину долга",
-                    "Поглощает " + Number(BerserkerConfiguration.ReckoningSpendFraction * 100f) + "% долга")
-                .Replace("Consumes half the debt",
-                    "Consumes " + Number(BerserkerConfiguration.ReckoningSpendFraction * 100f) + "% of the debt");
-            if (BerserkerConfiguration.RagnarokButton != null)
-                axe = axe.Replace("(E)", "(" + BerserkerConfiguration.RagnarokButton.Config.BoxedValue + ")");
+            axe = axe.Replace("{wrath_speed}", Number(speed)).Replace("{wrath_stamina}", Number(stamina))
+                .Replace("{reckoning_heal}", Number(BerserkerConfiguration.ReckoningLifeStealFraction * 100f))
+                .Replace("{reckoning_debt}", Number(BerserkerConfiguration.ReckoningMinimumDebtValue / 100f))
+                .Replace("{ragnarok_debt}", Number(BerserkerConfiguration.RagnarokMinimumDebtValue / 100f))
+                .Replace("{reckoning_spend}", Number(BerserkerConfiguration.ReckoningSpendFraction * 100f))
+                .Replace("{ragnarok_key}", BerserkerConfiguration.RagnarokButton != null
+                    ? BerserkerConfiguration.RagnarokButton.Config.BoxedValue.ToString()
+                    : "E");
             text[BerserkerIds.AxeDescriptionKey] = axe;
             for (int stage = 1; stage <= 5; stage++)
             {
                 string key = BerserkerIds.WrathKeyPrefix + stage + "_desc";
-                text[key] = text[key].Replace("+" + (stage * 10) + "%",
-                        "+" + Number(Math.Min(200f, stage * speed)) + "%")
-                    .Replace("-" + (stage * 5) + "%", "-" + Number(Math.Min(90f, stage * stamina)) + "%");
+                text[key] = text[key].Replace("{stage_speed}", Number(Math.Min(200f, stage * speed)))
+                    .Replace("{stage_stamina}", Number(Math.Min(90f, stage * stamina)));
             }
+
+            for (int stage = 1; stage <= HelOathState.MaxTouchStacks; stage++)
+            {
+                string key = HelOathIds.TouchDescriptionKey(stage);
+                text[key] = text[key].Replace("{touch_speed}", Number(stage * HelOathState.TouchSpeedPerStack * 100f))
+                    .Replace("{touch_stamina}", Number(stage * HelOathState.TouchStaminaReductionPerStack * 100f));
+            }
+
+            text[DelayedDoomIds.RegenDescriptionKey] = text[DelayedDoomIds.RegenDescriptionKey]
+                .Replace("{regen}", Number(DelayedDoomItemRegistration.DelayedDoomChestFoodRegenBonus));
 
             text[BerserkerIds.ExhaustionDescriptionKey] = ru
                 ? "После Рагнарёка скорость передвижения снижена на " +

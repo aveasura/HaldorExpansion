@@ -25,10 +25,10 @@ namespace HaldorExpansion.Features.DelayedDoom
                 return;
 
             SE_Stats se = ScriptableObject.CreateInstance<SE_Stats>();
-            se.name = "SE_DelayedDoomChestVisual";
+            se.name = DelayedDoomIds.EquipStatus;
 
-            ReflectionAccess.SetFieldIfExists(se, "m_name", "$se_delayeddoom_regen");
-            ReflectionAccess.SetFieldIfExists(se, "m_tooltip", "$se_delayeddoom_regen_desc");
+            ReflectionAccess.SetFieldIfExists(se, "m_name", DelayedDoomIds.RegenNameKey);
+            ReflectionAccess.SetFieldIfExists(se, "m_tooltip", DelayedDoomIds.RegenDescriptionKey);
 
             shared.m_equipStatusEffect = se;
         }
@@ -116,8 +116,8 @@ namespace HaldorExpansion.Features.DelayedDoom
             if (shared == null)
                 return;
 
-            shared.m_name = "$item_chest_delayeddoom";
-            shared.m_description = "$item_chest_delayeddoom_desc";
+            shared.m_name = DelayedDoomIds.ItemKey;
+            shared.m_description = DelayedDoomIds.DescriptionKey;
 
             shared.m_armor = 32f;
             shared.m_maxQuality = 1;

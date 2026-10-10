@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Features.DelayedDoom;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.WoundedBeast
@@ -8,21 +8,20 @@ namespace HaldorExpansion.Features.WoundedBeast
     internal static class WoundedBeastRuntime
     {
         // С Кирасой безмолвной расплаты эффект хила от плаща в 2 раза слабее
-        private const float WoundedBeastCapeRegenWithDelayedDoomMultiplier = 1f / 2f; 
+        private const float WoundedBeastCapeRegenWithDelayedDoomMultiplier = 1f / 2f;
+        private const float WoundedBeastCapeRegenWithDotMultiplier = 1f / 2f;
 
         internal const float WoundedBeastCapeIncomingDamageMultiplier = 1.20f;
-        internal const float WoundedBeastCapeDotRegenSuppressDuration = 2f;
         private const float WoundedBeastCapeRegenTickInterval = 1f;
 
-        private static readonly Dictionary<long, float> WoundedBeastCapeNextRegenTickTimes = new Dictionary<long, float>();
-        private static readonly Dictionary<long, float> WoundedBeastCapeRegenSuppressedUntil = new Dictionary<long, float>();
+        private static readonly Dictionary<long, float> WoundedBeastCapeNextRegenTickTimes =
+            new Dictionary<long, float>();
 
         internal static void ResetWoundedBeastCapeState()
         {
             WoundedBeastItemRegistration.WoundedBeastCapePrefab = null;
             WoundedBeastItemRegistration.WoundedBeastCapeItemDrop = null;
             WoundedBeastCapeNextRegenTickTimes.Clear();
-            WoundedBeastCapeRegenSuppressedUntil.Clear();
         }
 
         internal static bool HasWoundedBeastCapeEquipped(Player player)
@@ -64,27 +63,10 @@ namespace HaldorExpansion.Features.WoundedBeast
             }
 
             float now = Time.time;
-            if (WoundedBeastCapeRegenSuppressedUntil.TryGetValue(playerId, out float suppressedUntil) && now < suppressedUntil)
-                return;
-
             if (!WoundedBeastCapeNextRegenTickTimes.TryGetValue(playerId, out float nextTick) || now >= nextTick)
             {
                 WoundedBeastCapeNextRegenTickTimes[playerId] = now + WoundedBeastCapeRegenTickInterval;
                 TryApplyWoundedBeastCapeRegenTick(player);
-            }
-        }
-
-        internal static void ApplyWoundedBeastCapeIncomingDamagePenalty(Player player, HitData hit)
-        {
-            if (player == null || hit == null || !HasWoundedBeastCapeEquipped(player))
-                return;
-
-            ScaleWoundedBeastCapeDamageTypes(ref hit.m_damage, WoundedBeastCapeIncomingDamageMultiplier);
-
-            if (HasWoundedBeastCapeSuppressionDamage(hit))
-            {
-                long playerId = player.GetPlayerID();
-                WoundedBeastCapeRegenSuppressedUntil[playerId] = Time.time + WoundedBeastCapeDotRegenSuppressDuration;
             }
         }
 
@@ -105,6 +87,10 @@ namespace HaldorExpansion.Features.WoundedBeast
                 regenAmount *= WoundedBeastCapeRegenWithDelayedDoomMultiplier;
             }
 
+            bool dotActive = HasWoundedBeastCapeSuppressingDot(player);
+            if (dotActive)
+                regenAmount *= WoundedBeastCapeRegenWithDotMultiplier;
+
             float newHealth = Mathf.Min(maxHealth, currentHealth + regenAmount);
             if (newHealth <= currentHealth + 0.001f)
                 return;
@@ -117,7 +103,7 @@ namespace HaldorExpansion.Features.WoundedBeast
                 $"max={maxHealth:0.##}, " +
                 $"regen={regenAmount:0.##}, " +
                 $"new={newHealth:0.##}, " +
-                $"delayedDoom={DelayedDoomEquipment.HasDelayedDoomEquipped(player)}");
+                $"delayedDoom={DelayedDoomEquipment.HasDelayedDoomEquipped(player)}, dotActive={dotActive}");
         }
 
         private static float GetWoundedBeastCapeRegenPerSecond(float currentHealth, float maxHealth)
@@ -134,23 +120,20 @@ namespace HaldorExpansion.Features.WoundedBeast
             return 10f;
         }
 
-        private static bool HasWoundedBeastCapeSuppressionDamage(HitData hit)
+        private static bool HasWoundedBeastCapeSuppressingDot(Player player)
         {
-            HitData.DamageTypes damage = hit.m_damage;
-            return damage.m_fire > 0f || damage.m_poison > 0f || damage.m_spirit > 0f;
-        }
+            List<StatusEffect> effects = player.GetSEMan()?.GetStatusEffects();
+            if (effects == null)
+                return false;
 
-        private static void ScaleWoundedBeastCapeDamageTypes(ref HitData.DamageTypes damage, float multiplier)
-        {
-            damage.m_damage *= multiplier;
-            damage.m_blunt *= multiplier;
-            damage.m_slash *= multiplier;
-            damage.m_pierce *= multiplier;
-            damage.m_fire *= multiplier;
-            damage.m_frost *= multiplier;
-            damage.m_lightning *= multiplier;
-            damage.m_poison *= multiplier;
-            damage.m_spirit *= multiplier;
+            foreach (StatusEffect effect in effects)
+            {
+                // Valheim uses SE_Burning for both fire and spirit, and SE_Poison for poison.
+                if (effect is SE_Burning || effect is SE_Poison)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

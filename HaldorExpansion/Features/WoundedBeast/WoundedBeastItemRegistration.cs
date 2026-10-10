@@ -16,9 +16,9 @@ namespace HaldorExpansion.Features.WoundedBeast
         internal const int WoundedBeastCapePrice = 2500;
 
         internal const string WoundedBeastCapeItemKey = "$item_cape_woundedbeast";
-        private const string WoundedBeastCapeItemDescKey = "$item_cape_woundedbeast_desc";
-        private const string WoundedBeastCapeEffectNameKey = "$se_cape_woundedbeast";
-        private const string WoundedBeastCapeEffectDescKey = "$se_cape_woundedbeast_desc";
+        internal const string WoundedBeastCapeItemDescKey = "$item_cape_woundedbeast_desc";
+        internal const string WoundedBeastCapeEffectNameKey = "$se_cape_woundedbeast";
+        internal const string WoundedBeastCapeEffectDescKey = "$se_cape_woundedbeast_desc";
 
         internal static GameObject WoundedBeastCapePrefab;
         internal static ItemDrop WoundedBeastCapeItemDrop;

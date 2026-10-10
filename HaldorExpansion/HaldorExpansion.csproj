@@ -200,6 +200,12 @@
         <Compile Include="Integration\Patches\ItemTooltipPatches.cs"/>
         <Compile Include="Presentation\EmbeddedIconLoader.cs"/>
         <Compile Include="Presentation\ModLocalization.cs"/>
+        <Compile Include="Features\Brisingamen\BrisingamenIds.cs"/>
+        <Compile Include="Features\DelayedDoom\DelayedDoomIds.cs"/>
+        <Compile Include="Features\DelayedDoom\DelayedDoomDebtStatus.cs"/>
+        <Compile Include="Features\HelOath\HelOathIds.cs"/>
+        <Compile Include="Presentation\UiTextIds.cs"/>
+        <Compile Include="Presentation\ShopItemTooltip.cs"/>
         <Compile Include="Configuration\TradingUiConfiguration.cs"/>
         <Compile Include="Trading\ShopCategoryFilter.cs"/>
         <Compile Include="Presentation\HaldorTabsController.cs"/>

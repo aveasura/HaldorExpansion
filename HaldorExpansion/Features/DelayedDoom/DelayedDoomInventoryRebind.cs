@@ -1,12 +1,11 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.DelayedDoom
 {
     internal static class DelayedDoomInventoryRebind
     {
-
         internal static bool FixDelayedDoomItemsInInventory(Player player)
         {
             try
@@ -14,7 +13,8 @@ namespace HaldorExpansion.Features.DelayedDoom
                 if (player == null || ObjectDB.instance == null)
                     return false;
 
-                GameObject chestPrefab = ObjectDB.instance.GetItemPrefab(DelayedDoomItemRegistration.DelayedDoomChestPrefabName);
+                GameObject chestPrefab =
+                    ObjectDB.instance.GetItemPrefab(DelayedDoomItemRegistration.DelayedDoomChestPrefabName);
                 if (chestPrefab == null)
                     return false;
 
@@ -38,7 +38,7 @@ namespace HaldorExpansion.Features.DelayedDoom
                     if (item == null || item.m_shared == null)
                         continue;
 
-                    if (item.m_shared.m_name != "$item_chest_delayeddoom")
+                    if (item.m_shared.m_name != DelayedDoomIds.ItemKey)
                         continue;
 
                     found = true;
@@ -49,7 +49,7 @@ namespace HaldorExpansion.Features.DelayedDoom
                     int oldVariant = item.m_variant;
                     long oldCrafterID = item.m_crafterID;
                     string oldCrafterName = item.m_crafterName;
-                    
+
                     item.m_dropPrefab = chestPrefab;
                     item.m_shared = prefabDrop.m_itemData.m_shared;
 

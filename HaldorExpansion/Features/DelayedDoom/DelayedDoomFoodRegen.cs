@@ -5,7 +5,6 @@ namespace HaldorExpansion.Features.DelayedDoom
 {
     internal static class DelayedDoomFoodRegen
     {
-
         internal static float GetPlayerBaseFoodRegen(Player player)
         {
             if (player == null)

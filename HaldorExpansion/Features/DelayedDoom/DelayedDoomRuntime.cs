@@ -1,15 +1,14 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Diagnostics;
-using System.Collections.Generic;
-using System.Collections;
-using System;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.DelayedDoom
 {
     internal static class DelayedDoomRuntime
     {
-
         internal const float DelayedDoomTriggerRatio = 0.50f;
         internal const float DelayedDoomImmediateRatio = 0.50f;
         internal const float DelayedDoomDebtRatio = 0.70f;
@@ -57,6 +56,7 @@ namespace HaldorExpansion.Features.DelayedDoom
             state.Player = player;
             state.RemainingDamage += delayedDamageTotal;
             state.TicksLeft = DelayedDoomTicks;
+            DelayedDoomDebtStatus.SetActive(player, true);
 
             HaldorExpansionPlugin.DebugLog(
                 $"[HaldorExpansion] Delayed Doom debt added: " +
@@ -147,6 +147,7 @@ namespace HaldorExpansion.Features.DelayedDoom
                         $"{PlayerDiagnostics.GetCestusDebugPlayerTag(state.Player)}");
                 }
 
+                DelayedDoomDebtStatus.SetActive(state.Player, false);
                 state.Routine = null;
                 state.RemainingDamage = 0f;
                 state.TicksLeft = 0;

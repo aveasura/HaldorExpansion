@@ -5,7 +5,6 @@ namespace HaldorExpansion.Features.Cestus
 {
     internal static class CestusRuntime
     {
-
         internal static bool ShouldProcessCestusLocally(Player player)
         {
             return player != null &&
@@ -113,10 +112,12 @@ namespace HaldorExpansion.Features.Cestus
             if (player != null)
             {
                 state.LastObservedHealth = Mathf.Max(0f, player.GetHealth());
+                state.LastObservedMaxHealth = Mathf.Max(0f, player.GetMaxHealth());
                 state.HasObservedHealth = true;
             }
 
-            HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Cestus state reset: reason={reason}, {PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            HaldorExpansionPlugin.DebugLog(
+                $"[HaldorExpansion] Cestus state reset: reason={reason}, {PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
         }
     }
 }

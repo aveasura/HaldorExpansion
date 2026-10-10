@@ -9,7 +9,11 @@ namespace HaldorExpansion.Patches
     [HarmonyPatch(typeof(UITooltip), nameof(UITooltip.OnHoverStart))]
     internal static class ItemTooltipHoverPatch
     {
-        private static void Prefix() => ItemTooltipController.Reset();
+        private static void Prefix(UITooltip __instance)
+        {
+            ItemTooltipController.Reset();
+            ShopItemTooltip.Prepare(__instance);
+        }
 
         private static void Postfix(UITooltip __instance, UITooltip ___m_current, GameObject ___m_tooltip)
         {

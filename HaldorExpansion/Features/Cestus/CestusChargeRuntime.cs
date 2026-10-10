@@ -1,18 +1,19 @@
+using System.Collections;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Diagnostics;
-using System.Collections;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Cestus
 {
     internal static class CestusChargeRuntime
     {
-
         internal const float CestusChargeMax = 100f;
 
         // распад заряда со временем =====
-        internal const float CestusChargePerPostArmorDamage = 1.2f; // за 10 полученного урона стакает 12 шкалы
-        internal const float CestusChargeDecayDelay = 9f; // после последнего входящего урона ждём 7 секунд
+        internal const float
+            CestusChargePerLostHealthPercent = 2f; // за 10% максимального HP, потерянного от урона, получаем 20 заряда
+
+        internal const float CestusChargeDecayDelay = 9f; // после последнего входящего урона ждём 9 секунд
         internal const float CestusChargeDecayPerSecond = 4f; // потом теряем 4 заряда в секунду
         internal const float CestusChargeDecayTickInterval = 0.20f; // decay считается каждые 0.2 сек
 
@@ -108,12 +109,12 @@ namespace HaldorExpansion.Features.Cestus
                 }
             }
 
-            AddCestusCharge(player, observedDamage);
+            AddCestusCharge(player, observedDamage, previousMaxHealth);
         }
 
-        internal static void AddCestusCharge(Player player, float postArmorDamage)
+        internal static void AddCestusCharge(Player player, float healthLoss, float maxHealthBeforeDamage)
         {
-            if (player == null || postArmorDamage <= 0f)
+            if (player == null || healthLoss <= 0f || maxHealthBeforeDamage <= 0f)
                 return;
 
             if (!CestusRuntime.ShouldProcessCestusLocally(player))
@@ -140,7 +141,8 @@ namespace HaldorExpansion.Features.Cestus
                 return;
 
             float before = state.Charge;
-            float added = postArmorDamage * CestusChargePerPostArmorDamage;
+            float lostHealthPercent = Mathf.Clamp01(healthLoss / maxHealthBeforeDamage) * 100f;
+            float added = lostHealthPercent * CestusChargePerLostHealthPercent;
 
             state.Charge = Mathf.Clamp(state.Charge + added, 0f, CestusChargeMax);
             state.LastChargeGainTime = Time.time;
@@ -149,8 +151,8 @@ namespace HaldorExpansion.Features.Cestus
 
             HaldorExpansionPlugin.DebugLog(
                 $"[HaldorExpansion] Cestus charge added: " +
-                $"damage={postArmorDamage:0.##}, " +
-                $"added={added:0.##}, " +
+                $"healthLoss={healthLoss:0.##}, maxHealthBefore={maxHealthBeforeDamage:0.##}, " +
+                $"lostHealthPercent={lostHealthPercent:0.##}, added={added:0.##}, " +
                 $"before={before:0.##}, " +
                 $"after={state.Charge:0.##}");
         }
@@ -218,7 +220,8 @@ namespace HaldorExpansion.Features.Cestus
                 state.ChargeDecayRoutine = null;
 
                 if (playerId != 0 &&
-                    CestusStateStore.ActiveCestusStates.TryGetValue(playerId, out CestusStateStore.CestusState current) &&
+                    CestusStateStore.ActiveCestusStates.TryGetValue(playerId,
+                        out CestusStateStore.CestusState current) &&
                     ReferenceEquals(current, state))
                 {
                     current.ChargeDecayRoutine = null;

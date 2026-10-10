@@ -1,3 +1,6 @@
+using System;
+using HaldorExpansion.Features.Berserker;
+
 internal static class BerserkerStateTests
 {
     static int Main(string[] args)

@@ -17,12 +17,13 @@ namespace HaldorExpansion.Features.PitKing
         internal const int PitKingChestPrice = 4000;
 
         internal const float PitKingChestBonusMaxHealth = 60f;
+        internal const float PitKingChestBonusMaxHealthWithoutCestus = 20f;
 
         internal const string PitKingChestItemKey = "$item_chest_pitking";
-        private const string PitKingChestItemDescKey = "$item_chest_pitking_desc";
+        internal const string PitKingChestItemDescKey = "$item_chest_pitking_desc";
 
-        private const string PitKingChestEffectNameKey = "$se_pitking_vigor";
-        private const string PitKingChestEffectDescKey = "$se_pitking_vigor_desc";
+        internal const string PitKingChestEffectNameKey = "$se_pitking_vigor";
+        internal const string PitKingChestEffectDescKey = "$se_pitking_vigor_desc";
 
         internal static GameObject PitKingChestPrefab;
         internal static ItemDrop PitKingChestItemDrop;

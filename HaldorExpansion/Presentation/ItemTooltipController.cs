@@ -1,7 +1,9 @@
 using System;
 using BepInEx.Configuration;
 using HaldorExpansion.Features.Berserker;
+using HaldorExpansion.Features.Brisingamen;
 using HaldorExpansion.Features.Cestus;
+using HaldorExpansion.Features.DelayedDoom;
 using HaldorExpansion.Features.HelOath;
 using HaldorExpansion.Features.NornThread;
 using HaldorExpansion.Features.PeltOfHelheim;
@@ -17,7 +19,7 @@ namespace HaldorExpansion.Presentation
     {
         private static readonly string[] ItemKeys =
         {
-            "$item_brisingamen", "$item_chest_delayeddoom",
+            BrisingamenIds.ItemKey, DelayedDoomIds.ItemKey,
             NornThreadItemRegistration.ItemKey, PitKingItemRegistration.PitKingChestItemKey,
             CestusItemRegistration.CestusItemKey, HelOathItemRegistration.HelOathItemKey,
             ShadowCrossbowItemRegistration.ShadowCrossbowItemKey, WoundedBeastItemRegistration.WoundedBeastCapeItemKey,

@@ -1,11 +1,17 @@
-using HaldorExpansion.Features.PitKing;
 using System.Collections.Generic;
 using System.Reflection;
+using HaldorExpansion.Features.PitKing;
 
 namespace HaldorExpansion.Features.Cestus
 {
     internal static class CestusEquipment
     {
+        private static readonly FieldInfo RightHand = typeof(Humanoid).GetField(
+            "m_rightItem", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+        private static readonly FieldInfo LeftHand = typeof(Humanoid).GetField(
+            "m_leftItem", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
         private static readonly HashSet<string> CestusItemKeys = new HashSet<string>
         {
             "$item_weapon_gritcestus"
@@ -60,9 +66,10 @@ namespace HaldorExpansion.Features.Cestus
             if (player == null || string.IsNullOrWhiteSpace(fieldName))
                 return null;
 
-            FieldInfo field = typeof(Humanoid).GetField(
-                fieldName,
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            FieldInfo field = fieldName == "m_rightItem" ? RightHand :
+                fieldName == "m_leftItem" ? LeftHand : typeof(Humanoid).GetField(
+                    fieldName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
             return field?.GetValue(player) as ItemDrop.ItemData;
         }

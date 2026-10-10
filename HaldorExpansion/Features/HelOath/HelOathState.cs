@@ -6,6 +6,8 @@ namespace HaldorExpansion.Features.HelOath
     internal sealed class HelOathState
     {
         internal const int MaxTouchStacks = 5;
+        internal const float TouchSpeedPerStack = 0.05f;
+        internal const float TouchStaminaReductionPerStack = 0.04f;
         internal const float TouchInactiveGrace = 5f;
         internal const float TouchDecayInterval = 3f;
 
@@ -40,7 +42,8 @@ namespace HaldorExpansion.Features.HelOath
         {
             if (weapon == null || epoch != Epoch || Casting || Prepared || now < blockedUntil || Charge >= 100f)
                 return;
-            if (float.IsNaN(damage) || float.IsInfinity(damage) || damage <= 0f || float.IsNaN(requiredDamage) || float.IsInfinity(requiredDamage) || requiredDamage <= 0f)
+            if (float.IsNaN(damage) || float.IsInfinity(damage) || damage <= 0f || float.IsNaN(requiredDamage) ||
+                float.IsInfinity(requiredDamage) || requiredDamage <= 0f)
                 return;
             Charge = Math.Min(100f, Charge + damage * 100f / requiredDamage);
         }
@@ -169,6 +172,7 @@ namespace HaldorExpansion.Features.HelOath
                     ClearTouch();
                     return;
                 }
+
                 nextTouchDecayAt += TouchDecayInterval;
             }
 

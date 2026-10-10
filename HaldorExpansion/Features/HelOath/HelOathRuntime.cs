@@ -10,7 +10,11 @@ namespace HaldorExpansion.Features.HelOath
         private static Player owner;
         private static ItemDrop.ItemData lastWeapon;
         private static int lastSyncedTouch = -1;
-        private static readonly MethodInfo GetButtonDown = AccessTools.Method(AccessTools.TypeByName("ZInput"), "GetButtonDown", new[] { typeof(string) });
+        private static float nextTouchStatusSync;
+
+        private static readonly MethodInfo GetButtonDown = AccessTools.Method(AccessTools.TypeByName("ZInput"),
+            "GetButtonDown", new[] { typeof(string) });
+
         private static readonly MethodInfo TakeInput = AccessTools.Method(typeof(Player), "TakeInput");
         private static readonly MethodInfo FoodValue = AccessTools.Method(typeof(Player), "GetTotalFoodValue");
         private static readonly MethodInfo MaxStamina = AccessTools.Method(typeof(Player), "SetMaxStamina");
@@ -18,8 +22,8 @@ namespace HaldorExpansion.Features.HelOath
         internal static bool IsBow(ItemDrop.ItemData item)
         {
             return item != null && item.m_shared != null &&
-                ((item.m_dropPrefab != null && item.m_dropPrefab.name == HelOathItemRegistration.HelOathPrefabName)
-                 || item.m_shared.m_name == HelOathItemRegistration.HelOathItemKey);
+                   ((item.m_dropPrefab != null && item.m_dropPrefab.name == HelOathItemRegistration.HelOathPrefabName)
+                    || item.m_shared.m_name == HelOathItemRegistration.HelOathItemKey);
         }
 
         internal static bool Equipped(Player player) => player != null && IsBow(player.GetCurrentWeapon());
@@ -34,7 +38,8 @@ namespace HaldorExpansion.Features.HelOath
             return State.TouchStacks;
         }
 
-        internal static float TouchStaminaMultiplier(Player player) => 1f - EffectiveTouchStacks(player) * 0.04f;
+        internal static float TouchStaminaMultiplier(Player player) =>
+            1f - EffectiveTouchStacks(player) * HelOathState.TouchStaminaReductionPerStack;
 
         internal static void Refresh(Player player)
         {
@@ -45,8 +50,12 @@ namespace HaldorExpansion.Features.HelOath
                 State = new HelOathState();
                 lastWeapon = null;
                 lastSyncedTouch = -1;
+                nextTouchStatusSync = 0f;
             }
-            var current = !player.IsDead() && !player.IsTeleporting() && Equipped(player) ? player.GetCurrentWeapon() : null;
+
+            var current = !player.IsDead() && !player.IsTeleporting() && Equipped(player)
+                ? player.GetCurrentWeapon()
+                : null;
             if (!ReferenceEquals(lastWeapon, current))
             {
                 // Store progress on the concrete bow before it leaves the active weapon slot.
@@ -88,7 +97,7 @@ namespace HaldorExpansion.Features.HelOath
                 State.Tick(Time.time);
                 SyncTouch(player);
                 HelOathEffects.SyncPrepared(player, true);
-                player.Message(MessageHud.MessageType.Center, "$he_hel_prepared");
+                player.Message(MessageHud.MessageType.Center, HelOathIds.PreparedKey);
             }
         }
 
@@ -131,9 +140,16 @@ namespace HaldorExpansion.Features.HelOath
         private static void SyncTouch(Player player)
         {
             int activeTouch = EffectiveTouchStacks(player);
-            if (activeTouch == lastSyncedTouch) return;
-            lastSyncedTouch = activeTouch;
-            HelOathTouchEffects.Sync(player, activeTouch);
+            if (activeTouch == lastSyncedTouch && Time.time < nextTouchStatusSync) return;
+            nextTouchStatusSync = Time.time + 1f;
+            if (activeTouch != lastSyncedTouch)
+            {
+                lastSyncedTouch = activeTouch;
+                HelOathTouchEffects.Sync(player, activeTouch);
+            }
+
+            // Retry unavailable registrations and recover externally removed effects,
+            // without scanning SEMan on every frame while the stage is unchanged.
             HelOathTouchStatus.Sync(player, activeTouch);
         }
 

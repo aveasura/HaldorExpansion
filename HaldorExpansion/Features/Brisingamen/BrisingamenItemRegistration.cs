@@ -75,8 +75,8 @@ namespace HaldorExpansion.Features.Brisingamen
 
                 ItemDrop.ItemData.SharedData shared = drop.m_itemData.m_shared;
 
-                shared.m_name = "$item_brisingamen";
-                shared.m_description = "$item_brisingamen_desc";
+                shared.m_name = BrisingamenIds.ItemKey;
+                shared.m_description = BrisingamenIds.DescriptionKey;
 
                 shared.m_setName = "";
                 shared.m_setSize = 0;
@@ -84,11 +84,10 @@ namespace HaldorExpansion.Features.Brisingamen
 
                 SE_Stats baseSe = shared.m_equipStatusEffect as SE_Stats;
                 SE_Stats newSe = ScriptableObject.CreateInstance<SE_Stats>();
-                newSe.name = "SE_BrisingamenCarryWeight";
+                newSe.name = BrisingamenIds.CarryStatus;
 
                 if (baseSe != null)
                 {
-                    ReflectionAccess.CopyFieldIfExists(baseSe, newSe, "m_icon");
                     ReflectionAccess.CopyFieldIfExists(baseSe, newSe, "m_startMessage");
                     ReflectionAccess.CopyFieldIfExists(baseSe, newSe, "m_stopMessage");
                     ReflectionAccess.CopyFieldIfExists(baseSe, newSe, "m_startMessageType");
@@ -97,8 +96,8 @@ namespace HaldorExpansion.Features.Brisingamen
 
                 newSe.m_addMaxCarryWeight = 150f;
 
-                ReflectionAccess.SetFieldIfExists(newSe, "m_name", "$item_brisingamen");
-                ReflectionAccess.SetFieldIfExists(newSe, "m_tooltip", "$item_brisingamen_desc");
+                ReflectionAccess.SetFieldIfExists(newSe, "m_name", BrisingamenIds.ItemKey);
+                ReflectionAccess.SetFieldIfExists(newSe, "m_tooltip", BrisingamenIds.DescriptionKey);
 
                 shared.m_equipStatusEffect = newSe;
 
@@ -190,6 +189,9 @@ namespace HaldorExpansion.Features.Brisingamen
                 HaldorExpansionPlugin.Log?.LogWarning(
                     "[HaldorExpansion] Embedded icon missing for brisingamen: brisingamen.png");
             }
+
+            if (shared.m_equipStatusEffect != null && shared.m_icons != null && shared.m_icons.Length > 0)
+                shared.m_equipStatusEffect.m_icon = shared.m_icons[0];
         }
     }
 }

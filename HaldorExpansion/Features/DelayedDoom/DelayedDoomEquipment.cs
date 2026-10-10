@@ -6,7 +6,7 @@ namespace HaldorExpansion.Features.DelayedDoom
     {
         private static readonly HashSet<string> DelayedDoomItemKeys = new HashSet<string>
         {
-            "$item_chest_delayeddoom"
+            DelayedDoomIds.ItemKey
         };
 
         internal static bool HasDelayedDoomEquipped(Player player)

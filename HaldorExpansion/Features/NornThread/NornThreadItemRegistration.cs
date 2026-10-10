@@ -11,6 +11,7 @@ namespace HaldorExpansion.Features.NornThread
 {
     internal static class NornThreadItemRegistration
     {
+        internal const string BrokenMessageKey = "$msg_norn_thread_broken";
         internal const string PrefabName = "NornThreadAmulet";
         internal const string ItemKey = "$item_norn_thread";
         internal const string ItemDescKey = "$item_norn_thread_desc";

@@ -1,19 +1,19 @@
-using HaldorExpansion.Compatibility;
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using HaldorExpansion.Compatibility;
+using HarmonyLib;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.HelOath
 {
     internal static class HelOathTouchStatus
     {
-        private const string EffectName = "SE_HelOathTouch";
         private static SE_Stats prototype;
         private static StatusEffect active;
         private static int activeStage;
         private static ObjectDB registeredDb;
+        private static Player owner;
 
         internal static void EnsureRegistered()
         {
@@ -28,15 +28,16 @@ namespace HaldorExpansion.Features.HelOath
 
             foreach (StatusEffect existing in ObjectDB.instance.m_StatusEffects)
             {
-                if (existing != null && existing.name == EffectName)
+                if (existing != null && existing.name == HelOathIds.TouchStatus)
                 {
                     prototype = existing as SE_Stats;
+                    RefreshIcon(prototype);
                     return;
                 }
             }
 
             var se = ScriptableObject.CreateInstance<SE_Stats>();
-            se.name = EffectName;
+            se.name = HelOathIds.TouchStatus;
             Configure(se, 1);
 
             Sprite icon = GetHelOathIcon();
@@ -49,15 +50,43 @@ namespace HaldorExpansion.Features.HelOath
         internal static void Sync(Player player, int stage)
         {
             if (player == null || player != Player.m_localPlayer) return;
+            if (owner != player)
+            {
+                owner = player;
+                active = null;
+                activeStage = 0;
+            }
+
             stage = Mathf.Clamp(stage, 0, HelOathState.MaxTouchStacks);
-            if (stage == activeStage && ((stage == 0 && active == null) || (stage > 0 && active != null))) return;
+            if (stage <= 0)
+            {
+                RemoveCurrent(player);
+                return;
+            }
 
             EnsureRegistered();
             if (prototype == null) return;
 
+            // The cached Unity object can survive removal from SEMan. Reconcile against
+            // the current owner before treating a stage as already applied.
+            StatusEffect current = FindActive(GetSEMan(player), HelOathIds.TouchStatus);
+            if (current != null)
+            {
+                active = current;
+                if (stage == activeStage)
+                {
+                    Configure(active, stage);
+                    return;
+                }
+            }
+            else
+            {
+                active = null;
+                activeStage = 0;
+            }
+
             RemoveCurrent(player);
             activeStage = 0;
-            if (stage <= 0) return;
 
             Configure(prototype, stage);
             StatusEffect applied = Add(player, prototype);
@@ -71,11 +100,18 @@ namespace HaldorExpansion.Features.HelOath
         {
             if (effect == null) return;
             stage = Mathf.Clamp(stage, 1, HelOathState.MaxTouchStacks);
-            ReflectionAccess.SetFieldIfExists(effect, "m_name", "$se_hel_touch_" + stage);
-            ReflectionAccess.SetFieldIfExists(effect, "m_tooltip", "$se_hel_touch_" + stage + "_desc");
+            ReflectionAccess.SetFieldIfExists(effect, "m_name", HelOathIds.TouchNameKey(stage));
+            ReflectionAccess.SetFieldIfExists(effect, "m_tooltip", HelOathIds.TouchDescriptionKey(stage));
             ReflectionAccess.SetFieldIfExists(effect, "m_ttl", 0f);
             if (effect is SE_Stats stats)
-                ReflectionAccess.SetFieldIfExists(stats, "m_speedModifier", stage * 0.05f);
+                ReflectionAccess.SetFieldIfExists(stats, "m_speedModifier", stage * HelOathState.TouchSpeedPerStack);
+            RefreshIcon(effect);
+        }
+
+        private static void RefreshIcon(StatusEffect effect)
+        {
+            Sprite icon = GetHelOathIcon();
+            if (effect != null && icon != null) ReflectionAccess.SetFieldIfExists(effect, "m_icon", icon);
         }
 
         private static Sprite GetHelOathIcon()
@@ -90,7 +126,8 @@ namespace HaldorExpansion.Features.HelOath
             object seman = GetSEMan(player);
             if (seman == null || effect == null) return null;
 
-            MethodInfo[] methods = typeof(SEMan).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            MethodInfo[] methods =
+                typeof(SEMan).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             // Modern Valheim accepts a StatusEffect object directly. Prefer that path so the
             // effect does not depend on ObjectDB hash caches; retain the hash overload as fallback.
             for (int pass = 0; pass < 2; pass++)
@@ -116,11 +153,17 @@ namespace HaldorExpansion.Features.HelOath
                         StatusEffect found = FindActive(seman, effect.name);
                         if (found != null) return found;
                     }
-                    catch (TargetInvocationException) { }
-                    catch (ArgumentException) { }
+                    catch (TargetInvocationException)
+                    {
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
                 }
             }
-            HaldorExpansionPlugin.Log?.LogWarning("[HaldorExpansion] Could not apply Hel's Touch status effect with the current SEMan API.");
+
+            HaldorExpansionPlugin.Log?.LogWarning(
+                "[HaldorExpansion] Could not apply Hel's Touch status effect with the current SEMan API.");
             return null;
         }
 
@@ -130,13 +173,14 @@ namespace HaldorExpansion.Features.HelOath
             object seman = GetSEMan(player);
             if (seman != null)
             {
-                foreach (MethodInfo method in typeof(SEMan).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                foreach (MethodInfo method in typeof(SEMan).GetMethods(BindingFlags.Instance | BindingFlags.Public |
+                                                                       BindingFlags.NonPublic))
                 {
                     if (method.Name != "RemoveStatusEffect") continue;
                     ParameterInfo[] ps = method.GetParameters();
                     if (ps.Length == 0) continue;
                     object first;
-                    if (ps[0].ParameterType == typeof(int)) first = StableHash(EffectName);
+                    if (ps[0].ParameterType == typeof(int)) first = StableHash(HelOathIds.TouchStatus);
                     else if (typeof(StatusEffect).IsAssignableFrom(ps[0].ParameterType)) first = active ?? prototype;
                     else continue;
                     try
@@ -144,32 +188,43 @@ namespace HaldorExpansion.Features.HelOath
                         method.Invoke(seman, BuildArgs(ps, first));
                         break;
                     }
-                    catch (TargetInvocationException) { }
-                    catch (ArgumentException) { }
+                    catch (TargetInvocationException)
+                    {
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
                 }
             }
+
             active = null;
             activeStage = 0;
         }
 
         private static object GetSEMan(Player player)
         {
-            FieldInfo field = AccessTools.Field(typeof(Character), "m_seman") ?? AccessTools.Field(typeof(Player), "m_seman");
+            FieldInfo field = AccessTools.Field(typeof(Character), "m_seman") ??
+                              AccessTools.Field(typeof(Player), "m_seman");
             if (field != null) return field.GetValue(player);
-            MethodInfo getter = AccessTools.Method(typeof(Character), "GetSEMan") ?? AccessTools.Method(typeof(Player), "GetSEMan");
+            MethodInfo getter = AccessTools.Method(typeof(Character), "GetSEMan") ??
+                                AccessTools.Method(typeof(Player), "GetSEMan");
             return getter?.Invoke(player, null);
         }
 
         private static StatusEffect FindActive(object seman, string objectName)
         {
             if (seman == null) return null;
-            foreach (FieldInfo field in typeof(SEMan).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            foreach (FieldInfo field in typeof(SEMan).GetFields(BindingFlags.Instance | BindingFlags.Public |
+                                                                BindingFlags.NonPublic))
             {
                 object value = field.GetValue(seman);
                 if (!(value is IEnumerable<StatusEffect> effects)) continue;
                 foreach (StatusEffect effect in effects)
-                    if (effect != null && effect.name != null && effect.name.StartsWith(objectName, StringComparison.Ordinal)) return effect;
+                    if (effect != null && effect.name != null &&
+                        effect.name.StartsWith(objectName, StringComparison.Ordinal))
+                        return effect;
             }
+
             return null;
         }
 
@@ -187,6 +242,7 @@ namespace HaldorExpansion.Features.HelOath
                 else if (p.ParameterType.IsValueType) args[i] = Activator.CreateInstance(p.ParameterType);
                 else args[i] = null;
             }
+
             return args;
         }
 
@@ -202,6 +258,7 @@ namespace HaldorExpansion.Features.HelOath
                     if (i == text.Length - 1 || text[i + 1] == '\0') break;
                     hash2 = ((hash2 << 5) + hash2) ^ text[i + 1];
                 }
+
                 return hash1 + hash2 * 1566083941;
             }
         }

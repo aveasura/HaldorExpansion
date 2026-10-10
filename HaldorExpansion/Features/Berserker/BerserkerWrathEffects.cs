@@ -21,6 +21,9 @@ namespace HaldorExpansion.Features.Berserker
         private static readonly ConditionalWeakTable<Player, VisualState> Visuals =
             new ConditionalWeakTable<Player, VisualState>();
 
+        private static readonly System.Reflection.FieldInfo NetworkViewField =
+            AccessTools.Field(typeof(Character), "m_nview");
+
         private static Material auraMaterial;
         private static Material lineMaterial;
         private static Texture2D auraTexture;
@@ -105,7 +108,7 @@ namespace HaldorExpansion.Features.Berserker
         private static ZNetView View(Character character)
         {
             if (character == null) return null;
-            var field = AccessTools.Field(typeof(Character), "m_nview");
+            var field = NetworkViewField;
             return field != null ? field.GetValue(character) as ZNetView : null;
         }
 

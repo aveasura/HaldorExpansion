@@ -5,9 +5,8 @@ namespace HaldorExpansion.Features.SteelHeart
 {
     internal static class SteelHeartSet
     {
-
-        private const string SteelHeartSetNameKey = "$itemset_steelheart";
-        private const string SteelHeartSetDescKey = "$itemset_steelheart_desc";
+        internal const string SteelHeartSetNameKey = "$itemset_steelheart";
+        internal const string SteelHeartSetDescKey = "$itemset_steelheart_desc";
 
         internal static void ApplySteelHeartSet(ItemDrop.ItemData.SharedData shared)
         {

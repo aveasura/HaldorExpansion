@@ -1,3 +1,4 @@
+using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.PitKing;
 using HarmonyLib;
 
@@ -15,10 +16,13 @@ namespace HaldorExpansion
                     return;
 
                 bool equipped = PitKingEquipment.HasPitKingChestEquipped(__instance);
+                bool cestusEquipped = equipped && CestusEquipment.HasEquippedCestus(__instance);
                 if (equipped)
-                    hp += PitKingItemRegistration.PitKingChestBonusMaxHealth;
+                    hp += cestusEquipped
+                        ? PitKingItemRegistration.PitKingChestBonusMaxHealth
+                        : PitKingItemRegistration.PitKingChestBonusMaxHealthWithoutCestus;
 
-                DebugLog($"[HaldorExpansion] Pit King chest HP bonus: equipped={equipped}, hpAfterBonus={hp:0.##}");
+                DebugLog($"[HaldorExpansion] Pit King chest HP bonus: equipped={equipped}, cestusEquipped={cestusEquipped}, hpAfterBonus={hp:0.##}");
             }
         }
     }

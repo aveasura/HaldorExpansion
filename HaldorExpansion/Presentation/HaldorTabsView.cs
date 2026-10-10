@@ -146,7 +146,7 @@ namespace HaldorExpansion.Presentation
                 var tooltip = go.AddComponent<UITooltip>();
                 tooltip.m_tooltipPrefab = tooltipPrefab;
                 tooltip.m_topic =
-                    Localization.instance.Localize("$aveasura_he_shop_" + category.ToString().ToLowerInvariant());
+                    Localization.instance.Localize(UiTextIds.ShopCategoryKey(category));
                 tooltip.m_text = "";
             }
 

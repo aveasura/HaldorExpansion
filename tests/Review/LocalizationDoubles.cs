@@ -1,0 +1,79 @@
+// Boundary adapters only. Translation text, IDs, constants and config calculations
+// come from production sources; BepInEx ConfigFile/ConfigEntry are real assemblies.
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using BepInEx.Configuration;
+
+public class Localization
+{
+    public static Localization instance;
+    public string Language;
+    public readonly Dictionary<string, string> Words = new Dictionary<string, string>();
+    public string GetSelectedLanguage() => Language;
+    private void AddWord(string key, string value) => Words[key] = value;
+}
+namespace HarmonyLib
+{
+    public static class AccessTools
+    {
+        public static MethodInfo Method(Type type, string name) =>
+            type.GetMethod(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+    }
+}
+namespace Jotunn.Entities
+{
+    public class CustomLocalization
+    {
+        public readonly Dictionary<string, Dictionary<string, string>> Languages =
+            new Dictionary<string, Dictionary<string, string>>();
+        public void AddTranslation(string language, Dictionary<string, string> words) => Languages[language] = words;
+    }
+}
+namespace Jotunn.Managers
+{
+    public class LocalizationManager
+    {
+        public static readonly LocalizationManager Instance = new LocalizationManager();
+        private readonly Jotunn.Entities.CustomLocalization localization = new Jotunn.Entities.CustomLocalization();
+        public Jotunn.Entities.CustomLocalization GetLocalization() => localization;
+    }
+    public class InputManager
+    {
+        public static readonly InputManager Instance = new InputManager();
+        public void AddButton(string id, Jotunn.Configs.ButtonConfig config) { }
+    }
+}
+namespace Jotunn.Configs
+{
+    public class ButtonConfig
+    {
+        public string Name, HintToken;
+        public ConfigEntryBase Config;
+        public bool BlockOtherInputs;
+    }
+}
+namespace Jotunn.Extensions
+{
+    public static class ConfigFileExtensions
+    {
+        public static ConfigEntry<T> BindConfig<T>(this ConfigFile file, string section, string key, T value,
+            string description, bool synced = true, AcceptableValueBase acceptableValues = null) =>
+            file.Bind(section, key, value, new ConfigDescription(description, acceptableValues));
+    }
+}
+namespace UnityEngine
+{
+    public static class Mathf
+    {
+        public static float Clamp(float value, float min, float max) => Math.Max(min, Math.Min(max, value));
+    }
+}
+namespace HaldorExpansion
+{
+    public static class HaldorExpansionPlugin { public const string ModGuid = "localization-review"; }
+}
+namespace HaldorExpansion.Trading
+{
+    internal enum ShopCategory { All, Equipment, Resources, Other }
+}

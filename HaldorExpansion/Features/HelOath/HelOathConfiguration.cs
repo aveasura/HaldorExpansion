@@ -51,7 +51,7 @@ namespace HaldorExpansion.Features.HelOath
             Button = new ButtonConfig
             {
                 Name = "HE_HelEmbrace", Config = key,
-                HintToken = "$he_hel_ability", BlockOtherInputs = true
+                HintToken = HelOathIds.AbilityKey, BlockOtherInputs = true
             };
             InputManager.Instance.AddButton(HaldorExpansionPlugin.ModGuid, Button);
         }

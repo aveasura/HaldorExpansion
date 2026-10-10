@@ -263,7 +263,7 @@ namespace HaldorExpansion.Trading
         private static readonly ConditionalWeakTable<Trader.TradeItem, object> Owned =
             new ConditionalWeakTable<Trader.TradeItem, object>();
 
-        private static bool IsOwned(Trader.TradeItem item)
+        internal static bool IsOwned(Trader.TradeItem item)
         {
             object value;
             return Owned.TryGetValue(item, out value);

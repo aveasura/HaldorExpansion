@@ -1,3 +1,6 @@
+using System;
+using HaldorExpansion.Presentation;
+
 class TooltipLayoutTests
 {
     static int failures;

@@ -1,4 +1,4 @@
-
+using System;
 
 // Behavioral regression tests. The state class is loaded from the actual source build.
 class StateTests

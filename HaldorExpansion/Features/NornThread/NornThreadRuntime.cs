@@ -1,8 +1,8 @@
-using HaldorExpansion.Compatibility;
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using HaldorExpansion.Compatibility;
+using HarmonyLib;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.NornThread
@@ -13,9 +13,15 @@ namespace HaldorExpansion.Features.NornThread
         internal const float GraceDuration = 1.50f;
 
         private static readonly Dictionary<int, float> GraceUntil = new Dictionary<int, float>();
-        private static readonly MethodInfo UnequipItemMethod = AccessTools.Method(typeof(Humanoid), "UnequipItem", new[] { typeof(ItemDrop.ItemData), typeof(bool) });
-        private static readonly MethodInfo RemoveItemMethod = AccessTools.Method(typeof(Inventory), "RemoveItem", new[] { typeof(ItemDrop.ItemData) });
-        private static readonly MethodInfo RemoveItemAmountMethod = AccessTools.Method(typeof(Inventory), "RemoveItem", new[] { typeof(ItemDrop.ItemData), typeof(int) });
+
+        private static readonly MethodInfo UnequipItemMethod = AccessTools.Method(typeof(Humanoid), "UnequipItem",
+            new[] { typeof(ItemDrop.ItemData), typeof(bool) });
+
+        private static readonly MethodInfo RemoveItemMethod =
+            AccessTools.Method(typeof(Inventory), "RemoveItem", new[] { typeof(ItemDrop.ItemData) });
+
+        private static readonly MethodInfo RemoveItemAmountMethod = AccessTools.Method(typeof(Inventory), "RemoveItem",
+            new[] { typeof(ItemDrop.ItemData), typeof(int) });
 
         internal static bool IsGraceActive(Player player)
         {
@@ -49,6 +55,7 @@ namespace HaldorExpansion.Features.NornThread
                 if (item.m_shared.m_name == NornThreadItemRegistration.ItemKey)
                     return item;
             }
+
             return null;
         }
 
@@ -62,7 +69,8 @@ namespace HaldorExpansion.Features.NornThread
 
             if (RemoveItemMethod == null && RemoveItemAmountMethod == null)
             {
-                HaldorExpansionPlugin.Log?.LogError("[HaldorExpansion] Norn Thread could not find an Inventory.RemoveItem(ItemData...) overload; amulet was not consumed.");
+                HaldorExpansionPlugin.Log?.LogError(
+                    "[HaldorExpansion] Norn Thread could not find an Inventory.RemoveItem(ItemData...) overload; amulet was not consumed.");
                 return false;
             }
 
@@ -99,7 +107,7 @@ namespace HaldorExpansion.Features.NornThread
             if (player == null) return;
             CharacterHealthAccess.SetCharacterHealth(player, SavedHealth(beforeHealth));
             StartGrace(player);
-            player.Message(MessageHud.MessageType.Center, "$msg_norn_thread_broken");
+            player.Message(MessageHud.MessageType.Center, NornThreadItemRegistration.BrokenMessageKey);
             NornThreadEffects.Broadcast(player);
         }
 

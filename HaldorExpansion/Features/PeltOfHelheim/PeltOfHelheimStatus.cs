@@ -13,12 +13,15 @@ namespace HaldorExpansion.Features.PeltOfHelheim
         private static SE_Stats prototype;
         private static StatusEffect active;
         private static ObjectDB registeredDb;
+        private static Player owner;
+        private static readonly int EffectHash = StableHash(EffectObjectName);
 
         internal static void ResetRegistration()
         {
             prototype = null;
             active = null;
             registeredDb = null;
+            owner = null;
         }
 
         internal static void EnsureRegistered()
@@ -31,12 +34,19 @@ namespace HaldorExpansion.Features.PeltOfHelheim
                 active = null;
             }
 
+            if (prototype != null)
+            {
+                BackfillIcon();
+                return;
+            }
+
             foreach (StatusEffect existing in ObjectDB.instance.m_StatusEffects)
             {
                 if (existing != null && existing.name == EffectObjectName)
                 {
                     prototype = existing as SE_Stats;
                     Configure(prototype);
+                    BackfillIcon();
                     return;
                 }
             }
@@ -45,21 +55,26 @@ namespace HaldorExpansion.Features.PeltOfHelheim
             se.name = EffectObjectName;
             Configure(se);
 
-            Sprite icon = GetCapeIcon();
-            if (icon != null) ReflectionAccess.SetFieldIfExists(se, "m_icon", icon);
-
             ObjectDB.instance.m_StatusEffects.Add(se);
             prototype = se;
+            BackfillIcon();
         }
 
         internal static void Sync(Player player, bool enabled)
         {
             if (player == null || player != Player.m_localPlayer) return;
+            if (owner != player)
+            {
+                owner = player;
+                active = null;
+            }
+
             EnsureRegistered();
             if (prototype == null) return;
 
             if (enabled)
             {
+                active = player.GetSEMan()?.GetStatusEffect(EffectHash);
                 if (active != null) return;
                 active = Add(player, prototype);
                 if (active is SE_Stats stats) Configure(stats);
@@ -89,6 +104,19 @@ namespace HaldorExpansion.Features.PeltOfHelheim
         {
             Sprite[] icons = PeltOfHelheimItemRegistration.CapeItemDrop?.m_itemData?.m_shared?.m_icons;
             return icons != null && icons.Length > 0 ? icons[0] : null;
+        }
+
+        private static void BackfillIcon()
+        {
+            if (prototype == null) return;
+            if (prototype.m_icon == null)
+            {
+                Sprite icon = GetCapeIcon();
+                if (icon == null) return;
+                prototype.m_icon = icon;
+            }
+
+            if (active != null && active.m_icon == null) active.m_icon = prototype.m_icon;
         }
 
         private static StatusEffect Add(Player player, StatusEffect effect)
@@ -122,8 +150,12 @@ namespace HaldorExpansion.Features.PeltOfHelheim
                         StatusEffect found = FindActive(seman);
                         if (found != null) return found;
                     }
-                    catch (TargetInvocationException) { }
-                    catch (ArgumentException) { }
+                    catch (TargetInvocationException)
+                    {
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
                 }
             }
 
@@ -139,7 +171,7 @@ namespace HaldorExpansion.Features.PeltOfHelheim
             if (seman != null)
             {
                 foreach (MethodInfo method in typeof(SEMan).GetMethods(
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
                 {
                     if (method.Name != "RemoveStatusEffect") continue;
                     ParameterInfo[] parameters = method.GetParameters();
@@ -155,10 +187,15 @@ namespace HaldorExpansion.Features.PeltOfHelheim
                         method.Invoke(seman, BuildArgs(parameters, first));
                         break;
                     }
-                    catch (TargetInvocationException) { }
-                    catch (ArgumentException) { }
+                    catch (TargetInvocationException)
+                    {
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
                 }
             }
+
             active = null;
         }
 
@@ -176,7 +213,7 @@ namespace HaldorExpansion.Features.PeltOfHelheim
         {
             if (seman == null) return null;
             foreach (FieldInfo field in typeof(SEMan).GetFields(
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                         BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 if (!(field.GetValue(seman) is IEnumerable<StatusEffect> effects)) continue;
                 foreach (StatusEffect effect in effects)
@@ -186,6 +223,7 @@ namespace HaldorExpansion.Features.PeltOfHelheim
                         return effect;
                 }
             }
+
             return null;
         }
 
@@ -203,6 +241,7 @@ namespace HaldorExpansion.Features.PeltOfHelheim
                 else if (p.ParameterType.IsValueType) args[i] = Activator.CreateInstance(p.ParameterType);
                 else args[i] = null;
             }
+
             return args;
         }
 
@@ -218,6 +257,7 @@ namespace HaldorExpansion.Features.PeltOfHelheim
                     if (i == text.Length - 1 || text[i + 1] == '\0') break;
                     hash2 = ((hash2 << 5) + hash2) ^ text[i + 1];
                 }
+
                 return hash1 + hash2 * 1566083941;
             }
         }
