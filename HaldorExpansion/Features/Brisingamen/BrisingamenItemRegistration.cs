@@ -97,7 +97,7 @@ namespace HaldorExpansion.Features.Brisingamen
                 newSe.m_addMaxCarryWeight = 150f;
 
                 ReflectionAccess.SetFieldIfExists(newSe, "m_name", BrisingamenIds.ItemKey);
-                ReflectionAccess.SetFieldIfExists(newSe, "m_tooltip", BrisingamenIds.DescriptionKey);
+                ReflectionAccess.SetFieldIfExists(newSe, "m_tooltip", BrisingamenIds.EffectDescriptionKey);
 
                 shared.m_equipStatusEffect = newSe;
 

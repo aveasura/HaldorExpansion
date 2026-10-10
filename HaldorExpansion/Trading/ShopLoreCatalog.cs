@@ -28,10 +28,12 @@ namespace HaldorExpansion.Trading
             [PeltOfHelheimItemRegistration.ItemKey] = PeltOfHelheimItemRegistration.ItemKey + "_lore",
             [StaminaCapeItemRegistration.ItemKey] = StaminaCapeItemRegistration.ItemKey + "_lore",
             [BrisingamenIds.ItemKey] = BrisingamenIds.DescriptionKey,
-            [NornThreadItemRegistration.ItemKey] = NornThreadItemRegistration.ItemDescKey,
-            [PitKingItemRegistration.PitKingChestItemKey] = PitKingItemRegistration.PitKingChestItemDescKey,
-            [WoundedBeastItemRegistration.WoundedBeastCapeItemKey] = WoundedBeastItemRegistration.WoundedBeastCapeItemDescKey,
-            [ShadowCrossbowItemRegistration.ShadowCrossbowItemKey] = ShadowCrossbowItemRegistration.ShadowCrossbowItemDescKey
+            [NornThreadItemRegistration.ItemKey] = NornThreadItemRegistration.ItemKey + "_lore",
+            [PitKingItemRegistration.PitKingChestItemKey] = PitKingItemRegistration.PitKingChestItemKey + "_lore",
+            [WoundedBeastItemRegistration.WoundedBeastCapeItemKey] =
+                WoundedBeastItemRegistration.WoundedBeastCapeItemKey + "_lore",
+            [ShadowCrossbowItemRegistration.ShadowCrossbowItemKey] =
+                ShadowCrossbowItemRegistration.ShadowCrossbowItemDescKey
         };
 
         internal static string ForItem(string name)
