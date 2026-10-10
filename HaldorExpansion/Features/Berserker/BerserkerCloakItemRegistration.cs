@@ -81,7 +81,7 @@ namespace HaldorExpansion.Features.Berserker
                 drop.m_itemData.m_dropPrefab = cloak;
                 BerserkerAppearance.Apply(cloak, BerserkerAppearance.Style.Cloak);
 
-                ItemManager.Instance.AddItem(new CustomItem(cloak, true));
+                ItemManager.Instance.AddItem(new CustomItem(cloak, fixReference: false));
                 EnsureRegisteredInObjectDB(cloak);
 
                 Prefab = cloak;

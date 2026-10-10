@@ -80,7 +80,7 @@ namespace HaldorExpansion.Features.Berserker
                 drop.m_itemData.m_dropPrefab = helmet;
                 BerserkerAppearance.Apply(helmet, BerserkerAppearance.Style.Helmet);
 
-                ItemManager.Instance.AddItem(new CustomItem(helmet, true));
+                ItemManager.Instance.AddItem(new CustomItem(helmet, fixReference: false));
                 EnsureRegisteredInObjectDB(helmet);
 
                 Prefab = helmet;

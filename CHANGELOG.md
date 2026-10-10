@@ -37,6 +37,7 @@ All notable changes to HaldorExpansion will be documented in this file.
 - Fixed equipment previews and item icon handling in Haldor's shop.
 - Fixed shop items changing their original order after being disabled and re-enabled through configuration.
 - Fixed missing or newly introduced configuration entries not being added to existing configuration files while preserving user settings.
+- Fixed Jotunn warnings regarding item registration.
 
 ### Performance
 - Reduced delays when opening Haldor's shop by caching item icons and avoiding unnecessary item reconfiguration.

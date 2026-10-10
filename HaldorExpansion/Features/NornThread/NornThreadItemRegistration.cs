@@ -105,7 +105,7 @@ namespace HaldorExpansion.Features.NornThread
                 shared.m_equipStatusEffect = stats;
 
                 ApplyIcon(shared);
-                ItemManager.Instance.AddItem(new CustomItem(go, true));
+                ItemManager.Instance.AddItem(new CustomItem(go, fixReference: false));
 
                 Prefab = go;
                 NornThreadItemDrop = drop;

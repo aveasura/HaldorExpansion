@@ -109,7 +109,7 @@ namespace HaldorExpansion.Features.Cestus
                 ApplyBoneCrushersIcon(drop.m_itemData.m_shared);
                 drop.m_itemData.m_dropPrefab = cestusGo;
 
-                ItemManager.Instance.AddItem(new CustomItem(cestusGo, true));
+                ItemManager.Instance.AddItem(new CustomItem(cestusGo, fixReference: false));
 
                 GritCestusPrefab = cestusGo;
                 GritCestusItemDrop = drop;

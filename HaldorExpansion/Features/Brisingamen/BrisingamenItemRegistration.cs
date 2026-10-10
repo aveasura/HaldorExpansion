@@ -117,7 +117,7 @@ namespace HaldorExpansion.Features.Brisingamen
                 }
 
                 ApplyBrisingamenIcon(shared);
-                ItemManager.Instance.AddItem(new CustomItem(ringGo, true));
+                ItemManager.Instance.AddItem(new CustomItem(ringGo, fixReference: false));
 
                 RingPrefab = ringGo;
                 RingItemDrop = drop;

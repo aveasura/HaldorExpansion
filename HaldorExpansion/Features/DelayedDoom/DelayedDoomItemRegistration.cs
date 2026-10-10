@@ -94,7 +94,7 @@ namespace HaldorExpansion.Features.DelayedDoom
                 ApplyDelayedDoomChestIcon(sharedNew);
                 drop.m_itemData.m_dropPrefab = chestGo;
 
-                ItemManager.Instance.AddItem(new CustomItem(chestGo, true));
+                ItemManager.Instance.AddItem(new CustomItem(chestGo, fixReference: false));
 
                 DelayedDoomChestPrefab = chestGo;
                 DelayedDoomChestItemDrop = drop;

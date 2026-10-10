@@ -88,7 +88,7 @@ namespace HaldorExpansion.Features.StaminaCape
                 ConfigureShared(sharedNew);
                 drop.m_itemData.m_dropPrefab = capeGo;
 
-                ItemManager.Instance.AddItem(new CustomItem(capeGo, true));
+                ItemManager.Instance.AddItem(new CustomItem(capeGo, fixReference: false));
 
                 CapePrefab = capeGo;
                 CapeItemDrop = drop;

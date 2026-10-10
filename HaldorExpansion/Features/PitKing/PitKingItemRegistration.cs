@@ -99,7 +99,7 @@ namespace HaldorExpansion.Features.PitKing
                 ApplyPitKingChestIcon(drop.m_itemData.m_shared);
                 drop.m_itemData.m_dropPrefab = chestGo;
 
-                ItemManager.Instance.AddItem(new CustomItem(chestGo, true));
+                ItemManager.Instance.AddItem(new CustomItem(chestGo, fixReference: false));
 
                 PitKingChestPrefab = chestGo;
                 PitKingChestItemDrop = drop;

@@ -81,7 +81,7 @@ namespace HaldorExpansion.Features.Berserker
                 ApplyIcon(drop.m_itemData.m_shared);
                 drop.m_itemData.m_dropPrefab = clone;
                 BerserkerAppearance.Apply(clone, BerserkerAppearance.Style.Axe);
-                ItemManager.Instance.AddItem(new CustomItem(clone, true));
+                ItemManager.Instance.AddItem(new CustomItem(clone, fixReference: false));
                 EnsureRegisteredInObjectDB(clone);
 
                 Prefab = clone;

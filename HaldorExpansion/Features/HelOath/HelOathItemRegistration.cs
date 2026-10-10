@@ -85,7 +85,7 @@ namespace HaldorExpansion.Features.HelOath
                 drop.m_itemData.m_dropPrefab = helOathGo;
 
                 HelOathAppearance.Apply(helOathGo);
-                ItemManager.Instance.AddItem(new CustomItem(helOathGo, true));
+                ItemManager.Instance.AddItem(new CustomItem(helOathGo, fixReference: false));
 
                 HelOathPrefab = helOathGo;
                 HelOathItemDrop = drop;

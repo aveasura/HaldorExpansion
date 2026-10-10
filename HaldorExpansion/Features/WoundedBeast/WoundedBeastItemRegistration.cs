@@ -76,7 +76,7 @@ namespace HaldorExpansion.Features.WoundedBeast
                 ConfigureWoundedBeastCapeShared(drop.m_itemData.m_shared);
                 drop.m_itemData.m_dropPrefab = capeGo;
 
-                ItemManager.Instance.AddItem(new CustomItem(capeGo, true));
+                ItemManager.Instance.AddItem(new CustomItem(capeGo, fixReference: false));
                 EnsureWoundedBeastCapeRegisteredInObjectDB(capeGo);
 
                 WoundedBeastCapePrefab = capeGo;

@@ -78,7 +78,7 @@ namespace HaldorExpansion.Features.ShadowCrossbow
                 ApplyShadowCrossbowIcon(drop.m_itemData.m_shared);
                 drop.m_itemData.m_dropPrefab = crossbowGo;
 
-                ItemManager.Instance.AddItem(new CustomItem(crossbowGo, true));
+                ItemManager.Instance.AddItem(new CustomItem(crossbowGo, fixReference: false));
 
                 ShadowCrossbowPrefab = crossbowGo;
                 ShadowCrossbowItemDrop = drop;

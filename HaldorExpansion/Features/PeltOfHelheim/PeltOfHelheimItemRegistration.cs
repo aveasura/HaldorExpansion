@@ -77,7 +77,7 @@ namespace HaldorExpansion.Features.PeltOfHelheim
                 drop.m_itemData.m_dropPrefab = cape;
                 PeltOfHelheimAppearance.ApplyToPrefab(cape);
 
-                ItemManager.Instance.AddItem(new CustomItem(cape, true));
+                ItemManager.Instance.AddItem(new CustomItem(cape, fixReference: false));
                 EnsureRegisteredInObjectDB(cape);
 
                 CapePrefab = cape;
