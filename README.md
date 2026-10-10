@@ -1,309 +1,245 @@
 # Haldor Expansion
 
-[English](README.md) | [Русский](README.ru.md)
+[English](README.md) | [Русский](README.ru.md) | [Changelog](CHANGELOG.md)
 
-Valheim mod for BepInEx + Jotunn that expands Haldor with configurable trading, trophy/core selling, world-progression requirements, and unique items with custom combat mechanics.
+**Version: 1.3.0 (unreleased)**
 
-## Installation for players
+Haldor Expansion is a Valheim mod for **BepInEx 5 + Jotunn** that expands Haldor's trading, adds 13 unique items with custom combat mechanics, and lets you configure item availability, prices, quantities, and world-progression requirements. It also supports selling trophies and selected rare materials.
 
-For normal installation, you do not need to change the code, configure `.csproj`, create `HaldorExpansion.Local.props`, or copy PNG files separately.
+The equipment is designed around **powerful advantages with meaningful drawbacks**, including several complementary playstyles. The mod supports **English and Russian**, multiplayer, and dedicated servers.
 
-Just place the compiled file:
+## What's new in 1.3.0
+
+- **Berserker equipment:** a Greataxe, Helmet, and Cloak built around Wrath, Blood Debt, Reckoning, and the meteor-based Ragnarök ability.
+- **Live configuration updates:** changes to `general.cfg`, `balance.cfg`, and `trading.yml` are detected without restarting the game.
+- **Haldor's shop categories:** optional **All**, **Equipment**, **Resources**, and **Other** tabs.
+- **Artifact lore:** original interconnected Norse-inspired stories for 12 relics. Haldor's item previews show lore; inventory tooltips explain the mechanics.
+- **Scrollable descriptions:** use the **mouse wheel**, **Page Up**, or **Page Down** to read longer inventory tooltips.
+- **Combat and quality-of-life improvements:** updated Delayed Doom/Norn Thread interactions, equipment rendering on first load, configuration migration, and shop performance.
+
+See the [changelog](CHANGELOG.md) for the full list of changes from 1.2.2.
+
+## Installation
+
+Install **BepInEx 5** and **Jotunn** (mod managers can handle these dependencies), then place the compiled mod in:
 
 ```text
-HaldorExpansion.dll
+BepInEx/plugins/aveasura-HaldorExpansion/HaldorExpansion.dll
 ```
 
-into the plugin folder:
+No additional PNG files are required: item icons are embedded in the DLL. You do **not** need to edit `.csproj` or create `HaldorExpansion.Local.props` to play; those are developer-only build settings.
 
-```text
-BepInEx/plugins/aveasura-HaldorExpansion/
-```
+### Multiplayer / dedicated server
 
-Item icons are already embedded inside `HaldorExpansion.dll` as embedded resources.
+Install the same HaldorExpansion version **on the dedicated server and on every player's client**. The mod uses `NetworkCompatibility(EveryoneMustHaveMod, Minor)`.
 
-> `HaldorExpansion.Local.props` is only needed by developers for local project builds. Players do not need it.
+The server is authoritative for synchronized combat-balance settings, shop prices, stock configuration, and progression requirements. Connected clients use the server's values without permanently overwriting their own local configuration. Shop-tab visibility and local input preferences can be adjusted individually.
 
-## Important for multiplayer / dedicated server
+## Haldor's shop and item descriptions
 
-This mod changes gameplay and adds networked mechanics, so on a dedicated server it must be installed both on the server and on all clients.
+Haldor sells unique equipment, resources, and crafting materials. Depending on world progression and `trading.yml`, some products may be hidden until their requirements are met.
 
-It is recommended to use the same mod version on the server and for all players.
+The shop can show **All / Equipment / Resources / Other** categories. Disable the tabs in `general.cfg` to restore the traditional shop layout. Disabling and re-enabling a product in the trading configuration preserves its original position in the catalog.
 
-Shop prices, world-progression requirements, trophy sell prices, and core sell prices are synchronized from the server. While connected to a dedicated server, the server configuration is authoritative.
+For the 12 relics with stories, **shop previews emphasize the legend**, while the item's **inventory tooltip includes its story and mechanical details**. The Crossbow of the Shadow Hunt retains a conventional description pending a future redesign.
 
-## Features
+Long item descriptions scroll using the mouse wheel while the pointer is over the tooltip, or with **Page Up / Page Down**. This also helps on smaller displays.
 
-- new unique items sold by Haldor;
-- additional resources and crafting materials sold by Haldor;
-- configurable prices for all items added to Haldor's shop;
-- configurable world-progression requirements for all shop items;
-- configurable trophy sell prices;
-- configurable sell prices for `SurtlingCore`, `BlackCore`, and `MoltenCore`;
-- trophy selling, including Deep North trophies;
-- fallback sell price for unlisted trophies;
-- unique items with custom combat mechanics;
-- custom armor and cloaks with risk-reward effects;
-- custom active ability for the Bone Crushers cestus;
-- `Hel's Oath` bow with Hel's Sacrifice, Hel's Touch, and the `Hel's Embrace` active ability;
-- the one-use `Thread of the Norns` trinket, which can break instead of its wearer on lethal damage;
-- server-synchronized shop and sell-price configuration;
-- multiplayer / dedicated server support via `NetworkCompatibility(EveryoneMustHaveMod, Minor)`;
-- English and Russian localization for added items and effects.
+## Unique equipment
 
-## Added unique items
+These are the **default purchase prices**. You can change them in `trading.yml`.
 
-Default shop prices are shown below. All of these prices can be changed in the config.
-
-| Item | Default price | Description |
+| Item | Coins | Main role |
 | --- | ---: | --- |
-| `Bone Crushers` | 2500 | Cestus with an active ability, protective barrier, and shockwave. |
-| `Hel's Oath` | 2500 | High-risk bow: converts part of maximum health into stamina, builds Hel's Touch, and charges Hel's Embrace through damage dealt. |
-| `Cuirass of Silent Reckoning` | 4000 | Armor that delays part of dangerous incoming damage. |
-| `Cloak of the Wounded Beast` | 2500 | Cloak with risky regeneration that becomes stronger at low health. |
-| `Cloak of Burned Resolve` | 2500 | Cloak that redirects part of incoming damage into stamina loss. |
-| `Corrupted Brisingamen` | 1600 | Accessory that increases maximum carry weight. |
-| `Thread of the Norns` | 6666 | One-use trinket: prevents lethal damage, is destroyed, and leaves the wearer at half of their pre-hit health. |
-| `Crossbow of the Shadow Hunt` | 2500 | Heavy crossbow for powerful opening shots. |
-| `Pit King's Cuirass` | 4000 | Cestus-focused armor for aggressive close combat. |
+| **Berserker Greataxe** | 2500 | Missing-health damage, Wrath, Blood Debt, Reckoning |
+| **Berserker Helmet** | 2500 | Wrath-based defense and lifesteal |
+| **Berserker Cloak** | 2500 | Faster Blood Debt generation; unlocks Ragnarök at the cost of survivability |
+| **Bone Crushers** | 2500 | Cestus that turns damage suffered into a barrier and shockwave |
+| **Pit King's Cuirass** | 4000 | Health bonus and Steel Heart synergy with Bone Crushers |
+| **Hel's Oath** | 2500 | Sacrifices maximum health for stamina; Hel's Touch and Hel's Embrace |
+| **Pelt of Helheim** | 2500 | Very Resistant to Pierce when the Hel/Fenris synergy is complete |
+| **Cuirass of Silent Reckoning** | 4000 | Delays part of dangerous damage instead of preventing it outright |
+| **Thread of the Norns** | 6666 | One-use protection from a lethal hit |
+| **Cloak of the Wounded Beast** | 2500 | Stronger healing at low health, but increased incoming damage |
+| **Cloak of Burned Resolve** | 2500 | Redirects part of incoming damage into stamina |
+| **Corrupted Brisingamen** | 1600 | Increases carrying capacity |
+| **Crossbow of the Shadow Hunt** | 2500 | Powerful opening shots with a mobility trade-off |
 
-## Highlights in version 1.2.0
+### Berserker — Wrath and Blood Debt
 
-### Hel's Oath
+The **Greataxe, Helmet, and Cloak** complement each other, but they are **not a formal armor set** and do not require specific chest armor or leggings.
 
-`Hel's Oath` is a high-risk / high-reward bow built around stamina.
+- **Bloodthirst:** the Greataxe deals **+0.2% weapon damage for each point of missing HP**.
+- **Wrath I–V:** valid Greataxe hits build up to five stages. Each stage grants attack speed and reduces stamina costs; Wrath gradually fades without new hits. By default, each stage grants **+10% attack speed** and **-5% stamina cost** (configurable).
+- **Blood Debt:** generated by eligible damage suffered and Greataxe hits; gradually fades outside combat. Its value appears on a dedicated HUD indicator.
+- **Reckoning:** with **Wrath V** and sufficient Blood Debt (**100** by default), the Greataxe's secondary attack becomes a powerful strike. On a successful hit it spends some Blood Debt, deals extra damage, and restores health from direct damage dealt.
+- **Berserker Helmet:** each Wrath stage grants **+4 armor**, reduces stagger buildup and incoming damage, and restores health equal to **1% of actual HP damage dealt by qualifying Greataxe hits** (up to 5% at Wrath V).
+- **Berserker Cloak:** increases incoming damage by **30%**, but boosts eligible Blood Debt generation by **50%**.
+- **Ragnarök:** requires the **Greataxe in hand, Cloak equipped, Wrath V, and enough Blood Debt** (**500** by default). Press **E** by default (configurable) to call down a dynamically scaled rain of **12–30 meteors**. Casting consumes all Wrath and Blood Debt and causes **Exhaustion** (by default, **-25% movement speed for 3 seconds**).
 
-- **Hel's Sacrifice**: 50% of maximum health is transferred into maximum stamina while the bow is in use; additionally grants +20 Bows skill.
-- **Hel's Touch**: wearing the full Fenris set allows bow damage to awaken the passive. Once awakened, 1 stack is gained every 3 seconds without taking a combat hit, up to Touch V. Taking a hit removes 1 stack. Unequipping the bow or breaking the full Fenris set disables all Touch bonuses immediately, but the current stacks are retained for 5 seconds; after that, 1 stack fades every 3 seconds. Returning to Hel's Oath + full Fenris before complete decay restores the remaining stage without gaining stacks during the swap.
-- Each Touch stack grants **+5% movement speed** and **-4% stamina cost**.
-- **Hel's Embrace**: outgoing damage from normal bow shots fills the active-ability meter **before target resistance/armor is applied**. The base threshold is **650 damage at the Elder tier**, while the actual requirement scales with world boss progression: pre-Eikthyr ×0.65, Eikthyr ×0.80, Elder ×1.00, Bonemass ×1.25, Moder ×1.55, Yagluth ×1.85, Queen ×2.20, Fader ×2.60. Charge is stored on the specific bow instance and persists through unequipping, weapon swaps, and location transitions.
-- Activating the ability empowers the next arrow and creates an explosion dealing **80% Lightning / 20% Frost** damage. Total explosion damage scales with the wielder's stamina; Touch V significantly empowers Hel's Embrace.
-- The empowered shot itself does not charge the next ability.
+Most Berserker combat settings, including thresholds, bonuses, and the Ragnarök key, can be adjusted in the configuration. Berserker equipment can be repaired at a Forge
 
-### Thread of the Norns
+### Steel Heart — Bone Crushers and Pit King's Cuirass
 
-`Thread of the Norns` uses the utility/trinket slot and grants no permanent combat stats.
+**Bone Crushers** are fast, aggressive cestus weapons. Taking real HP damage builds **Battle Fervor**; the charge gradually fades if no additional damage is taken. At full charge, activate **Counterstrike** with the **middle mouse button (Mouse2)** by default. It releases a nearby shockwave and grants a temporary protective barrier. Charge cannot build while the barrier is active.
 
-- On lethal damage, the amulet is destroyed instead of its wearer.
-- Health becomes **50% of the value held before the lethal hit**.
-- Breaking the thread grants **1.5 seconds of protection from health loss**, preventing an immediate follow-up hit or DoT tick from killing the player at once.
-- Remaining DoT effects continue normally after the protection window ends.
-- Default Haldor price: **6666 coins**.
+Bone Crushers also grant **+10 maximum health**, **+90% attack speed**, and **-8 armor** while equipped.
 
-## Configuration
+**Pit King's Cuirass** is chest armor despite its story-inspired name. It provides **+20 maximum health** alone, or **+60** with Bone Crushers. Together, the two items grant **+70 maximum health in total** and form the **Steel Heart** set. The set increases Counterstrike's barrier strength and shockwave damage by **50%**.
 
-The configuration file is created automatically after the mod starts.
+### Hel's Oath and Pelt of Helheim
 
-### Shop prices
+**Hel's Oath** is a high-risk bow that converts **50% of maximum health into maximum stamina** and grants **+20 Bows skill** while equipped.
 
-Every item added to Haldor's shop has its own configurable price.
+When wielding the bow with the **full vanilla Fenris set**, dealing bow damage awakens **Hel's Touch**. It grows to five stages while avoiding combat hits; taking a qualifying hit removes one stage. Every stage provides **+5% movement speed** and **-4% stamina cost**, reaching **+25% / -20%** at Touch V. Breaking the equipment requirements removes the bonuses immediately; stored stages have a brief grace period before decaying.
 
-Example:
+Normal bow hits charge **Hel's Embrace** based on outgoing damage before target armor and resistances. The required charge scales with world boss progression. Press **Mouse2** by default when fully charged: the **next arrow** becomes empowered and explodes on impact (**80% Lightning / 20% Frost**). Damage scales with the health/stamina trade-off, and **Hel's Touch V** greatly strengthens the explosion. The empowered arrow does not charge the next ability.
 
-```ini
-Grit Cestus Price = 2500
-Iron Price = 225
-Silver Price = 550
+**Pelt of Helheim** activates **Helheim's Ward** only while the Pelt, full Fenris set, Hel's Oath, and active **Hel's Touch V** are all present. The effect grants **Very Resistant to Pierce** and disappears when the requirements are lost.
+
+### Other relics
+
+- **Cuirass of Silent Reckoning (Delayed Doom):** triggers when a single post-defense hit exceeds **50% of maximum HP** or would otherwise be lethal. **50% of that damage hits immediately**, while **70% of the original hit** returns as damage debt over **6 seconds**. This is borrowed time, not immunity: extremely strong hits can still kill you.
+- **Thread of the Norns:** a one-use trinket that is destroyed when saving the wearer from lethal damage. Health becomes **50% of its pre-hit value**, all accumulated Delayed Doom debt is cleared, and health loss is prevented for **3 seconds**. Remaining damage-over-time effects may resume after the protection ends.
+- **Cloak of the Wounded Beast:** increases incoming damage by **20%**, but periodically heals the wearer more strongly at lower health. Healing is halved during relevant fire, poison, or spirit damage-over-time effects, and is also halved when combined with the Cuirass of Silent Reckoning.
+- **Cloak of Burned Resolve:** redirects **25% of incoming damage** into stamina. If there is insufficient stamina, the remaining HP damage is increased by **75%**. Stamina is consumed to absorb damage; this is not a free damage reduction.
+- **Corrupted Brisingamen:** adds **+150 carrying capacity**. It has no additional curse or drawback.
+- **Crossbow of the Shadow Hunt:** a heavy crossbow designed for powerful opening/backstab shots with a movement-speed penalty.
+
+## Trading: resources and sellable items
+
+Haldor also sells materials at configurable prices. These default prices are **per stack**, not necessarily per individual unit.
+
+| Materials | Default stack | Price (coins) |
+| --- | ---: | ---: |
+| Iron / Copper / Tin / Silver / Flametal | 30 each | 225 / 310 / 180 / 550 / 800 |
+| Stone / Grausten / Black Marble | Full stack | 20 / 25 / 40 |
+| Wood / Core Wood / Ancient Bark / Fine Wood | Full stack | 10 / 10 / 30 / 150 |
+| Yggdrasil Wood / Ashwood / Blackwood / Charred Wood | Full stack | 250 / 30 / 100 / 50 |
+| Red Jute / Blue Jute | Full stack | 250 / 250 |
+| Resin / Greydwarf Eye / Tar / Crystal / Needle | Full stack | 100 / 200 / 250 / 250 / 250 |
+| Feathers | 100 | 150 |
+
+You can also **sell supported trophies** (including Deep North and boss trophies) and **SurtlingCore, BlackCore, and MoltenCore** to Haldor. Each supported item has its own price; trophies without a specific entry can use a configurable fallback price. Setting a **sell** price to `0` disables selling that item.
+
+## Configuration (1.3.0)
+
+On first launch, the mod generates three files in:
+
+```text
+BepInEx/config/aveasura-HaldorExpansion/
+├── general.cfg   # Local controls and shop UI
+├── balance.cfg   # Gameplay and ability balance
+└── trading.yml   # Shop inventory, prices, progression and sell prices
 ```
 
-These values are synchronized from the server in multiplayer.
+### Live reloading
 
-### World progression requirements
+Changes to these files are automatically checked while the game runs. The default **configuration check interval is 2 seconds**, and the minimum is **0.5 seconds**. The system checks file metadata before performing a full read and waits for a stable change before applying it.
 
-Every item added to Haldor's shop can optionally require a Valheim world global key before it appears.
+Edit the files on the **server** to change authoritative multiplayer settings. A client's local `balance.cfg` and `trading.yml` cannot override active server values. Invalid edits are rejected and the last accepted settings remain in use; see the BepInEx log for details.
 
-Example:
+### `general.cfg`
 
-```ini
-Grit Cestus RequiredGlobalKey = defeated_bonemass
-Silver RequiredGlobalKey = defeated_gdking
-```
-
-Leave the value empty to keep the item available immediately:
+For example, edit the existing generated entries:
 
 ```ini
-Grit Cestus RequiredGlobalKey =
+[Configuration]
+Config check interval (seconds) = 2
+
+[Trading UI]
+Enable Haldor tabs = true
 ```
+
+Set `Enable Haldor tabs = false` to use Haldor's original shop interface without changing the items for sale.
+
+### `balance.cfg`
+
+Contains synchronized settings for Hel's Oath, the Berserker's Wrath/Blood Debt/Reckoning/Ragnarök, and other configurable combat effects. For example, Hel's Oath provides **Damage for full charge**, **Explosion radius**, **Embrace coefficient**, **Touch V Embrace coefficient**, and **Touch stack interval**. Ragnarök has configurable thresholds, casting time, Exhaustion, and its ability key.
+
+**Edit the entries already generated by the mod**, rather than copying old configuration sections from 1.2.x. The **Ragnarök key** and other local button bindings are stored with input settings, not in `trading.yml`.
+
+### `trading.yml`
+
+The file is generated with **all recognized items** under `shop:` and `sell:`. The example below is **only an excerpt from a generated file**; do not replace the complete document with it:
+
+```yaml
+shop:
+  Bone_crushers:
+    price: 2500
+    enabled: true
+    stack: 1
+    requiredGlobalKey: ""
+  Iron:
+    price: 225
+    enabled: true
+    stack: 30
+    requiredGlobalKey: "defeated_gdking"
+
+sell:
+  TrophyEikthyr:
+    price: 70
+  SurtlingCore:
+    price: 50
+```
+
+In this **example**, Iron is locked behind the Elder; the default value in your generated file may be different. Keep the original entries for all other products and trophies.
+
+- `price`: shop purchase price for the **entire stack**. In `shop:`, `0` means **free**; in `sell:`, `0` **disables selling**.
+- `enabled`: `false` hides the item from Haldor's **buy** list.
+- `stack`: how many units are sold together. `0` uses the prefab's maximum stack size; other values cannot exceed it.
+- `requiredGlobalKey`: required world key, or `""` for no restriction.
+- Item identifiers such as `Bone_crushers` are **internal prefab IDs**, not localized display names. Keep them unchanged.
+- Preserve `shop:` and `sell:`, all generated item entries, field names, and indentation (**spaces only; no tabs**). This file supports a restricted YAML format, not every YAML feature.
 
 Common boss progression keys:
 
 ```text
-defeated_eikthyr     - Eikthyr
-defeated_gdking      - The Elder
-defeated_bonemass    - Bonemass
-defeated_dragon      - Moder
-defeated_goblinking  - Yagluth
-defeated_queen       - The Queen
-defeated_fader       - Fader
-defeated_frozenking  - Kall Fimbulbringer
+defeated_eikthyr     Eikthyr
+defeated_gdking      The Elder
+defeated_bonemass    Bonemass
+defeated_dragon      Moder
+defeated_goblinking  Yagluth
+defeated_queen       The Queen
+defeated_fader       Fader
+defeated_frozenking  Kall Fimbulbringer / Deep North progression
 ```
 
-### Trophy and core sell prices
+Use the actual keys supported by your installed Valheim version and world.
 
-Supported trophies have individual configurable sell prices.
+### Upgrading from 1.2.x
 
-Example:
+Version 1.3.0 migrates the old configuration into the new files when possible. The previous config is **backed up**, and upgrades can add newly introduced settings while retaining existing values. Backups and format metadata are stored inside the dedicated HaldorExpansion config directory.
 
-```ini
-Eikthyr Trophy Price = 70
-Bonemass Trophy Price = 150
-Fader Trophy Price = 1000
-```
+Avoid deleting individual entries from a migrated configuration: the runtime validates its expected structure. If an edit is invalid, check the BepInEx log and restore the last known-good backup. Keep your own copy before major manual changes.
 
-Set a trophy sell price to `0` to disable selling that trophy.
+## Compatibility and optional mods
 
-A fallback is also available for trophy prefabs that are not explicitly listed:
+HaldorExpansion requires **BepInEx 5** and **Jotunn**. It was previously used in local and dedicated-server environments with mods including:
 
-```ini
-Unlisted Trophy Price = 10
-```
+- `Smoothbrain-CreatureLevelAndLootControl`
+- `warpalicious-Monster_Modifiers`
+- `ASharpPen-Custom_Raids`
+- `Azumatt-AzuExtendedPlayerInventory`
+- `Azumatt-AzuSkillTweaks`
+- `rendl0449-CraftFromContainers`
+- `Advize-PlantEverything`
+- `Marf-FuelEternal`
 
-This can cover trophies added by other mods or future game updates.
+These are **not required dependencies**. Compatibility depends on the versions installed; earlier testing is not a guarantee for every 1.3.0 mod combination.
 
-The three additional rare materials also have configurable sell values:
+## Building from source
 
-```ini
-Surtling Core Price = 50
-Black Core Price = 100
-Molten Core Price = 150
-```
+Requirements: Valheim, BepInEx 5, Jotunn, **.NET Framework 4.8**, and Visual Studio or Rider.
 
-Set a value to `0` to disable selling that item.
-
-### Cestus ability key
-
-The Bone Crushers active ability uses the middle mouse button by default:
-
-```ini
-Ability Key = Mouse2
-```
-
-Common mouse values:
-
-```text
-Mouse0 = Left Mouse Button
-Mouse1 = Right Mouse Button
-Mouse2 = Middle Mouse Button
-```
-
-Other Unity `KeyCode` values can also be used.
-
-### Hel's Oath settings
-
-The main Hel's Oath settings are stored in the `Hel Oath` section:
-
-```ini
-Damage for full charge = 650  # Elder-tier baseline; world progression multiplier applies
-Explosion radius = 9
-Embrace coefficient = 0.85
-Touch V Embrace coefficient = 2.15
-Touch stack interval = 3.0
-Ability Key = Mouse2
-```
-
-`Damage for full charge` counts the normal shot's outgoing damage payload before target defenses. Fire / Spirit / Poison components are credited once with the originating hit, so delayed DoT ticks do not add the same damage a second time. A hit must still deal some real HP damage to grant charge. Gameplay-affecting values in this section are synchronized from the server.
-
-### Multiplayer configuration
-
-Shop prices, progression requirements, trophy sell prices, and core sell prices are synchronized from the server.
-
-On a dedicated server, the server configuration is authoritative. If a client has different local values, the server values are used while connected. The client's local config file is not permanently overwritten.
-
-## Recommended playstyle
-
-The mod works best on higher difficulty, where the additional items feel less like free power and more like risky survival tools.
-
-For a more hardcore playthrough, it pairs well with:
-
-- `Smoothbrain-CreatureLevelAndLootControl` - stronger creatures;
-- `warpalicious-Monster_Modifiers` - additional creature modifiers;
-- `ASharpPen-Custom_Raids` - more dangerous and frequent raids.
-
-These mods are not required dependencies.
-
-## Compatibility
-
-Required dependencies:
-
-- BepInEx 5;
-- Jotunn.
-
-The mod was tested in a multiplayer / dedicated server environment together with other gameplay mods, including:
-
-- `Smoothbrain-CreatureLevelAndLootControl`;
-- `warpalicious-Monster_Modifiers`;
-- `ASharpPen-Custom_Raids`;
-- `Azumatt-AzuExtendedPlayerInventory`;
-- `Azumatt-AzuSkillTweaks`;
-- `rendl0449-CraftFromContainers`;
-- `Advize-PlantEverything`;
-- `Marf-FuelEternal`.
-
-Full compatibility with every version of third-party mods is not guaranteed, but no conflicts were found in my test setup.
-
-## Runtime assets
-
-Item icons are embedded inside `HaldorExpansion.dll` as embedded resources.
-
-Players do not need to copy PNG files separately.
-
-Source PNG files are stored in the project folder:
-
-```text
-HaldorExpansion/Assets/Icons/
-```
-
-They are only needed when building the project from source.
-
-## Development requirements
-
-- Valheim;
-- BepInEx 5;
-- Jotunn;
-- .NET Framework 4.8;
-- Visual Studio or Rider.
-
-The project uses local paths to Valheim/r2modman DLLs in `HaldorExpansion/HaldorExpansion.csproj`. These paths are stored as MSBuild properties:
-
-- `R2ModmanProfileDir`;
-- `ValheimInstallDir`;
-- `ValheimDedicatedServerDir`;
-- `ClientPluginDeployDir`;
-- `ServerPluginDeployDir`.
-
-If your folders are different, use `HaldorExpansion.Local.props` as described below in the Local build paths section.
-
-## Local build paths
-
-If your Valheim, r2modman, or dedicated server paths are different from the defaults in `.csproj`, create a local settings file:
+The C# project is located at `HaldorExpansion/HaldorExpansion.csproj`. Developer-specific Valheim / r2modman / dedicated-server paths can be supplied through the optional file:
 
 ```text
 HaldorExpansion/HaldorExpansion.Local.props
 ```
 
-You can do this by copying the provided example:
+Copy `HaldorExpansion/HaldorExpansion.Local.props.example`, rename it to `HaldorExpansion.Local.props`, and adjust the paths for your machine. The file is local-only and should **not** be committed to Git.
 
-```text
-HaldorExpansion/HaldorExpansion.Local.props.example
-```
+Available MSBuild path properties include `R2ModmanProfileDir`, `ValheimInstallDir`, `ValheimDedicatedServerDir`, `ClientPluginDeployDir`, and `ServerPluginDeployDir`.
 
-and renaming the copy to:
-
-```text
-HaldorExpansion/HaldorExpansion.Local.props
-```
-
-After that, change the paths inside `HaldorExpansion.Local.props` for your machine.
-
-`HaldorExpansion.Local.props` should not be committed to Git because it contains machine-specific local paths.
-
-## Status
-
-Current version: **1.2.0**. The previous public release was **1.1.0**.
-
-The mod supports Valheim 1.0 and has been tested in both local and dedicated-server environments.
-
-### Pelt of Helheim
-
-A black Troll Cape-based cloak. It grants no permanent resistance on its own, but the full **Fenris + Hel's Oath + Hel's Touch V** synergy activates **Helheim's Ward**, making the wearer very resistant to Pierce damage. Breaking any requirement removes the effect immediately.
-
+Source PNGs are in `HaldorExpansion/Assets/Icons/` and are embedded in the DLL when built. Players do not need these files.
