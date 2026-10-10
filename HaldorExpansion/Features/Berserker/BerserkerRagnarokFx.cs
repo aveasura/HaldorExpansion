@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -12,6 +13,9 @@ namespace HaldorExpansion.Features.Berserker
     internal static class BerserkerRagnarokFx
     {
         private const string CastSoundPrefab = "sfx_fader_fissure_footslide";
+
+        // AUDIO ONLY: delay from accepted E to the second sound. No gameplay timing changes.
+        private const float CastBellDelaySeconds = 1.30f;
         private const string CastBellPrefab = "sfx_fader_death_start";
         private const string ThunderbloodPrefab = "BattleaxeGold_BloodLightning";
 
@@ -45,14 +49,14 @@ namespace HaldorExpansion.Features.Berserker
         internal static void OnCast(Player player, Transform castVisualRoot, float duration, float auraStrength)
         {
             if (player == null || castVisualRoot == null) return;
-            // Local caster already started BOTH sounds and the smoke stopwatch at E.
+            // Local caster already started the audio timeline and smoke stopwatch at E.
             // The subsequent cast RPC must not double-play audio or reset VFX.
             if (player == Player.m_localPlayer &&
                 player.GetComponentInChildren<BerserkerRagnarokAscension>() != null)
                 return;
 
             PlayCastSound(player);
-            PlayCastBell(player);
+            ScheduleCastBell(player, CastBellDelaySeconds);
             BeginSkywardAura(player, auraStrength);
         }
 
@@ -61,9 +65,9 @@ namespace HaldorExpansion.Features.Berserker
         internal static void BeginLocalSkywardAura(Player player, float auraStrength)
         {
             if (player == null || !BerserkerEffects.CanRender) return;
-            // Both sounds begin with accepted E, independently of the delayed smoke.
+            // First sound starts at E; the second is scheduled independently of the smoke.
             PlayCastSound(player);
-            PlayCastBell(player);
+            ScheduleCastBell(player, CastBellDelaySeconds);
             BeginSkywardAura(player, auraStrength);
         }
 
@@ -301,9 +305,31 @@ namespace HaldorExpansion.Features.Berserker
             Object.Destroy(root, 3.5f);
         }
 
-        // Play the actual vanilla bell prefab, retaining its own ZSFX clips,
-        // volume, pitch, and spatial settings (just like an in-game spawn).
-        // The existing roar still plays alongside it, in the same cast frame.
+        // AUDIO ONLY: second sound has its own E-relative delay on each client.
+        // Running on the player's MonoBehaviour stops the timer if they despawn
+        // (including leaving the world), without touching Ragnarök gameplay.
+        private static void ScheduleCastBell(Player player, float delaySeconds)
+        {
+            if (player == null) return;
+            if (delaySeconds <= 0f)
+            {
+                PlayCastBell(player);
+                return;
+            }
+
+            player.StartCoroutine(PlayCastBellDelayed(player, delaySeconds));
+        }
+
+        private static IEnumerator PlayCastBellDelayed(Player player, float delaySeconds)
+        {
+            yield return new WaitForSeconds(delaySeconds);
+            if (player == null || player.IsDead() || Player.m_localPlayer == null || ZNetScene.instance == null)
+                yield break;
+            PlayCastBell(player);
+        }
+
+        // Play the actual second vanilla sound prefab, retaining its own ZSFX
+        // clips, volume, pitch and spatial settings (just like an in-game spawn).
         private static void PlayCastBell(Player player)
         {
             if (player == null) return;
@@ -382,7 +408,7 @@ namespace HaldorExpansion.Features.Berserker
             audio.maxDistance = 34f;
             audio.dopplerLevel = 0f;
             // ~30% slower playback than the previous 0.96 pitch: longer roar.
-            audio.pitch = 0.96f * 0.70f;
+            audio.pitch = 1f; //0.96f * 0.70f;
             audio.volume = (local ? 0.82f : 0.62f) * AudioMan.GetSFXVolume();
             audio.Play();
             Object.Destroy(host, castAudio.length / audio.pitch + 0.3f);
