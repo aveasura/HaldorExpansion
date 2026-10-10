@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Features.DelayedDoom;
 using HarmonyLib;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace HaldorExpansion.Features.NornThread
     internal static class NornThreadRuntime
     {
         internal const float SavedHealthRatio = 0.50f;
-        internal const float GraceDuration = 1.50f;
+        internal const float GraceDuration = 3f;
 
         private static readonly Dictionary<int, float> GraceUntil = new Dictionary<int, float>();
 
@@ -105,6 +106,7 @@ namespace HaldorExpansion.Features.NornThread
         internal static void CompleteRescue(Player player, float beforeHealth)
         {
             if (player == null) return;
+            DelayedDoomRuntime.ClearDelayedDoomDebt(player);
             CharacterHealthAccess.SetCharacterHealth(player, SavedHealth(beforeHealth));
             StartGrace(player);
             player.Message(MessageHud.MessageType.Center, NornThreadItemRegistration.BrokenMessageKey);

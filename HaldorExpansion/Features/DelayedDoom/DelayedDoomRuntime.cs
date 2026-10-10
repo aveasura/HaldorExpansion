@@ -76,6 +76,29 @@ namespace HaldorExpansion.Features.DelayedDoom
             }
         }
 
+        internal static void ClearDelayedDoomDebt(Player player)
+        {
+            if (player == null)
+                return;
+
+            int id = player.GetInstanceID();
+            if (!ActiveDelayedDoomDots.TryGetValue(id, out DelayedDoomDotState state))
+                return;
+
+            ActiveDelayedDoomDots.Remove(id);
+            state.RemainingDamage = 0f;
+            state.TicksLeft = 0;
+            DelayedDoomDebtStatus.SetActive(player, false);
+
+            // A lethal debt tick may rescue the player from inside this very coroutine.
+            // In that case let the routine unwind through its own finally block.
+            if (state.Routine != null && !IsDelayedDoomInternalDamage(player))
+            {
+                HaldorExpansionPlugin.Instance?.StopCoroutine(state.Routine);
+                state.Routine = null;
+            }
+        }
+
         private static IEnumerator DelayedDoomRoutine(DelayedDoomDotState state)
         {
             if (state == null)
@@ -147,17 +170,18 @@ namespace HaldorExpansion.Features.DelayedDoom
                         $"{PlayerDiagnostics.GetCestusDebugPlayerTag(state.Player)}");
                 }
 
-                DelayedDoomDebtStatus.SetActive(state.Player, false);
-                state.Routine = null;
-                state.RemainingDamage = 0f;
-                state.TicksLeft = 0;
-
+                // Do not clear a newer debt state if this coroutine was cancelled earlier.
                 if (playerId != 0 &&
                     ActiveDelayedDoomDots.TryGetValue(playerId, out DelayedDoomDotState current) &&
                     ReferenceEquals(current, state))
                 {
+                    DelayedDoomDebtStatus.SetActive(state.Player, false);
                     ActiveDelayedDoomDots.Remove(playerId);
                 }
+
+                state.Routine = null;
+                state.RemainingDamage = 0f;
+                state.TicksLeft = 0;
             }
         }
 

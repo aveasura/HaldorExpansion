@@ -75,7 +75,9 @@ namespace HaldorExpansion.Patches
                     $"incoming={incomingDamage:0.##}, before={beforeHealth:0.##}, max={maxHealth:0.##}, threshold={threshold:0.##}, " +
                     $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
 
-                if (maxHealth > 0f && incomingDamage > threshold)
+                // A lethal direct hit also triggers the split, even below 50% max HP.
+                // Internal debt ticks are excluded by the enclosing guard.
+                if (maxHealth > 0f && (incomingDamage > threshold || incomingDamage >= beforeHealth))
                 {
                     float immediateDamage = incomingDamage * DelayedDoomRuntime.DelayedDoomImmediateRatio;
                     float delayedDamageTotal = incomingDamage * DelayedDoomRuntime.DelayedDoomDebtRatio;

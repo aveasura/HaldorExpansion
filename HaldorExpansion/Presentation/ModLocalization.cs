@@ -135,13 +135,13 @@ namespace HaldorExpansion.Presentation
                     "Тонкая нить, сплетённая там, где даже смерть ещё не решена. Когда судьба обрывается, она рвётся первой.",
                 [NornThreadItemRegistration.EffectNameKey] = "Последняя нить",
                 [NornThreadItemRegistration.EffectDescKey] =
-                    "Смертельный урон уничтожает амулет вместо владельца. Здоровье становится равным 50% от значения до смертельного удара. После разрыва — 1,5 с защиты от потери здоровья.",
+                    "Смертельный урон уничтожает амулет вместо владельца и снимает весь долг отложенной расплаты. Здоровье становится равным 50% от значения до смертельного удара. После разрыва — 3 секунды защиты от потери здоровья.",
                 [NornThreadItemRegistration.BrokenMessageKey] = "Нить судьбы оборвалась.",
 
                 // Кираса безмолвной расплаты
                 [DelayedDoomIds.ItemKey] = ItemNames.SilentReckoningRu,
                 [DelayedDoomIds.DescriptionKey] =
-                    "Если удар после брони должен снести больше половины максимального здоровья, " +
+                    "Если удар после брони должен снести больше половины максимального здоровья или убить вас, " +
                     "только часть урона проходит сразу, а остальное возвращается отложенной болью через несколько секунд.\n" +
                     "Она не спасает от расплаты — лишь даёт время нанести ответный удар.",
                 [DelayedDoomIds.DebtNameKey] = "Отложенная расплата",
@@ -326,13 +326,13 @@ namespace HaldorExpansion.Presentation
                     "A slender thread woven where even death has not yet been decided. When fate breaks, the thread breaks first.",
                 [NornThreadItemRegistration.EffectNameKey] = "The Last Thread",
                 [NornThreadItemRegistration.EffectDescKey] =
-                    "Lethal damage destroys the amulet instead of its wearer. Health becomes 50% of the amount held before the lethal hit. After breaking, health cannot be lost for 1.5 seconds.",
+                    "Lethal damage destroys the amulet instead of its wearer and clears all Delayed Doom debt. Health becomes 50% of the amount held before the lethal hit. After breaking, health cannot be lost for 3 seconds.",
                 [NornThreadItemRegistration.BrokenMessageKey] = "The thread of fate has snapped.",
 
                 // Cuirass of Silent Reckoning
                 [DelayedDoomIds.ItemKey] = ItemNames.SilentReckoningEn,
                 [DelayedDoomIds.DescriptionKey] =
-                    "If a hit would take more than half of your maximum health, " +
+                    "If a hit would take more than half of your maximum health or kill you, " +
                     "only part of the damage is taken immediately, while the rest returns as increased delayed pain over the next few seconds.\n" +
                     "It does not save you from the reckoning — it only gives you time to strike back.",
                 [DelayedDoomIds.DebtNameKey] = "Delayed Reckoning",
