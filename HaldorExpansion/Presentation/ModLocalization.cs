@@ -140,10 +140,11 @@ namespace HaldorExpansion.Presentation
                 [UiTextIds.TooltipScroll] = "Прокрутка: колесо мыши / PgUp, PgDn",
                 [HelOathItemRegistration.HelOathItemKey] = ItemNames.HelOathRu,
                 [HelOathItemRegistration.HelOathItemDescKey] =
-                    "<color=#9EDFF2><b>Фенрис — Касание Хель:</b></color> полный сет пробуждает Касание Хель от урона луком. Каждый стак улучшает подвижность персонажа.\n\n" +
-                    "<color=#D5F5FF><b>Объятия Хель:</b></color> урон луком заряжает активную способность. " +
-                    "При применении следующая стрела взрывается. " +
-                    "<b>чем меньше максимум здоровья и выше максимум выносливости, тем сильнее Объятия Хель.</b> Касание V значительно усиливает их.",
+                    "<color=#9EDFF2><b>Касание Хель</b></color>: полный комплект Фенриса пробуждает Касания Хель при попаданиях из лука.\n" +
+                    "Каждая стадия ускоряет движение и снижает затраты выносливости.\n\n" +
+                    "<color=#D5F5FF><b>Объятия Хель</b></color>: попадания из лука заряжают способность.\n" +
+                    "После активации следующая стрела взрывается.\n" +
+                    "Чем меньше максимальное здоровье и выше максимальная выносливость, тем сильнее взрыв. Касание V усиливает его.",
                 [HelOathItemRegistration.HelOathPassiveNameKey] = "Жертва Хель",
                 [HelOathItemRegistration.HelOathPassiveDescKey] =
                     "50% максимального здоровья превращается в максимальную выносливость.",
@@ -184,18 +185,17 @@ namespace HaldorExpansion.Presentation
                     "<color=#B1ABA5><i>«Пока сердце бьётся, расплата не окончена.»</i></color>",
                 [BerserkerIds.AxeDescriptionKey] =
                     "<color=#C9A56B><b>Сила реликвии</b></color>\n" +
-                    "<color=#9EDFF2><b>Кровавая жажда</b></color>: +0,2% урона за каждый недостающий HP владельца.\n\n" +
-                    "<color=#9EDFF2><b>Ярость (I–V)</b></color>: попадания секирой накапливают Ярость. " +
-                    "Каждая стадия даёт +{wrath_speed}% скорости атаки и -{wrath_stamina}% затрат выносливости. " +
-                    "Без новых попаданий Ярость постепенно угасает.\n\n" +
-                    "<color=#9EDFF2><b>Кровавый долг</b></color>: накапливается от ран, нанесённых врагами, и попаданий секирой. " +
-                    "Усиливает Расплату и Рагнарёк; вне боя постепенно угасает.\n\n" +
-                    "<color=#9EDFF2><b>Расплата (колёсико)</b></color>: при Ярости V и долге x{reckoning_debt}+ " +
-                    "альтернативный удар становится Расплатой. При попадании расходует {reckoning_spend}% долга, " +
-                    "наносит дополнительный урон и исцеляет на {reckoning_heal}% от прямого урона цели.\n\n" +
-                    "<color=#e72517><b>Рагнарёк ({ragnarok_key})</b></color>: требует Ярость V, долг x{ragnarok_debt}+ " +
-                    "и надетый Плащ берсерка. Обрушивает на врагов метеоры, расходуя всю Ярость и Кровавый долг. " +
-                    "После призыва наступает Истощение.",
+                    "<color=#9EDFF2><b>Кровавая жажда</b></color>: +0,2% урона секирой за каждый недостающий HP.\n\n" +
+                    "<color=#9EDFF2><b>Ярость (I–V)</b></color>: попадания секирой накапливают Ярость.\n" +
+                    "Каждая стадия: +{wrath_speed}% скорости атаки, -{wrath_stamina}% затрат выносливости.\n" +
+                    "Без новых попаданий Ярость угасает.\n\n" +
+                    "<color=#9EDFF2><b>Кровавый долг</b></color>: растёт от полученных ран и попаданий секирой.\n" +
+                    "Усиливает Расплату и Рагнарёк. Вне боя угасает.\n\n" +
+                    "<color=#9EDFF2><b>Расплата (колёсико мыши)</b></color>: требует Ярость V и долг x{reckoning_debt}+.\n" +
+                    "Заменяет альтернативную атаку. При попадании расходует {reckoning_spend}% долга,\n" +
+                    "наносит дополнительный урон и исцеляет на {reckoning_heal}% от прямого урона.\n\n" +
+                    "<color=#e72517><b>Рагнарёк ({ragnarok_key})</b></color>: требует Ярость V, долг x{ragnarok_debt}+ и Плащ берсерка.\n" +
+                    "Обрушивает метеоры, расходуя всю Ярость и Кровавый долг. После призыва наступает Истощение.",
 
                 [BerserkerIds.WrathKeyPrefix + "1"] = "Ярость I",
                 [BerserkerIds.WrathKeyPrefix + "1_desc"] =
@@ -228,8 +228,8 @@ namespace HaldorExpansion.Presentation
                 [BerserkerIds.CloakEffectKey] = "Предвестник Рагнарёка",
                 [BerserkerIds.CloakEffectDescriptionKey] =
                     "+30% получаемого урона.\n" +
-                    "+50% к накоплению Кровавого долга.\n" +
-                    "Рагнарёк: требуется секира берсерка, Ярость V и достаточный Кровавый долг. " +
+                    "+50% накопления Кровавого долга.\n\n" +
+                    "Рагнарёк требует секиру берсерка, Ярость V и достаточный долг.\n" +
                     "Призыв расходует всю Ярость и долг, затем наступает Истощение.",
 
                 // Шлем берсерка
@@ -276,16 +276,20 @@ namespace HaldorExpansion.Presentation
                     "",
                 [NornThreadItemRegistration.EffectNameKey] = "Последняя нить",
                 [NornThreadItemRegistration.EffectDescKey] =
-                    "Смертельный урон уничтожает амулет вместо владельца и снимает весь долг отложенной расплаты. Здоровье становится равным 50% от значения до смертельного удара. После разрыва — 3 с защиты от потери здоровья.",
+                    "Смертельный удар разрушает амулет вместо владельца.\n" +
+                    "Снимает весь долг Отложенной расплаты.\n" +
+                    "Здоровье становится равным 50% от значения до удара.\n" +
+                    "Следующие 3 секунды здоровье не уменьшается.",
                 [NornThreadItemRegistration.BrokenMessageKey] = "Нить судьбы оборвалась.",
 
                 // Кираса безмолвной расплаты
                 [DelayedDoomIds.ItemKey] = ItemNames.SilentReckoningRu,
                 [DelayedDoomIds.DescriptionKey] =
                     "<color=#C9A56B><b>Сила реликвии</b></color>\n" +
-                    "Если урон одного удара после защиты превышает 50% максимального здоровья или этот удар смертелен, кираса срабатывает. " +
-                    "50% урона проходит сразу, ещё 70% исходного удара возвращается долгом в течение 6 секунд. " +
-                    "Слишком сильный удар может убить даже после срабатывания.",
+                    "Кираса срабатывает, если удар после защиты превышает 50% максимального здоровья или может убить.\n" +
+                    "50% урона проходит сразу.\n" +
+                    "Ещё 70% исходного урона возвращается в течение 6 секунд.\n" +
+                    "Слишком сильный удар всё равно может убить.",
                 [DelayedDoomIds.DebtNameKey] = "Отложенная расплата",
                 [DelayedDoomIds.DebtDescriptionKey] =
                     "Кираса безмолвной расплаты откладывает часть полученного урона. Остаток долга постепенно отнимает здоровье.",
@@ -301,8 +305,13 @@ namespace HaldorExpansion.Presentation
                 // Костоломы
                 [CestusItemRegistration.CestusItemKey] = ItemNames.BoneCrushersRu,
                 [CestusItemRegistration.CestusItemDescKey] =
-                    "<color=#C9A56B><b>Сила реликвии</b></color>\n<color=#9EDFF2><b>Боевой запал</b></color>: потеря собственного здоровья заряжает Костоломы; каждые 10% максимального HP, потерянные от урона, дают 20 единиц заряда. Без новых ран заряд постепенно угасает." +
-                    "\n<color=#9EDFF2><b>Ответный удар (колёсико мыши)</b></color>: при полном заряде высвобождает круговую ударную волну и создаёт временный защитный покров. Пока покров активен, новый заряд не накапливается.",
+                    "<color=#C9A56B><b>Сила реликвии</b></color>\n" +
+                    "<color=#9EDFF2><b>Боевой запал</b></color>\n" +
+                    "Полученные раны накапливают заряд.\n" +
+                    "Без новых ран заряд постепенно угасает.\n\n" +
+                    "<color=#9EDFF2><b>Ответный удар (колёсико мыши)</b></color>\n" +
+                    "При полном заряде выпускает ударную волну и создаёт защитный покров.\n" +
+                    "Пока покров активен, заряд не накапливается.",
                 [CestusItemRegistration.CestusEffectNameKey] = "Закон арены",
                 [CestusItemRegistration.CestusEffectDescKey] =
                     "+10 к максимуму здоровья.\n" +
@@ -330,7 +339,8 @@ namespace HaldorExpansion.Presentation
                     "",
                 [PitKingItemRegistration.PitKingChestEffectNameKey] = "Воля хозяина ямы",
                 [PitKingItemRegistration.PitKingChestEffectDescKey] =
-                    "+20 к максимуму здоровья. \nС экипированными Костоломами: +60 вместо +20.",
+                    "+20 к максимальному здоровью.\n" +
+                    "С экипированными Костоломами: +60 вместо +20.",
 
                 [SteelHeartSet.SteelHeartSetNameKey] = "Стальное сердце",
                 [SteelHeartSet.SteelHeartSetDescKey] =
@@ -339,7 +349,9 @@ namespace HaldorExpansion.Presentation
                 // Шкура Хельхейма
                 [PeltOfHelheimItemRegistration.ItemKey] = ItemNames.PeltOfHelheimRu,
                 [PeltOfHelheimItemRegistration.ItemDescKey] =
-                    "<color=#9EDFF2><b>Покров Хельхейма:</b></color> если надет полный сет Фенриса, в руках Клятва Хель и активно Касание Хель V, владелец получает <b>очень высокую устойчивость к колющему урону.</b>",
+                    "<color=#9EDFF2><b>Покров Хельхейма</b></color>\n" +
+                    "При полном комплекте Фенриса, Клятве Хель в руках и Касании Хель V\n" +
+                    "владелец получает очень высокую устойчивость к колющему урону.",
                 [PeltOfHelheimItemRegistration.EffectNameKey] = "Покров Хельхейма",
                 [PeltOfHelheimItemRegistration.EffectDescKey] =
                     "Касание Хель V завершает связь Фенриса с Хельхеймом.\nОчень высокая устойчивость к колющему урону.",
@@ -367,10 +379,10 @@ namespace HaldorExpansion.Presentation
                     "",
                 [WoundedBeastItemRegistration.WoundedBeastCapeEffectNameKey] = "Раненый зверь",
                 [WoundedBeastItemRegistration.WoundedBeastCapeEffectDescKey] =
-                    "Получаемый урон +20%.\n" +
-                    "Раз в секунду восстанавливает здоровье: чем ниже текущее здоровье, тем сильнее восстановление.\n" +
-                    "Пока действуют огонь, яд или дух, регенерация от плаща снижается в 2 раза.\n\n" +
-                    "При использовании вместе с Кирасой безмолвной расплаты эффект лечения сокращается в 2 раза.",
+                    "+20% получаемого урона.\n" +
+                    "Каждую секунду восстанавливает здоровье: чем меньше HP, тем сильнее лечение.\n\n" +
+                    "Горение, яд и эффекты духовного урона уменьшают лечение вдвое.\n" +
+                    "С Кирасой безмолвной расплаты лечение также уменьшается вдвое.",
 
                 // Плащ выжженной стойкости
                 [StaminaCapeItemRegistration.ItemKey] = ItemNames.BurnedResolveRu,
@@ -378,10 +390,10 @@ namespace HaldorExpansion.Presentation
                     "",
                 [StaminaCapeItemRegistration.EffectNameKey] = "Выжженная стойкость",
                 [StaminaCapeItemRegistration.EffectDescKey] =
-                    "25% входящего урона перенаправляется в выносливость, " +
-                    "а оставшиеся 75% наносятся здоровью. " +
-                    "Если выносливости недостаточно для полного поглощения, " +
-                    "непоглощённый урон по здоровью усиливается на 75%.",
+                    "25% входящего урона перенаправляется в выносливость.\n" +
+                    "При достаточной выносливости остальные 75% приходятся на здоровье.\n\n" +
+                    "Если выносливости не хватает, весь оставшийся урон по здоровью\n" +
+                    "увеличивается на 75%.",
             }, true));
 
             loc.AddTranslation("English", WithConfiguredValues(new Dictionary<string, string>
@@ -498,10 +510,11 @@ namespace HaldorExpansion.Presentation
                 [UiTextIds.TooltipScroll] = "Scroll: mouse wheel / PgUp, PgDn",
                 [HelOathItemRegistration.HelOathItemKey] = ItemNames.HelOathEn,
                 [HelOathItemRegistration.HelOathItemDescKey] =
-                    "<color=#9EDFF2><b>Fenris — Hel's Touch:</b></color> wearing the full set awakens Hel's Touch through bow damage. Each stack improves the character's mobility.\n\n" +
-                    "<color=#D5F5FF><b>Hel's Embrace:</b></color> bow damage charges the active ability. " +
-                    "When activated, the next arrow explodes on impact. " +
-                    "<b>the lower the maximum health and the higher the maximum stamina, the stronger Hel's Embrace becomes.</b> Hel's Touch V greatly empowers it.",
+                    "<color=#9EDFF2><b>Hel's Touch</b></color>: bow hits awaken Hel's Touch with the full Fenris set.\n" +
+                    "Each stage grants movement speed and reduces stamina costs.\n\n" +
+                    "<color=#D5F5FF><b>Hel's Embrace</b></color>: bow hits charge the ability.\n" +
+                    "When activated, the next arrow explodes.\n" +
+                    "The lower your maximum health and the higher your maximum stamina, the stronger the blast. Hel's Touch V empowers it.",
                 [HelOathItemRegistration.HelOathPassiveNameKey] = "Hel's Sacrifice",
                 [HelOathItemRegistration.HelOathPassiveDescKey] =
                     "50% of maximum health is converted into maximum stamina.",
@@ -542,18 +555,17 @@ namespace HaldorExpansion.Presentation
                     "<color=#B1ABA5><i>“As long as the heart beats, the reckoning is not over.”</i></color>",
                 [BerserkerIds.AxeDescriptionKey] =
                     "<color=#C9A56B><b>Power of the Relic</b></color>\n" +
-                    "<color=#9EDFF2><b>Bloodthirst</b></color>: +0.2% axe damage for each point of missing HP.\n\n" +
-                    "<color=#9EDFF2><b>Wrath (I–V)</b></color>: axe hits build Wrath. Each stage grants " +
-                    "+{wrath_speed}% attack speed and -{wrath_stamina}% stamina cost. " +
-                    "Wrath gradually fades without new hits.\n\n" +
-                    "<color=#9EDFF2><b>Blood Debt</b></color>: builds from wounds dealt by enemies and from axe hits. " +
-                    "Empowers Reckoning and Ragnarök; gradually fades outside combat.\n\n" +
-                    "<color=#9EDFF2><b>Reckoning (middle mouse)</b></color>: at Wrath V and Blood Debt x{reckoning_debt}+, " +
-                    "the secondary attack becomes Reckoning. On hit, spends {reckoning_spend}% of the debt, " +
-                    "adds damage, and heals for {reckoning_heal}% of direct damage dealt to the target.\n\n" +
-                    "<color=#e72517><b>Ragnarök ({ragnarok_key})</b></color>: requires Wrath V, Blood Debt x{ragnarok_debt}+, " +
-                    "and the Berserker Cloak equipped. Calls down meteors, consuming all Wrath and Blood Debt. " +
-                    "Exhaustion follows the cast.",
+                    "<color=#9EDFF2><b>Bloodthirst</b></color>: +0.2% axe damage per missing HP.\n\n" +
+                    "<color=#9EDFF2><b>Wrath (I–V)</b></color>: axe hits build Wrath.\n" +
+                    "Each stage: +{wrath_speed}% attack speed, -{wrath_stamina}% stamina cost.\n" +
+                    "Wrath fades without new hits.\n\n" +
+                    "<color=#9EDFF2><b>Blood Debt</b></color>: builds from damage taken and axe hits.\n" +
+                    "Empowers Reckoning and Ragnarök. Fades outside combat.\n\n" +
+                    "<color=#9EDFF2><b>Reckoning (middle mouse)</b></color>: requires Wrath V and Blood Debt x{reckoning_debt}+.\n" +
+                    "Replaces the secondary attack. On hit, spends {reckoning_spend}% of Blood Debt,\n" +
+                    "deals bonus damage, and heals for {reckoning_heal}% of direct damage dealt.\n\n" +
+                    "<color=#e72517><b>Ragnarök ({ragnarok_key})</b></color>: requires Wrath V, Blood Debt x{ragnarok_debt}+, and the Berserker Cloak.\n" +
+                    "Calls down meteors, spending all Wrath and Blood Debt. Exhaustion follows.",
 
                 [BerserkerIds.WrathKeyPrefix + "1"] = "Wrath I",
                 [BerserkerIds.WrathKeyPrefix + "1_desc"] =
@@ -586,8 +598,8 @@ namespace HaldorExpansion.Presentation
                 [BerserkerIds.CloakEffectKey] = "Harbinger of Ragnarok",
                 [BerserkerIds.CloakEffectDescriptionKey] =
                     "+30% incoming damage.\n" +
-                    "+50% Blood Debt generation.\n" +
-                    "Ragnarök: requires the Berserker Greataxe, Wrath V, and sufficient Blood Debt. " +
+                    "+50% Blood Debt generation.\n\n" +
+                    "Ragnarök requires the Berserker Greataxe, Wrath V, and enough Blood Debt.\n" +
                     "The cast consumes all Wrath and Debt, then inflicts Exhaustion.",
 
                 // Berserker Helmet
@@ -635,16 +647,20 @@ namespace HaldorExpansion.Presentation
                     "",
                 [NornThreadItemRegistration.EffectNameKey] = "The Last Thread",
                 [NornThreadItemRegistration.EffectDescKey] =
-                    "Lethal damage destroys the amulet instead of its wearer and clears all Delayed Doom debt. Health becomes 50% of the amount held before the lethal hit. After breaking, health cannot be lost for 3 seconds.",
+                    "A lethal hit destroys the amulet instead of its wearer.\n" +
+                    "Clears all Delayed Doom debt.\n" +
+                    "Health becomes 50% of its value before the hit.\n" +
+                    "For the next 3 seconds, health cannot be lost.",
                 [NornThreadItemRegistration.BrokenMessageKey] = "The thread of fate has snapped.",
 
                 // Cuirass of Silent Reckoning
                 [DelayedDoomIds.ItemKey] = ItemNames.SilentReckoningEn,
                 [DelayedDoomIds.DescriptionKey] =
-                    "<color=#C9A56B><b>Relic Power</b></color>\n" +
-                    "The cuirass activates if a single hit after defenses exceeds 50% of maximum health or would be lethal. " +
-                    "50% of the damage strikes immediately; another 70% of the original hit returns as debt over 6 seconds. " +
-                    "An overwhelming blow can still kill you even when the cuirass activates.",
+                    "<color=#C9A56B><b>Power of the Relic</b></color>\n" +
+                    "The cuirass triggers if a hit after defenses exceeds 50% of maximum health or would be lethal.\n" +
+                    "50% of the damage strikes immediately.\n" +
+                    "Another 70% of the original hit returns over 6 seconds.\n" +
+                    "An overwhelming blow can still kill you.",
                 [DelayedDoomIds.DebtNameKey] = "Delayed Reckoning",
                 [DelayedDoomIds.DebtDescriptionKey] =
                     "The Cuirass of Silent Reckoning has delayed part of the damage taken. The remaining debt gradually drains health.",
@@ -660,8 +676,13 @@ namespace HaldorExpansion.Presentation
                 // Bone Crushers
                 [CestusItemRegistration.CestusItemKey] = ItemNames.BoneCrushersEn,
                 [CestusItemRegistration.CestusItemDescKey] =
-                    "<color=#C9A56B><b>Power of the Relic</b></color>\n<color=#9EDFF2><b>Battle Fervor</b></color>: losing your own health charges the Bone Crushers; every 10% of maximum HP lost to damage grants 20 charge. Charge gradually fades without fresh wounds." +
-                    "\n<color=#9EDFF2><b>Counterstrike (middle mouse)</b></color>: at full charge, releases a circular shockwave and grants a temporary protective barrier. Charge cannot build while the barrier is active.",
+                    "<color=#C9A56B><b>Power of the Relic</b></color>\n" +
+                    "<color=#9EDFF2><b>Battle Fervor</b></color>\n" +
+                    "Taking damage builds charge.\n" +
+                    "Charge gradually fades without fresh wounds.\n\n" +
+                    "<color=#9EDFF2><b>Counterstrike (middle mouse)</b></color>\n" +
+                    "At full charge, unleashes a shockwave and creates a protective barrier.\n" +
+                    "Charge cannot build while the barrier is active.",
                 [CestusItemRegistration.CestusEffectNameKey] = "Law of the Arena",
                 [CestusItemRegistration.CestusEffectDescKey] =
                     "+10 to maximum health.\n" +
@@ -689,7 +710,8 @@ namespace HaldorExpansion.Presentation
                     "",
                 [PitKingItemRegistration.PitKingChestEffectNameKey] = "Pit King's Vigor",
                 [PitKingItemRegistration.PitKingChestEffectDescKey] =
-                    "+20 maximum health. \nWith Bone Crushers equipped: +60 instead of +20.",
+                    "+20 maximum health.\n" +
+                    "With Bone Crushers equipped: +60 instead of +20.",
 
                 [SteelHeartSet.SteelHeartSetNameKey] = "Steel Heart",
                 [SteelHeartSet.SteelHeartSetDescKey] =
@@ -699,7 +721,9 @@ namespace HaldorExpansion.Presentation
                 // Pelt of Helheim
                 [PeltOfHelheimItemRegistration.ItemKey] = ItemNames.PeltOfHelheimEn,
                 [PeltOfHelheimItemRegistration.ItemDescKey] =
-                    "<color=#9EDFF2><b>Helheim's Ward:</b></color> while wearing the full Fenris set, wielding Hel's Oath, and maintaining Hel's Touch V, the wearer becomes <b>very resistant to Pierce damage.</b>",
+                    "<color=#9EDFF2><b>Helheim's Ward</b></color>\n" +
+                    "With the full Fenris set, Hel's Oath in hand, and Hel's Touch V active,\n" +
+                    "the wearer gains very high resistance to pierce damage.",
                 [PeltOfHelheimItemRegistration.EffectNameKey] = "Helheim's Ward",
                 [PeltOfHelheimItemRegistration.EffectDescKey] =
                     "Hel's Touch V completes the bond between Fenris and Helheim.\nVery resistant to Pierce damage.",
@@ -727,10 +751,10 @@ namespace HaldorExpansion.Presentation
                     "",
                 [WoundedBeastItemRegistration.WoundedBeastCapeEffectNameKey] = "Wounded Beast",
                 [WoundedBeastItemRegistration.WoundedBeastCapeEffectDescKey] =
-                    "Incoming damage +20%.\n" +
-                    "Restores health once per second: the lower your current health is, the stronger the regeneration becomes.\n" +
-                    "While burning, poisoned, or affected by spirit damage, the cape regeneration is halved.\n\n" +
-                    "When used together with the Cuirass of Silent Reckoning, its healing effect is halved.",
+                    "+20% incoming damage.\n" +
+                    "Restores health each second: the less HP you have, the stronger the healing.\n\n" +
+                    "Burning, poison, and spirit damage effects halve the healing.\n" +
+                    "With the Cuirass of Silent Reckoning, healing is also halved.",
 
                 // Cloak of Burned Resolve
                 [StaminaCapeItemRegistration.ItemKey] = ItemNames.BurnedResolveEn,
@@ -738,10 +762,10 @@ namespace HaldorExpansion.Presentation
                     "",
                 [StaminaCapeItemRegistration.EffectNameKey] = "Burned Resolve",
                 [StaminaCapeItemRegistration.EffectDescKey] =
-                    "25% of incoming damage is redirected to stamina, " +
-                    "while the remaining 75% is dealt to health. " +
-                    "If there is not enough stamina to absorb the full amount, " +
-                    "the remaining health damage is increased by 75%.",
+                    "25% of incoming damage is redirected to stamina.\n" +
+                    "With enough stamina, the remaining 75% is dealt to health.\n\n" +
+                    "If stamina is insufficient, all remaining health damage\n" +
+                    "is increased by 75%.",
             }, false));
         }
 
