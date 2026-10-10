@@ -112,6 +112,7 @@
         <Compile Include="Features\Berserker\BerserkerReckoningNetwork.cs"/>
         <Compile Include="Features\Berserker\BerserkerRagnarokMath.cs"/>
         <Compile Include="Features\Berserker\BerserkerRagnarokRuntime.cs"/>
+        <Compile Include="Features\Berserker\BerserkerRagnarokWeather.cs"/>
         <Compile Include="Features\Berserker\BerserkerRagnarokFx.cs"/>
         <Compile Include="Features\Berserker\BerserkerRagnarokMeteorFx.cs"/>
         <Compile Include="Features\Berserker\BerserkerAppearance.cs"/>

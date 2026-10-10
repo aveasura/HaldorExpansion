@@ -86,6 +86,7 @@ namespace HaldorExpansion.Features.Berserker
             casting = true;
             inputLockedUntil = Time.time + castSeconds;
             BerserkerRagnarokFx.BeginLocalSkywardAura(player, auraStrength);
+            BerserkerRagnarokWeather.Begin(player);
             castRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(
                 CastRoutine(player, castSeconds, debtAtActivation, auraStrength));
         }

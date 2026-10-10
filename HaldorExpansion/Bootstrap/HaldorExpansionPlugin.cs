@@ -74,10 +74,12 @@ namespace HaldorExpansion
         private void Update()
         {
             _configuration.Update();
+            BerserkerRagnarokWeather.Update();
         }
 
         private void OnDestroy()
         {
+            BerserkerRagnarokWeather.Reset();
             ItemTooltipController.Reset();
             HaldorTabsController.Reset();
             ObjectDB_Awake_Patch.Shutdown();

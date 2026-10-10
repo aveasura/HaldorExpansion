@@ -70,6 +70,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 if (!ValidVisualRpc(view, sender) || !CanRender) return;
                 StopRagnarokCast(player);
+                BerserkerRagnarokWeather.Stop(player);
             });
 
             view.Register<Vector3, float>(BerserkerIds.RagnarokReleaseRpc, (sender, targetPoint, debt) =>
@@ -85,6 +86,7 @@ namespace HaldorExpansion.Features.Berserker
                     if (!ValidVisualRpc(view, sender) || !FiniteVector(point) ||
                         !FinitePositive(intensity) || intensity > 1.8f ||
                         !FinitePositive(explosionRadius) || explosionRadius > 7.1f || !CanRender) return;
+                    BerserkerRagnarokWeather.MeteorImpact(player);
                     PlayMeteorImpact(point, intensity, explosionRadius);
                 });
         }
@@ -132,7 +134,11 @@ namespace HaldorExpansion.Features.Berserker
             if (player == null) return;
             ZNetView view = View(player);
             if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, BerserkerIds.RagnarokStopRpc, true);
-            else if (CanRender) StopRagnarokCast(player);
+            else if (CanRender)
+            {
+                StopRagnarokCast(player);
+                BerserkerRagnarokWeather.Stop(player);
+            }
         }
 
         internal static void BroadcastRagnarokRelease(Player player, Vector3 targetPoint, double debt)
@@ -169,7 +175,10 @@ namespace HaldorExpansion.Features.Berserker
                 view.InvokeRPC(ZNetView.Everybody, BerserkerIds.RagnarokMeteorImpactRpc, point, intensity,
                     explosionRadius);
             else if (CanRender)
+            {
+                BerserkerRagnarokWeather.MeteorImpact(caster);
                 PlayMeteorImpact(point, intensity, explosionRadius);
+            }
         }
 
         internal static void PlayMeteorImpact(Vector3 point, float intensity, float explosionRadius)
@@ -210,6 +219,7 @@ namespace HaldorExpansion.Features.Berserker
         private static void PlayRagnarokCast(Player player, float duration, float impactRadius, float auraStrength)
         {
             if (player == null || player.IsDead()) return;
+            BerserkerRagnarokWeather.Begin(player);
             PlayerVisualState state = PlayerVisuals.GetValue(player, ignored => new PlayerVisualState());
             if (state.RagnarokCast != null) state.RagnarokCast.StopFx(0.12f);
 
@@ -235,6 +245,7 @@ namespace HaldorExpansion.Features.Berserker
 
         private static void PlayRagnarokRelease(Player player, Vector3 centerPoint, float debt)
         {
+            BerserkerRagnarokWeather.Release(player, centerPoint, BerserkerRagnarokMath.MeteorCount(debt));
             StopRagnarokCast(player);
             float intensity = Mathf.Clamp(EffectIntensity(debt) + 0.18f, 1.15f, 1.9f);
 

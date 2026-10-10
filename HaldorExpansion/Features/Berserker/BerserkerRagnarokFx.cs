@@ -11,8 +11,8 @@ namespace HaldorExpansion.Features.Berserker
     // short Lightning (3) trails, never the networked weapon or its gameplay.
     internal static class BerserkerRagnarokFx
     {
-        private const string CastSoundPrefab = "fx_Abomination_attack1_start";
-        private const string CastBellPrefab = "sfx_fader_bell";
+        private const string CastSoundPrefab = "sfx_fader_fissure_footslide";
+        private const string CastBellPrefab = "sfx_fader_death_start";
         private const string ThunderbloodPrefab = "BattleaxeGold_BloodLightning";
 
         // VFX ONLY: seconds after an accepted E before the smoke starts leaving
