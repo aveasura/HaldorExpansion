@@ -144,6 +144,7 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_damages.m_slash = BaseSlashDamage;
             shared.m_damagesPerLevel = new HitData.DamageTypes();
             shared.m_maxQuality = 1;
+            shared.m_maxDurability = 1200;
 
             // Less raw safety/control than the vanilla Deep North greataxe: the build should prefer
             // taking real HP damage instead of leaning on blocking/parrying and heavy stagger-lock.

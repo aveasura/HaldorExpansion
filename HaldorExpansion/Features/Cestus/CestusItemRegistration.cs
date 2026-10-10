@@ -29,7 +29,7 @@ namespace HaldorExpansion.Features.Cestus
         private const float GritCestusWeight = 2f;
 
         private const int GritCestusMaxQuality = 1;
-        private const float GritCestusMaxDurability = 900f;
+        private const float GritCestusMaxDurability = 1200f;
         private const float GritCestusDurabilityPerLevel = 0f;
 
         // Урон

@@ -132,6 +132,7 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_armor = BaseArmor;
             shared.m_armorPerLevel = 0f;
             shared.m_maxQuality = 1;
+            shared.m_maxDurability = 1200f;
             shared.m_value = 0;
             shared.m_movementModifier = 0f;
             shared.m_canBeReparied = true;

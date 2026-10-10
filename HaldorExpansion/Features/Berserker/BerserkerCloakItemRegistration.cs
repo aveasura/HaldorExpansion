@@ -153,7 +153,7 @@ namespace HaldorExpansion.Features.Berserker
 
             // Keep Berserker durability and weight unchanged when switching models.
             // This is a visual-only change, not a progression/stat adjustment.
-            shared.m_maxDurability = 400f;
+            shared.m_maxDurability = 1200f;
             shared.m_durabilityPerLevel = 0f;
             shared.m_weight = 4f;
             BerserkerAppearance.ApplyArmorMaterial(shared, BerserkerAppearance.Style.Cloak);
