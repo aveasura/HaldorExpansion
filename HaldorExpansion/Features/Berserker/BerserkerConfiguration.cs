@@ -32,6 +32,13 @@ namespace HaldorExpansion.Features.Berserker
         internal static ConfigEntry<float> RagnarokExhaustionAttackPenaltyPercent;
         internal static ConfigEntry<float> RagnarokExhaustionStaminaRegenPenaltyPercent;
         internal static ButtonConfig RagnarokButton;
+        internal static ConfigEntry<bool> BloodDebtHudEnabled;
+        internal static ConfigEntry<int> BloodDebtHudOffsetX;
+        internal static ConfigEntry<int> BloodDebtHudOffsetY;
+        internal static ConfigEntry<float> BloodDebtHudScale;
+        internal static ConfigEntry<bool> BloodDebtHudMatchHealthSize;
+        internal static ConfigEntry<float> BloodDebtHudCustomWidth;
+        internal static ConfigEntry<float> BloodDebtHudCustomHeight;
 
         internal static void Register(ConfigFile config, ConfigFile input)
         {
@@ -179,6 +186,49 @@ namespace HaldorExpansion.Features.Berserker
                 "Stamina-regeneration penalty applied by Exhaustion after Ragnarok.",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 90f));
 
+            // These are client-only visual preferences in general.cfg. Plain Bind
+            // does not mark them IsAdminOnly, so Jotunn never server-syncs them.
+            BloodDebtHudEnabled = input.Bind("Blood Debt HUD / HUD Кровавого долга", "Enable HUD", true,
+                "Show the Blood Debt gauge. Local setting: each player can hide it without disabling the mechanic. / " +
+                "Показывать шкалу Кровавого долга. Личная настройка, не влияет на механику.");
+
+            BloodDebtHudOffsetX = input.Bind("Blood Debt HUD / HUD Кровавого долга", "Position X", -88,
+                new ConfigDescription(
+                    "Horizontal offset in UI units from the LEFT edge of the vanilla health bar. " +
+                    "Negative moves left; default -88 positions the gauge left of the food icons. " +
+                    "Личный сдвиг по горизонтали от левого края полосы здоровья (отрицательный — влево).",
+                    new AcceptableValueRange<int>(-600, 600)));
+
+            BloodDebtHudOffsetY = input.Bind("Blood Debt HUD / HUD Кровавого долга", "Position Y", 0,
+                new ConfigDescription(
+                    "Vertical offset in UI units from the BOTTOM of the vanilla health bar. " +
+                    "Positive moves up. / Личный сдвиг по вертикали от низа полосы здоровья (плюс — вверх).",
+                    new AcceptableValueRange<int>(-400, 400)));
+
+            BloodDebtHudScale = input.Bind("Blood Debt HUD / HUD Кровавого долга", "Scale", 1f,
+                new ConfigDescription(
+                    "Scale multiplier for the gauge in both auto-size and custom-size modes (default 1.0). " +
+                    "Масштаб шкалы в обоих режимах размера (по умолчанию 1.0).",
+                    new AcceptableValueRange<float>(0.5f, 2f)));
+
+            BloodDebtHudMatchHealthSize = input.Bind("Blood Debt HUD / HUD Кровавого долга", "Match HP Bar Size", true,
+                "Automatically match the width and height of the vanilla HP bar (default). " +
+                "Disable to use Custom Width and Custom Height. Local-only setting. / " +
+                "Подстраивать ширину и высоту под колонку здоровья (по умолчанию включено). " +
+                "Выключите для ручной настройки ширины и высоты; не синхронизируется с сервером.");
+
+            BloodDebtHudCustomWidth = input.Bind("Blood Debt HUD / HUD Кровавого долга", "Custom Width", 32f,
+                new ConfigDescription(
+                    "Manual Blood Debt bar width in UI units. Used only when Match HP Bar Size is false. / " +
+                    "Ширина шкалы в единицах интерфейса; работает при выключенной привязке к HP.",
+                    new AcceptableValueRange<float>(8f, 800f)));
+
+            BloodDebtHudCustomHeight = input.Bind("Blood Debt HUD / HUD Кровавого долга", "Custom Height", 220f,
+                new ConfigDescription(
+                    "Manual Blood Debt bar height in UI units. Used only when Match HP Bar Size is false. / " +
+                    "Высота шкалы в единицах интерфейса; работает при выключенной привязке к HP.",
+                    new AcceptableValueRange<float>(16f, 1600f)));
+
             ConfigEntry<KeyCode> ragnarokKey = input.Bind(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
                 "Ragnarok Ability Key", KeyCode.E,
@@ -192,6 +242,25 @@ namespace HaldorExpansion.Features.Berserker
             };
             InputManager.Instance.AddButton(HaldorExpansionPlugin.ModGuid, RagnarokButton);
         }
+
+        internal static bool BloodDebtHudVisible => BloodDebtHudEnabled == null || BloodDebtHudEnabled.Value;
+        internal static float BloodDebtHudX => BloodDebtHudOffsetX != null ? BloodDebtHudOffsetX.Value : -88f;
+        internal static float BloodDebtHudY => BloodDebtHudOffsetY != null ? BloodDebtHudOffsetY.Value : 0f;
+
+        internal static float BloodDebtHudScaleValue => BloodDebtHudScale != null
+            ? FiniteClamp(BloodDebtHudScale.Value, 0.5f, 2f, 1f)
+            : 1f;
+
+        internal static bool BloodDebtHudAutoSize =>
+            BloodDebtHudMatchHealthSize == null || BloodDebtHudMatchHealthSize.Value;
+
+        internal static float BloodDebtHudWidth => BloodDebtHudCustomWidth != null
+            ? FiniteClamp(BloodDebtHudCustomWidth.Value, 8f, 800f, 32f)
+            : 32f;
+
+        internal static float BloodDebtHudHeight => BloodDebtHudCustomHeight != null
+            ? FiniteClamp(BloodDebtHudCustomHeight.Value, 16f, 1600f, 220f)
+            : 220f;
 
         internal static float HitsPerStageValue => FiniteClamp(HitsPerWrathStage.Value, 0.25f, 100f, 2f);
         internal static float DecayIntervalValue => FiniteClamp(WrathDecayInterval.Value, 0.5f, 300f, 10f);

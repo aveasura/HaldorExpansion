@@ -1,6 +1,8 @@
+using System;
 using HaldorExpansion.Combat;
 using HaldorExpansion.Features.DelayedDoom;
 using HarmonyLib;
+using UnityEngine;
 
 namespace HaldorExpansion.Features.Berserker
 {

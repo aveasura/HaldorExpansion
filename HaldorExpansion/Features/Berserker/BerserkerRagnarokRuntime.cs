@@ -91,8 +91,7 @@ namespace HaldorExpansion.Features.Berserker
                 CastRoutine(player, castSeconds, debtAtActivation, auraStrength));
         }
 
-        private static IEnumerator CastRoutine(Player player, float castSeconds, double debtAtActivation,
-            float auraStrength)
+        private static IEnumerator CastRoutine(Player player, float castSeconds, double debtAtActivation, float auraStrength)
         {
             try
             {

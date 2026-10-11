@@ -8,7 +8,7 @@ namespace HaldorExpansion.Features.Berserker
 {
     // Visual-only Blood Debt gauge, anchored to the same vanilla health GuiBar
     // that Cestus uses. We never reparent/resize/modify the health bar itself.
-    // Final layout is intentionally fixed in code so players cannot break the HUD through config.
+    // Position, scale, size mode and visibility are local to each player (not server-synced).
     internal static class BerserkerDebtHudView
     {
         private static Hud attachedHud;
@@ -22,13 +22,16 @@ namespace HaldorExpansion.Features.Berserker
         private static float nextGeometryCheckAt;
         private const float GeometryCheckInterval = 0.20f; // 5 checks/sec
         private const float DebtPerVisualCycle = 100f;
-        private const float MeterWidth = 32f;
-        private const float OffsetXFromHealth = 8f;
-        private const float OffsetYFromHealth = 0f;
 
         internal static void Update(Hud hud, Player player)
         {
             if (hud == null) return;
+            if (!BerserkerConfiguration.BloodDebtHudVisible)
+            {
+                SetVisible(false);
+                return;
+            }
+
             if (player == null || player != Player.m_localPlayer || player.IsDead())
             {
                 SetVisible(false);
@@ -113,7 +116,7 @@ namespace HaldorExpansion.Features.Berserker
             trackImage.color = new Color(0.12f, 0.11f, 0.13f, 0.82f);
             trackImage.raycastTarget = false;
 
-            // Unlike the old floating panel, the actual meter has a fixed size.
+            // Unlike the old floating panel, the meter has its own sized RectTransform.
             GameObject amount = new GameObject("BloodDebt_Fill", typeof(RectTransform));
             RectTransform amountRect = amount.GetComponent<RectTransform>();
             amountRect.SetParent(trackRect, false);
@@ -192,22 +195,17 @@ namespace HaldorExpansion.Features.Berserker
             // what should be our tall vertical gauge appears horizontal, and
             // its label is sideways. Work in WORLD axes instead.
             healthReference.GetWorldCorners(HealthCorners);
+            float left = HealthCorners[0].x;
             float right = HealthCorners[0].x;
             float bottom = HealthCorners[0].y;
             float top = HealthCorners[0].y;
             for (int i = 1; i < HealthCorners.Length; i++)
             {
+                if (HealthCorners[i].x < left) left = HealthCorners[i].x;
                 if (HealthCorners[i].x > right) right = HealthCorners[i].x;
                 if (HealthCorners[i].y < bottom) bottom = HealthCorners[i].y;
                 if (HealthCorners[i].y > top) top = HealthCorners[i].y;
             }
-
-            // Read the ACTUAL rendered height every HUD update, rather than
-            // copying an initial RectTransform height. Valheim resizes the
-            // vanilla HP meter as the player's max health changes (food etc.).
-            float healthHeightWorld = top - bottom;
-            if (float.IsNaN(healthHeightWorld) || float.IsInfinity(healthHeightWorld) ||
-                healthHeightWorld < 0.001f) return;
 
             trackRect.anchorMin = Vector2.zero;
             trackRect.anchorMax = Vector2.zero;
@@ -217,24 +215,43 @@ namespace HaldorExpansion.Features.Berserker
             // rotation (which is exactly what caused the sideways gauge).
             trackRect.rotation = Quaternion.identity;
 
-            // The reference is rotated by Valheim's HUD, so rect.height is NOT
-            // necessarily its visible vertical size. Convert its world-space
-            // bounding height to the unrotated gauge's own layout units.
-            // Reading both each frame also follows UI-scale/food changes.
-            float worldYPerLocalUnit = Mathf.Abs(trackRect.TransformVector(Vector3.up).y);
-            if (float.IsNaN(worldYPerLocalUnit) || float.IsInfinity(worldYPerLocalUnit) ||
-                worldYPerLocalUnit < 0.0001f) return;
-            float healthHeightUi = healthHeightWorld / worldYPerLocalUnit;
-            trackRect.sizeDelta = new Vector2(MeterWidth, healthHeightUi);
+            // Automatic size follows the currently rendered HP bar, including
+            // Valheim's changing bar geometry. Manual size is independent of HP;
+            // Scale still applies to both modes and is applied only afterward.
+            if (BerserkerConfiguration.BloodDebtHudAutoSize)
+            {
+                float healthWidthWorld = right - left;
+                float healthHeightWorld = top - bottom;
+                float worldXPerLocalUnit = Mathf.Abs(trackRect.TransformVector(Vector3.right).x);
+                float worldYPerLocalUnit = Mathf.Abs(trackRect.TransformVector(Vector3.up).y);
+                if (float.IsNaN(healthWidthWorld) || float.IsInfinity(healthWidthWorld) ||
+                    float.IsNaN(healthHeightWorld) || float.IsInfinity(healthHeightWorld) ||
+                    healthWidthWorld < 0.001f || healthHeightWorld < 0.001f ||
+                    float.IsNaN(worldXPerLocalUnit) || float.IsInfinity(worldXPerLocalUnit) ||
+                    float.IsNaN(worldYPerLocalUnit) || float.IsInfinity(worldYPerLocalUnit) ||
+                    worldXPerLocalUnit < 0.0001f || worldYPerLocalUnit < 0.0001f) return;
 
-            // Fixed HUD offsets are expressed in layout units. Convert them to
-            // world units so X always moves visually RIGHT and Y visually UP,
-            // regardless of how the vanilla HP hierarchy is rotated.
+                trackRect.sizeDelta = new Vector2(
+                    healthWidthWorld / worldXPerLocalUnit,
+                    healthHeightWorld / worldYPerLocalUnit);
+            }
+            else
+            {
+                trackRect.sizeDelta = new Vector2(
+                    BerserkerConfiguration.BloodDebtHudWidth,
+                    BerserkerConfiguration.BloodDebtHudHeight);
+            }
+
+            trackRect.localScale = Vector3.one * BerserkerConfiguration.BloodDebtHudScaleValue;
+
+            // Visual left/bottom of vanilla HP is the reference. Default X=-88
+            // puts the meter to the LEFT of the food icons rather than over the
+            // boss power. These offsets are in scaled UI units, not screen pixels.
             float uiScale = parent.TransformVector(Vector3.right).magnitude;
             if (uiScale < 0.0001f) uiScale = 1f;
             trackRect.position = new Vector3(
-                right + OffsetXFromHealth * uiScale,
-                bottom + OffsetYFromHealth * uiScale,
+                left + BerserkerConfiguration.BloodDebtHudX * uiScale,
+                bottom + BerserkerConfiguration.BloodDebtHudY * uiScale,
                 HealthCorners[0].z);
         }
 

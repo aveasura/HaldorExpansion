@@ -16,6 +16,7 @@ namespace HaldorExpansion.Features.Berserker
 
         // AUDIO ONLY: delay from accepted E to the second sound. No gameplay timing changes.
         private const float CastBellDelaySeconds = 1.30f;
+        
         private const string CastBellPrefab = "sfx_fader_death_start";
         private const string ThunderbloodPrefab = "BattleaxeGold_BloodLightning";
 
