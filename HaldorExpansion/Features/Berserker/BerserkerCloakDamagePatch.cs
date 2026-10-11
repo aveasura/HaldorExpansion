@@ -4,7 +4,7 @@ using HarmonyLib;
 
 namespace HaldorExpansion.Features.Berserker
 {
-    // Same risk model as Cloak of the Wounded Beast: amplify the incoming HitData before
+    // Same risk model as Cloak of the Wounded Beast: amplify the incoming HitData after
     // Valheim resolves armor/resistances. Blood Debt then observes the real post-defense HP loss.
     [HarmonyPatch(typeof(Character), "ApplyDamage")]
     internal static class BerserkerCloakDamagePatch

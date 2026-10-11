@@ -140,7 +140,7 @@ namespace HaldorExpansion.Features.Berserker
                 ItemNames.ConfigSection(ItemNames.BerserkerCloakEn, ItemNames.BerserkerCloakRu),
                 "Incoming damage increase percent", 30f,
                 "Extra incoming damage taken while wearing the Berserker Cloak. " +
-                "Default 30 means 130% of incoming damage, before armor and resistances.",
+                "Default 30 means 130% of incoming damage, after armor and resistances.",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 500f));
 
             CloakBloodDebtGainBonusPercent = config.BindConfig(

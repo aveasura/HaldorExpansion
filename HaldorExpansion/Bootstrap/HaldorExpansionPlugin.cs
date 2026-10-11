@@ -60,6 +60,7 @@ namespace HaldorExpansion
             TradingUiConfiguration.Register(Config);
 
             _configuration.Finish();
+            ConfigurationManagerIntegration.Initialize(_configuration, this);
             ModLocalization.AddLocalizations();
             ObjectDB_Awake_Patch.Initialize();
 
@@ -74,6 +75,7 @@ namespace HaldorExpansion
         private void Update()
         {
             _configuration.Update();
+            ConfigurationManagerIntegration.Update();
             BerserkerRagnarokWeather.Update();
         }
 
