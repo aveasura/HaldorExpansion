@@ -10,8 +10,8 @@ using UnityEngine;
 
 namespace HaldorExpansion.Configuration
 {
-    // ConfigurationManager only enumerates plugin.Config (general.cfg). Add the real balance.cfg
-    // entries to its settings view without cloning them into general.cfg or adding a hard dependency.
+    // ConfigurationManager only enumerates plugin.Config (general.cfg). Add balance.cfg entries and
+    // in-memory views of trading.yml without cloning data into general.cfg or adding a hard dependency.
     internal static class ConfigurationManagerIntegration
     {
         private const string ManagerGuid = "com.bepis.bepinex.configurationmanager";
@@ -20,8 +20,8 @@ namespace HaldorExpansion.Configuration
         private static FieldInfo allSettingsField;
         private static MethodInfo rebuildFilteredSettings;
         private static ConstructorInfo settingConstructor;
-        private static MethodInfo setReadOnly;
-        private static readonly List<object> visibleBalanceEntries = new List<object>();
+        private static MethodInfo setReadOnly, setDisplayName;
+        private static readonly List<object> visibleServerEntries = new List<object>();
         private static bool installed, unavailable;
         private static bool? lastClientState;
         private static float nextAttempt;
@@ -48,7 +48,7 @@ namespace HaldorExpansion.Configuration
             bool isClient = ZNet.instance != null && !ZNet.instance.IsServer();
             if (lastClientState == isClient) return;
             lastClientState = isClient;
-            foreach (object entry in visibleBalanceEntries)
+            foreach (object entry in visibleServerEntries)
                 setReadOnly.Invoke(entry, new object[] { isClient });
         }
 
@@ -71,39 +71,55 @@ namespace HaldorExpansion.Configuration
                     new[] { typeof(ConfigEntryBase), typeof(BaseUnityPlugin) }, null);
                 setReadOnly = settingBaseType?.GetProperty("ReadOnly",
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetSetMethod(true);
+                setDisplayName = settingBaseType?.GetProperty("DispName",
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetSetMethod(true);
 
                 if (buildSettings == null || allSettingsField == null || rebuildFilteredSettings == null ||
-                    settingConstructor == null || setReadOnly == null)
+                    settingConstructor == null || setReadOnly == null || setDisplayName == null)
                     throw new NotSupportedException("Unsupported ConfigurationManager settings API.");
 
                 new Harmony(HaldorExpansionPlugin.ModGuid + ".configurationmanager").Patch(buildSettings,
                     postfix: new HarmonyMethod(AccessTools.Method(typeof(ConfigurationManagerIntegration),
-                        nameof(AddBalanceSettings))));
+                        nameof(AddExtendedSettings))));
                 installed = true;
-                HaldorExpansionPlugin.Log.LogInfo("[Config] ConfigurationManager: balance.cfg settings available in F1.");
+                HaldorExpansionPlugin.Log.LogInfo(
+                    "[Config] ConfigurationManager: balance.cfg and trading.yml settings available in F1.");
             }
             catch (Exception e)
             {
                 unavailable = true;
-                HaldorExpansionPlugin.Log.LogWarning("[Config] ConfigurationManager integration disabled: " + e.Message);
+                HaldorExpansionPlugin.Log.LogWarning("[Config] ConfigurationManager integration disabled: " +
+                                                     e.Message);
             }
         }
 
-        private static void AddBalanceSettings(object __instance)
+        private static void AddExtendedSettings(object __instance)
         {
             try
             {
                 IList settings = allSettingsField.GetValue(__instance) as IList;
                 if (settings == null || runtime?.Balance == null) return;
 
-                visibleBalanceEntries.Clear();
+                visibleServerEntries.Clear();
                 bool isClient = ZNet.instance != null && !ZNet.instance.IsServer();
                 foreach (var setting in runtime.Balance)
                 {
                     object view = settingConstructor.Invoke(new object[] { setting.Value, plugin });
                     setReadOnly.Invoke(view, new object[] { isClient });
                     settings.Add(view);
-                    visibleBalanceEntries.Add(view);
+                    visibleServerEntries.Add(view);
+                }
+
+                bool russian = Localization.instance != null &&
+                               Localization.instance.GetSelectedLanguage() == "Russian";
+                foreach (ConfigEntryBase entry in runtime.TradingUiEntries)
+                {
+                    object view = settingConstructor.Invoke(new object[] { entry, plugin });
+                    string displayName = runtime.TradingDisplayName(entry, russian);
+                    if (displayName != null) setDisplayName.Invoke(view, new object[] { displayName });
+                    setReadOnly.Invoke(view, new object[] { isClient });
+                    settings.Add(view);
+                    visibleServerEntries.Add(view);
                 }
 
                 lastClientState = isClient;

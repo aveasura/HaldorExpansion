@@ -80,6 +80,8 @@
     <ItemGroup>
         <Compile Include="Configuration\TradingDocument.cs"/>
         <Compile Include="Configuration\TradingCatalog.cs"/>
+        <Compile Include="Configuration\TradingEditorSettings.cs"/>
+        <Compile Include="Configuration\TradingYamlEditor.cs"/>
         <Compile Include="Configuration\BerserkerTradingMigration.cs"/>
         <Compile Include="Configuration\ConfigText.cs"/>
         <Compile Include="Configuration\ConfigSchema.cs"/>

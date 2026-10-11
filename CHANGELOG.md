@@ -5,51 +5,45 @@ All notable changes to HaldorExpansion will be documented in this file.
 ## [1.3.0] - Unreleased
 
 ### Added
-- **Berserker Equipment:** Introduced the Berserker Greataxe, Helmet, and Cloak, forming a new combat-focused equipment combination with unique passive abilities.
-- **Wrath System:** A five-stage stacking mechanic that rewards aggressive gameplay with increased attack speed and reduced stamina consumption.
-- **Blood Debt:** A new combat resource with a dedicated HUD indicator, built through combat and used to empower special abilities.
-- **Reckoning:** A powerful secondary attack that consumes Blood Debt to deal additional damage and restore health.
-- **Ragnarök:** A devastating meteor-based ability featuring dynamic damage scaling, 12–30 meteors, expanding impact areas, warning effects, and enhanced visual and sound effects.
-- **Berserker Helmet:** Added Wrath-based defensive bonuses and lifesteal that scales with damage actually dealt to enemies.
-- **Exhaustion:** A 7-second debuff after Ragnarök with -40% movement speed, -25% attack speed, and -40% stamina regeneration. New Wrath stacks still offset the attack-speed penalty additively.
-- **Berserker Trading:** Added configurable availability, pricing, and progression requirements for Berserker equipment at Haldor's shop.
-- **Berserker Repairs:** Added forge repair support for Berserker equipment
-- **Live Configuration Reloading:** Changes to `general.cfg`, `balance.cfg`, and `trading.yml` are automatically detected and applied without restarting Valheim.
-- **Haldor's Shop Categories:** Added "All", "Equipment", "Resources", and "Other" tabs, which can be disabled in the configuration.
-- **Scrollable Item Tooltips:** Added mouse wheel, Page Up, and Page Down support for scrolling long item descriptions, improving readability on smaller screens.(can be disabled in the configuration)
+- **Berserker Equipment:** Introduced the Berserker Greataxe, Helmet, and Cloak — a new combat-focused equipment set built around relentless aggression, growing power, and high-risk gameplay.
+- **Wrath System:** A stacking combat mechanic that rewards aggressive play with increasingly powerful offensive and defensive bonuses.
+- **Blood Debt:** A new combat resource that fuels the Berserker's devastating abilities, featuring a dedicated HUD indicator.
+- **Reckoning:** A powerful secondary attack that unleashes accumulated Blood Debt against enemies while restoring health.
+- **Ragnarök:** A devastating meteor storm that scales with accumulated Blood Debt, featuring cinematic visuals, darkened skies, and destructive impact effects.
+- **Exhaustion:** A temporary penalty following Ragnarök, adding an element of risk to the Berserker's ultimate ability.
+- **Berserker Trading:** New equipment available from Haldor, with configurable prices and progression requirements.
+- **New Trading Resources:** Added Sap, Refined Eitr, and Soft Tissue to Haldor's inventory.
+- **In-Game Configuration:** Added optional BepInEx ConfigurationManager support, allowing players to manage mod settings directly in-game.
+- **Customizable Blood Debt HUD:** Added client-side controls for visibility, positioning, scaling, and dimensions.
+- **Live Configuration Reloading:** Configuration changes are automatically detected and applied without restarting the game.
+- **Haldor's Shop Categories:** Added category tabs for easier navigation through Haldor's inventory.
+- **Scrollable Item Tooltips:** Added scrolling support for long item descriptions, improving accessibility on smaller screens.
 - **Artifact Lore:** Added original Norse-inspired stories and interconnected sagas for 12 relics, fully localized in English and Russian.
 
 ### Changed
-- **Haldor's Shop:** Item previews now show atmospheric lore, while inventory tooltips retain detailed gameplay mechanics.
-- **Equipment Descriptions:** Reworked English and Russian tooltips with clearer ability explanations, improved formatting, and reduced information overload.
-- **Configuration System:** Reorganized settings into `general.cfg`, `balance.cfg`, and `trading.yml` under `BepInEx/config/aveasura-HaldorExpansion/`.
-- **Trading Configuration:** Moved shop settings to `trading.yml`, retaining configurable prices and progression requirements while adding item availability controls and quantities.
-- **Delayed Doom:** Now activates when a single incoming hit exceeds 50% of maximum health **or would otherwise be lethal**.
-- **Norn Thread:** Triggering the amulet now clears accumulated Delayed Doom debt and extends protection from health loss from 1.5 to 3 seconds.
-- **Cestus:** Charge generation now scales with the percentage of maximum health lost instead of a fixed amount of HP.
-- **Pit King:** Now grants +20 maximum health alone, or +60 when Bone Crushers are equipped.
-- **Wounded Beast Cloak:** Passive healing is now halved while fire, poison, or spirit damage-over-time effects are active.
+- **Haldor's Shop:** Item previews now feature atmospheric lore, while inventory tooltips retain detailed gameplay information.
+- **Equipment Descriptions:** Improved readability, formatting, and localization across existing equipment.
+- **Configuration System:** Reorganized settings into `general.cfg`, `balance.cfg`, and `trading.yml` for easier customization.
+- **Trading Configuration:** Expanded customization options for Haldor's inventory, including item availability, quantities, pricing, and progression requirements.
+- **Delayed Doom:** Improved activation conditions to account for potentially lethal attacks.
+- **Norn Thread:** Improved its protective effect and interaction with Delayed Doom.
+- **Cestus:** Improved charge generation scaling based on health lost.
+- **Pit King:** Adjusted its health bonuses and synergy with Bone Crushers.
+- **Wounded Beast Cloak:** Adjusted passive healing interactions with damage-over-time effects.
 
 ### Fixed
-- **Equipment Rendering:** Fixed equipped HaldorExpansion items being invisible on the character when first loading into the game.
-- Fixed Delayed Doom evaluating damage before the Berserker, Wounded Beast, and Fractured cloak modifiers were applied.
-- Fixed a Berserker Helmet identifier conflict with a vanilla item that prevented proper repair.
-- Fixed equipment previews and item icon handling in Haldor's shop.
-- Fixed shop items changing their original order after being disabled and re-enabled through configuration.
-- Fixed missing or newly introduced configuration entries not being added to existing configuration files while preserving user settings.
-- Fixed Jotunn warnings regarding item registration.
+- Fixed equipped HaldorExpansion items occasionally appearing invisible after loading into the game.
+- Fixed damage calculation inconsistencies involving Delayed Doom and other equipment effects.
+- Fixed equipment preview and item icon issues in Haldor's shop.
 
 ### Performance
-- Reduced delays when opening Haldor's shop by caching item icons and avoiding unnecessary item reconfiguration.
-- Optimized Haldor's category tabs to avoid redundant UI layout recalculations.
-- Reduced redundant Blood Debt HUD updates.
-- Optimized shop item processing, list filtering, and refresh behavior.
-- Reduced unnecessary configuration file reads by checking file metadata before reloading.
-- Added configurable polling intervals for live configuration updates (2 seconds by default, minimum 0.5 seconds).
+- Significantly improved Haldor's shop responsiveness and category switching.
+- Optimized item loading, filtering, and UI updates.
+- Reduced unnecessary configuration file operations.
+- Improved overall efficiency of configuration monitoring and live reloading.
 
 ### Internal
-- Centralized Berserker item identifiers under a consistent naming scheme for improved registration and maintenance.
-- Improved configuration migration with automatic addition of new settings, backups, schema validation, and format-version tracking.
-- Improved item registration and hidden repair recipe handling.
-- Refined combat effect processing and Harmony patch ordering.
-- Removed temporary UI profiling and combat diagnostic code.
+- Improved configuration migration and compatibility with existing settings.
+- Improved item registration and equipment repair handling.
+- Refined combat effect processing and Harmony patch compatibility.
+- Removed temporary debugging and profiling code.

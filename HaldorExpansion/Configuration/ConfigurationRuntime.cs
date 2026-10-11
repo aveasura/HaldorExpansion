@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using BepInEx;
@@ -31,6 +32,15 @@ namespace HaldorExpansion.Configuration
         private readonly Dictionary<string, string> pending = new Dictionary<string, string>();
         private CustomRPC tradingRpc;
         private TradingDocument localTrading;
+        private TradingEditorSettings tradingEditor;
+
+        internal IEnumerable<ConfigEntryBase> TradingUiEntries => tradingEditor == null
+            ? Enumerable.Empty<ConfigEntryBase>()
+            : tradingEditor.Entries;
+
+        internal string TradingDisplayName(ConfigEntryBase entry, bool russian)
+            => tradingEditor?.GetDisplayName(entry, russian);
+
         private static bool IsClient => ZNet.instance != null && !ZNet.instance.IsServer();
 
         private float PollInterval => pollInterval != null && pollInterval.Value >= 0.5f &&
@@ -189,6 +199,7 @@ namespace HaldorExpansion.Configuration
             }
 
             TradingCatalog.Apply(localTrading);
+            tradingEditor = new TradingEditorSettings(this, TradeEntries, localTrading);
             General.SaveOnConfigSet = true;
             Balance.SaveOnConfigSet = false;
             foreach (string path in new[] { General.ConfigFilePath, Balance.ConfigFilePath, tradePath })
@@ -277,6 +288,7 @@ namespace HaldorExpansion.Configuration
             }
 
             wasClient = client;
+            tradingEditor?.Refresh(TradingCatalog.Current);
             if (Time.unscaledTime >= nextPoll)
             {
                 nextPoll = Time.unscaledTime + PollInterval;
@@ -413,6 +425,64 @@ namespace HaldorExpansion.Configuration
             {
                 HaldorExpansionPlugin.Log.LogWarning("[Config] " + path + ": " + e.Message +
                                                      " Last valid settings retained.");
+            }
+        }
+
+        // Only the server (or single-player host) may persist trading edits made in F1.
+        // Never overwrite pending changes from an external YAML editor.
+        internal bool TryEditTrading(string group, string id, string field, object rawValue)
+        {
+            if (!initialized || IsClient) return false;
+            try
+            {
+                string text = File.ReadAllText(tradePath);
+                if (text != accepted[tradePath])
+                    throw new InvalidOperationException(
+                        "trading.yml was edited externally; wait for its reload first.");
+
+                var oldDocument = TradingDocument.Parse(text, TradingCatalog.Defaults);
+                TradeSetting row = group == "shop" ? oldDocument.Shop[id] : oldDocument.Sell[id];
+                string serialized;
+                switch (field)
+                {
+                    case "price":
+                        row.Price = (int)rawValue;
+                        serialized = row.Price.ToString(CultureInfo.InvariantCulture);
+                        break;
+                    case "enabled":
+                        row.Enabled = (bool)rawValue;
+                        serialized = row.Enabled ? "true" : "false";
+                        break;
+                    case "stack":
+                        row.Stack = (int)rawValue;
+                        serialized = row.Stack.ToString(CultureInfo.InvariantCulture);
+                        break;
+                    case "requiredGlobalKey":
+                        row.RequiredKey = (string)rawValue ?? "";
+                        serialized = "\"" + row.RequiredKey.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
+                        break;
+                    default: throw new ArgumentException("Unknown trading field: " + field);
+                }
+
+                string updated = TradingYamlEditor.Replace(text, group, id, field, serialized);
+                // Verify the precise resulting YAML before writing or changing live settings.
+                TradingDocument verified = TradingDocument.Parse(updated, TradingCatalog.Defaults);
+                ConfigText.WriteAtomic(tradePath, updated);
+                accepted[tradePath] = updated;
+                FileStamp stamp;
+                if (TryGetStamp(tradePath, out stamp)) fileStamps[tradePath] = stamp;
+                pending.Remove(tradePath);
+                localTrading = verified;
+                TradingCatalog.Apply(verified);
+                tradingEditor?.Refresh(verified);
+                if (ZNet.instance != null && ZNet.instance.IsServer())
+                    tradingRpc.SendPackage(ZNet.instance.GetPeers(), MakePackage());
+                return true;
+            }
+            catch (Exception e)
+            {
+                HaldorExpansionPlugin.Log.LogWarning("[Config] Cannot edit trading.yml from F1: " + e.Message);
+                return false;
             }
         }
 
