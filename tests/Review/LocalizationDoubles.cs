@@ -11,12 +11,29 @@ public class Localization
     public string Language;
     public readonly Dictionary<string, string> Words = new Dictionary<string, string>();
     public string GetSelectedLanguage() => Language;
+    // Mirrors native Localize/AddWord: changing a word does not invalidate cached text.
+    private readonly TranslationCache m_cache = new TranslationCache();
     private void AddWord(string key, string value) => Words[key] = value;
+    public string Localize(string text)
+    {
+        if (m_cache.Text.TryGetValue(text, out string translated)) return translated;
+        translated = System.Text.RegularExpressions.Regex.Replace(text, @"\$[A-Za-z0-9_]+", match =>
+            Words.TryGetValue(match.Value.Substring(1), out string word) ? word : match.Value);
+        m_cache.Text[text] = translated;
+        return translated;
+    }
+    private class TranslationCache
+    {
+        public readonly Dictionary<string, string> Text = new Dictionary<string, string>();
+        public void EvictAll() => Text.Clear();
+    }
 }
 namespace HarmonyLib
 {
     public static class AccessTools
     {
+        public static FieldInfo Field(Type type, string name) =>
+            type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         public static MethodInfo Method(Type type, string name) =>
             type.GetMethod(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
     }

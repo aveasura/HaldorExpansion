@@ -72,14 +72,14 @@ namespace HaldorExpansion.Features.Berserker
         {
             int stage = WrathStage(player);
             return Mathf.Clamp(1f - BerserkerConfiguration.WrathProgressFraction(stage) *
-                MaxDamageReduction, 0f, 1f);
+                               MaxDamageReduction, 0f, 1f);
         }
 
         internal static float IncomingStaggerMultiplier(Player player)
         {
             int stage = WrathStage(player);
             return Mathf.Clamp(1f - BerserkerConfiguration.WrathProgressFraction(stage) *
-                MaxStaggerReduction, 0f, 1f);
+                               MaxStaggerReduction, 0f, 1f);
         }
     }
 }

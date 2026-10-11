@@ -21,7 +21,7 @@ namespace HaldorExpansion.Configuration
         internal const string BoneCrushersRu = "Костоломы";
         internal const string BoneCrushersEn = "Bone Crushers";
         internal const string PitKingRu = "Накидка хозяина ямы";
-        internal const string PitKingEn = "Pit King's Cuirass";
+        internal const string PitKingEn = "Pit King's Mantle";
         internal const string PeltOfHelheimRu = "Шкура Хельхейма";
         internal const string PeltOfHelheimEn = "Pelt of Helheim";
         internal const string WoundedBeastRu = "Плащ раненого зверя";
@@ -45,7 +45,7 @@ namespace HaldorExpansion.Configuration
                 case "Cuirass of Silent Reckoning": return SilentReckoningRu + " / " + SilentReckoningEn;
                 case "Crossbow of the Shadow Hunt": return ShadowHuntRu + " / " + ShadowHuntEn;
                 case "Grit Cestus": return BoneCrushersRu + " / " + BoneCrushersEn;
-                case "Pit King's Cuirass": return PitKingRu + " / " + PitKingEn;
+                case "Pit King's Mantle": return PitKingRu + " / " + PitKingEn;
                 case "Pelt of Helheim": return PeltOfHelheimRu + " / " + PeltOfHelheimEn;
                 case "Cloak of the Wounded Beast": return WoundedBeastRu + " / " + WoundedBeastEn;
                 case "Fractured Breath Cape": return BurnedResolveRu + " / " + BurnedResolveEn;

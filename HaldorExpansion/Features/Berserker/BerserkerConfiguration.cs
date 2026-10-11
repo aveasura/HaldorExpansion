@@ -60,7 +60,7 @@ namespace HaldorExpansion.Features.Berserker
 
             BloodDebtPerFullHealthBar = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
-                "Blood Debt per full Max HP lost", 411.765f,
+                "Blood Debt per full Max HP lost", 320f,
                 "Blood Debt granted for losing 100% of Max HP cumulatively to hostile creatures, measured from real post-defense HP loss. " +
                 "This Max-HP-normalized value keeps Debt generation consistent across progression.", synced: true,
                 acceptableValues: new AcceptableValueRange<float>(0f, 1000000f));
@@ -79,19 +79,19 @@ namespace HaldorExpansion.Features.Berserker
 
             BloodDebtPrimaryHitGain = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
-                "Blood Debt per primary axe hit", 7f,
+                "Blood Debt per primary axe hit", 6f,
                 "Blood Debt granted by each valid primary Berserker Greataxe hit. Reckoning never grants this Debt.",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 1000000f));
 
             BloodDebtSecondaryHitGain = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
-                "Blood Debt per secondary axe hit", 11f,
+                "Blood Debt per secondary axe hit", 15f,
                 "Blood Debt granted by each valid normal secondary Berserker Greataxe hit. Reckoning never grants this Debt.",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 1000000f));
 
             BloodDebtDecayPercentPerSecond = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
-                "Blood Debt decay percent per second", 2.4f,
+                "Blood Debt decay percent per second", 1.6f,
                 "Exponential percent-per-second decrease while out of combat. No maximum Blood Debt limit.",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 100f));
 
@@ -103,13 +103,13 @@ namespace HaldorExpansion.Features.Berserker
 
             ReckoningSpendPercent = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
-                "Reckoning Blood Debt spend percent", 50f,
+                "Reckoning Blood Debt spend percent", 35f,
                 "Percent of the current Blood Debt consumed on a successful Reckoning hit. Bonus damage is calculated from the amount actually spent.",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 100f));
 
             ReckoningLifeStealPercent = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
-                "Reckoning lifesteal percent", 30f,
+                "Reckoning lifesteal percent", 40f,
                 "Percent of the main target's final direct post-defense Reckoning damage restored as health. Overkill damage still counts.",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 100f));
 
@@ -152,7 +152,7 @@ namespace HaldorExpansion.Features.Berserker
 
             RagnarokMinimumDebt = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
-                "Ragnarok minimum Blood Debt", 500f,
+                "Ragnarok minimum Blood Debt", 600f,
                 "Minimum Blood Debt required to cast the Ragnarok ability at Wrath V.", synced: true,
                 acceptableValues: new AcceptableValueRange<float>(100f, 1000000f));
 
@@ -266,18 +266,18 @@ namespace HaldorExpansion.Features.Berserker
         internal static float DecayIntervalValue => FiniteClamp(WrathDecayInterval.Value, 0.5f, 300f, 10f);
 
         internal static float DebtPerFullHealthBarValue =>
-            FiniteClamp(BloodDebtPerFullHealthBar.Value, 0f, 1000000f, 411.765f);
+            FiniteClamp(BloodDebtPerFullHealthBar.Value, 0f, 1000000f, 320f);
 
         internal static float DebtIncomingGraceValue => FiniteClamp(BloodDebtIncomingGraceSeconds.Value, 0f, 600f, 10f);
         internal static float DebtOutgoingGraceValue => FiniteClamp(BloodDebtOutgoingGraceSeconds.Value, 0f, 600f, 5f);
-        internal static float PrimaryDebtGainValue => FiniteClamp(BloodDebtPrimaryHitGain.Value, 0f, 1000000f, 7f);
-        internal static float SecondaryDebtGainValue => FiniteClamp(BloodDebtSecondaryHitGain.Value, 0f, 1000000f, 11f);
-        internal static float DebtDecayRateValue => FiniteClamp(BloodDebtDecayPercentPerSecond.Value, 0f, 100f, 2.4f);
+        internal static float PrimaryDebtGainValue => FiniteClamp(BloodDebtPrimaryHitGain.Value, 0f, 1000000f, 6f);
+        internal static float SecondaryDebtGainValue => FiniteClamp(BloodDebtSecondaryHitGain.Value, 0f, 1000000f, 15f);
+        internal static float DebtDecayRateValue => FiniteClamp(BloodDebtDecayPercentPerSecond.Value, 0f, 100f, 1.6f);
         internal static float ReckoningMinimumDebtValue => FiniteClamp(ReckoningMinimumDebt.Value, 1f, 1000000f, 100f);
-        internal static float ReckoningSpendFraction => FiniteClamp(ReckoningSpendPercent.Value, 0f, 100f, 50f) * 0.01f;
+        internal static float ReckoningSpendFraction => FiniteClamp(ReckoningSpendPercent.Value, 0f, 100f, 35f) * 0.01f;
 
         internal static float ReckoningLifeStealFraction =>
-            FiniteClamp(ReckoningLifeStealPercent.Value, 0f, 100f, 30) * 0.01f;
+            FiniteClamp(ReckoningLifeStealPercent.Value, 0f, 100f, 40) * 0.01f;
 
         internal static float WrathAttackSpeedFractionPerStage =>
             FiniteClamp(WrathAttackSpeedPercentPerStage.Value, 0f, 100f, 10f) * 0.01f;
@@ -309,7 +309,7 @@ namespace HaldorExpansion.Features.Berserker
         internal static float CloakBloodDebtGainBonusFraction =>
             FiniteClamp(CloakBloodDebtGainBonusPercent.Value, 0f, 500f, 50f) * 0.01f;
 
-        internal static float RagnarokMinimumDebtValue => FiniteClamp(RagnarokMinimumDebt.Value, 100f, 1000000f, 500f);
+        internal static float RagnarokMinimumDebtValue => FiniteClamp(RagnarokMinimumDebt.Value, 100f, 1000000f, 600f);
         internal static float RagnarokCastDurationValue => FiniteClamp(RagnarokCastDuration.Value, 0.1f, 10f, 1.5f);
 
         internal static float RagnarokExhaustionDurationValue =>

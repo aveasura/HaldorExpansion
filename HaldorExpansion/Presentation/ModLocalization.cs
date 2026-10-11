@@ -289,10 +289,10 @@ namespace HaldorExpansion.Presentation
                 [DelayedDoomIds.ItemKey] = ItemNames.SilentReckoningRu,
                 [DelayedDoomIds.DescriptionKey] =
                     "<color=#C9A56B><b>Сила реликвии</b></color>\n" +
-                    "Кираса срабатывает, если удар после защиты превышает 50% максимального здоровья или может убить.\n" +
-                    "50% урона проходит сразу.\n" +
-                    "Ещё 70% исходного урона возвращается в течение 6 секунд.\n" +
-                    "Слишком сильный удар всё равно может убить.",
+                    "Срабатывает при получении урона свыше 50% максимального здоровья или смертельном ударе.\n" +
+                    "50% урона наносится мгновенно.\n" +
+                    "Ещё 70% исходного урона наносится в течение 6 секунд.\n" +
+                    "Но даже реликвия бессильна перед сокрушительным ударом.",
                 [DelayedDoomIds.DebtNameKey] = "Отложенная расплата",
                 [DelayedDoomIds.DebtDescriptionKey] =
                     "Кираса безмолвной расплаты откладывает часть полученного урона. Остаток долга постепенно отнимает здоровье.",
@@ -312,7 +312,7 @@ namespace HaldorExpansion.Presentation
                     "<color=#9EDFF2><b>Боевой запал</b></color>\n" +
                     "Полученные раны накапливают заряд.\n" +
                     "Без новых ран заряд постепенно угасает.\n\n" +
-                    "<color=#9EDFF2><b>Ответный удар (колёсико мыши)</b></color>\n" +
+                    "<color=#9EDFF2><b>Возмездие (колёсико мыши)</b></color>\n" +
                     "При полном заряде выпускает ударную волну и создаёт защитный покров.\n" +
                     "Пока покров активен, заряд не накапливается.",
                 [CestusItemRegistration.CestusEffectNameKey] = "Закон арены",
@@ -347,7 +347,7 @@ namespace HaldorExpansion.Presentation
 
                 [SteelHeartSet.SteelHeartSetNameKey] = "Стальное сердце",
                 [SteelHeartSet.SteelHeartSetDescKey] =
-                    "При экипированных Костоломах сила защитного покрова и урон ударной волны «Ответного удара» увеличиваются на 50%.",
+                    "Костоломы и Накидка хозяина ямы пробуждают истинную мощь реликвии, усиливая защитный покров и ударную волну <color=#9EDFF2><b>Возмездия</b></color> на 50%.",
 
                 // Шкура Хельхейма
                 [PeltOfHelheimItemRegistration.ItemKey] = ItemNames.PeltOfHelheimRu,
@@ -664,10 +664,10 @@ namespace HaldorExpansion.Presentation
                 [DelayedDoomIds.ItemKey] = ItemNames.SilentReckoningEn,
                 [DelayedDoomIds.DescriptionKey] =
                     "<color=#C9A56B><b>Power of the Relic</b></color>\n" +
-                    "The cuirass triggers if a hit after defenses exceeds 50% of maximum health or would be lethal.\n" +
+                    "Triggers on incoming damage exceeding 50% of max health or on a lethal hit.\n" +
                     "50% of the damage strikes immediately.\n" +
-                    "Another 70% of the original hit returns over 6 seconds.\n" +
-                    "An overwhelming blow can still kill you.",
+                    "An additional 70% of the original damage is dealt over 6 seconds.\n" +
+                    "Even the relic cannot withstand an overwhelming blow.",
                 [DelayedDoomIds.DebtNameKey] = "Delayed Reckoning",
                 [DelayedDoomIds.DebtDescriptionKey] =
                     "The Cuirass of Silent Reckoning has delayed part of the damage taken. The remaining debt gradually drains health.",
@@ -687,7 +687,7 @@ namespace HaldorExpansion.Presentation
                     "<color=#9EDFF2><b>Battle Fervor</b></color>\n" +
                     "Taking damage builds charge.\n" +
                     "Charge gradually fades without fresh wounds.\n\n" +
-                    "<color=#9EDFF2><b>Counterstrike (middle mouse)</b></color>\n" +
+                    "<color=#9EDFF2><b>Retribution (middle mouse)</b></color>\n" +
                     "At full charge, unleashes a shockwave and creates a protective barrier.\n" +
                     "Charge cannot build while the barrier is active.",
                 [CestusItemRegistration.CestusEffectNameKey] = "Law of the Arena",
@@ -696,7 +696,7 @@ namespace HaldorExpansion.Presentation
                     "+90% attack speed.\n" +
                     "-8 armor.",
 
-                // Pit King's Cuirass
+                // Pit King's Mantle
                 [PitKingItemRegistration.PitKingChestItemKey + "_lore"] =
                     "<color=#C9A56B><b>II. King Without a Crown</b></color>" +
                     "\n<color=#B1ABA5><i>“They threw him to the very bottom. That was where his rise began.”</i></color>" +
@@ -722,8 +722,7 @@ namespace HaldorExpansion.Presentation
 
                 [SteelHeartSet.SteelHeartSetNameKey] = "Steel Heart",
                 [SteelHeartSet.SteelHeartSetDescKey] =
-                    "With Bone Crushers equipped, Counterstrike's barrier strength " +
-                    "and shockwave damage are increased by 50%.",
+                    "Bone Crushers and the Pit King's Mantle awaken the relic's true power, enhancing the protective barrier and the shockwave of <color=#9EDFF2><b>Retribution</b></color> by 50%.",
 
                 // Pelt of Helheim
                 [PeltOfHelheimItemRegistration.ItemKey] = ItemNames.PeltOfHelheimEn,
@@ -862,6 +861,12 @@ namespace HaldorExpansion.Presentation
                 var addWord = AccessTools.Method(typeof(Localization), "AddWord");
                 foreach (var pair in text)
                     addWord.Invoke(Localization.instance, new object[] { pair.Key.TrimStart('$'), pair.Value });
+                // AddWord updates translations, but Localize caches entire input strings.
+                // Invalidate once after the batch so previously hovered effects/tooltips
+                // pick up live config values instead of their old rendered text.
+                var cache = AccessTools.Field(typeof(Localization), "m_cache")?.GetValue(Localization.instance);
+                if (cache != null)
+                    AccessTools.Method(cache.GetType(), "EvictAll")?.Invoke(cache, null);
             }
 
             return text;

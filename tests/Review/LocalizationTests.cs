@@ -104,6 +104,28 @@ internal static class LocalizationTests
                 Check(exhaustionDefault.Contains("40%") && exhaustionDefault.Contains("25%") &&
                       exhaustionDefault.Contains("7"), "Default Exhaustion contains all penalties and duration");
             }
+            foreach (string language in new[] { "Russian", "English" })
+            {
+                Localization.instance = new Localization { Language = language };
+                BerserkerConfiguration.CloakIncomingDamageBonusPercent.Value = 30f;
+                BerserkerConfiguration.CloakBloodDebtGainBonusPercent.Value = 50f;
+                BerserkerConfiguration.WrathCloakRunSpeedBonusAtMaxPercent.Value = 15f;
+                ModLocalization.AddLocalizations();
+                string key = BerserkerIds.CloakEffectDescriptionKey;
+                string fullTooltip = "Armor and effects\n" + key;
+                Check(Localization.instance.Localize(key).Contains("+30%"), "Prime cached cloak effect");
+                Check(Localization.instance.Localize(fullTooltip).Contains("6–15%"), "Prime cached full tooltip");
+                BerserkerConfiguration.CloakIncomingDamageBonusPercent.Value = 42f;
+                BerserkerConfiguration.CloakBloodDebtGainBonusPercent.Value = 63f;
+                BerserkerConfiguration.WrathCloakRunSpeedBonusAtMaxPercent.Value = 20f;
+                ModLocalization.AddLocalizations();
+                foreach (string cachedText in new[] { key, fullTooltip })
+                {
+                    string updated = Localization.instance.Localize(cachedText);
+                    Check(updated.Contains("+42%") && updated.Contains("+63%") && updated.Contains("8–20%"),
+                        language + " cached cloak tooltip refreshes after config change");
+                }
+            }
             BerserkerConfiguration.WrathAttackSpeedPercentPerStage.Value = 13f;
             BerserkerConfiguration.WrathStaminaCostReductionPercentPerStage.Value = 7f;
             BerserkerConfiguration.ReckoningLifeStealPercent.Value = 37f;

@@ -63,7 +63,7 @@ namespace HaldorExpansion.Configuration
                 DelayedDoomItemRegistration.DelayedDoomChestPrice);
 
             BindShopItemConfig("Shop Progression - Custom Items", PitKingItemRegistration.PitKingChestPrefabName,
-                "Pit King's Cuirass", PitKingItemRegistration.PitKingChestPrice);
+                "Pit King's Mantle", PitKingItemRegistration.PitKingChestPrice);
 
             BindShopItemConfig("Shop Progression - Custom Items", CestusItemRegistration.GritCestusPrefabName,
                 "Grit Cestus", CestusItemRegistration.GritCestusPrice);
