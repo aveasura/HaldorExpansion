@@ -186,8 +186,9 @@ namespace HaldorExpansion.Presentation
                     "<color=#C9A56B><b>Сила реликвии</b></color>\n" +
                     "<color=#9EDFF2><b>Кровавая жажда</b></color>: +0,2% урона секирой за каждый недостающий HP.\n\n" +
                     "<color=#9EDFF2><b>Ярость (I–V)</b></color>: попадания секирой накапливают Ярость.\n" +
-                    "Скорость атаки (I–V): +{wrath_speed_1}/{wrath_speed_2}/{wrath_speed_3}/{wrath_speed_4}/{wrath_speed_5}%.\n" +
-                    "Затраты выносливости (I–V): -{wrath_stamina_1}/{wrath_stamina_2}/{wrath_stamina_3}/{wrath_stamina_4}/{wrath_stamina_5}%.\n" +
+                    "Повышает скорость атаки на {wrath_speed_1}–{wrath_speed_5}%.\n" +
+                    "Снижает затраты выносливости на все действия на {wrath_stamina_1}–{wrath_stamina_5}%.\n" +
+                    "Бонусы усиливаются с Яростью и достигают максимума на V уровне.\n" +
                     "Без новых попаданий Ярость угасает.\n\n" +
                     "<color=#9EDFF2><b>Кровавый долг</b></color>: растёт от полученных ран и попаданий секирой.\n" +
                     "Усиливает Расплату и Рагнарёк. Вне боя угасает.\n\n" +
@@ -229,7 +230,8 @@ namespace HaldorExpansion.Presentation
                 [BerserkerIds.CloakEffectDescriptionKey] =
                     "+{cloak_incoming_damage}% получаемого урона.\n" +
                     "+{cloak_debt_bonus}% накопления Кровавого долга.\n" +
-                    "Бег (Ярость I–V): +{cloak_run_1}/{cloak_run_2}/{cloak_run_3}/{cloak_run_4}/{cloak_run_5}% (с секирой).\n\n" +
+                    "С секирой в руках Ярость повышает скорость спринта на {cloak_run_1}–{cloak_run_5}%.\n" +
+                    "Максимальный бонус — на Ярости V.\n\n" +
                     "Рагнарёк требует секиру берсерка, Ярость V и достаточный долг.\n" +
                     "Призыв расходует всю Ярость и долг, затем наступает Истощение.",
 
@@ -246,11 +248,12 @@ namespace HaldorExpansion.Presentation
                     "<color=#B1ABA5><i>«Тот, кто забыл о боли, ещё не победил смерть.»</i></color>",
                 [BerserkerIds.HelmetEffectKey] = "Несокрушимая ярость",
                 [BerserkerIds.HelmetEffectDescriptionKey] =
-                    "Броня: +5 за каждый стак Ярости (до +25).\n" +
-                    "Остальные бонусы растут нелинейно с Яростью (максимум на V):\n" +
-                    "-75% накопления ошеломления.\n" +
-                    "-5% получаемого урона.\n" +
-                    "+5% лечения от фактически отнятого HP прямыми ударами секиры по врагам.",
+                    "Ярость усиливает защиту и вампиризм.\n" +
+                    "Даёт до 25 ед. дополнительной брони.\n" +
+                    "Снижает накопление ошеломления — максимум на 75%.\n" +
+                    "Снижает получаемый урон — максимум на 5%.\n" +
+                    "Удары секирой по врагам восстанавливают здоровье — до 5% от нанесённого урона.\n" +
+                    "Бонусы растут с Яростью и достигают максимума на V уровне.",
 
                 // Осквернённый Бризингамен
                 [BrisingamenIds.ItemKey] = ItemNames.BrisingamenRu,
@@ -557,8 +560,9 @@ namespace HaldorExpansion.Presentation
                     "<color=#C9A56B><b>Power of the Relic</b></color>\n" +
                     "<color=#9EDFF2><b>Bloodthirst</b></color>: +0.2% axe damage per missing HP.\n\n" +
                     "<color=#9EDFF2><b>Wrath (I–V)</b></color>: axe hits build Wrath.\n" +
-                    "Attack speed (I–V): +{wrath_speed_1}/{wrath_speed_2}/{wrath_speed_3}/{wrath_speed_4}/{wrath_speed_5}%.\n" +
-                    "Stamina cost (I–V): -{wrath_stamina_1}/{wrath_stamina_2}/{wrath_stamina_3}/{wrath_stamina_4}/{wrath_stamina_5}%.\n" +
+                    "Increases attack speed by {wrath_speed_1}–{wrath_speed_5}%.\n" +
+                    "Reduces stamina costs for all actions by {wrath_stamina_1}–{wrath_stamina_5}%.\n" +
+                    "Bonuses grow with Wrath, reaching their maximum at stage V.\n" +
                     "Wrath fades without new hits.\n\n" +
                     "<color=#9EDFF2><b>Blood Debt</b></color>: builds from damage taken and axe hits.\n" +
                     "Empowers Reckoning and Ragnarök. Fades outside combat.\n\n" +
@@ -600,7 +604,8 @@ namespace HaldorExpansion.Presentation
                 [BerserkerIds.CloakEffectDescriptionKey] =
                     "+{cloak_incoming_damage}% incoming damage.\n" +
                     "+{cloak_debt_bonus}% Blood Debt generation.\n" +
-                    "Sprint speed (Wrath I–V): +{cloak_run_1}/{cloak_run_2}/{cloak_run_3}/{cloak_run_4}/{cloak_run_5}% (with greataxe).\n\n" +
+                    "While wielding the greataxe, Wrath increases sprint speed by {cloak_run_1}–{cloak_run_5}%.\n" +
+                    "The maximum bonus is reached at Wrath V.\n\n" +
                     "Ragnarök requires the Berserker Greataxe, Wrath V, and enough Blood Debt.\n" +
                     "The cast consumes all Wrath and Debt, then inflicts Exhaustion.",
 
@@ -618,11 +623,12 @@ namespace HaldorExpansion.Presentation
                     "<color=#B1ABA5><i>“He who has forgotten pain has not yet conquered death.”</i></color>",
                 [BerserkerIds.HelmetEffectKey] = "Unbroken Wrath",
                 [BerserkerIds.HelmetEffectDescriptionKey] =
-                    "Armor: +5 per Wrath stack (up to +25).\n" +
-                    "Other bonuses scale non-linearly with Wrath (maximum at V):\n" +
-                    "-75% incoming stagger buildup.\n" +
-                    "-5% incoming damage.\n" +
-                    "+5% healing from actual HP lost by enemies to direct axe hits.",
+                    "Wrath strengthens your defenses and lifesteal.\n" +
+                    "Grants up to 25 additional armor.\n" +
+                    "Reduces stagger buildup by up to 75%.\n" +
+                    "Reduces incoming damage by up to 5%.\n" +
+                    "Axe hits against enemies restore health equal to up to 5% of damage dealt.\n" +
+                    "Bonuses grow with Wrath, reaching their maximum at stage V.",
 
                 // Corrupted Brisingamen
                 [BrisingamenIds.ItemKey] = ItemNames.BrisingamenEn,

@@ -37,6 +37,22 @@ internal static class LocalizationTests
                 Check(!string.IsNullOrWhiteSpace(pair.Value), language + " empty translation " + pair.Key);
                 Check(!Regex.IsMatch(pair.Value, @"\{[^{}]+\}"), language + " unresolved placeholder " + pair.Key);
             }
+            foreach (var lore in Words(language).Where(pair => pair.Key.EndsWith("_lore")))
+            {
+                var descriptions = Words(language).Where(pair => pair.Key != lore.Key &&
+                    pair.Value.StartsWith(lore.Value, StringComparison.Ordinal)).ToArray();
+                Check(descriptions.Length > 0, language + " lore has an inventory description " + lore.Key);
+                foreach (var description in descriptions)
+                {
+                    string nativeStats = "$item_armor: <color=orange>25</color>\nPassive effect";
+                    string full = ItemLoreTooltip.MoveToEnd(description.Key + "\n\n" + nativeStats,
+                        description.Key, description.Value, lore.Value);
+                    Check(full.StartsWith(nativeStats, StringComparison.Ordinal) && full.EndsWith(lore.Value, StringComparison.Ordinal),
+                        language + " real item lore follows stats and effects " + description.Key);
+                    Check(full.IndexOf(lore.Value, StringComparison.Ordinal) == full.LastIndexOf(lore.Value, StringComparison.Ordinal),
+                        language + " real item lore appears only once " + description.Key);
+                }
+            }
             for (int stage = 1; stage <= HelOathState.MaxTouchStacks; stage++)
             {
                 Check(Words(language).ContainsKey(HelOathIds.TouchNameKey(stage)), "Touch stage name exists");
@@ -62,12 +78,22 @@ internal static class LocalizationTests
             BerserkerConfiguration.Register(balance, input);
             ModLocalization.AddLocalizations();
             CheckCatalogs();
+            EquipmentTooltipTests.Run(Check);
+            float[] stamina = { 14f, 21f, 26.6f, 31.5f, 35f };
+            float[] sprint = { 6f, 9f, 11.4f, 13.5f, 15f };
+            for (int stage = 1; stage <= 5; stage++)
+            {
+                Check(Math.Abs(BerserkerConfiguration.WrathStaminaReductionFraction(stage) * 100f - stamina[stage - 1]) < 0.001f,
+                    "Front-loaded stamina bonus at stage " + stage);
+                Check(Math.Abs(BerserkerConfiguration.WrathCloakRunSpeedBonusFraction(stage) * 100f - sprint[stage - 1]) < 0.001f,
+                    "Front-loaded sprint bonus at stage " + stage);
+            }
             Check(Words("English")[BerserkerIds.AxeDescriptionKey].Contains("Ragnarök (E)"), "Default bound Ragnarok key");
             float[] defaultSpeeds = { 20f, 30f, 38f, 45f, 50f };
             foreach (string language in new[] { "Russian", "English" })
             {
                 string axeDescription = Words(language)[BerserkerIds.AxeDescriptionKey];
-                foreach (float speed in defaultSpeeds)
+                foreach (float speed in new[] { 20f, 50f })
                     Check(axeDescription.Contains(Number(speed)), "Default curve appears in axe description");
                 for (int stage = 1; stage <= 5; stage++)
                     Check(Words(language)[BerserkerIds.WrathKeyPrefix + stage + "_desc"]
@@ -98,7 +124,7 @@ internal static class LocalizationTests
             {
                 var words = Words(language);
                 string axe = words[BerserkerIds.AxeDescriptionKey];
-                foreach (string fragment in new[] { "-7%", "37%", "63%", "x2.5+", "x7.5+", "(F)" })
+                foreach (string fragment in new[] { "19.6–49%", "37%", "63%", "x2.5+", "x7.5+", "(F)" })
                     Check(axe.Contains(fragment), language + " configured axe fragment " + fragment);
                 float[] expectedSpeeds = { 26f, 39f, 49.4f, 58.5f, 65f };
                 for (int stage = 1; stage <= 5; stage++)
@@ -106,8 +132,10 @@ internal static class LocalizationTests
                     string speed = Number(expectedSpeeds[stage - 1]);
                     string wrath = words[BerserkerIds.WrathKeyPrefix + stage + "_desc"];
                     Check(wrath.Contains("+" + speed + "%"), "Configured stage attack speed");
-                    Check(axe.Contains(speed), "Configured attack speed appears in axe description");
-                    Check(wrath.Contains("-" + stage * 7 + "%"), "Configured stage stamina");
+                    if (stage == 1 || stage == 5)
+                        Check(axe.Contains(speed), "Configured speed range appears in axe description");
+                    float[] expectedStamina = { 19.6f, 29.4f, 37.24f, 44.1f, 49f };
+                    Check(wrath.Contains("-" + Number(expectedStamina[stage - 1]) + "%"), "Configured stage stamina");
                 }
                 string exhaustion = words[BerserkerIds.ExhaustionDescriptionKey];
                 Check(exhaustion.Contains("42%") && exhaustion.Contains("23%") &&

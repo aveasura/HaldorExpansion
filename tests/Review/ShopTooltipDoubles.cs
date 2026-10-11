@@ -35,3 +35,13 @@ public class UITooltip {
 namespace HaldorExpansion.Trading { public static class HaldorShopUpdater {public static bool IsHaldor(Trader t)=>t!=null&&t.Haldor; public static bool IsOwned(Trader.TradeItem t)=>t.Owned;} }
 namespace HaldorExpansion.Presentation { public static class HaldorTabsController { public static List<Trader.TradeItem> Visible=new List<Trader.TradeItem>(); public static int Reads; public static List<Trader.TradeItem> GetVisibleItems(Trader t){Reads++;return Visible;} } }
 namespace HaldorExpansion {public static class HaldorExpansionPlugin {public static Logger Log=new Logger();public class Logger {public int Warnings;public void LogWarning(string text){Warnings++;}}} }
+// Catalog/localization boundaries for the dedicated lore-only shop branch.
+public class Localization {
+ public static Localization instance=new Localization();
+ public string Localize(string key)=>key=="$test_lore"?"A legend without stats.":key;
+}
+namespace HaldorExpansion.Trading {
+ internal static class ShopLoreCatalog {
+  internal static string ForItem(string name)=>name=="lore-item"?"$test_lore":null;
+ }
+}

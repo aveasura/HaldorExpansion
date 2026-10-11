@@ -35,6 +35,10 @@ class ShopTooltipTests {
   // Native UITooltip.Set may synchronously reenter the hover prefix.
   t2.PointerOver=true;t2.Current=false;t2.HoverPrefix=()=>ShopItemTooltip.Prepare(t2);data.Config="new-hover";
   int initial=data.Calls;ShopItemTooltip.Prepare(t2);Check(data.Calls==initial+1&&t2.m_text=="new-hover:13","reentrant native Set recalculated tooltip");
+  data.m_shared.m_name="lore-item";int callsBeforeLore=data.Calls;
+  ShopItemTooltip.Prepare(t2);
+  Check(t2.m_text=="A legend without stats."&&data.Calls==callsBeforeLore,"shop must use lore without full tooltip");
+  Check(t2.m_topic=="lore-item","lore preview must preserve item name");
   Console.WriteLine("PASS "+assertions+" assertions; native Set hover callback tooltip calculations="+(data.Calls-initial));
  }
 }

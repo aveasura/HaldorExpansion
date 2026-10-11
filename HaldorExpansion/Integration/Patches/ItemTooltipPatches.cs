@@ -1,4 +1,5 @@
 using HaldorExpansion.Presentation;
+using HaldorExpansion.Trading;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -6,6 +7,24 @@ using UnityEngine.UI;
 
 namespace HaldorExpansion.Patches
 {
+    [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip),
+        new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(bool), typeof(float), typeof(int), typeof(bool) })]
+    internal static class ItemTooltipLorePatch
+    {
+        private static void Postfix(ItemDrop.ItemData __0, bool __5, ref string __result)
+        {
+            // Appended item tooltips have no leading description of their own.
+            // Haldor's lore-only preview uses ShopItemTooltip independently.
+            if (__5 || __0?.m_shared == null || Localization.instance == null) return;
+            string loreKey = ShopLoreCatalog.ForItem(__0.m_shared.m_name);
+            if (loreKey == null) return;
+            string descriptionKey = __0.m_shared.m_description;
+            if (string.IsNullOrEmpty(descriptionKey)) return;
+            __result = ItemLoreTooltip.MoveToEnd(__result, descriptionKey,
+                Localization.instance.Localize(descriptionKey), Localization.instance.Localize(loreKey));
+        }
+    }
+
     [HarmonyPatch(typeof(UITooltip), nameof(UITooltip.OnHoverStart))]
     internal static class ItemTooltipHoverPatch
     {

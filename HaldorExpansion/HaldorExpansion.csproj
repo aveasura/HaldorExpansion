@@ -201,6 +201,7 @@
         <Compile Include="Presentation\TooltipLayoutMath.cs"/>
         <Compile Include="Presentation\LongItemTooltipView.cs"/>
         <Compile Include="Presentation\ItemTooltipController.cs"/>
+        <Compile Include="Presentation\ItemLoreTooltip.cs"/>
         <Compile Include="Integration\Patches\ItemTooltipPatches.cs"/>
         <Compile Include="Presentation\EmbeddedIconLoader.cs"/>
         <Compile Include="Presentation\ModLocalization.cs"/>

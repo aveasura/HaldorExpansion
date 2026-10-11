@@ -5,10 +5,10 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerHelmetRuntime
     {
-        internal const float ArmorPerWrathStage = 5f;
-        internal const float StaggerReductionPerWrathStage = 0.15f;
-        internal const float DamageReductionPerWrathStage = 0.01f;
-        internal const float LifeStealFractionPerWrathStage = 0.01f;
+        internal const float MaxStaggerReduction = 0.75f;
+        internal const float MaxDamageReduction = 0.05f;
+        internal const float MaxLifeStealFraction = 0.05f;
+        private static readonly int[] ArmorByWrathStage = { 0, 10, 15, 19, 22, 25 };
 
         internal static bool IsHelmet(ItemDrop.ItemData item)
         {
@@ -58,7 +58,7 @@ namespace HaldorExpansion.Features.Berserker
             float maxHealth = Mathf.Max(0f, player.GetMaxHealth());
             float missing = Mathf.Max(0f, maxHealth - Mathf.Max(0f, player.GetHealth()));
             float heal = Mathf.Min(actualEnemyHealthLost * BerserkerConfiguration.WrathProgressFraction(stage) *
-                                   LifeStealFractionPerWrathStage * BerserkerState.MaxWrathStage, missing);
+                                   MaxLifeStealFraction, missing);
             if (heal <= 0f) return 0f;
 
             player.Heal(heal, true);
@@ -66,20 +66,20 @@ namespace HaldorExpansion.Features.Berserker
         }
 
         internal static float ArmorBonus(Player player)
-            => WrathStage(player) * ArmorPerWrathStage;
+            => ArmorByWrathStage[WrathStage(player)];
 
         internal static float IncomingDamageMultiplier(Player player)
         {
             int stage = WrathStage(player);
             return Mathf.Clamp(1f - BerserkerConfiguration.WrathProgressFraction(stage) *
-                               BerserkerState.MaxWrathStage * DamageReductionPerWrathStage, 0f, 1f);
+                MaxDamageReduction, 0f, 1f);
         }
 
         internal static float IncomingStaggerMultiplier(Player player)
         {
             int stage = WrathStage(player);
             return Mathf.Clamp(1f - BerserkerConfiguration.WrathProgressFraction(stage) *
-                               BerserkerState.MaxWrathStage * StaggerReductionPerWrathStage, 0f, 1f);
+                MaxStaggerReduction, 0f, 1f);
         }
     }
 }

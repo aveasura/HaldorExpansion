@@ -125,7 +125,7 @@ namespace HaldorExpansion.Features.Berserker
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
                 "Wrath stamina cost reduction percent per stage", 5f,
                 "Base of the non-linear stamina-cost reduction curve while wielding the Berserker Greataxe. " +
-                "Default 5 gives Wrath I-V: -5/-11/-18/-26/-35%. " +
+                "Default 5 gives Wrath I-V: -14/-21/-26.6/-31.5/-35%. " +
                 "Changing this value scales all stages proportionally (max 90%).",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 19f));
 
@@ -290,15 +290,13 @@ namespace HaldorExpansion.Features.Berserker
             Mathf.Clamp(WrathSpeedStageFactors[Mathf.Clamp(stage, 0, BerserkerState.MaxWrathStage)] *
                         WrathAttackSpeedFractionPerStage, 0f, 2f);
 
-        // Each new stack saves more stamina than the previous one: 5/11/18/26/35%
-        // with the default 5% base. The same 0..1 curve is shared by cloak and helmet.
-        private static readonly float[] WrathScalingFactors = { 0f, 1f, 2.2f, 3.6f, 5.2f, 7f };
-
+        // Equipment shares the attack-speed curve: 40/60/76/90/100% of its maximum.
+        // The first stage is immediately useful; later stages give smaller gains.
         internal static float WrathProgressFraction(int stage) =>
-            WrathScalingFactors[Mathf.Clamp(stage, 0, BerserkerState.MaxWrathStage)] / 7f;
+            WrathSpeedStageFactors[Mathf.Clamp(stage, 0, BerserkerState.MaxWrathStage)] / 5f;
 
         internal static float WrathStaminaReductionFraction(int stage) =>
-            Mathf.Clamp(WrathScalingFactors[Mathf.Clamp(stage, 0, BerserkerState.MaxWrathStage)] *
+            Mathf.Clamp(WrathProgressFraction(stage) * 7f *
                         FiniteClamp(WrathStaminaCostReductionPercentPerStage.Value, 0f, 19f, 5f) * 0.01f, 0f, 0.9f);
 
         internal static float WrathCloakRunSpeedBonusFraction(int stage) =>
