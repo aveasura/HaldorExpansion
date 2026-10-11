@@ -4,8 +4,8 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerCloakRuntime
     {
-        internal const float IncomingDamageMultiplier = 1.30f;
-        internal const float DebtGenerationMultiplier = 1.50f;
+        internal static float IncomingDamageMultiplier => 1f + BerserkerConfiguration.CloakIncomingDamageBonusFraction;
+        internal static float DebtGenerationMultiplier => 1f + BerserkerConfiguration.CloakBloodDebtGainBonusFraction;
 
         internal static bool HasEquipped(Player player)
         {
@@ -28,6 +28,13 @@ namespace HaldorExpansion.Features.Berserker
             }
 
             return false;
+        }
+
+        internal static float RunSpeedBonusFraction(Player player)
+        {
+            int stage = BerserkerRuntime.EffectiveWrathStage(player);
+            if (stage <= 0 || !HasEquipped(player)) return 0f;
+            return BerserkerConfiguration.WrathCloakRunSpeedBonusFraction(stage);
         }
 
         internal static float DebtMultiplier(Player player)

@@ -91,7 +91,8 @@ namespace HaldorExpansion.Features.Berserker
                 CastRoutine(player, castSeconds, debtAtActivation, auraStrength));
         }
 
-        private static IEnumerator CastRoutine(Player player, float castSeconds, double debtAtActivation, float auraStrength)
+        private static IEnumerator CastRoutine(Player player, float castSeconds, double debtAtActivation,
+            float auraStrength)
         {
             try
             {
@@ -233,7 +234,7 @@ namespace HaldorExpansion.Features.Berserker
             }
 
             HitData hit = new HitData();
-            hit.m_damage.m_slash = damage * 0.45f;
+            hit.m_damage.m_lightning = damage * 0.45f;
             hit.m_damage.m_blunt = damage * 0.45f;
             hit.m_damage.m_fire = damage * 0.10f;
             hit.m_damage.m_chop = damage;

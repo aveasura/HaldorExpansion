@@ -22,6 +22,9 @@ namespace HaldorExpansion.Features.Berserker
         internal static ConfigEntry<float> ReckoningLifeStealPercent;
         internal static ConfigEntry<float> WrathAttackSpeedPercentPerStage;
         internal static ConfigEntry<float> WrathStaminaCostReductionPercentPerStage;
+        internal static ConfigEntry<float> WrathCloakRunSpeedBonusAtMaxPercent;
+        internal static ConfigEntry<float> CloakIncomingDamageBonusPercent;
+        internal static ConfigEntry<float> CloakBloodDebtGainBonusPercent;
         internal static ConfigEntry<float> RagnarokMinimumDebt;
         internal static ConfigEntry<float> RagnarokCastDuration;
         internal static ConfigEntry<float> RagnarokExhaustionDuration;
@@ -114,8 +117,31 @@ namespace HaldorExpansion.Features.Berserker
             WrathStaminaCostReductionPercentPerStage = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
                 "Wrath stamina cost reduction percent per stage", 5f,
-                "Stamina cost reduction for all normal actions per active Wrath stage while wielding the Berserker Greataxe.",
+                "Base of the non-linear stamina-cost reduction curve while wielding the Berserker Greataxe. " +
+                "Default 5 gives Wrath I-V: -5/-11/-18/-26/-35%. " +
+                "Changing this value scales all stages proportionally (max 90%).",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 19f));
+
+            WrathCloakRunSpeedBonusAtMaxPercent = config.BindConfig(
+                ItemNames.ConfigSection(ItemNames.BerserkerCloakEn, ItemNames.BerserkerCloakRu),
+                "Wrath V running speed bonus percent", 15f,
+                "Non-linear running (sprint) speed bonus with the Berserker Cloak and Greataxe equipped. " +
+                "The configured bonus is reached at Wrath V; does not modify walking or jogging speed.",
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 100f));
+
+            CloakIncomingDamageBonusPercent = config.BindConfig(
+                ItemNames.ConfigSection(ItemNames.BerserkerCloakEn, ItemNames.BerserkerCloakRu),
+                "Incoming damage increase percent", 30f,
+                "Extra incoming damage taken while wearing the Berserker Cloak. " +
+                "Default 30 means 130% of incoming damage, before armor and resistances.",
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 500f));
+
+            CloakBloodDebtGainBonusPercent = config.BindConfig(
+                ItemNames.ConfigSection(ItemNames.BerserkerCloakEn, ItemNames.BerserkerCloakRu),
+                "Blood Debt generation bonus percent", 50f,
+                "Extra Blood Debt generation while wearing the Berserker Cloak. " +
+                "Default 50 means 150% Blood Debt gain.",
+                synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 500f));
 
             RagnarokMinimumDebt = config.BindConfig(
                 ItemNames.ConfigSection(ItemNames.BerserkerGreataxeEn, ItemNames.BerserkerGreataxeRu),
@@ -195,8 +221,26 @@ namespace HaldorExpansion.Features.Berserker
             Mathf.Clamp(WrathSpeedStageFactors[Mathf.Clamp(stage, 0, BerserkerState.MaxWrathStage)] *
                         WrathAttackSpeedFractionPerStage, 0f, 2f);
 
-        internal static float WrathStaminaReductionFractionPerStage =>
-            FiniteClamp(WrathStaminaCostReductionPercentPerStage.Value, 0f, 19f, 5f) * 0.01f;
+        // Each new stack saves more stamina than the previous one: 5/11/18/26/35%
+        // with the default 5% base. The same 0..1 curve is shared by cloak and helmet.
+        private static readonly float[] WrathScalingFactors = { 0f, 1f, 2.2f, 3.6f, 5.2f, 7f };
+
+        internal static float WrathProgressFraction(int stage) =>
+            WrathScalingFactors[Mathf.Clamp(stage, 0, BerserkerState.MaxWrathStage)] / 7f;
+
+        internal static float WrathStaminaReductionFraction(int stage) =>
+            Mathf.Clamp(WrathScalingFactors[Mathf.Clamp(stage, 0, BerserkerState.MaxWrathStage)] *
+                        FiniteClamp(WrathStaminaCostReductionPercentPerStage.Value, 0f, 19f, 5f) * 0.01f, 0f, 0.9f);
+
+        internal static float WrathCloakRunSpeedBonusFraction(int stage) =>
+            WrathProgressFraction(stage) *
+            FiniteClamp(WrathCloakRunSpeedBonusAtMaxPercent.Value, 0f, 100f, 15f) * 0.01f;
+
+        internal static float CloakIncomingDamageBonusFraction =>
+            FiniteClamp(CloakIncomingDamageBonusPercent.Value, 0f, 500f, 30f) * 0.01f;
+
+        internal static float CloakBloodDebtGainBonusFraction =>
+            FiniteClamp(CloakBloodDebtGainBonusPercent.Value, 0f, 500f, 50f) * 0.01f;
 
         internal static float RagnarokMinimumDebtValue => FiniteClamp(RagnarokMinimumDebt.Value, 100f, 1000000f, 500f);
         internal static float RagnarokCastDurationValue => FiniteClamp(RagnarokCastDuration.Value, 0.1f, 10f, 1.5f);

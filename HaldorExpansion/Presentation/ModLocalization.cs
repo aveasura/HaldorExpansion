@@ -188,7 +188,7 @@ namespace HaldorExpansion.Presentation
                     "<color=#9EDFF2><b>Кровавая жажда</b></color>: +0,2% урона секирой за каждый недостающий HP.\n\n" +
                     "<color=#9EDFF2><b>Ярость (I–V)</b></color>: попадания секирой накапливают Ярость.\n" +
                     "Скорость атаки (I–V): +{wrath_speed_1}/{wrath_speed_2}/{wrath_speed_3}/{wrath_speed_4}/{wrath_speed_5}%.\n" +
-                    "Каждая стадия: -{wrath_stamina}% затрат выносливости.\n" +
+                    "Затраты выносливости (I–V): -{wrath_stamina_1}/{wrath_stamina_2}/{wrath_stamina_3}/{wrath_stamina_4}/{wrath_stamina_5}%.\n" +
                     "Без новых попаданий Ярость угасает.\n\n" +
                     "<color=#9EDFF2><b>Кровавый долг</b></color>: растёт от полученных ран и попаданий секирой.\n" +
                     "Усиливает Расплату и Рагнарёк. Вне боя угасает.\n\n" +
@@ -228,8 +228,9 @@ namespace HaldorExpansion.Presentation
                     "<color=#B1ABA5><i>«Рагнарёк не различает победителей и павших.»</i></color>",
                 [BerserkerIds.CloakEffectKey] = "Предвестник Рагнарёка",
                 [BerserkerIds.CloakEffectDescriptionKey] =
-                    "+30% получаемого урона.\n" +
-                    "+50% накопления Кровавого долга.\n\n" +
+                    "+{cloak_incoming_damage}% получаемого урона.\n" +
+                    "+{cloak_debt_bonus}% накопления Кровавого долга.\n" +
+                    "Бег (Ярость I–V): +{cloak_run_1}/{cloak_run_2}/{cloak_run_3}/{cloak_run_4}/{cloak_run_5}% (с секирой).\n\n" +
                     "Рагнарёк требует секиру берсерка, Ярость V и достаточный долг.\n" +
                     "Призыв расходует всю Ярость и долг, затем наступает Истощение.",
 
@@ -246,12 +247,11 @@ namespace HaldorExpansion.Presentation
                     "<color=#B1ABA5><i>«Тот, кто забыл о боли, ещё не победил смерть.»</i></color>",
                 [BerserkerIds.HelmetEffectKey] = "Несокрушимая ярость",
                 [BerserkerIds.HelmetEffectDescriptionKey] =
-                    "Каждая стадия Ярости:\n" +
-                    "+4 брони.\n" +
-                    "-15% накопления ошеломления.\n" +
-                    "-1% получаемого урона.\n" +
-                    "+1% лечения от фактически отнятого HP прямыми ударами секиры по врагам " +
-                    "(до 5% на Ярости V).",
+                    "Броня: +5 за каждый стак Ярости (до +25).\n" +
+                    "Остальные бонусы растут нелинейно с Яростью (максимум на V):\n" +
+                    "-75% накопления ошеломления.\n" +
+                    "-5% получаемого урона.\n" +
+                    "+5% лечения от фактически отнятого HP прямыми ударами секиры по врагам.",
 
                 // Осквернённый Бризингамен
                 [BrisingamenIds.ItemKey] = ItemNames.BrisingamenRu,
@@ -559,7 +559,7 @@ namespace HaldorExpansion.Presentation
                     "<color=#9EDFF2><b>Bloodthirst</b></color>: +0.2% axe damage per missing HP.\n\n" +
                     "<color=#9EDFF2><b>Wrath (I–V)</b></color>: axe hits build Wrath.\n" +
                     "Attack speed (I–V): +{wrath_speed_1}/{wrath_speed_2}/{wrath_speed_3}/{wrath_speed_4}/{wrath_speed_5}%.\n" +
-                    "Each stage: -{wrath_stamina}% stamina cost.\n" +
+                    "Stamina cost (I–V): -{wrath_stamina_1}/{wrath_stamina_2}/{wrath_stamina_3}/{wrath_stamina_4}/{wrath_stamina_5}%.\n" +
                     "Wrath fades without new hits.\n\n" +
                     "<color=#9EDFF2><b>Blood Debt</b></color>: builds from damage taken and axe hits.\n" +
                     "Empowers Reckoning and Ragnarök. Fades outside combat.\n\n" +
@@ -599,8 +599,9 @@ namespace HaldorExpansion.Presentation
                     "<color=#B1ABA5><i>“Ragnarök makes no distinction between victors and the fallen.”</i></color>",
                 [BerserkerIds.CloakEffectKey] = "Harbinger of Ragnarok",
                 [BerserkerIds.CloakEffectDescriptionKey] =
-                    "+30% incoming damage.\n" +
-                    "+50% Blood Debt generation.\n\n" +
+                    "+{cloak_incoming_damage}% incoming damage.\n" +
+                    "+{cloak_debt_bonus}% Blood Debt generation.\n" +
+                    "Sprint speed (Wrath I–V): +{cloak_run_1}/{cloak_run_2}/{cloak_run_3}/{cloak_run_4}/{cloak_run_5}% (with greataxe).\n\n" +
                     "Ragnarök requires the Berserker Greataxe, Wrath V, and enough Blood Debt.\n" +
                     "The cast consumes all Wrath and Debt, then inflicts Exhaustion.",
 
@@ -618,12 +619,11 @@ namespace HaldorExpansion.Presentation
                     "<color=#B1ABA5><i>“He who has forgotten pain has not yet conquered death.”</i></color>",
                 [BerserkerIds.HelmetEffectKey] = "Unbroken Wrath",
                 [BerserkerIds.HelmetEffectDescriptionKey] =
-                    "Each Wrath stage:\n" +
-                    "+4 armor.\n" +
-                    "-15% incoming stagger buildup.\n" +
-                    "-1% incoming damage.\n" +
-                    "+1% healing from actual HP lost by enemies to direct axe hits " +
-                    "(up to 5% at Wrath V).",
+                    "Armor: +5 per Wrath stack (up to +25).\n" +
+                    "Other bonuses scale non-linearly with Wrath (maximum at V):\n" +
+                    "-75% incoming stagger buildup.\n" +
+                    "-5% incoming damage.\n" +
+                    "+5% healing from actual HP lost by enemies to direct axe hits.",
 
                 // Corrupted Brisingamen
                 [BrisingamenIds.ItemKey] = ItemNames.BrisingamenEn,
@@ -796,23 +796,31 @@ namespace HaldorExpansion.Presentation
             text[BerserkerIds.CloakDescriptionKey] = text[BerserkerIds.CloakItemKey + "_lore"];
             text[BerserkerIds.HelmetDescriptionKey] = text[BerserkerIds.HelmetItemKey + "_lore"];
             if (BerserkerConfiguration.HitsPerWrathStage == null) return text;
-            float stamina = BerserkerConfiguration.WrathStaminaReductionFractionPerStage * 100f;
             string axe = text[BerserkerIds.AxeDescriptionKey];
-            axe = axe.Replace("{wrath_stamina}", Number(stamina))
-                .Replace("{reckoning_heal}", Number(BerserkerConfiguration.ReckoningLifeStealFraction * 100f))
+            axe = axe.Replace("{reckoning_heal}", Number(BerserkerConfiguration.ReckoningLifeStealFraction * 100f))
                 .Replace("{reckoning_debt}", Number(BerserkerConfiguration.ReckoningMinimumDebtValue / 100f))
                 .Replace("{ragnarok_debt}", Number(BerserkerConfiguration.RagnarokMinimumDebtValue / 100f))
                 .Replace("{reckoning_spend}", Number(BerserkerConfiguration.ReckoningSpendFraction * 100f))
                 .Replace("{ragnarok_key}", BerserkerConfiguration.RagnarokButton != null
                     ? BerserkerConfiguration.RagnarokButton.Config.BoxedValue.ToString()
                     : "E");
+            text[BerserkerIds.CloakEffectDescriptionKey] = text[BerserkerIds.CloakEffectDescriptionKey]
+                .Replace("{cloak_incoming_damage}",
+                    Number(BerserkerConfiguration.CloakIncomingDamageBonusFraction * 100f))
+                .Replace("{cloak_debt_bonus}", Number(BerserkerConfiguration.CloakBloodDebtGainBonusFraction * 100f));
             for (int stage = 1; stage <= BerserkerState.MaxWrathStage; stage++)
             {
                 float stageSpeed = BerserkerConfiguration.WrathAttackSpeedBonusFraction(stage) * 100f;
-                axe = axe.Replace("{wrath_speed_" + stage + "}", Number(stageSpeed));
+                float stageStamina = BerserkerConfiguration.WrathStaminaReductionFraction(stage) * 100f;
+                axe = axe.Replace("{wrath_speed_" + stage + "}", Number(stageSpeed))
+                    .Replace("{wrath_stamina_" + stage + "}", Number(stageStamina));
                 string key = BerserkerIds.WrathKeyPrefix + stage + "_desc";
                 text[key] = text[key].Replace("{stage_speed}", Number(stageSpeed))
-                    .Replace("{stage_stamina}", Number(Math.Min(90f, stage * stamina)));
+                    .Replace("{stage_stamina}", Number(stageStamina));
+
+                string cloak = text[BerserkerIds.CloakEffectDescriptionKey];
+                text[BerserkerIds.CloakEffectDescriptionKey] = cloak.Replace("{cloak_run_" + stage + "}",
+                    Number(BerserkerConfiguration.WrathCloakRunSpeedBonusFraction(stage) * 100f));
             }
 
             text[BerserkerIds.AxeDescriptionKey] = axe;

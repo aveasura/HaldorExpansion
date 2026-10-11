@@ -32,7 +32,7 @@ namespace HaldorExpansion.Features.Berserker
         internal static float WrathStaminaMultiplier(Player player)
         {
             int stage = EffectiveWrathStage(player);
-            return Mathf.Clamp(1f - stage * BerserkerConfiguration.WrathStaminaReductionFractionPerStage, 0.1f, 1f);
+            return 1f - BerserkerConfiguration.WrathStaminaReductionFraction(stage);
         }
 
         internal static void Update(Player player)

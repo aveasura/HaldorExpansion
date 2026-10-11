@@ -1,8 +1,6 @@
-using System;
 using HaldorExpansion.Combat;
 using HaldorExpansion.Features.DelayedDoom;
 using HarmonyLib;
-using UnityEngine;
 
 namespace HaldorExpansion.Features.Berserker
 {
@@ -21,7 +19,7 @@ namespace HaldorExpansion.Features.Berserker
         }
     }
 
-    // Each Wrath stage reduces incoming damage by 1% while the helmet is equipped.
+    // Wrath grants a non-linear reduction up to 5% at stage V while the helmet is equipped.
     // This intentionally composes multiplicatively with the Berserker Cloak's +30% damage taken.
     [HarmonyPatch(typeof(Character), "ApplyDamage")]
     [HarmonyPriority(Priority.First)]
@@ -51,7 +49,7 @@ namespace HaldorExpansion.Features.Berserker
 
     // Valheim funnels stagger buildup through Character.AddStaggerDamage. Reducing the incoming
     // stagger amount here preserves the native stagger threshold/recovery logic while giving
-    // 15% resistance per Wrath stage (75% at Wrath V).
+    // non-linear resistance up to 75% at Wrath V.
     [HarmonyPatch(typeof(Character), "AddStaggerDamage")]
     internal static class BerserkerHelmetStaggerPatch
     {

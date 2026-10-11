@@ -29,6 +29,9 @@ namespace HaldorExpansion.Configuration
                 case "Silver":
                 case "Flametal": stack = 30; break;
                 case "Feathers": stack = 100; break;
+                case "Sap":
+                case "Eitr":
+                case "Softtissue": stack = 0; break;
                 default:
                     if (category != "Shop Progression - Custom Items") stack = 0;
                     break;

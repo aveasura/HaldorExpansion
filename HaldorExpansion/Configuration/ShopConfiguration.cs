@@ -101,6 +101,11 @@ namespace HaldorExpansion.Configuration
             BindShopItemConfig("Shop Progression - Textiles", "JuteRed", "Red Jute", 250);
             BindShopItemConfig("Shop Progression - Textiles", "JuteBlue", "Blue Jute", 250);
 
+            // Eitr refining materials.
+            BindShopItemConfig("Shop Progression - Materials", "Softtissue", "Soft Tissue", 300);
+            BindShopItemConfig("Shop Progression - Materials", "Sap", "Sap", 300);
+            BindShopItemConfig("Shop Progression - Materials", "Eitr", "Refined Eitr", 600);
+
             // Other materials.
             BindShopItemConfig("Shop Progression - Materials", "Resin", "Resin", 100);
             BindShopItemConfig("Shop Progression - Materials", "Feathers", "Feathers", 150);

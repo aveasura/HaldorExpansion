@@ -5,7 +5,7 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerHelmetRuntime
     {
-        internal const float ArmorPerWrathStage = 4f;
+        internal const float ArmorPerWrathStage = 5f;
         internal const float StaggerReductionPerWrathStage = 0.15f;
         internal const float DamageReductionPerWrathStage = 0.01f;
         internal const float LifeStealFractionPerWrathStage = 0.01f;
@@ -57,7 +57,8 @@ namespace HaldorExpansion.Features.Berserker
 
             float maxHealth = Mathf.Max(0f, player.GetMaxHealth());
             float missing = Mathf.Max(0f, maxHealth - Mathf.Max(0f, player.GetHealth()));
-            float heal = Mathf.Min(actualEnemyHealthLost * stage * LifeStealFractionPerWrathStage, missing);
+            float heal = Mathf.Min(actualEnemyHealthLost * BerserkerConfiguration.WrathProgressFraction(stage) *
+                                   LifeStealFractionPerWrathStage * BerserkerState.MaxWrathStage, missing);
             if (heal <= 0f) return 0f;
 
             player.Heal(heal, true);
@@ -70,13 +71,15 @@ namespace HaldorExpansion.Features.Berserker
         internal static float IncomingDamageMultiplier(Player player)
         {
             int stage = WrathStage(player);
-            return Mathf.Clamp(1f - stage * DamageReductionPerWrathStage, 0f, 1f);
+            return Mathf.Clamp(1f - BerserkerConfiguration.WrathProgressFraction(stage) *
+                BerserkerState.MaxWrathStage * DamageReductionPerWrathStage, 0f, 1f);
         }
 
         internal static float IncomingStaggerMultiplier(Player player)
         {
             int stage = WrathStage(player);
-            return Mathf.Clamp(1f - stage * StaggerReductionPerWrathStage, 0f, 1f);
+            return Mathf.Clamp(1f - BerserkerConfiguration.WrathProgressFraction(stage) *
+                BerserkerState.MaxWrathStage * StaggerReductionPerWrathStage, 0f, 1f);
         }
     }
 }
