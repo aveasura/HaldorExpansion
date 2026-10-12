@@ -1,4 +1,4 @@
-using HaldorExpansion.Compatibility;
+﻿using HaldorExpansion.Compatibility;
 using System.Collections.Generic;
 using System.Collections;
 using System.Reflection;
@@ -18,7 +18,7 @@ namespace HaldorExpansion.Features.Cestus
 
         // Урон активки (множитель урона)
         internal const float CestusNovaDamageMultiplier = 2.6f;
-        internal const float CestusNovaRadius = 5f;
+        internal const float CestusNovaRadius = 4f;
         internal const float CestusNovaPushForce = 20f;
 
         internal static bool TryActivateCestusShield(Player player)

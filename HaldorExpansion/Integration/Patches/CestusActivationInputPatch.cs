@@ -56,6 +56,7 @@ namespace HaldorExpansion.Patches
         {
             CestusRuntime.UpdateCestusLocalEquipState(__instance);
             CestusChargeRuntime.UpdateCestusLocalDamageCharge(__instance);
+            CestusFacebreaker.UpdateLocal(__instance);
 
             if (!ShouldPoll(__instance))
                 return;

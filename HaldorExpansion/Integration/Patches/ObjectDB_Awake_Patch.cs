@@ -1,4 +1,4 @@
-using HaldorExpansion.Features.Berserker;
+﻿using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Brisingamen;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
@@ -72,6 +72,7 @@ namespace HaldorExpansion.Patches
             HelOathTouchStatus.EnsureRegistered();
             BerserkerWrathStatus.EnsureRegistered();
             BerserkerRagnarokExhaustion.EnsureRegistered();
+            CestusFacebreakerSlow.EnsureRegistered();
             PeltOfHelheimStatus.EnsureRegistered();
             TrophyValueUpdater.ApplyTrophyValues(ObjectDB.instance);
 

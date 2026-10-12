@@ -29,7 +29,7 @@ namespace HaldorExpansion
                 Attack currentAttack = player.InAttack() && CurrentAttackField != null
                     ? CurrentAttackField.GetValue(player) as Attack
                     : null;
- 
+
                 float multiplier = 1f;
                 if (currentAttack != null)
                 {

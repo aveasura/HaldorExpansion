@@ -314,7 +314,12 @@ namespace HaldorExpansion.Presentation
                     "Без новых ран заряд постепенно угасает.\n\n" +
                     "<color=#9EDFF2><b>Возмездие (колёсико мыши)</b></color>\n" +
                     "При полном заряде выпускает ударную волну и создаёт защитный покров.\n" +
-                    "Пока покров активен, заряд не накапливается.",
+                    "Пока покров активен, заряд не накапливается.\n\n" +
+                    "<color=#9EDFF2><b>Facebreaker (удержание клавиши)</b></color>\n" +
+                    "Выбери угол и отпусти клавишу, чтобы стянуть врагов с двух сторон.\n" +
+                    "Успешно притянутые враги замедляются на 90% на 4 секунды. Если в зоне были враги с обеих сторон, все притянутые цели также получают ошеломление.",
+                [CestusFacebreakerSlow.NameKey] = "Скованность",
+                [CestusFacebreakerSlow.DescriptionKey] = "-90% скорости передвижения на 4 секунды.",
                 [CestusItemRegistration.CestusEffectNameKey] = "Закон арены",
                 [CestusItemRegistration.CestusEffectDescKey] =
                     "+10 к максимуму здоровья.\n" +
@@ -689,7 +694,12 @@ namespace HaldorExpansion.Presentation
                     "Charge gradually fades without fresh wounds.\n\n" +
                     "<color=#9EDFF2><b>Retribution (middle mouse)</b></color>\n" +
                     "At full charge, unleashes a shockwave and creates a protective barrier.\n" +
-                    "Charge cannot build while the barrier is active.",
+                    "Charge cannot build while the barrier is active.\n\n" +
+                    "<color=#9EDFF2><b>Facebreaker (hold ability key)</b></color>\n" +
+                    "Aim, then release to pull enemies from both sides.\n" +
+                    "Successfully pulled enemies are slowed by 90% for 4 seconds. If enemies are caught on both sides, all pulled targets also stagger.",
+                [CestusFacebreakerSlow.NameKey] = "Snared",
+                [CestusFacebreakerSlow.DescriptionKey] = "-90% movement speed for 4 seconds.",
                 [CestusItemRegistration.CestusEffectNameKey] = "Law of the Arena",
                 [CestusItemRegistration.CestusEffectDescKey] =
                     "+10 to maximum health.\n" +

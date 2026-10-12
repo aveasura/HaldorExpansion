@@ -163,6 +163,7 @@
         <Compile Include="Integration\Patches\CestusCastInputLockPatch.cs"/>
         <Compile Include="Integration\Patches\CestusShieldHudPatch.cs"/>
         <Compile Include="Integration\Patches\CestusHitStopPatch.cs"/>
+        <Compile Include="Integration\Patches\CestusFacebreakerNetworkPatch.cs"/>
         <Compile Include="Integration\Patches\DelayedDoomApplyArmorPatch.cs"/>
         <Compile Include="Integration\Patches\DelayedDoomApplyDamagePatch.cs"/>
         <Compile Include="Integration\Patches\StaminaCapeApplyDamagePatch.cs"/>
@@ -181,6 +182,10 @@
         <Compile Include="Features\Cestus\CestusEquipment.cs"/>
         <Compile Include="Features\Cestus\CestusAbility.cs"/>
         <Compile Include="Features\Cestus\CestusInputRegistration.cs"/>
+        <Compile Include="Features\Cestus\CestusFacebreaker.cs"/>
+        <Compile Include="Features\Cestus\CestusFacebreakerPreview.cs"/>
+        <Compile Include="Features\Cestus\CestusFacebreakerSlow.cs"/>
+        <Compile Include="Features\Cestus\CestusFacebreakerNetwork.cs"/>
         <Compile Include="Features\Cestus\CestusChargeRuntime.cs"/>
         <Compile Include="Features\Cestus\CestusShieldRuntime.cs"/>
         <Compile Include="Features\Cestus\CestusNetworkState.cs"/>

@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using HaldorExpansion.Configuration;
@@ -81,6 +81,7 @@ namespace HaldorExpansion
 
         private void OnDestroy()
         {
+            CestusFacebreaker.Reset();
             BerserkerRagnarokWeather.Reset();
             ItemTooltipController.Reset();
             HaldorTabsController.Reset();

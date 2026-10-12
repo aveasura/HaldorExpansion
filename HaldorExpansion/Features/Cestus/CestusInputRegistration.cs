@@ -1,4 +1,4 @@
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using HaldorExpansion.Configuration;
 using Jotunn.Configs;
 using Jotunn.Managers;
@@ -10,6 +10,8 @@ namespace HaldorExpansion.Features.Cestus
     {
         internal static ConfigEntry<KeyCode> CestusAbilityKeyConfig;
         internal static ButtonConfig CestusAbilityButton;
+        internal static ConfigEntry<KeyCode> FacebreakerKeyConfig;
+        internal static ButtonConfig FacebreakerButton;
 
         internal static void RegisterCestusInput(ConfigFile Config)
         {
@@ -33,6 +35,20 @@ namespace HaldorExpansion.Features.Cestus
             };
 
             InputManager.Instance.AddButton(HaldorExpansionPlugin.ModGuid, CestusAbilityButton);
+
+            // Poll this binding only while Bone Crushers is equipped and the ability is ready.
+            // Jotunn then suppresses the vanilla Use (E) for those frames, not globally.
+            FacebreakerKeyConfig = Config.Bind(
+                ItemNames.ConfigSection(ItemNames.BoneCrushersEn, ItemNames.BoneCrushersRu),
+                "Facebreaker Key", KeyCode.E,
+                "Hold to aim Facebreaker, release to pull. While Bone Crushers is equipped and Facebreaker is ready, this key takes priority over vanilla interaction. Change the binding if preferred.");
+            FacebreakerButton = new ButtonConfig
+            {
+                Name = "CestusFacebreaker",
+                Config = FacebreakerKeyConfig,
+                BlockOtherInputs = true
+            };
+            InputManager.Instance.AddButton(HaldorExpansionPlugin.ModGuid, FacebreakerButton);
         }
     }
 }
