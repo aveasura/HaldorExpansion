@@ -41,6 +41,7 @@ namespace HaldorExpansion.Features.Cestus
         private const float GritCestusPrimaryStaggerMultiplier = 1.35f; // ускоренное настакивание оглушения ударами
         private const float GritCestusSecondaryStaggerMultiplier = 2.2f;
         internal const float GritCestusAttackSpeedMultiplier = 1.9f; // +90% скорости атаки пока кастет в руках
+        internal const float GritCestusHitStopSeconds = 0f; // пауза анимации при попадании Cestus; 0 = отключена
         internal const float GritCestusArmorPenalty = 8f; // плоский минус к броне
 
         // блок/парирование

@@ -151,7 +151,7 @@
 
     <ItemGroup>
 
-        <Compile Include="Bootstrap\HaldorExpansionPlugin.CestusAnimatorSpeed.cs"/>
+        <Compile Include="Bootstrap\HaldorExpansionPlugin.AttackAnimationSpeed.cs"/>
         <Compile Include="Bootstrap\HaldorExpansionPlugin.CestusItem.cs"/>
         <Compile Include="Bootstrap\HaldorExpansionPlugin.cs"/>
 
@@ -162,6 +162,7 @@
         <Compile Include="Integration\Patches\CestusAttackBlockDuringCastPatch.cs"/>
         <Compile Include="Integration\Patches\CestusCastInputLockPatch.cs"/>
         <Compile Include="Integration\Patches\CestusShieldHudPatch.cs"/>
+        <Compile Include="Integration\Patches\CestusHitStopPatch.cs"/>
         <Compile Include="Integration\Patches\DelayedDoomApplyArmorPatch.cs"/>
         <Compile Include="Integration\Patches\DelayedDoomApplyDamagePatch.cs"/>
         <Compile Include="Integration\Patches\StaminaCapeApplyDamagePatch.cs"/>
@@ -189,7 +190,7 @@
         <Compile Include="Diagnostics\PlayerDiagnostics.cs"/>
         <Compile Include="Features\Cestus\CestusHudView.cs"/>
         <Compile Include="Diagnostics\AdrenalineDiagnostics.cs"/>
-        <Compile Include="Features\Cestus\CestusAnimationRuntime.cs"/>
+        <Compile Include="Combat\AttackAnimationSpeedRuntime.cs"/>
         <Compile Include="Features\Cestus\CestusItemRegistration.cs"/>
         <Compile Include="Features\Cestus\CestusInventoryRebind.cs"/>
         <Compile Include="Features\DelayedDoom\DelayedDoomItemRegistration.cs"/>

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using HaldorExpansion.Features.StaminaCape;
 using HarmonyLib;
@@ -108,62 +107,6 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (__0 <= 0f || StaminaCapeRuntime.IsForcedStaminaSpend) return;
             __0 *= BerserkerRuntime.WrathStaminaMultiplier(__instance);
-        }
-    }
-
-    [HarmonyPatch(typeof(CharacterAnimEvent), "CustomFixedUpdate")]
-    internal static class BerserkerWrathAttackSpeedPatch
-    {
-        private sealed class AnimatorState
-        {
-            internal bool Applied;
-            internal float LastBaseSpeed = 1f;
-            internal float LastAppliedSpeed = 1f;
-        }
-
-        private static readonly FieldInfo CurrentAttackField = AccessTools.Field(typeof(Humanoid), "m_currentAttack");
-        private static readonly Dictionary<int, AnimatorState> States = new Dictionary<int, AnimatorState>();
-
-        private static void Postfix(Character ___m_character, Animator ___m_animator)
-        {
-            Player player = ___m_character as Player;
-            if (player == null || player != Player.m_localPlayer || ___m_animator == null) return;
-
-            int id = ___m_animator.GetInstanceID();
-            if (!States.TryGetValue(id, out AnimatorState state))
-            {
-                state = new AnimatorState();
-                States[id] = state;
-            }
-
-            float observed = ___m_animator.speed;
-            float baseSpeed = observed;
-            if (state.Applied && Mathf.Abs(observed - state.LastAppliedSpeed) < 0.0001f)
-                baseSpeed = state.LastBaseSpeed;
-
-            Attack currentAttack = CurrentAttackField != null ? CurrentAttackField.GetValue(player) as Attack : null;
-            bool attacking = player.InAttack() && currentAttack != null;
-            float attackMultiplier = attacking ? BerserkerRuntime.WrathAttackSpeedMultiplier(player) : 1f;
-            // Exhaustion slows attacks even with no Wrath stacks or after switching weapons.
-            bool shouldBoost = attacking && Mathf.Abs(attackMultiplier - 1f) > 0.0001f;
-
-            if (!shouldBoost)
-            {
-                if (state.Applied && Mathf.Abs(___m_animator.speed - state.LastAppliedSpeed) < 0.0001f)
-                    ___m_animator.speed = state.LastBaseSpeed;
-                state.Applied = false;
-                state.LastBaseSpeed = ___m_animator.speed;
-                state.LastAppliedSpeed = ___m_animator.speed;
-                return;
-            }
-
-            float newSpeed = baseSpeed * attackMultiplier;
-            if (Mathf.Abs(___m_animator.speed - newSpeed) > 0.0001f)
-                ___m_animator.speed = newSpeed;
-
-            state.Applied = true;
-            state.LastBaseSpeed = baseSpeed;
-            state.LastAppliedSpeed = newSpeed;
         }
     }
 
