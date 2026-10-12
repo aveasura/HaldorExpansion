@@ -1,4 +1,4 @@
-using HaldorExpansion.Features.Cestus;
+﻿using HaldorExpansion.Features.Cestus;
 using HarmonyLib;
 
 namespace HaldorExpansion.Patches
@@ -7,7 +7,10 @@ namespace HaldorExpansion.Patches
     internal static class CestusFacebreakerNetworkPatch
     {
         private static void Postfix(Character __instance)
-            => CestusFacebreakerNetwork.Register(__instance);
+        {
+            CestusFacebreakerNetwork.Register(__instance);
+            CestusFacebreakerAnimation.Register(__instance);
+        }
     }
 
     // A creature's ZNetView may initialize after Character.Awake (or vice versa).
@@ -21,7 +24,10 @@ namespace HaldorExpansion.Patches
                 return;
             Character character = __instance.GetComponent<Character>();
             if (character != null)
+            {
                 CestusFacebreakerNetwork.Register(character, __instance);
+                CestusFacebreakerAnimation.Register(character, __instance);
+            }
         }
     }
 
@@ -32,6 +38,10 @@ namespace HaldorExpansion.Patches
     {
         [HarmonyPostfix]
         private static void Postfix(Character __instance)
-            => CestusFacebreakerNetwork.AfterCharacterFixedUpdate(__instance);
+        {
+            CestusFacebreakerNetwork.AfterCharacterFixedUpdate(__instance);
+            // Keep the body side-on after vanilla physics rotation too.
+            CestusFacebreaker.MaintainCastFacing(__instance as Player);
+        }
     }
 }

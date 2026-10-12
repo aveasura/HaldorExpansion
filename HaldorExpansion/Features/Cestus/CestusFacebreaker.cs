@@ -1,9 +1,8 @@
-using System;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.Cestus
 {
@@ -16,15 +15,20 @@ namespace HaldorExpansion.Features.Cestus
         // Full rectangle length. 12 means SIX metres on either side of the player.
         internal const float FullLength = 12f;
         internal const float Width = 3f;
+
         internal const float FinalDistanceFromPlayer = 0.3f;
+
         // Short, punchy pull: immediate movement, with controlled braking near the target.
         internal const float PullDurationSeconds = 0.42f;
         internal const float PullMaxSpeed = 26f;
         internal const float PullSpeedBoost = 1.15f;
         internal const float PullBrakingAcceleration = 75f;
+
         internal const float PullStopTolerance = 0.15f;
+
         // Keep large bodies outside the player's collider instead of pushing them through it.
         internal const float PullBodyClearance = 0.15f;
+
         // A two-sided grab closes the gap slightly more than a normal pull,
         // then briefly recoils away from the centre before stagger.
         // Colliders are NEVER disabled: actual contact is still limited by physics.
@@ -36,9 +40,25 @@ namespace HaldorExpansion.Features.Cestus
         internal const float SlowFraction = 0.90f;
         internal const float SlowDurationSeconds = 4f;
         internal const float CooldownSeconds = 2f;
+
         internal const float StaminaCost = 15f;
 
+        // Custom clip: frame 14 at 24 FPS starts approximately 0.54 s after frame 1.
+        // Tune this freely to align the hand-closing frame with the actual pull.
+        internal const float PullTriggerDelaySeconds = 0.54f;
+
+        internal const float CastAnimationDurationSeconds = 19f / 24f;
+
+        // The Facebreaker strip runs forward/backward, but the custom clip opens
+        // the hands to the character's LEFT/RIGHT. Turn sideways at cast time
+        // so the hands follow the strip. Change to -90f for opposite facing.
+        internal const float CastFacingOffsetDegrees = 90f;
+
+        // Emergency regression toggle: false = previous instant Facebreaker.
+        internal const bool EnableFacebreakerAnimation = true;
+
         private const float MinimumSideDistance = 0.45f;
+
         // A transient false input sample must not cast a hold-to-aim ability.
         private const float ReleaseConfirmationSeconds = 0.06f;
 
@@ -56,6 +76,12 @@ namespace HaldorExpansion.Features.Cestus
         private static float nextUseTime;
         private static float releaseCandidateAt = -1f;
         private static CestusFacebreakerPreview preview;
+        private static Coroutine castRoutine;
+        private static bool casting;
+        private static Quaternion castFacing = Quaternion.identity;
+
+        internal static bool IsCastLocked(Player player) => casting && player != null &&
+                                                            player == currentPlayer;
 
         internal static bool IsAiming(Player player) => aiming && player != null && player == currentPlayer;
 
@@ -69,6 +95,8 @@ namespace HaldorExpansion.Features.Cestus
                 Reset();
                 currentPlayer = player;
             }
+
+            if (casting) return;
 
             bool eligible = !player.IsDead() &&
                             CestusEquipment.HasCestusEquipped(player) &&
@@ -116,6 +144,7 @@ namespace HaldorExpansion.Features.Cestus
                 releaseCandidateAt = Time.unscaledTime;
                 return;
             }
+
             if (Time.unscaledTime - releaseCandidateAt < ReleaseConfirmationSeconds)
                 return;
 
@@ -127,7 +156,7 @@ namespace HaldorExpansion.Features.Cestus
         private static void Execute(Player player, Vector3 axis)
         {
             if (player == null || !CestusEquipment.HasCestusEquipped(player) ||
-                player.IsDead() || CestusRuntime.IsCestusCasting(player) ||
+                player.IsDead() || casting || CestusRuntime.IsCestusCasting(player) ||
                 player.GetStamina() < StaminaCost || Time.time < nextUseTime)
                 return;
 
@@ -135,6 +164,65 @@ namespace HaldorExpansion.Features.Cestus
             if (axis.sqrMagnitude < 0.01f)
                 return;
             axis.Normalize();
+            // Commit stamina and cooldown on release, not at the later animation hit.
+            player.UseStamina(StaminaCost);
+            nextUseTime = Time.time + CooldownSeconds;
+
+            // If a client cannot load/play the custom clip, its original instant pull
+            // remains fully functional (including its original net/physics behaviour).
+            if (EnableFacebreakerAnimation && HaldorExpansionPlugin.Instance != null &&
+                CestusFacebreakerAnimation.TryBegin(player))
+            {
+                // Keep the spell's axis exactly as aimed. Only rotate the
+                // player's body sideways for the hands-open animation.
+                castFacing = Quaternion.LookRotation(axis, Vector3.up) *
+                             Quaternion.Euler(0f, CastFacingOffsetDegrees, 0f);
+                casting = true;
+                currentPlayer = player;
+                MaintainCastFacing(player);
+                CestusAbility.ClearHumanoidAttackState(player);
+                CestusAbility.ClearHumanoidBlockState(player);
+                castRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(CastRoutine(player, axis));
+                return;
+            }
+
+            ResolvePull(player, axis);
+        }
+
+        // Vanilla turning and the fixed physics loop may overwrite a single
+        // transform.rotation assignment. Apply the locked facing after both
+        // update paths only while this local Facebreaker cast is active.
+        internal static void MaintainCastFacing(Player player)
+        {
+            if (!casting || player == null || player != Player.m_localPlayer ||
+                player != currentPlayer || player.IsDead())
+                return;
+            player.transform.rotation = castFacing;
+        }
+
+        private static IEnumerator CastRoutine(Player player, Vector3 axis)
+        {
+            try
+            {
+                yield return new WaitForSeconds(PullTriggerDelaySeconds);
+                if (player == null || player != Player.m_localPlayer || player.IsDead()) yield break;
+                // The original physics/network pull starts at the hand-closing pose.
+                // Committed casts aren't revalidated for movement/equipment/stamina.
+                ResolvePull(player, axis);
+                yield return new WaitForSeconds(Mathf.Max(0f,
+                    CastAnimationDurationSeconds - PullTriggerDelaySeconds));
+            }
+            finally
+            {
+                CestusFacebreakerAnimation.EndLocal(player);
+                casting = false;
+                castRoutine = null;
+            }
+        }
+
+        private static void ResolvePull(Player player, Vector3 axis)
+        {
+            if (player == null || player.IsDead()) return;
             Vector3 sideways = Vector3.Cross(Vector3.up, axis);
             Vector3 origin = player.transform.position;
             Candidates.Clear();
@@ -175,10 +263,8 @@ namespace HaldorExpansion.Features.Cestus
                 if (hasFront && hasBack)
                     break;
             }
-            bool clash = hasFront && hasBack;
 
-            player.UseStamina(StaminaCost);
-            nextUseTime = Time.time + CooldownSeconds;
+            bool clash = hasFront && hasBack;
 
             for (int i = 0; i < Candidates.Count; i++)
             {
@@ -186,6 +272,7 @@ namespace HaldorExpansion.Features.Cestus
                 CestusFacebreakerNetwork.Send(
                     player, candidate.Target, origin, axis, candidate.Side >= 0f, clash);
             }
+
             Candidates.Clear();
         }
 
@@ -194,8 +281,14 @@ namespace HaldorExpansion.Features.Cestus
             // This is non-public in some Valheim builds: do not make a direct call
             // that would break compilation against those assemblies.
             if (TakeInputMethod == null) return false;
-            try { return TakeInputMethod.Invoke(player, null) is bool allowed && allowed; }
-            catch { return false; }
+            try
+            {
+                return TakeInputMethod.Invoke(player, null) is bool allowed && allowed;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static Vector3 CameraDirection(Player player)
@@ -221,6 +314,11 @@ namespace HaldorExpansion.Features.Cestus
 
         internal static void Reset()
         {
+            if (castRoutine != null && HaldorExpansionPlugin.Instance != null)
+                HaldorExpansionPlugin.Instance.StopCoroutine(castRoutine);
+            castRoutine = null;
+            casting = false;
+            CestusFacebreakerAnimation.EndLocal(currentPlayer);
             CancelAim();
             Candidates.Clear();
             currentPlayer = null;

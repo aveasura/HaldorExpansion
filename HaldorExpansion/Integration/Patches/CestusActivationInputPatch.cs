@@ -1,6 +1,6 @@
-﻿using HaldorExpansion.Features.Cestus;
-using System;
+﻿using System;
 using System.Reflection;
+using HaldorExpansion.Features.Cestus;
 using HarmonyLib;
 
 namespace HaldorExpansion.Patches
@@ -9,6 +9,7 @@ namespace HaldorExpansion.Patches
     internal static class CestusActivationInputPatch
     {
         private static readonly Type ZInputType = AccessTools.TypeByName("ZInput");
+
         private static readonly MethodInfo GetButtonDownMethod =
             ZInputType != null
                 ? AccessTools.Method(ZInputType, "GetButtonDown", new[] { typeof(string) })
@@ -43,13 +44,20 @@ namespace HaldorExpansion.Patches
             if (!CestusChargeRuntime.HasFullCestusCharge(player))
                 return false;
 
-            if (CestusRuntime.IsCestusCasting(player))
+            if (CestusRuntime.IsCestusCasting(player) || CestusFacebreaker.IsCastLocked(player))
                 return false;
 
             if (CestusShieldRuntime.IsCestusShieldActive(player))
                 return false;
 
             return true;
+        }
+
+        static void Postfix(Player __instance)
+        {
+            // Facebreaker's lateral arm motion must stay aligned with its
+            // captured strip axis even if vanilla Update tries to turn us.
+            CestusFacebreaker.MaintainCastFacing(__instance);
         }
 
         static void Prefix(Player __instance)

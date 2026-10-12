@@ -20,7 +20,8 @@ namespace HaldorExpansion.Patches
             if (__instance == null || __instance != Player.m_localPlayer)
                 return;
 
-            if (!CestusRuntime.IsCestusInputLocked(__instance))
+            if (!CestusRuntime.IsCestusInputLocked(__instance) &&
+                !CestusFacebreaker.IsCastLocked(__instance))
                 return;
 
             movedir = Vector3.zero;

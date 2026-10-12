@@ -14,7 +14,8 @@ namespace HaldorExpansion.Patches
             if (Player.m_localPlayer == null || player != Player.m_localPlayer)
                 return true;
 
-            if (!CestusRuntime.IsCestusInputLocked(player))
+            if (!CestusRuntime.IsCestusInputLocked(player) &&
+                !CestusFacebreaker.IsCastLocked(player))
                 return true;
 
             CestusAbility.ClearHumanoidAttackState(player);
