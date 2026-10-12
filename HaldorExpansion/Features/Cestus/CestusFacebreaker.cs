@@ -25,6 +25,14 @@ namespace HaldorExpansion.Features.Cestus
         internal const float PullStopTolerance = 0.15f;
         // Keep large bodies outside the player's collider instead of pushing them through it.
         internal const float PullBodyClearance = 0.15f;
+        // A two-sided grab closes the gap slightly more than a normal pull,
+        // then briefly recoils away from the centre before stagger.
+        // Colliders are NEVER disabled: actual contact is still limited by physics.
+        internal const float ClashContactClearance = 0f;
+        internal const float ClashReboundDistance = 0.5f;
+        internal const float ClashReboundStopTolerance = 0.02f;
+        internal const float ClashReboundDurationSeconds = 0.14f;
+        internal const float ClashReboundSpeed = 5f;
         internal const float SlowFraction = 0.90f;
         internal const float SlowDurationSeconds = 4f;
         internal const float CooldownSeconds = 2f;
