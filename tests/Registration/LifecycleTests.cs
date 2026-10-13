@@ -119,6 +119,8 @@ namespace Jotunn.Managers
     static class ItemManager
     {
         public static event Action OnItemsRegisteredFejd;
+        public static event Action OnItemsRegistered;
+        public static void FireWorldRegistered() { OnItemsRegistered?.Invoke(); }
 
         public static void FireMenuRegistered()
         {
@@ -327,3 +329,4 @@ namespace HaldorExpansion.Features.StaminaCape
         }
     }
 }
+namespace HaldorExpansion.Features.Upgrades { static class IdolRegistration { public static bool EnsureReady() => true; } static class UpgradeRecipes { public static void Register() { Probe.Recipes++; } } }

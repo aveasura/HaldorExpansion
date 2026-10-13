@@ -16,7 +16,7 @@ namespace HaldorExpansion.Features.Cestus
         internal const float FullLength = 12f;
         internal const float Width = 3f;
 
-        internal const float FinalDistanceFromPlayer = 0.3f;
+        internal const float FinalDistanceFromPlayer = 0.2f;
 
         // Short, punchy pull: immediate movement, with controlled braking near the target.
         internal const float PullDurationSeconds = 0.42f;
@@ -37,11 +37,11 @@ namespace HaldorExpansion.Features.Cestus
         internal const float ClashReboundStopTolerance = 0.02f;
         internal const float ClashReboundDurationSeconds = 0.14f;
         internal const float ClashReboundSpeed = 5f;
-        internal const float SlowFraction = 0.90f;
+        internal const float SlowFraction = 0.60f;
         internal const float SlowDurationSeconds = 4f;
-        internal const float CooldownSeconds = 2f;
+        internal const float CooldownSeconds = 5f;
 
-        internal const float StaminaCost = 15f;
+        internal const float StaminaCost = 20f;
 
         // Custom clip: frame 14 at 24 FPS starts approximately 0.54 s after frame 1.
         // Tune this freely to align the hand-closing frame with the actual pull.

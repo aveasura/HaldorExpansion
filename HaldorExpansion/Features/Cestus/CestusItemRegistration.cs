@@ -1,6 +1,7 @@
 using System;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Features.SteelHeart;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
@@ -28,9 +29,7 @@ namespace HaldorExpansion.Features.Cestus
 
         private const float GritCestusWeight = 2f;
 
-        private const int GritCestusMaxQuality = 1;
-        private const float GritCestusMaxDurability = 1200f;
-        private const float GritCestusDurabilityPerLevel = 0f;
+        private const float GritCestusMaxDurability = 1000f;
 
         // Урон
         private const float GritCestusBluntDamage = 20f;
@@ -41,7 +40,7 @@ namespace HaldorExpansion.Features.Cestus
         private const float GritCestusPrimaryStaggerMultiplier = 1.35f; // ускоренное настакивание оглушения ударами
         private const float GritCestusSecondaryStaggerMultiplier = 2.2f;
         internal const float GritCestusAttackSpeedMultiplier = 1.9f; // +90% скорости атаки пока кастет в руках
-        internal const float GritCestusHitStopSeconds = 0f; // пауза анимации при попадании Cestus; 0 = отключена
+        internal const float GritCestusHitStopSeconds = 0f; // только Cestus: 0 = без hit-stop
         internal const float GritCestusArmorPenalty = 8f; // плоский минус к броне
 
         // блок/парирование
@@ -139,12 +138,12 @@ namespace HaldorExpansion.Features.Cestus
             shared.m_weight = GritCestusWeight;
             shared.m_value = 0;
 
-            shared.m_maxQuality = GritCestusMaxQuality;
+            shared.m_maxQuality = 2; // Native upgrader eligibility; saved levels have no cap.
 
             shared.m_canBeReparied = true;
             shared.m_useDurability = true;
             shared.m_maxDurability = GritCestusMaxDurability;
-            shared.m_durabilityPerLevel = GritCestusDurabilityPerLevel;
+            shared.m_durabilityPerLevel = ItemUpgradeBalance.BoneCrushers.DurabilityPerLevel;
 
             // Обычный урон
             shared.m_damages.m_slash = 0f;
@@ -158,11 +157,11 @@ namespace HaldorExpansion.Features.Cestus
             shared.m_damages.m_spirit = 0f;
 
             shared.m_damagesPerLevel.m_slash = 0f;
-            shared.m_damagesPerLevel.m_blunt = 0f;
+            shared.m_damagesPerLevel.m_blunt = ItemUpgradeBalance.BoneCrushers.BluntPerLevel;
             shared.m_damagesPerLevel.m_pierce = 0f;
             shared.m_damagesPerLevel.m_fire = 0f;
             shared.m_damagesPerLevel.m_frost = 0f;
-            shared.m_damagesPerLevel.m_lightning = 0f;
+            shared.m_damagesPerLevel.m_lightning = ItemUpgradeBalance.BoneCrushers.LightningPerLevel;
             shared.m_damagesPerLevel.m_poison = 0f;
             shared.m_damagesPerLevel.m_spirit = 0f;
 

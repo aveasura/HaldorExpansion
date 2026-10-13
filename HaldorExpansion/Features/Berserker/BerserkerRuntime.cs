@@ -1,3 +1,4 @@
+using HaldorExpansion.Features.Awakened;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Berserker
@@ -102,6 +103,13 @@ namespace HaldorExpansion.Features.Berserker
             Debt.RegisterAxeHit(Time.time, debtGain);
         }
 
+        internal static void GrantAwakenedKillDebt(Player player)
+        {
+            if (player == null || player != Player.m_localPlayer || player.IsDead()) return;
+            EnsureOwner(player);
+            Debt.RegisterAxeHit(Time.time, AwakenedBalance.BerserkerAxe.DebtOnKill);
+        }
+
         internal static void NotifyEnemyDamage(Player player, float actualHpLost)
         {
             if (player == null || player != Player.m_localPlayer || player.IsDead()) return;
@@ -164,6 +172,8 @@ namespace HaldorExpansion.Features.Berserker
         {
             if (player == null || player != Player.m_localPlayer || player.IsDead()) return;
             EnsureOwner(player);
+            if (AwakenedEquipment.Has(player,
+                    Artifact.BerserkerCloak)) return;
             State.Reset();
             SyncStatus(player);
         }

@@ -1,6 +1,7 @@
 using System;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Features.SteelHeart;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
@@ -14,7 +15,7 @@ namespace HaldorExpansion.Features.PitKing
     {
         internal const string PitKingChestPrefabName = "ArmorPitKingChest";
         internal const string PitKingChestSourcePrefab = "ArmorMageChest";
-        internal const int PitKingChestPrice = 4000;
+        internal const int PitKingChestPrice = 3500;
 
         internal const float PitKingChestBonusMaxHealth = 60f;
         internal const float PitKingChestBonusMaxHealthWithoutCestus = 20f;
@@ -124,12 +125,13 @@ namespace HaldorExpansion.Features.PitKing
             shared.m_description = PitKingChestItemDescKey;
 
             shared.m_armor = 16f;
-            shared.m_maxQuality = 1;
+            shared.m_armorPerLevel = ItemUpgradeBalance.PitKingChest.ArmorPerLevel;
+            shared.m_maxQuality = 2; // Native forge list requires > 1; ordinary upgrades stay disabled.
             shared.m_weight = 3f;
             shared.m_value = 0;
 
-            shared.m_maxDurability = 2100f;
-            shared.m_durabilityPerLevel = 0f;
+            shared.m_maxDurability = ItemUpgradeBalance.PitKingChest.BaseDurability;
+            shared.m_durabilityPerLevel = ItemUpgradeBalance.PitKingChest.DurabilityPerLevel;
 
             shared.m_useDurability = true;
             shared.m_canBeReparied = true;

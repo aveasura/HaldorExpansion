@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
@@ -130,9 +131,10 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_name = BerserkerIds.HelmetItemKey;
             shared.m_description = BerserkerIds.HelmetDescriptionKey;
             shared.m_armor = BaseArmor;
-            shared.m_armorPerLevel = 0f;
-            shared.m_maxQuality = 1;
-            shared.m_maxDurability = 1200f;
+            shared.m_armorPerLevel = ItemUpgradeBalance.BerserkerHelmet.ArmorPerLevel;
+            shared.m_maxQuality = 2; // Native forge list requires > 1; ordinary upgrades stay disabled.
+            shared.m_maxDurability = ItemUpgradeBalance.BerserkerHelmet.BaseDurability;
+            shared.m_durabilityPerLevel = ItemUpgradeBalance.BerserkerHelmet.DurabilityPerLevel;
             shared.m_value = 0;
             shared.m_movementModifier = 0f;
             shared.m_canBeReparied = true;

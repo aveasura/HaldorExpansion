@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using HaldorExpansion.Features.Awakened;
 using HaldorExpansion.Features.StaminaCape;
 using HarmonyLib;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace HaldorExpansion.Features.Berserker
         private static void Postfix(Player __instance)
         {
             BerserkerRuntime.Update(__instance);
+            AwakenedCombat.Update(__instance);
             BerserkerWrathEffects.UpdatePlayer(__instance);
         }
     }
@@ -33,7 +35,10 @@ namespace HaldorExpansion.Features.Berserker
 
         private static void Postfix(Humanoid __instance, bool __1, bool __result)
         {
-            if (!__result || !__1 || CurrentAttackField == null) return;
+            if (!__result || CurrentAttackField == null) return;
+            AwakenedCombat.MarkAttack(__instance as Player,
+                CurrentAttackField.GetValue(__instance) as Attack, __1);
+            if (!__1) return;
             Player player = __instance as Player;
             if (player == null || player != Player.m_localPlayer || !BerserkerEquipment.Equipped(player)) return;
 
@@ -88,7 +93,7 @@ namespace HaldorExpansion.Features.Berserker
             // Normal primary/secondary hits grant +7/+11 Debt. Reckoning grants no Debt,
             // but still refreshes the outgoing-combat grace timer through FinishDebtCredit.
             BerserkerAttackScope.FinishDebtCredit(credited);
-            return !reckoning;
+            return !reckoning && !AwakenedCombat.TryRoute(__instance, hit);
         }
     }
 

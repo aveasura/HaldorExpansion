@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
@@ -143,8 +144,10 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_damages = new HitData.DamageTypes();
             shared.m_damages.m_slash = BaseSlashDamage;
             shared.m_damagesPerLevel = new HitData.DamageTypes();
-            shared.m_maxQuality = 1;
+            shared.m_damagesPerLevel.m_slash = ItemUpgradeBalance.BerserkerAxe.SlashPerLevel;
+            shared.m_maxQuality = 2; // Native upgrader eligibility; normal crafting remains disabled.
             shared.m_maxDurability = 1200;
+            shared.m_durabilityPerLevel = ItemUpgradeBalance.BerserkerAxe.DurabilityPerLevel;
 
             // Less raw safety/control than the vanilla Deep North greataxe: the build should prefer
             // taking real HP damage instead of leaning on blocking/parrying and heavy stagger-lock.

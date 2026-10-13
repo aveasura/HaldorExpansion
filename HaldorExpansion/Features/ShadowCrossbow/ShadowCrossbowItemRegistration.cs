@@ -1,4 +1,5 @@
 using System;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
@@ -18,8 +19,8 @@ namespace HaldorExpansion.Features.ShadowCrossbow
         internal const string ShadowCrossbowItemDescKey = "$item_crossbow_silenthunt_desc";
 
         internal const float ShadowCrossbowBasePierceDamage = 210f;
-        internal const float ShadowCrossbowMovementModifier = -0.20f;
-        internal const float ShadowCrossbowBackstabBonus = 6f;
+        internal const float ShadowCrossbowMovementModifier = -0.25f;
+        internal const float ShadowCrossbowBackstabBonus = 8f;
 
         internal static GameObject ShadowCrossbowPrefab;
         internal static ItemDrop ShadowCrossbowItemDrop;
@@ -102,7 +103,7 @@ namespace HaldorExpansion.Features.ShadowCrossbow
             shared.m_name = ShadowCrossbowItemKey;
             shared.m_description = ShadowCrossbowItemDescKey;
 
-            shared.m_maxQuality = 1;
+            shared.m_maxQuality = 2; // Native upgrader eligibility; normal crafting remains disabled.
             shared.m_weight = 4f;
             shared.m_value = 0;
 
@@ -114,9 +115,10 @@ namespace HaldorExpansion.Features.ShadowCrossbow
             shared.m_damages = new HitData.DamageTypes();
             shared.m_damages.m_pierce = ShadowCrossbowBasePierceDamage;
             shared.m_damagesPerLevel = new HitData.DamageTypes();
+            shared.m_damagesPerLevel.m_pierce = ItemUpgradeBalance.ShadowCrossbow.PiercePerLevel;
 
             shared.m_maxDurability = 400f;
-            shared.m_durabilityPerLevel = 0f;
+            shared.m_durabilityPerLevel = ItemUpgradeBalance.ShadowCrossbow.DurabilityPerLevel;
             shared.m_useDurability = true;
             shared.m_canBeReparied = true;
 

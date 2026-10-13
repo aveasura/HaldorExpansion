@@ -1,5 +1,6 @@
 using System;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
@@ -109,7 +110,7 @@ namespace HaldorExpansion.Features.HelOath
             shared.m_name = HelOathItemKey;
             shared.m_description = HelOathItemDescKey;
 
-            shared.m_maxQuality = 1;
+            shared.m_maxQuality = 2; // Native upgrader eligibility; normal crafting remains disabled.
             shared.m_weight = 2f;
             shared.m_value = 0;
 
@@ -125,9 +126,12 @@ namespace HaldorExpansion.Features.HelOath
             shared.m_damages.m_lightning = 35f;
             shared.m_damages.m_frost = 15f;
             shared.m_damagesPerLevel = new HitData.DamageTypes();
+            shared.m_damagesPerLevel.m_pierce = ItemUpgradeBalance.HelOath.PiercePerLevel;
+            shared.m_damagesPerLevel.m_lightning = ItemUpgradeBalance.HelOath.LightningPerLevel;
+            shared.m_damagesPerLevel.m_frost = ItemUpgradeBalance.HelOath.FrostPerLevel;
 
             shared.m_maxDurability = 1800f;
-            shared.m_durabilityPerLevel = 0f;
+            shared.m_durabilityPerLevel = ItemUpgradeBalance.HelOath.DurabilityPerLevel;
             shared.m_useDurability = true;
             shared.m_canBeReparied = true;
 

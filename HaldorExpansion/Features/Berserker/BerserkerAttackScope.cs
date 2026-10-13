@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using HaldorExpansion.Features.Awakened;
 using HarmonyLib;
 
 namespace HaldorExpansion.Features.Berserker
@@ -36,6 +37,7 @@ namespace HaldorExpansion.Features.Berserker
 
         internal static void Enter(Attack attack)
         {
+            AwakenedCombat.Enter(attack);
             depth++;
             if (depth != 1) return;
 
@@ -57,6 +59,7 @@ namespace HaldorExpansion.Features.Berserker
 
         internal static void Exit()
         {
+            AwakenedCombat.Exit();
             if (depth <= 0)
             {
                 depth = 0;

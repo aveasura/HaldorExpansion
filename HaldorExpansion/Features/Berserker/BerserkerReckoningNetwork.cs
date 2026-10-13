@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using HaldorExpansion.Features.Awakened;
 using HarmonyLib;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ namespace HaldorExpansion.Features.Berserker
             ZNetView view = View(character);
             if (view == null || !view.IsValid()) return;
 
+            AwakenedCombat.Register(character, view);
             view.Register<ZPackage>(BerserkerIds.ReckoningDamageRpc,
                 (sender, package) => ReceiveDamage(character, view, sender, package));
             if (character is Player player)
@@ -79,6 +81,7 @@ namespace HaldorExpansion.Features.Berserker
             {
                 ZPackage package = new ZPackage();
                 hit.Serialize(ref package);
+                package.Write(AwakenedCombat.CreateToken(target, hit));
                 targetView.InvokeRPC(BerserkerIds.ReckoningDamageRpc, package);
                 BerserkerRuntime.CommitReckoning(attacker, debt);
             }
@@ -135,7 +138,9 @@ namespace HaldorExpansion.Features.Berserker
                 target.m_onDamaged += captureDamage;
                 try
                 {
-                    NativeDamage.Invoke(target, new object[] { sender, hit });
+                    long token = package.ReadLong();
+                    AwakenedCombat.Resolve(target, attacker, hit, token,
+                        () => NativeDamage.Invoke(target, new object[] { sender, hit }));
                 }
                 finally
                 {

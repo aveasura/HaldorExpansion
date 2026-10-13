@@ -35,7 +35,7 @@ namespace HaldorExpansion.Features.PeltOfHelheim
 
                     item.m_dropPrefab = prefab;
                     item.m_shared = prefabDrop.m_itemData.m_shared;
-                    item.m_quality = Mathf.Clamp(quality, 1, Mathf.Max(1, item.m_shared.m_maxQuality));
+                    item.m_quality = quality;
                     item.m_variant = variant;
                     item.m_crafterID = crafterId;
                     item.m_crafterName = crafterName;
@@ -45,6 +45,7 @@ namespace HaldorExpansion.Features.PeltOfHelheim
                                           item.m_shared.m_durabilityPerLevel * (item.m_quality - 1);
                     item.m_durability = Mathf.Clamp(durability, 0f, Mathf.Max(1f, maxDurability));
                 }
+
                 return found;
             }
             catch (Exception e)

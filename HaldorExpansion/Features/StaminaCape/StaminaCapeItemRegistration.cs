@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using Jotunn.Configs;
 using Jotunn.Entities;
@@ -179,11 +180,12 @@ namespace HaldorExpansion.Features.StaminaCape
             shared.m_description = ItemDescKey;
 
             shared.m_armor = 4f;
-            shared.m_maxQuality = 1;
+            shared.m_armorPerLevel = ItemUpgradeBalance.ScorchedEnduranceCloak.ArmorPerLevel;
+            shared.m_maxQuality = 2; // Native upgrader eligibility; saved levels have no cap.
             shared.m_weight = 1f;
 
             shared.m_maxDurability = 1800f;
-            shared.m_durabilityPerLevel = 0f;
+            shared.m_durabilityPerLevel = ItemUpgradeBalance.ScorchedEnduranceCloak.DurabilityPerLevel;
 
             shared.m_value = 0;
             shared.m_canBeReparied = true;

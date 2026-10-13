@@ -1,12 +1,11 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.WoundedBeast
 {
     internal static class WoundedBeastInventoryRebind
     {
-
         internal static bool FixWoundedBeastCapeItemsInInventory(Player player)
         {
             try
@@ -14,7 +13,8 @@ namespace HaldorExpansion.Features.WoundedBeast
                 if (player == null || ObjectDB.instance == null)
                     return false;
 
-                GameObject capePrefab = ObjectDB.instance.GetItemPrefab(WoundedBeastItemRegistration.WoundedBeastCapePrefabName);
+                GameObject capePrefab =
+                    ObjectDB.instance.GetItemPrefab(WoundedBeastItemRegistration.WoundedBeastCapePrefabName);
                 if (capePrefab == null)
                     return false;
 
@@ -51,13 +51,14 @@ namespace HaldorExpansion.Features.WoundedBeast
                     item.m_dropPrefab = capePrefab;
                     item.m_shared = prefabDrop.m_itemData.m_shared;
 
-                    item.m_quality = Mathf.Clamp(oldQuality, 1, Mathf.Max(1, item.m_shared.m_maxQuality));
+                    item.m_quality = oldQuality;
                     item.m_variant = oldVariant;
                     item.m_crafterID = oldCrafterID;
                     item.m_crafterName = oldCrafterName;
                     item.m_equipped = oldEquipped;
 
-                    float maxDurability = item.m_shared.m_maxDurability + item.m_shared.m_durabilityPerLevel * (item.m_quality - 1);
+                    float maxDurability = item.m_shared.m_maxDurability +
+                                          item.m_shared.m_durabilityPerLevel * (item.m_quality - 1);
                     item.m_durability = Mathf.Clamp(oldDurability, 0f, Mathf.Max(1f, maxDurability));
 
                     item.m_shared.m_canBeReparied = true;
@@ -68,7 +69,8 @@ namespace HaldorExpansion.Features.WoundedBeast
             }
             catch (Exception e)
             {
-                HaldorExpansionPlugin.Log?.LogError($"[HaldorExpansion] FixWoundedBeastCapeItemsInInventory error: {e}");
+                HaldorExpansionPlugin.Log?.LogError(
+                    $"[HaldorExpansion] FixWoundedBeastCapeItemsInInventory error: {e}");
                 return false;
             }
         }

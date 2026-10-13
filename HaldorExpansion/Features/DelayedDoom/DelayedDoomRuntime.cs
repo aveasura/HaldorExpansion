@@ -33,6 +33,14 @@ namespace HaldorExpansion.Features.DelayedDoom
             return character != null && DelayedDoomInternalDamageVictims.Contains(character.GetInstanceID());
         }
 
+        internal static bool HasActiveDebt(Player player)
+        {
+            if (player == null || player.IsDead() || player.GetHealth() <= 0f) return false;
+            DelayedDoomDotState state;
+            return ActiveDelayedDoomDots.TryGetValue(player.GetInstanceID(), out state) &&
+                   state.Player == player && state.RemainingDamage > 0f && state.TicksLeft > 0;
+        }
+
         internal static void AddDelayedDoomDebt(Player player, float delayedDamageTotal)
         {
             if (HaldorExpansionPlugin.Instance == null || player == null || delayedDamageTotal <= 0f)

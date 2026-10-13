@@ -68,6 +68,7 @@ public class ItemDrop
     {
         public SharedData m_shared;
         public bool m_equipped;
+        public int m_quality;
         public UnityEngine.GameObject m_dropPrefab;
         public class SharedData { public string m_name; }
     }

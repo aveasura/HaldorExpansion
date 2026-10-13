@@ -35,7 +35,8 @@ internal static class LocalizationTests
             foreach (var pair in Words(language))
             {
                 Check(!string.IsNullOrWhiteSpace(pair.Value), language + " empty translation " + pair.Key);
-                Check(!Regex.IsMatch(pair.Value, @"\{[^{}]+\}"), language + " unresolved placeholder " + pair.Key);
+                // Indexed format slots are consumed by status effects at runtime.
+                Check(!Regex.IsMatch(pair.Value, @"\{(?!\d+(?::[^{}]+)?\})[^{}]+\}"), language + " unresolved placeholder " + pair.Key);
             }
             foreach (var lore in Words(language).Where(pair => pair.Key.EndsWith("_lore")))
             {
@@ -79,6 +80,7 @@ internal static class LocalizationTests
             ModLocalization.AddLocalizations();
             CheckCatalogs();
             EquipmentTooltipTests.Run(Check);
+            AwakenedDescriptionTests.Run(Check);
             float[] stamina = { 14f, 21f, 26.6f, 31.5f, 35f };
             float[] sprint = { 6f, 9f, 11.4f, 13.5f, 15f };
             for (int stage = 1; stage <= 5; stage++)

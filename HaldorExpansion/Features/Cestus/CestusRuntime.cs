@@ -62,6 +62,7 @@ namespace HaldorExpansion.Features.Cestus
                 return;
 
             CestusStateStore.CestusState state = CestusStateStore.GetOrCreateCestusState(player);
+            CestusShieldRuntime.RefreshAwakenedShield(player, state);
             bool isEquippedNow = CestusEquipment.HasCestusEquipped(player);
 
             if (isEquippedNow)

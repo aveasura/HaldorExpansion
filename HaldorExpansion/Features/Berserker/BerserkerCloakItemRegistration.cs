@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
@@ -143,8 +144,8 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_name = BerserkerIds.CloakItemKey;
             shared.m_description = BerserkerIds.CloakDescriptionKey;
             shared.m_armor = Armor;
-            shared.m_armorPerLevel = 0f;
-            shared.m_maxQuality = 1;
+            shared.m_armorPerLevel = ItemUpgradeBalance.BerserkerCloak.ArmorPerLevel;
+            shared.m_maxQuality = 2; // Native upgrader eligibility; saved levels have no cap.
             shared.m_value = 0;
             shared.m_movementModifier = 0f;
             shared.m_eitrRegenModifier = 0f;
@@ -154,7 +155,7 @@ namespace HaldorExpansion.Features.Berserker
             // Keep Berserker durability and weight unchanged when switching models.
             // This is a visual-only change, not a progression/stat adjustment.
             shared.m_maxDurability = 1200f;
-            shared.m_durabilityPerLevel = 0f;
+            shared.m_durabilityPerLevel = ItemUpgradeBalance.BerserkerCloak.DurabilityPerLevel;
             shared.m_weight = 4f;
             BerserkerAppearance.ApplyArmorMaterial(shared, BerserkerAppearance.Style.Cloak);
 

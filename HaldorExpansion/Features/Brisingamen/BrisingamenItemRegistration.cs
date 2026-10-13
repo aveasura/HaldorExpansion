@@ -40,6 +40,7 @@ namespace HaldorExpansion.Features.Brisingamen
                     if (RingItemDrop != null)
                     {
                         ApplyBrisingamenIcon(RingItemDrop.m_itemData.m_shared);
+                        RingItemDrop.m_itemData.m_dropPrefab = existing;
                     }
 
                     if (!_ringReadyLogged && RingItemDrop != null)
@@ -83,7 +84,7 @@ namespace HaldorExpansion.Features.Brisingamen
                 shared.m_setStatusEffect = null;
 
                 SE_Stats baseSe = shared.m_equipStatusEffect as SE_Stats;
-                SE_Stats newSe = ScriptableObject.CreateInstance<SE_Stats>();
+                SE_Stats newSe = ScriptableObject.CreateInstance<BrisingamenCarryStatus>();
                 newSe.name = BrisingamenIds.CarryStatus;
 
                 if (baseSe != null)
@@ -94,7 +95,9 @@ namespace HaldorExpansion.Features.Brisingamen
                     ReflectionAccess.CopyFieldIfExists(baseSe, newSe, "m_stopMessageType");
                 }
 
-                newSe.m_addMaxCarryWeight = 150f;
+                // Carry weight is calculated from the actual equipped ring by BrisingamenCarryStatus.
+                newSe.m_addMaxCarryWeight = 0f;
+                shared.m_maxQuality = 2; // Native refinement eligibility; ordinary crafting stays disabled.
 
                 ReflectionAccess.SetFieldIfExists(newSe, "m_name", BrisingamenIds.ItemKey);
                 ReflectionAccess.SetFieldIfExists(newSe, "m_tooltip", BrisingamenIds.EffectDescriptionKey);
@@ -117,6 +120,7 @@ namespace HaldorExpansion.Features.Brisingamen
                 }
 
                 ApplyBrisingamenIcon(shared);
+                drop.m_itemData.m_dropPrefab = ringGo;
                 ItemManager.Instance.AddItem(new CustomItem(ringGo, fixReference: false));
 
                 RingPrefab = ringGo;

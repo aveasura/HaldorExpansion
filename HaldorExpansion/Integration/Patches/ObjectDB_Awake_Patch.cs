@@ -1,4 +1,4 @@
-﻿using HaldorExpansion.Features.Berserker;
+using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Brisingamen;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
@@ -8,6 +8,7 @@ using HaldorExpansion.Features.PeltOfHelheim;
 using HaldorExpansion.Features.PitKing;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.StaminaCape;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Features.WoundedBeast;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Trading;
@@ -27,6 +28,7 @@ namespace HaldorExpansion.Patches
             initialized = true;
             PrefabManager.OnVanillaPrefabsAvailable += EnsureItemsReady;
             ItemManager.OnItemsRegisteredFejd += CompleteRegistration;
+            ItemManager.OnItemsRegistered += CompleteRegistration;
         }
 
         internal static void Shutdown()
@@ -34,6 +36,7 @@ namespace HaldorExpansion.Patches
             if (!initialized) return;
             PrefabManager.OnVanillaPrefabsAvailable -= EnsureItemsReady;
             ItemManager.OnItemsRegisteredFejd -= CompleteRegistration;
+            ItemManager.OnItemsRegistered -= CompleteRegistration;
             initialized = false;
         }
 
@@ -93,6 +96,8 @@ namespace HaldorExpansion.Patches
             BerserkerHelmetItemRegistration.RegisterRecipe();
 
             StaminaCapeItemRegistration.RegisterRecipe();
+
+            if (IdolRegistration.EnsureReady()) UpgradeRecipes.Register();
         }
     }
 }

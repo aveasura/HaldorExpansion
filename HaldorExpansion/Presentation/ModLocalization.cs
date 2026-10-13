@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using HaldorExpansion.Configuration;
+using HaldorExpansion.Features.Awakened;
 using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Brisingamen;
 using HaldorExpansion.Features.Cestus;
@@ -12,6 +13,7 @@ using HaldorExpansion.Features.PitKing;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.StaminaCape;
 using HaldorExpansion.Features.SteelHeart;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Features.WoundedBeast;
 using HarmonyLib;
 using Jotunn.Entities;
@@ -194,7 +196,7 @@ namespace HaldorExpansion.Presentation
                     "Усиливает Расплату и Рагнарёк. Вне боя угасает.\n\n" +
                     "<color=#9EDFF2><b>Расплата (колёсико мыши)</b></color>: требует Ярость II+ и долг x{reckoning_debt}+.\n" +
                     "Заменяет альтернативную атаку. При попадании расходует {reckoning_spend}% долга,\n" +
-                    "наносит дополнительный урон и исцеляет на {reckoning_heal}% от прямого урона.\n\n" +
+                    "наносит дополнительный урон и исцеляет на {reckoning_heal}% от нанесенного урона.\n\n" +
                     "<color=#e72517><b>Рагнарёк ({ragnarok_key})</b></color>: требует Ярость V, долг x{ragnarok_debt}+ и Плащ берсерка.\n" +
                     "Обрушивает метеоры, расходуя всю Ярость и Кровавый долг. После призыва наступает Истощение.",
 
@@ -271,7 +273,10 @@ namespace HaldorExpansion.Presentation
                     "\n\nСказывают, кузнец покинул королевство той же ночью, унеся столько сокровищ, сколько смог собрать до рассвета." +
                     "\n\nА конунг так и не узнал, что собственными руками отверг божественный дар, чью истинную ценность не сумел постичь." +
                     "\n\n<color=#B1ABA5><i>«Искал силу богов, чтобы владеть всем. Но не сумел сохранить даже то, что уже держал в руках.»</i></color>",
-                [BrisingamenIds.EffectDescriptionKey] = "+150 к переносимому весу.",
+                [BrisingamenIds.EffectDescriptionKey] = "+{0:0.##} к переносимому весу.",
+                [IdolRegistration.ItemKey] = "Идол Хальдора",
+                [IdolRegistration.DescriptionKey] =
+                    "Идол для улучшения уникального снаряжения Хальдора в Кузнице возможностей.\nПри неудаче предмет может быть уничтожен.",
 
                 // Нить Норн
                 [NornThreadItemRegistration.ItemKey] = ItemNames.NornThreadRu,
@@ -315,9 +320,10 @@ namespace HaldorExpansion.Presentation
                     "<color=#9EDFF2><b>Возмездие (колёсико мыши)</b></color>\n" +
                     "При полном заряде выпускает ударную волну и создаёт защитный покров.\n" +
                     "Пока покров активен, заряд не накапливается.\n\n" +
-                    "<color=#9EDFF2><b>Facebreaker (удержание клавиши)</b></color>\n" +
-                    "Выбери угол и отпусти клавишу, чтобы стянуть врагов с двух сторон.\n" +
-                    "Успешно притянутые враги замедляются на 90% на 4 секунды. Если в зоне были враги с обеих сторон, все притянутые цели также получают ошеломление.",
+                    "<color=#9EDFF2><b>Мордобой (удержание клавиши)</b></color>\n" +
+                    "Стягивает врагов с двух сторон.\n" +
+                    "Успешно притянутые враги замедляются на 60% на 4 секунды. Если в зоне были враги с обеих сторон, все притянутые цели также получают ошеломление.\n" +
+                    "Перезарядка: 5 секунд",
                 [CestusFacebreakerSlow.NameKey] = "Скованность",
                 [CestusFacebreakerSlow.DescriptionKey] = "-90% скорости передвижения на 4 секунды.",
                 [CestusItemRegistration.CestusEffectNameKey] = "Закон арены",
@@ -573,7 +579,7 @@ namespace HaldorExpansion.Presentation
                     "Empowers Reckoning and Ragnarök. Fades outside combat.\n\n" +
                     "<color=#9EDFF2><b>Reckoning (middle mouse)</b></color>: requires Wrath II+ and Blood Debt x{reckoning_debt}+.\n" +
                     "Replaces the secondary attack. On hit, spends {reckoning_spend}% of Blood Debt,\n" +
-                    "deals bonus damage, and heals for {reckoning_heal}% of direct damage dealt.\n\n" +
+                    "deals bonus damage, and heals for {reckoning_heal}% of damage dealt.\n\n" +
                     "<color=#e72517><b>Ragnarök ({ragnarok_key})</b></color>: requires Wrath V, Blood Debt x{ragnarok_debt}+, and the Berserker Cloak.\n" +
                     "Calls down meteors, spending all Wrath and Blood Debt. Exhaustion follows.",
 
@@ -651,7 +657,10 @@ namespace HaldorExpansion.Presentation
                     "\n\nThey say the smith left the kingdom that very night, carrying away as much treasure as he could gather before dawn." +
                     "\n\nAnd the king never learned that with his own hands he had cast aside a divine gift whose true worth he had failed to comprehend." +
                     "\n\n<color=#B1ABA5><i>“He sought the might of gods to possess all things, yet could not keep even what he already held.”</i></color>",
-                [BrisingamenIds.EffectDescriptionKey] = "+150 maximum carry weight.",
+                [BrisingamenIds.EffectDescriptionKey] = "+{0:0.##} maximum carry weight.",
+                [IdolRegistration.ItemKey] = "Haldor’s Idol",
+                [IdolRegistration.DescriptionKey] =
+                    "An idol for refining Haldor’s unique equipment at the Forge of Potential.\nFailure may destroy the item.",
 
                 // Thread of the Norns
                 [NornThreadItemRegistration.ItemKey] = ItemNames.NornThreadEn,
@@ -696,8 +705,9 @@ namespace HaldorExpansion.Presentation
                     "At full charge, unleashes a shockwave and creates a protective barrier.\n" +
                     "Charge cannot build while the barrier is active.\n\n" +
                     "<color=#9EDFF2><b>Facebreaker (hold ability key)</b></color>\n" +
-                    "Aim, then release to pull enemies from both sides.\n" +
-                    "Successfully pulled enemies are slowed by 90% for 4 seconds. If enemies are caught on both sides, all pulled targets also stagger.",
+                    "Pull enemies from both sides.\n" +
+                    "Successfully pulled enemies are slowed by 60% for 4 seconds. If enemies are caught on both sides, all pulled targets also stagger.\n" +
+                    "Cooldown: 5 sec",
                 [CestusFacebreakerSlow.NameKey] = "Snared",
                 [CestusFacebreakerSlow.DescriptionKey] = "-90% movement speed for 4 seconds.",
                 [CestusItemRegistration.CestusEffectNameKey] = "Law of the Arena",
@@ -790,6 +800,7 @@ namespace HaldorExpansion.Presentation
 
         private static Dictionary<string, string> WithConfiguredValues(Dictionary<string, string> text, bool ru)
         {
+            AwakenedDescriptions.AddTranslations(text, ru);
             text[HelOathItemRegistration.HelOathItemDescKey] = text[HelOathItemRegistration.HelOathItemKey + "_lore"] +
                                                                "\n\n" +
                                                                text[HelOathItemRegistration.HelOathItemDescKey];

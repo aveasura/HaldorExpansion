@@ -1,6 +1,7 @@
+using System.Collections.Generic;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
-using System.Collections.Generic;
+using HaldorExpansion.Features.Upgrades;
 using HarmonyLib;
 
 namespace HaldorExpansion.Patches
@@ -37,6 +38,7 @@ namespace HaldorExpansion.Patches
 
             bool done = DelayedDoomInventoryRebind.FixDelayedDoomItemsInInventory(__instance);
             bool fixedCestus = CestusInventoryRebind.FixCestusItemsInInventory(__instance);
+            UpgradeItemState.RebindWeapons(__instance);
 
             // чтобы лог не спамился каждый кадр
             ProcessedPlayers.Add(id);

@@ -19,6 +19,11 @@ All notable changes to HaldorExpansion will be documented in this file.
 - **Haldor's Shop Categories:** Added category tabs for easier navigation through Haldor's inventory.
 - **Scrollable Item Tooltips:** Added scrolling support for long item descriptions, improving accessibility on smaller screens.
 - **Artifact Lore:** Added original Norse-inspired stories and interconnected sagas for 12 relics, fully localized in English and Russian.
+- **Facebreaker:** Introduced a new active ability for Bone Crushers that pulls enemies together, slowing them and staggering those caught on opposite sides.
+- **Custom Facebreaker Animation:** Added a unique casting animation with directional character positioning, synchronized enemy pulling, impact, and knockback.
+
+- Добавлен Идол Хальдора - новый трофей для улучшения уникального снаряжения в Кузнице возможностей.
+- Кузница возможностей: Уникальное снаряжение может быть улучшено. Предметы пробуждает скрытый потенциал при улучшении >= 10.
 
 ### Changed
 - **Haldor's Shop:** Item previews now feature atmospheric lore, while inventory tooltips retain detailed gameplay information.

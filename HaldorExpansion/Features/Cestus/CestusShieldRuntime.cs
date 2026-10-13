@@ -1,18 +1,35 @@
+using System.Collections;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Diagnostics;
-using System.Collections;
+using HaldorExpansion.Features.Awakened;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Cestus
 {
     internal static class CestusShieldRuntime
     {
-
-        internal const float CestusShieldMaxHpRatio = 0.45f; // 45% от максимального хп станивится временным щитом
-        internal const float CestusShieldMinFlat = 40f; // минимально возможный щит == 40 единиц
+        internal const float CestusShieldMaxHpRatio = 0.45f; // 45% from max hp into shield
+        internal const float CestusShieldMinFlat = 40f; // min shield == 40
 
         internal const float CestusShieldDuration = 9f;
         internal const int CestusShieldTicks = 40;
+
+        // Only the extra awakened share expires on removal. The original set shield
+        // keeps its existing lifetime and damage absorption rules. Re-equipping never
+        // restores consumed shield or reapplies this multiplier to a running cast.
+        internal static void RefreshAwakenedShield(Player player, CestusStateStore.CestusState state)
+        {
+            if (state == null || !state.AwakenedShieldBonusActive ||
+                !CestusNetworkState.IsCestusShieldAuthorityRuntime(player)) return;
+            if (CestusEquipment.HasCestusSetBonus(player) &&
+                AwakenedEquipment.Has(player, Artifact.PitKingChest)) return;
+            state.AwakenedShieldBonusActive = false;
+            float retained = AwakenedAbilityMath.ShieldRetainedFraction(CestusAbility.CestusSetBonusMultiplier);
+            state.ShieldRemaining *= retained;
+            state.ShieldMax *= retained;
+            state.ShieldDecayPerTick *= retained;
+            CestusNetworkState.SyncCestusShieldState(player, state, true);
+        }
 
         internal static float GetCestusEffectiveShieldRemaining(Player player)
         {
@@ -20,10 +37,13 @@ namespace HaldorExpansion.Features.Cestus
                 return 0f;
 
             CestusStateStore.CestusState state = CestusStateStore.GetOrCreateCestusState(player);
-            return Mathf.Max(Mathf.Max(0f, state.ShieldRemaining), CestusNetworkState.GetSyncedCestusShieldRemaining(player));
+            RefreshAwakenedShield(player, state);
+            return Mathf.Max(Mathf.Max(0f, state.ShieldRemaining),
+                CestusNetworkState.GetSyncedCestusShieldRemaining(player));
         }
 
-        internal static void ClearCestusShieldState(Player player, CestusStateStore.CestusState state, bool stopRoutine, bool syncNow)
+        internal static void ClearCestusShieldState(Player player, CestusStateStore.CestusState state, bool stopRoutine,
+            bool syncNow)
         {
             if (state == null)
                 return;
@@ -65,6 +85,7 @@ namespace HaldorExpansion.Features.Cestus
                 return 0f;
 
             CestusStateStore.CestusState state = CestusStateStore.GetOrCreateCestusState(player);
+            RefreshAwakenedShield(player, state);
             if (state.ShieldRemaining <= 0.001f)
                 return 0f;
 
@@ -107,6 +128,7 @@ namespace HaldorExpansion.Features.Cestus
                 return 0f;
 
             CestusStateStore.CestusState state = CestusStateStore.GetOrCreateCestusState(player);
+            RefreshAwakenedShield(player, state);
             if (state.ShieldRemaining <= 0.001f)
                 return 0f;
 
@@ -116,7 +138,8 @@ namespace HaldorExpansion.Features.Cestus
 
             state.ShieldRemaining = Mathf.Max(0f, state.ShieldRemaining - absorbed);
 
-            float correctedHealth = Mathf.Min(CharacterHealthAccess.GetCharacterMaxHealth(player), Mathf.Max(0f, afterHealth + absorbed));
+            float correctedHealth = Mathf.Min(CharacterHealthAccess.GetCharacterMaxHealth(player),
+                Mathf.Max(0f, afterHealth + absorbed));
             CharacterHealthAccess.SetCharacterHealth(player, correctedHealth);
 
             if (state.ShieldRemaining <= 0.001f)
@@ -191,7 +214,8 @@ namespace HaldorExpansion.Features.Cestus
                 ClearCestusShieldState(state.Player, state, false, true);
 
                 if (playerId != 0 &&
-                    CestusStateStore.ActiveCestusStates.TryGetValue(playerId, out CestusStateStore.CestusState current) &&
+                    CestusStateStore.ActiveCestusStates.TryGetValue(playerId,
+                        out CestusStateStore.CestusState current) &&
                     ReferenceEquals(current, state))
                 {
                     current.ShieldRoutine = null;
@@ -206,6 +230,7 @@ namespace HaldorExpansion.Features.Cestus
                 return 0f;
 
             CestusStateStore.CestusState state = CestusStateStore.GetOrCreateCestusState(player);
+            RefreshAwakenedShield(player, state);
 
             if (state.ShieldRemaining <= 0.001f || state.ShieldMax <= 0.001f)
                 return 0f;
@@ -219,6 +244,7 @@ namespace HaldorExpansion.Features.Cestus
                 return 0f;
 
             CestusStateStore.CestusState state = CestusStateStore.GetOrCreateCestusState(player);
+            RefreshAwakenedShield(player, state);
             if (state.ShieldRemaining <= 0.001f)
                 return 0f;
 

@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
@@ -158,9 +159,9 @@ namespace HaldorExpansion.Features.PeltOfHelheim
             shared.m_armor = 4f;
             shared.m_maxDurability = 1800f;
 
-            shared.m_maxQuality = 1;
-            shared.m_armorPerLevel = 0f;
-            shared.m_durabilityPerLevel = 0f;
+            shared.m_maxQuality = 2; // Native upgrader eligibility; saved levels have no cap.
+            shared.m_armorPerLevel = ItemUpgradeBalance.HelheimPelt.ArmorPerLevel;
+            shared.m_durabilityPerLevel = ItemUpgradeBalance.HelheimPelt.DurabilityPerLevel;
             shared.m_value = 0;
             shared.m_canBeReparied = true;
             shared.m_useDurability = true;

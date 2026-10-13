@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
+using HaldorExpansion.Features.Brisingamen;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Trading;
 using HarmonyLib;
 using UnityEngine;
@@ -44,12 +47,20 @@ namespace HaldorExpansion.Presentation
             try
             {
                 preparing = true;
-                // Show only the legend at Haldor. The full item tooltip belongs to the inventory.
+                // Keep the shop legend, with the current carry bonus for Brisingamen.
                 // Fall back to vanilla behavior for items without a dedicated shop legend.
                 string loreKey = ShopLoreCatalog.ForItem(item.m_shared.m_name);
                 string description = loreKey != null && Localization.instance != null
                     ? Localization.instance.Localize(loreKey)
                     : item.GetTooltip(trade.m_stack);
+                if (loreKey != null && Localization.instance != null &&
+                    item.m_shared.m_name == BrisingamenIds.ItemKey)
+                {
+                    description += "\n\n" + string.Format(CultureInfo.InvariantCulture,
+                        Localization.instance.Localize(BrisingamenIds.EffectDescriptionKey),
+                        ItemUpgradeBalance.CarryWeight(item.m_quality));
+                }
+
                 tooltip.Set(item.m_shared.m_name, description, gui.m_tooltipAnchor, Vector2.zero);
             }
             catch (Exception error)

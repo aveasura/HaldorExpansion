@@ -1,22 +1,22 @@
-﻿using HaldorExpansion.Compatibility;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
+using HaldorExpansion.Compatibility;
+using HaldorExpansion.Features.Awakened;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.Cestus
 {
     internal static class CestusAbility
     {
-
-        internal const float CestusSetBonusMultiplier = 1.5f; // Множитель, если надета сетовая броня вместе с кастетом.
+        internal const float CestusSetBonusMultiplier = 1.5f; // Multiplayer with Pit king armor
 
         internal const float CestusCooldown = 3f;
 
         internal const string CestusActivationEmote = "point";
         internal const float CestusCastDuration = 1.05f;
 
-        // Урон активки (множитель урона)
+        // Ability dmg
         internal const float CestusNovaDamageMultiplier = 2.6f;
         internal const float CestusNovaRadius = 4f;
         internal const float CestusNovaPushForce = 20f;
@@ -50,9 +50,13 @@ namespace HaldorExpansion.Features.Cestus
             if (maxHealth <= 0f)
                 return false;
 
-            float baseShieldAmount = Mathf.Max(CestusShieldRuntime.CestusShieldMinFlat, maxHealth * CestusShieldRuntime.CestusShieldMaxHpRatio);
+            float baseShieldAmount = Mathf.Max(CestusShieldRuntime.CestusShieldMinFlat,
+                maxHealth * CestusShieldRuntime.CestusShieldMaxHpRatio);
             bool hasSetBonus = CestusEquipment.HasCestusSetBonus(player);
-            float shieldMultiplier = hasSetBonus ? CestusSetBonusMultiplier : 1f;
+            bool awakenedSet = hasSetBonus && AwakenedEquipment.Has(player, Artifact.PitKingChest);
+            float shieldMultiplier = hasSetBonus
+                ? (awakenedSet ? AwakenedBalance.PitKingChest.ShieldMultiplier : CestusSetBonusMultiplier)
+                : 1f;
             float shieldAmount = baseShieldAmount * shieldMultiplier;
 
             state.Charge = 0f;
@@ -64,7 +68,8 @@ namespace HaldorExpansion.Features.Cestus
                 state.CastRoutine = null;
             }
 
-            state.CastRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(CestusCastRoutine(state, shieldAmount));
+            state.CastRoutine =
+                HaldorExpansionPlugin.Instance.StartCoroutine(CestusCastRoutine(state, shieldAmount, awakenedSet));
 
             HaldorExpansionPlugin.DebugLog(
                 $"[HaldorExpansion] Cestus cast started: " +
@@ -78,7 +83,8 @@ namespace HaldorExpansion.Features.Cestus
             return true;
         }
 
-        private static IEnumerator CestusCastRoutine(CestusStateStore.CestusState state, float shieldAmount)
+        private static IEnumerator CestusCastRoutine(CestusStateStore.CestusState state, float shieldAmount,
+            bool awakenedSet)
         {
             if (state == null)
                 yield break;
@@ -98,6 +104,7 @@ namespace HaldorExpansion.Features.Cestus
                 player.StartEmote(CestusActivationEmote, true);
                 ClearHumanoidBlockState(player);
 
+                state.AwakenedShieldBonusActive = awakenedSet;
                 state.ShieldRemaining = shieldAmount;
                 state.ShieldMax = shieldAmount;
                 state.ShieldTicksLeft = CestusShieldRuntime.CestusShieldTicks;
@@ -119,8 +126,15 @@ namespace HaldorExpansion.Features.Cestus
                 if (player == null || player.IsDead())
                     yield break;
 
-                state.ShieldRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(CestusShieldRuntime.CestusShieldRoutine(state));
-                TriggerCestusNova(player, shieldAmount);
+                state.ShieldRoutine =
+                    HaldorExpansionPlugin.Instance.StartCoroutine(CestusShieldRuntime.CestusShieldRoutine(state));
+                CestusShieldRuntime.RefreshAwakenedShield(player, state);
+                // Nova already scales from the original shield. Remove only the awakened
+                // share if it was lost during the cast. Never multiply the damage twice
+                float novaShield = awakenedSet && !state.AwakenedShieldBonusActive
+                    ? shieldAmount * AwakenedAbilityMath.ShieldRetainedFraction(CestusSetBonusMultiplier)
+                    : shieldAmount;
+                TriggerCestusNova(player, novaShield);
                 CestusEffects.PlayPreparedCestusExplosionAudio(state);
 
                 HaldorExpansionPlugin.DebugLog(
@@ -135,7 +149,8 @@ namespace HaldorExpansion.Features.Cestus
                 state.CastRoutine = null;
 
                 if (playerId != 0 &&
-                    CestusStateStore.ActiveCestusStates.TryGetValue(playerId, out CestusStateStore.CestusState current) &&
+                    CestusStateStore.ActiveCestusStates.TryGetValue(playerId,
+                        out CestusStateStore.CestusState current) &&
                     ReferenceEquals(current, state))
                 {
                     current.IsCasting = false;

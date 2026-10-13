@@ -5,12 +5,12 @@ namespace HaldorExpansion.Features.Cestus
 {
     internal static class CestusStateStore
     {
-
         internal sealed class CestusState
         {
             public Player Player;
             public float Charge;
             public float ShieldRemaining;
+            public bool AwakenedShieldBonusActive;
             public float ShieldMax;
             public float ShieldDecayPerTick;
             public int ShieldTicksLeft;

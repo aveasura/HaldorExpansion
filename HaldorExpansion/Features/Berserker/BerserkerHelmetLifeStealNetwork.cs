@@ -1,4 +1,5 @@
 using System.Reflection;
+using HaldorExpansion.Features.Awakened;
 using HarmonyLib;
 using UnityEngine;
 
@@ -40,6 +41,7 @@ namespace HaldorExpansion.Features.Berserker
         private struct Observation
         {
             internal Player Attacker;
+            internal object Awakened;
             internal float BeforeHp;
         }
 
@@ -47,6 +49,7 @@ namespace HaldorExpansion.Features.Berserker
         private static void Prefix(Character __instance, HitData __0, out Observation __state)
         {
             __state = default(Observation);
+            __state.Awakened = AwakenedCombat.Observe(__instance, __0);
             if (__instance == null || __0 == null || __instance.IsPlayer() || __instance.IsDead()) return;
 
             // Weapon-only direct axe melee hits. Projectiles, including all Ragnarök
@@ -65,6 +68,7 @@ namespace HaldorExpansion.Features.Berserker
         [HarmonyPriority(Priority.Last)]
         private static void Postfix(Character __instance, Observation __state)
         {
+            AwakenedCombat.Complete(__instance, __state.Awakened);
             if (__state.Attacker == null || __instance == null) return;
             float actualEnemyHealthLost = __state.BeforeHp - Mathf.Max(0f, __instance.GetHealth());
             if (actualEnemyHealthLost <= 0f) return;

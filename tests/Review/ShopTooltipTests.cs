@@ -39,6 +39,9 @@ class ShopTooltipTests {
   ShopItemTooltip.Prepare(t2);
   Check(t2.m_text=="A legend without stats."&&data.Calls==callsBeforeLore,"shop must use lore without full tooltip");
   Check(t2.m_topic=="lore-item","lore preview must preserve item name");
+  data.m_shared.m_name="$item_brisingamen";
+  data.m_quality=1;ShopItemTooltip.Prepare(t2);Check(t2.m_text=="A legend without stats.\n\n+150 carry weight.","ring shop bonus missing at quality 1");
+  data.m_quality=7;ShopItemTooltip.Prepare(t2);Check(t2.m_text.EndsWith("+210 carry weight.")&&data.Calls==callsBeforeLore,"ring shop bonus not scaled without full native tooltip");
   Console.WriteLine("PASS "+assertions+" assertions; native Set hover callback tooltip calculations="+(data.Calls-initial));
  }
 }

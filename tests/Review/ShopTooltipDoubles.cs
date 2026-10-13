@@ -20,7 +20,7 @@ public class Trader { public bool Haldor=true; public class TradeItem { public b
 public class ItemDrop {
  public ItemData m_itemData=new ItemData();
  public class ItemData {
-  public Shared m_shared=new Shared(); public int Calls,LastStack; public string Config="v1"; public bool Throw;
+  public Shared m_shared=new Shared(); public int m_quality=1; public int Calls,LastStack; public string Config="v1"; public bool Throw;
   public string GetTooltip(int stack){Calls++;LastStack=stack;if(Throw)throw new Exception("native failure");return Config+":"+stack;}
  }
  public class Shared { public string m_name="item"; }
@@ -38,10 +38,10 @@ namespace HaldorExpansion {public static class HaldorExpansionPlugin {public sta
 // Catalog/localization boundaries for the dedicated lore-only shop branch.
 public class Localization {
  public static Localization instance=new Localization();
- public string Localize(string key)=>key=="$test_lore"?"A legend without stats.":key;
+ public string Localize(string key)=>key=="$test_lore"?"A legend without stats.":key=="$se_brisingamen_carry_desc"?"+{0:0.##} carry weight.":key;
 }
 namespace HaldorExpansion.Trading {
  internal static class ShopLoreCatalog {
-  internal static string ForItem(string name)=>name=="lore-item"?"$test_lore":null;
+  internal static string ForItem(string name)=>(name=="lore-item"||name=="$item_brisingamen")?"$test_lore":null;
  }
 }

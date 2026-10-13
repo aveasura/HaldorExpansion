@@ -1,5 +1,6 @@
 using System;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
 using Jotunn.Configs;
@@ -13,7 +14,7 @@ namespace HaldorExpansion.Features.DelayedDoom
     {
         internal const string DelayedDoomChestPrefabName = "ArmorDelayedDoomChest";
         internal const string DelayedDoomChestSourcePrefab = "ArmorPaddedCuirass";
-        internal const int DelayedDoomChestPrice = 4000;
+        internal const int DelayedDoomChestPrice = 3500;
         internal const float DelayedDoomChestFoodRegenBonus = 5f;
 
         internal static GameObject DelayedDoomChestPrefab;
@@ -120,12 +121,13 @@ namespace HaldorExpansion.Features.DelayedDoom
             shared.m_description = DelayedDoomIds.DescriptionKey;
 
             shared.m_armor = 32f;
-            shared.m_maxQuality = 1;
+            shared.m_armorPerLevel = ItemUpgradeBalance.DelayedDoomChest.ArmorPerLevel;
+            shared.m_maxQuality = 2; // Native forge list requires > 1; ordinary upgrades stay disabled.
             shared.m_weight = 5f;
             shared.m_value = 0;
 
-            shared.m_maxDurability = 2100f;
-            shared.m_durabilityPerLevel = 0f;
+            shared.m_maxDurability = ItemUpgradeBalance.DelayedDoomChest.BaseDurability;
+            shared.m_durabilityPerLevel = ItemUpgradeBalance.DelayedDoomChest.DurabilityPerLevel;
 
             shared.m_useDurability = true;
             shared.m_canBeReparied = true;

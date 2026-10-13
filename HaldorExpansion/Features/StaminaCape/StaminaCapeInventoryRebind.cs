@@ -1,12 +1,11 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace HaldorExpansion.Features.StaminaCape
 {
     internal static class StaminaCapeInventoryRebind
     {
-
         internal static bool FixItemsInInventory(Player player)
         {
             try
@@ -53,7 +52,7 @@ namespace HaldorExpansion.Features.StaminaCape
                     item.m_dropPrefab = capePrefab;
                     item.m_shared = prefabDrop.m_itemData.m_shared;
 
-                    item.m_quality = Mathf.Clamp(oldQuality, 1, Mathf.Max(1, item.m_shared.m_maxQuality));
+                    item.m_quality = oldQuality;
                     item.m_variant = oldVariant;
                     item.m_crafterID = oldCrafterID;
                     item.m_crafterName = oldCrafterName;

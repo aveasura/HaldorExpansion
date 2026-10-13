@@ -53,7 +53,8 @@ namespace HaldorExpansion.Features.DelayedDoom
                     item.m_dropPrefab = chestPrefab;
                     item.m_shared = prefabDrop.m_itemData.m_shared;
 
-                    item.m_quality = Mathf.Clamp(oldQuality, 1, Mathf.Max(1, item.m_shared.m_maxQuality));
+                    // Refinement can exceed m_maxQuality; preserve the saved level.
+                    item.m_quality = oldQuality;
                     item.m_variant = oldVariant;
                     item.m_crafterID = oldCrafterID;
                     item.m_crafterName = oldCrafterName;

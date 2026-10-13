@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
@@ -348,9 +348,6 @@
         <EmbeddedResource Include="Assets\haldor_facebreaker">
             <LogicalName>HaldorExpansion.Assets.haldor_facebreaker</LogicalName>
         </EmbeddedResource>
-    </ItemGroup>
-
-    <ItemGroup>
         <EmbeddedResource Include="Assets\Icons\shop_all.png">
             <LogicalName>HaldorExpansion.Assets.Icons.shop_all.png</LogicalName>
         </EmbeddedResource>
@@ -408,6 +405,26 @@
         <EmbeddedResource Include="Assets\Icons\berserker_helmet.png" Condition="Exists('Assets\Icons\berserker_helmet.png')">
             <LogicalName>HaldorExpansion.Assets.Icons.berserker_helmet.png</LogicalName>
         </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="Features\Awakened\AwakenedAbilityMath.cs"/>
+        <Compile Include="Features\Awakened\AwakenedAbilityPatches.cs"/>
+        <Compile Include="Features\Awakened\AwakenedBalance.cs"/>
+        <Compile Include="Features\Awakened\AwakenedCombat.cs"/>
+        <Compile Include="Features\Awakened\AwakenedDescriptions.cs"/>
+        <Compile Include="Features\Awakened\AwakenedEquipment.cs"/>
+        <Compile Include="Features\Awakened\AwakenedStatPatches.cs"/>
+        <Compile Include="Features\Awakened\AwakenedStatRefresh.cs"/>
+        <Compile Include="Features\Upgrades\QualityTestCommand.cs"/>
+        <Compile Include="Features\Upgrades\UpgradeItemState.cs"/>
+        <Compile Include="Features\Upgrades\IdolLootPatches.cs"/>
+        <Compile Include="Features\Upgrades\UpgradePatches.cs"/>
+        <Compile Include="Features\Upgrades\IdolRegistration.cs"/>
+        <Compile Include="Features\Upgrades\ItemUpgradeBalance.cs"/>
+        <Compile Include="Features\Upgrades\UpgradeRecipes.cs"/>
+        <Compile Include="Features\Upgrades\IdolLoot.cs"/>
+        <Compile Include="Features\Brisingamen\BrisingamenCarryStatus.cs"/>
     </ItemGroup>
 
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>

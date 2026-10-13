@@ -1,3 +1,4 @@
+using HaldorExpansion.Features.Awakened;
 using HaldorExpansion.Presentation;
 using HaldorExpansion.Trading;
 using HarmonyLib;
@@ -11,17 +12,19 @@ namespace HaldorExpansion.Patches
         new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(bool), typeof(float), typeof(int), typeof(bool) })]
     internal static class ItemTooltipLorePatch
     {
-        private static void Postfix(ItemDrop.ItemData __0, bool __5, ref string __result)
+        private static void Postfix(ItemDrop.ItemData __0, int __1, bool __5, ref string __result)
         {
             // Appended item tooltips have no leading description of their own.
             // Haldor's lore-only preview uses ShopItemTooltip independently.
             if (__5 || __0?.m_shared == null || Localization.instance == null) return;
             string loreKey = ShopLoreCatalog.ForItem(__0.m_shared.m_name);
-            if (loreKey == null) return;
+            string lore = loreKey == null ? null : Localization.instance.Localize(loreKey);
             string descriptionKey = __0.m_shared.m_description;
-            if (string.IsNullOrEmpty(descriptionKey)) return;
-            __result = ItemLoreTooltip.MoveToEnd(__result, descriptionKey,
-                Localization.instance.Localize(descriptionKey), Localization.instance.Localize(loreKey));
+            if (lore != null && !string.IsNullOrEmpty(descriptionKey))
+                __result = ItemLoreTooltip.MoveToEnd(__result, descriptionKey,
+                    Localization.instance.Localize(descriptionKey), lore);
+            __result = AwakenedDescriptions.InsertBeforeLore(__result,
+                AwakenedDescriptions.ForItem(__0, __1), lore);
         }
     }
 

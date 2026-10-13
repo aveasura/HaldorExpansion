@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using Jotunn.Configs;
 using Jotunn.Entities;
@@ -191,12 +192,13 @@ namespace HaldorExpansion.Features.WoundedBeast
             shared.m_description = WoundedBeastCapeItemDescKey;
 
             shared.m_armor = 1f;
-            shared.m_maxQuality = 1;
+            shared.m_armorPerLevel = 0f; // This cloak gains durability only.
+            shared.m_maxQuality = 2; // Native upgrader eligibility; saved levels have no cap.
             shared.m_weight = 1f;
             shared.m_value = 0;
 
             shared.m_maxDurability = 1800f;
-            shared.m_durabilityPerLevel = 0f;
+            shared.m_durabilityPerLevel = ItemUpgradeBalance.WoundedBeastCloak.DurabilityPerLevel;
             shared.m_canBeReparied = true;
             shared.m_useDurability = true;
 

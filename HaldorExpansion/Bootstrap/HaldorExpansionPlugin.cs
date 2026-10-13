@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using HaldorExpansion.Configuration;
@@ -6,6 +6,7 @@ using HaldorExpansion.Diagnostics;
 using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.HelOath;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Patches;
 using HaldorExpansion.Presentation;
 using HarmonyLib;
@@ -63,6 +64,7 @@ namespace HaldorExpansion
             ConfigurationManagerIntegration.Initialize(_configuration, this);
             ModLocalization.AddLocalizations();
             ObjectDB_Awake_Patch.Initialize();
+            QualityTestCommand.Register();
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), ModGuid);
 
