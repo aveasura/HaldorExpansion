@@ -39,7 +39,7 @@ namespace HaldorExpansion.Features.Cestus
         internal const float ClashReboundSpeed = 5f;
         internal const float SlowFraction = 0.60f;
         internal const float SlowDurationSeconds = 4f;
-        internal const float CooldownSeconds = 7f;
+        internal const float CooldownSeconds = 5f;
 
         internal const float StaminaCost = 20f;
 
