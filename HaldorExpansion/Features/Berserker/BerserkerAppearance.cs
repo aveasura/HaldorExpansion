@@ -80,7 +80,7 @@ namespace HaldorExpansion.Features.Berserker
                 HaldorExpansionPlugin.Log?.LogWarning(
                     "[Berserker] Appearance fallback for " + source.name + ": " + e.Message);
                 painted = new Material(source) { name = source.name + suffix };
-                SetTint(painted, new Color(0.34f, 0.36f, 0.40f, 1f));
+                SetTint(painted, new Color(0.20f, 0.055f, 0.070f, 1f));
             }
 
             Materials[index][source] = painted;
@@ -108,7 +108,7 @@ namespace HaldorExpansion.Features.Berserker
                 hasTexture = true;
             }
 
-            SetTint(painted, hasTexture ? Color.white : new Color(0.34f, 0.36f, 0.40f, 1f));
+            SetTint(painted, hasTexture ? Color.white : new Color(0.20f, 0.055f, 0.070f, 1f));
             // Retain normals, metallic/roughness, and every game-provided effect/material flag.
             if (painted.HasProperty("_EmissionColor"))
             {
@@ -127,10 +127,10 @@ namespace HaldorExpansion.Features.Berserker
             if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", tint);
         }
 
-        // Shared Berserker gear finish: dark steel transitioning into warm bronze.
+        // Shared Berserker gear finish: near-black steel transitioning into deep crimson.
         // Helmet/axe keep the approved original breakup; the cloak needs larger, softer fields
         // because the deer-hide mesh otherwise turns those small regions into noisy spots.
-        private static Color PaintBronzeSteel(float u, float v, float brightness, float seed, bool softCloak)
+        private static Color PaintCrimsonSteel(float u, float v, float brightness, float seed, bool softCloak)
         {
             float broad = softCloak
                 ? Mathf.PerlinNoise(u * 1.8f + 9.3f + seed, v * 2.2f + 4.8f)
@@ -141,7 +141,7 @@ namespace HaldorExpansion.Features.Berserker
             float value = broad + (breakup - 0.5f) * (softCloak ? 0.05f : 0.16f);
 
             // The cloak blends over wider transitions rather than isolated spot-shaped islands.
-            // The helmet and axe retain their exact previous coverage calculations.
+            // Keep the existing coverage pattern for the axe and helmet.
             float chromeCoverage = Mathf.SmoothStep(0f, 1f,
                 softCloak
                     ? Mathf.InverseLerp(0.32f, 0.68f, value)
@@ -151,24 +151,24 @@ namespace HaldorExpansion.Features.Berserker
             // Keep enough of the original luminance to retain the fabric's volume and folds.
             if (softCloak) brightness = Mathf.Lerp(0.5f, brightness, 0.40f);
 
-            // Black is still polished steel, rather than flat pitch-black paint.
+            // Dark surfaces retain subtle steel highlights instead of becoming flat black.
             Color blackSteel = Color.Lerp(
-                new Color(0.055f, 0.050f, 0.050f),
-                new Color(0.18f, 0.15f, 0.13f),
+                new Color(0.022f, 0.018f, 0.023f),
+                new Color(0.12f, 0.060f, 0.072f),
                 Mathf.Clamp01(brightness * 0.70f + breakup * 0.30f));
 
-            // Bronze stays recognizable even on dark parts of the vanilla map.
-            Color chrome = Color.Lerp(
-                new Color(0.38f, 0.30f, 0.22f),
-                new Color(0.76f, 0.62f, 0.43f),
+            // Crimson is deep and saturated, contrasting clearly with the black steel.
+            Color crimson = Color.Lerp(
+                new Color(0.30f, 0.023f, 0.043f),
+                new Color(0.73f, 0.080f, 0.115f),
                 Mathf.Clamp01(0.22f + brightness * 0.47f + breakup * 0.31f));
 
-            // Narrow highlights stay inside the chrome regions, creating natural transitions.
+            // Narrow scarlet highlights remain inside the crimson regions.
             float glint = Mathf.SmoothStep(0f, 1f,
                 Mathf.InverseLerp(0.59f, 0.82f, breakup));
-            chrome = Color.Lerp(chrome, new Color(0.92f, 0.82f, 0.62f),
+            crimson = Color.Lerp(crimson, new Color(0.94f, 0.20f, 0.22f),
                 glint * (softCloak ? 0.065f : 0.15f));
-            return Color.Lerp(blackSteel, chrome, chromeCoverage);
+            return Color.Lerp(blackSteel, crimson, chromeCoverage);
         }
 
         private static Texture2D PaintTexture(Texture source, Style style, string suffix)
@@ -202,9 +202,9 @@ namespace HaldorExpansion.Features.Berserker
                     float brightness = original.r * 0.2126f + original.g * 0.7152f + original.b * 0.0722f;
                     float u = (float)x / width, v = (float)y / height;
 
-                    // Preserve the helmet/axe appearance; only the cloak receives a softer pattern.
+                    // Preserve the existing texture breakup; only the cloak receives a softer pattern.
                     // The helmet's separate red-eye recolor below remains unchanged.
-                    Color color = PaintBronzeSteel(u, v, brightness, seed, style == Style.Cloak);
+                    Color color = PaintCrimsonSteel(u, v, brightness, seed, style == Style.Cloak);
 
                     if (style == Style.Helmet)
                     {
