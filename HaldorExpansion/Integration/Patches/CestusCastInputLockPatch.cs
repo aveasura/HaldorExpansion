@@ -22,7 +22,17 @@ namespace HaldorExpansion.Patches
 
             if (!CestusRuntime.IsCestusInputLocked(__instance) &&
                 !CestusFacebreaker.IsCastLocked(__instance))
+            {
+                // Ready + aiming with RMB: Facebreaker replaces vanilla block/parry.
+                // On cooldown (or on another key bind) leave BOTH block inputs intact.
+                if (CestusFacebreaker.OverridesVanillaBlock(__instance))
+                {
+                    block = false;
+                    blockHold = false;
+                }
+
                 return;
+            }
 
             movedir = Vector3.zero;
             attack = false;

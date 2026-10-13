@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using HaldorExpansion.Configuration;
 using HaldorExpansion.Features.Awakened;
@@ -141,11 +141,11 @@ namespace HaldorExpansion.Presentation
                 [UiTextIds.TooltipScroll] = "Прокрутка: колесо мыши / PgUp, PgDn",
                 [HelOathItemRegistration.HelOathItemKey] = ItemNames.HelOathRu,
                 [HelOathItemRegistration.HelOathItemDescKey] =
-                    "<color=#9EDFF2><b>Касание Хель</b></color>: полный комплект Фенриса пробуждает Касания Хель при попаданиях из лука.\n" +
+                    "<color=#9EDFF2><b>Касание Хель</b></color>: полный комплект Фенриса пробуждает Касание Хель при попаданиях из лука.\n" +
                     "Каждая стадия ускоряет движение и снижает затраты выносливости.\n\n" +
-                    "<color=#D5F5FF><b>Объятия Хель</b></color>: попадания из лука заряжают способность.\n" +
-                    "После активации следующая стрела взрывается.\n" +
-                    "Чем меньше максимальное здоровье и выше максимальная выносливость, тем сильнее взрыв. Касание V усиливает его.",
+                    "<color=#D5F5FF><b>Объятия Хель</b></color>: попадания из лука накапливают заряд. Когда заряд заполнен, нажмите на колёсико мыши (по умолчанию), чтобы активировать способность.\n" +
+                    "После активации следующая стрела взрывается при попадании.\n" +
+                    "Чем <color=#D5F5FF><b>меньше</b></color> максимальное здоровье и <color=#D5F5FF><b>выше</b></color> максимальная выносливость, тем сильнее взрыв. Касание Хель V значительно усиливает его.",
                 [HelOathItemRegistration.HelOathPassiveNameKey] = "Жертва Хель",
                 [HelOathItemRegistration.HelOathPassiveDescKey] =
                     "50% максимального здоровья превращается в максимальную выносливость.",
@@ -194,7 +194,7 @@ namespace HaldorExpansion.Presentation
                     "Без новых попаданий Ярость угасает.\n\n" +
                     "<color=#9EDFF2><b>Кровавый долг</b></color>: растёт от полученных ран и попаданий секирой.\n" +
                     "Усиливает Расплату и Рагнарёк. Вне боя угасает.\n\n" +
-                    "<color=#9EDFF2><b>Расплата (колёсико мыши)</b></color>: требует Ярость II+ и долг x{reckoning_debt}+.\n" +
+                    "<color=#9EDFF2><b>Расплата (кнопка колёсика мыши (по умолчанию))</b></color>: требует Ярость II+ и долг x{reckoning_debt}+.\n" +
                     "Заменяет альтернативную атаку. При попадании расходует {reckoning_spend}% долга,\n" +
                     "наносит дополнительный урон и исцеляет на {reckoning_heal}% от нанесенного урона.\n\n" +
                     "<color=#e72517><b>Рагнарёк ({ragnarok_key})</b></color>: требует Ярость V, долг x{ragnarok_debt}+ и Плащ берсерка.\n" +
@@ -317,10 +317,10 @@ namespace HaldorExpansion.Presentation
                     "<color=#9EDFF2><b>Боевой запал</b></color>\n" +
                     "Полученные раны накапливают заряд.\n" +
                     "Без новых ран заряд постепенно угасает.\n\n" +
-                    "<color=#9EDFF2><b>Возмездие (колёсико мыши)</b></color>\n" +
+                    "<color=#9EDFF2><b>Возмездие (Кнопка колёсика мыши (по умолчанию))</b></color>\n" +
                     "При полном заряде выпускает ударную волну и создаёт защитный покров.\n" +
                     "Пока покров активен, заряд не накапливается.\n\n" +
-                    "<color=#9EDFF2><b>Мордобой (удержание клавиши)</b></color>\n" +
+                    "<color=#9EDFF2><b>Мордобой (удержание ПКМ по умолчанию)</b></color>\n" +
                     "Стягивает врагов с двух сторон.\n" +
                     "Успешно притянутые враги замедляются на 60% на 4 секунды. Если в зоне были враги с обеих сторон, все притянутые цели также получают ошеломление.\n" +
                     "Перезарядка: 5 секунд",
@@ -526,9 +526,9 @@ namespace HaldorExpansion.Presentation
                 [HelOathItemRegistration.HelOathItemDescKey] =
                     "<color=#9EDFF2><b>Hel's Touch</b></color>: bow hits awaken Hel's Touch with the full Fenris set.\n" +
                     "Each stage grants movement speed and reduces stamina costs.\n\n" +
-                    "<color=#D5F5FF><b>Hel's Embrace</b></color>: bow hits charge the ability.\n" +
-                    "When activated, the next arrow explodes.\n" +
-                    "The lower your maximum health and the higher your maximum stamina, the stronger the blast. Hel's Touch V empowers it.",
+                    "<color=#D5F5FF><b>Hel's Embrace</b></color>: bow hits build up charge. Once fully charged, press the middle mouse button (default) to activate the ability.\n" +
+                    "Once activated, your next arrow explodes on impact.\n" +
+                    "The <color=#D5F5FF><b>lower</b></color> your maximum health and the <color=#D5F5FF><b>higher</b></color> your maximum stamina, the stronger the blast. Hel's Touch V further empowers it.",
                 [HelOathItemRegistration.HelOathPassiveNameKey] = "Hel's Sacrifice",
                 [HelOathItemRegistration.HelOathPassiveDescKey] =
                     "50% of maximum health is converted into maximum stamina.",
@@ -577,7 +577,7 @@ namespace HaldorExpansion.Presentation
                     "Wrath fades without new hits.\n\n" +
                     "<color=#9EDFF2><b>Blood Debt</b></color>: builds from damage taken and axe hits.\n" +
                     "Empowers Reckoning and Ragnarök. Fades outside combat.\n\n" +
-                    "<color=#9EDFF2><b>Reckoning (middle mouse)</b></color>: requires Wrath II+ and Blood Debt x{reckoning_debt}+.\n" +
+                    "<color=#9EDFF2><b>Reckoning (middle mouse button by default)</b></color>: requires Wrath II+ and Blood Debt x{reckoning_debt}+.\n" +
                     "Replaces the secondary attack. On hit, spends {reckoning_spend}% of Blood Debt,\n" +
                     "deals bonus damage, and heals for {reckoning_heal}% of damage dealt.\n\n" +
                     "<color=#e72517><b>Ragnarök ({ragnarok_key})</b></color>: requires Wrath V, Blood Debt x{ragnarok_debt}+, and the Berserker Cloak.\n" +
@@ -701,10 +701,10 @@ namespace HaldorExpansion.Presentation
                     "<color=#9EDFF2><b>Battle Fervor</b></color>\n" +
                     "Taking damage builds charge.\n" +
                     "Charge gradually fades without fresh wounds.\n\n" +
-                    "<color=#9EDFF2><b>Retribution (middle mouse)</b></color>\n" +
+                    "<color=#9EDFF2><b>Retribution (middle mouse button by default)</b></color>\n" +
                     "At full charge, unleashes a shockwave and creates a protective barrier.\n" +
                     "Charge cannot build while the barrier is active.\n\n" +
-                    "<color=#9EDFF2><b>Facebreaker (hold ability key)</b></color>\n" +
+                    "<color=#9EDFF2><b>Facebreaker (hold RMB by default)</b></color>\n" +
                     "Pull enemies from both sides.\n" +
                     "Successfully pulled enemies are slowed by 60% for 4 seconds. If enemies are caught on both sides, all pulled targets also stagger.\n" +
                     "Cooldown: 5 sec",

@@ -39,7 +39,7 @@ namespace HaldorExpansion.Features.Cestus
         internal const float ClashReboundSpeed = 5f;
         internal const float SlowFraction = 0.60f;
         internal const float SlowDurationSeconds = 4f;
-        internal const float CooldownSeconds = 5f;
+        internal const float CooldownSeconds = 7f;
 
         internal const float StaminaCost = 20f;
 
@@ -85,6 +85,12 @@ namespace HaldorExpansion.Features.Cestus
 
         internal static bool IsAiming(Player player) => aiming && player != null && player == currentPlayer;
 
+        // Do not suppress vanilla block for other Facebreaker key binds (such as E).
+        // Cooldown/low stamina/not equipped never set aiming, so RMB remains vanilla.
+        internal static bool OverridesVanillaBlock(Player player) => IsAiming(player) &&
+            CestusInputRegistration.FacebreakerKeyConfig != null &&
+            CestusInputRegistration.FacebreakerKeyConfig.Value == KeyCode.Mouse1;
+
         internal static void UpdateLocal(Player player)
         {
             if (player == null || player != Player.m_localPlayer)
@@ -108,22 +114,35 @@ namespace HaldorExpansion.Features.Cestus
                 return;
             }
 
-            // BlockOtherInputs is only queried while the ability can be used.
-            // This avoids stealing vanilla E outside of Bone Crushers combat.
-            if (!aiming && (Time.time < nextUseTime ||
-                            player.GetStamina() < StaminaCost ||
-                            CestusInputRegistration.FacebreakerButton == null))
+            // Never poll Jotunn's blocking input unless we are actually aiming.
+            // A custom Facebreaker bind (E, Mouse0, etc.) must remain available to
+            // vanilla while unequipped, on cooldown or unable to afford the cast.
+            if (CestusInputRegistration.FacebreakerButton == null ||
+                CestusInputRegistration.FacebreakerKeyConfig == null ||
+                CestusInputRegistration.FacebreakerKeyConfig.Value == KeyCode.None ||
+                player.GetStamina() < StaminaCost)
+            {
+                CancelAim();
                 return;
+            }
 
-            // The registered Jotunn button uses BlockOtherInputs to suppress vanilla E/Use.
-            // Its ZInput state can be cleared by another binding on the same key, though,
-            // so it is NOT reliable for detecting a continuously held keyboard key.
-            // Read the configured physical key separately, before querying the custom button.
-            bool holding = CestusInputRegistration.FacebreakerKeyConfig != null &&
-                           ZInput.GetKey(CestusInputRegistration.FacebreakerKeyConfig.Value);
+            KeyCode key = CestusInputRegistration.FacebreakerKeyConfig.Value;
+            if (!aiming)
+            {
+                // Require a FRESH press. When a cooldown ends while RMB is still
+                // held for blocking, Facebreaker must not steal that ongoing hold.
+                // This also avoids activating from a key held before equipping.
+                if (Time.time < nextUseTime || !ZInput.GetKeyDown(key))
+                    return;
+            }
+
+            // Physical input is independent of Jotunn's virtual button resets.
+            bool holding = ZInput.GetKey(key);
             if (holding)
             {
-                // Preserve the Jotunn-side blocking of vanilla interaction while aiming.
+                // Jotunn's BlockOtherInputs resets other actions on this exact
+                // binding. Poll it ONLY on an eligible Facebreaker aiming frame;
+                // otherwise vanilla actions (including E/attack/block) work.
                 ZInput.GetButton(CestusInputRegistration.FacebreakerButton.Name);
                 releaseCandidateAt = -1f;
                 aiming = true;
