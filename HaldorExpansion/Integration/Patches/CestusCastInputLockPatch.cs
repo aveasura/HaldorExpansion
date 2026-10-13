@@ -30,7 +30,6 @@ namespace HaldorExpansion.Patches
                     block = false;
                     blockHold = false;
                 }
-
                 return;
             }
 

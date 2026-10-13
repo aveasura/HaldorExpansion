@@ -10,6 +10,7 @@ namespace HaldorExpansion.Patches
         {
             CestusFacebreakerNetwork.Register(__instance);
             CestusFacebreakerAnimation.Register(__instance);
+            CestusFacebreakerAudio.Register(__instance);
         }
     }
 
@@ -27,6 +28,7 @@ namespace HaldorExpansion.Patches
             {
                 CestusFacebreakerNetwork.Register(character, __instance);
                 CestusFacebreakerAnimation.Register(character, __instance);
+                CestusFacebreakerAudio.Register(character, __instance);
             }
         }
     }

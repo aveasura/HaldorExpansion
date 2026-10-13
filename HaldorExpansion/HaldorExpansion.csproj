@@ -145,6 +145,7 @@
         <Compile Include="Features\HelOath\HelOathWorldProgression.cs"/>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
+        <Reference Include="System.IO.Compression"/>
         <Reference Include="System.Data"/>
         <Reference Include="System.Xml"/>
     </ItemGroup>
@@ -184,6 +185,8 @@
         <Compile Include="Features\Cestus\CestusInputRegistration.cs"/>
         <Compile Include="Features\Cestus\CestusFacebreaker.cs"/>
         <Compile Include="Features\Cestus\CestusFacebreakerAnimation.cs"/>
+        <Compile Include="Features\Cestus\CestusFacebreakerAudio.cs"/>
+        <Compile Include="Features\Cestus\CestusFacebreakerAudioData.cs"/>
         <Compile Include="Features\Cestus\CestusFacebreakerPreview.cs"/>
         <Compile Include="Features\Cestus\CestusFacebreakerSlow.cs"/>
         <Compile Include="Features\Cestus\CestusFacebreakerNetwork.cs"/>

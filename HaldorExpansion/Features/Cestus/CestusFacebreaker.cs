@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
@@ -88,8 +88,10 @@ namespace HaldorExpansion.Features.Cestus
         // Do not suppress vanilla block for other Facebreaker key binds (such as E).
         // Cooldown/low stamina/not equipped never set aiming, so RMB remains vanilla.
         internal static bool OverridesVanillaBlock(Player player) => IsAiming(player) &&
-            CestusInputRegistration.FacebreakerKeyConfig != null &&
-            CestusInputRegistration.FacebreakerKeyConfig.Value == KeyCode.Mouse1;
+                                                                     CestusInputRegistration.FacebreakerKeyConfig !=
+                                                                     null &&
+                                                                     CestusInputRegistration.FacebreakerKeyConfig
+                                                                         .Value == KeyCode.Mouse1;
 
         internal static void UpdateLocal(Player player)
         {
@@ -186,6 +188,7 @@ namespace HaldorExpansion.Features.Cestus
             // Commit stamina and cooldown on release, not at the later animation hit.
             player.UseStamina(StaminaCost);
             nextUseTime = Time.time + CooldownSeconds;
+            CestusFacebreakerAudio.StartCast(player);
 
             // If a client cannot load/play the custom clip, its original instant pull
             // remains fully functional (including its original net/physics behaviour).
@@ -291,6 +294,12 @@ namespace HaldorExpansion.Features.Cestus
                 CestusFacebreakerNetwork.Send(
                     player, candidate.Target, origin, axis, candidate.Side >= 0f, clash);
             }
+
+            // The main movement sound started with the cast. Switch the already
+            // synchronized track only if enemies were caught on BOTH sides.
+            // The impact inside that track lands at the normal stagger timing.
+            if (clash)
+                CestusFacebreakerAudio.SelectStagger(player);
 
             Candidates.Clear();
         }
