@@ -40,10 +40,17 @@ namespace HaldorExpansion.Features.Awakened
 
         internal static void AddTranslations(Dictionary<string, string> text, bool ru)
         {
-            text[HiddenKey] = ru
-                ? "Скрытый потенциал: пробуждается на " + AwakenedBalance.QualityThreshold + "-м уровне улучшения предмета."
-                : "Hidden Potential: awakens at upgrade level " + AwakenedBalance.QualityThreshold + ".";
-            string title = ru ? "Пробуждённый потенциал: " : "Awakened Potential: ";
+            text[HiddenKey] = "<color=#AA5555>" +
+                              (ru
+                                  ? "Скрытый потенциал: пробуждается на " +
+                                    AwakenedBalance.QualityThreshold +
+                                    "-м уровне улучшения предмета."
+                                  : "Hidden Potential: awakens at upgrade level " +
+                                    AwakenedBalance.QualityThreshold + ".") +
+                              "</color>";
+            string title = "<color=#FF5555><b>" +
+                           (ru ? "Пробуждённый потенциал:" : "Awakened Potential:") +
+                           "</b></color> ";
             text[Key(Artifact.DelayedDoomChest)] = title + (ru
                 ? "При активном отложенном долге и здоровье не выше " +
                   Percent(AwakenedBalance.DelayedDoomChest.HealthThreshold) +
@@ -100,9 +107,9 @@ namespace HaldorExpansion.Features.Awakened
                   " фактически снятого здоровья врага. Не действует на Возмездие."
                 : "Attacks restore health equal to " + Percent(AwakenedBalance.BoneCrushers.LifeSteal) +
                   " of the enemy health actually lost. Does not apply to the Retribution.");
-            text[Key(Artifact.HelOath)] = ru
-                ? "Пробуждённый потенциал: Призраки последней охоты (в разработке)."
-                : "Awakened Potential: Ghosts of the Last Hunt (Work in Progress).";
+            text[Key(Artifact.HelOath)] = title + (ru
+                ? "Призраки последней охоты (в разработке)."
+                : "Ghosts of the Last Hunt (Work in Progress).");
             text[Key(Artifact.ShadowCrossbow)] = title + (ru
                 ? "Пока арбалет экипирован: +" + Number(AwakenedBalance.ShadowCrossbow.Sneak) + " к скрытности и +" +
                   Number(AwakenedBalance.ShadowCrossbow.Crossbows) +
