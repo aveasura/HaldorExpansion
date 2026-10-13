@@ -134,8 +134,10 @@ namespace HaldorExpansion.Presentation
                     "\n\nИ тогда он решил искать спасения там, куда прежде не осмеливался обратиться ни один смертный." +
                     "\n\n<b>У тех, кто плетёт саму судьбу.</b>" +
                     "\n\n<color=#B1ABA5><i>«Он сжёг собственные силы, лишь бы не упасть. Но даже пепел однажды остывает.»</i></color>",
-                [UiTextIds.ShopAll] = "Всё",
+                [UiTextIds.ShopAll] = "ВСЕ",
                 [UiTextIds.ShopEquipment] = "Снаряжение",
+                [UiTextIds.ShopWood] = "Древесина",
+                [UiTextIds.ShopMetals] = "Руды и металлы",
                 [UiTextIds.ShopResources] = "Ресурсы",
                 [UiTextIds.ShopOther] = "Прочее",
                 [UiTextIds.TooltipScroll] = "Прокрутка: колесо мыши / PgUp, PgDn",
@@ -517,8 +519,10 @@ namespace HaldorExpansion.Presentation
                     "\n\nAnd so he resolved to seek salvation where no mortal had dared to look before." +
                     "\n\n<b>Among those who weave fate itself.</b>" +
                     "\n\n<color=#B1ABA5><i>“He burned through his own strength rather than fall. But even ashes grow cold.”</i></color>",
-                [UiTextIds.ShopAll] = "All",
+                [UiTextIds.ShopAll] = "ALL",
                 [UiTextIds.ShopEquipment] = "Equipment",
+                [UiTextIds.ShopWood] = "Wood",
+                [UiTextIds.ShopMetals] = "Ores and metals",
                 [UiTextIds.ShopResources] = "Resources",
                 [UiTextIds.ShopOther] = "Other",
                 [UiTextIds.TooltipScroll] = "Scroll: mouse wheel / PgUp, PgDn",

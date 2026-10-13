@@ -14,6 +14,7 @@ namespace HaldorExpansion.Presentation
         private static readonly MethodInfo FillList = AccessTools.Method(typeof(StoreGui), "FillList");
         private static HaldorTabsView view;
         private static StoreGui failedGui;
+        private static int lastState = -1;
         internal static ShopCategory Category { get; private set; }
 
         internal static bool Applies(StoreGui gui)
@@ -26,6 +27,10 @@ namespace HaldorExpansion.Presentation
 
         internal static void Sync(StoreGui gui)
         {
+            int state = TradingUiConfiguration.State;
+            bool settingsChanged = state != lastState;
+            lastState = state;
+            if (!TradingUiConfiguration.IsCategoryEnabled(Category)) Category = ShopCategory.All;
             bool wanted = TradingUiConfiguration.Enabled && gui != null && gui.m_rootPanel.activeSelf &&
                           HaldorShopUpdater.IsHaldor(TraderField.GetValue(gui) as Trader);
             if (view != null && (!wanted || view.Gui != gui))
@@ -34,7 +39,17 @@ namespace HaldorExpansion.Presentation
                 if (gui != null && gui.m_rootPanel.activeSelf) Refresh(gui);
             }
 
-            if (!wanted || view != null || failedGui == gui) return;
+            if (!wanted || view != null || failedGui == gui)
+            {
+                if (settingsChanged && IsHaldorGui(gui))
+                {
+                    view?.Select(Category);
+                    Refresh(gui);
+                }
+
+                return;
+            }
+
             try
             {
                 view = HaldorTabsView.Create(gui);
@@ -55,13 +70,14 @@ namespace HaldorExpansion.Presentation
         {
             Sync(gui);
             if (!Applies(gui)) return;
+            view.UpdateLayout();
             if (ZInput.GetButtonDown("JoyTabLeft")) view.Cycle(Category, -1);
             else if (ZInput.GetButtonDown("JoyTabRight")) view.Cycle(Category, 1);
         }
 
         internal static void Select(ShopCategory category)
         {
-            if (view == null || Category == category) return;
+            if (view == null || Category == category || !TradingUiConfiguration.IsCategoryEnabled(category)) return;
             Category = category;
             view.Select(category);
             Refresh(view.Gui);
@@ -79,19 +95,30 @@ namespace HaldorExpansion.Presentation
         internal static List<Trader.TradeItem> GetVisibleItems(Trader trader)
         {
             List<Trader.TradeItem> items = trader.GetAvailableItems();
-            if (!Applies(StoreGui.instance) || (Trader)TraderField.GetValue(StoreGui.instance) != trader) return items;
-            return ShopCategoryFilter.Filter(items, Category, Classify);
+            if (!HaldorShopUpdater.IsHaldor(trader)) return items;
+            bool tabsApply = Applies(StoreGui.instance) && (Trader)TraderField.GetValue(StoreGui.instance) == trader;
+            return ShopCategoryFilter.Filter(items, tabsApply ? Category : ShopCategory.All, Classify,
+                TradingUiConfiguration.HideItems
+                    ? (Func<ShopCategory, bool>)TradingUiConfiguration.IsCategoryEnabled
+                    : null);
         }
 
         private static ShopCategory Classify(Trader.TradeItem item)
         {
-            var shared = item.m_prefab != null ? item.m_prefab.m_itemData?.m_shared : null;
-            return ShopCategoryFilter.Classify(shared != null ? shared.m_itemType.ToString() : null);
+            var shared = item?.m_prefab != null ? item.m_prefab.m_itemData?.m_shared : null;
+            return ShopCategoryFilter.Classify(shared != null ? shared.m_itemType.ToString() : null,
+                item?.m_prefab != null ? item.m_prefab.name : null, shared?.m_name);
+        }
+
+        private static bool IsHaldorGui(StoreGui gui)
+        {
+            return gui != null && gui.m_rootPanel.activeSelf &&
+                   HaldorShopUpdater.IsHaldor(TraderField.GetValue(gui) as Trader);
         }
 
         internal static void ClampSelection(StoreGui gui, ref int index)
         {
-            if (!Applies(gui)) return;
+            if (!IsHaldorGui(gui)) return;
             var trader = TraderField.GetValue(gui) as Trader;
             index = ShopCategoryFilter.ClampSelection(index, GetVisibleItems(trader).Count);
         }

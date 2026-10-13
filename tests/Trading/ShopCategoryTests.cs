@@ -29,6 +29,23 @@ class ShopCategoryTests
         Check(ShopCategoryFilter.ClampSelection(12, 2) == 1, "shorter list clamps selection");
         Check(ShopCategoryFilter.ClampSelection(-1, 4) == -1, "deselection remains deselected");
         Check(ShopCategoryFilter.ClampSelection(1, 4) == 1, "valid selection stays unchanged");
+        foreach (string id in new[] { "Wood", "FineWood", "RoundLog", "ElderBark", "YggdrasilWood", "Blackwood" })
+            Check(ShopCategoryFilter.Classify("Material", id, null) == ShopCategory.Wood, id + " is wood");
+        foreach (string id in new[] { "CopperOre", "TinOre", "SilverOre", "IronScrap", "CopperScrap", "BlackMetalScrap", "FlametalOreNew", "Iron", "Copper", "Tin", "Silver", "Bronze", "FlametalNew", "Flametal", "BlackMetal" })
+            Check(ShopCategoryFilter.Classify("Material", id, null) == ShopCategory.Metals, id + " is ore/metal");
+        foreach (string id in new[] { "Sap", "Eitr", "Resin", "Stone", "Obsidian", "Coal", "AncientSeed", "ModUnknownMaterial", "WoodenToken" })
+            Check(ShopCategoryFilter.Classify("Material", id, null) == ShopCategory.Resources, id + " remains a resource");
+        Check(ShopCategoryFilter.Classify("Shield", "Wood", "$item_wood") == ShopCategory.Equipment, "equipment wins over resource identity");
+        Check(ShopCategoryFilter.Classify("Material", "ModCoreWood", "$item_roundlog") == ShopCategory.Wood, "mod clone recognized through shared key");
+        Check(ShopCategoryFilter.Classify("ModUnknownType", "Unknown", null) == ShopCategory.Other, "unknown mod type remains Other");
+        var stock = new List<string> { "Copper", "Wood", "Sap", "Iron", "Eitr", "FineWood" };
+        Func<string, ShopCategory> classify = id => ShopCategoryFilter.Classify("Material", id, null);
+        Func<ShopCategory, bool> noMetals = c => c != ShopCategory.Metals;
+        var limited = ShopCategoryFilter.Filter(stock, ShopCategory.All, classify, noMetals);
+        Check(string.Join(",", limited) == "Wood,Sap,Eitr,FineWood", "sales ban also filters ALL without reordering");
+        Check(ShopCategoryFilter.Filter(stock, ShopCategory.Metals, classify, noMetals).Count == 0, "banned category cannot bypass sales policy");
+        Check(ReferenceEquals(stock, ShopCategoryFilter.Filter(stock, ShopCategory.All, classify)), "restoring policy returns original list and order");
+        Check(string.Join(",", stock) == "Copper,Wood,Sap,Iron,Eitr,FineWood", "policy never mutates source stock");
         Console.WriteLine(passed + " checks passed");
     }
 }

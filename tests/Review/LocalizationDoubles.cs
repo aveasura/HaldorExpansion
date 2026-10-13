@@ -95,5 +95,5 @@ namespace HaldorExpansion
 }
 namespace HaldorExpansion.Trading
 {
-    internal enum ShopCategory { All, Equipment, Resources, Other }
+
 }

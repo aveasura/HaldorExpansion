@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using BepInEx.Configuration;
 using HaldorExpansion.Configuration;
+using HaldorExpansion.Trading;
 
 class TradingUiTests
 {
@@ -30,6 +31,16 @@ class TradingUiTests
             upgraded.Finish();
             Check(TradingUiConfiguration.Enabled, "new tabs default to true after schema upgrade");
             Check(!(bool)upgraded.General["Compatibility", "Enable long item tooltips"].BoxedValue, "existing user preference preserved");
+            Check(!TradingUiConfiguration.HideItems, "category sales ban defaults OFF");
+            foreach (ShopCategory category in Enum.GetValues(typeof(ShopCategory)))
+                Check(TradingUiConfiguration.IsCategoryEnabled(category), category + " defaults visible");
+            int originalState = TradingUiConfiguration.State;
+            upgraded.General["Trading UI", "Show Metals tab"].BoxedValue = false;
+            Check(!TradingUiConfiguration.IsCategoryEnabled(ShopCategory.Metals), "metal toggle applies live");
+            Check(TradingUiConfiguration.State != originalState, "shop detects changed visibility");
+            upgraded.General["Trading UI", "Hide items from disabled tabs"].BoxedValue = true;
+            Check(TradingUiConfiguration.HideItems, "sales policy applies live");
+            Check(TradingUiConfiguration.IsCategoryEnabled(ShopCategory.All), "ALL cannot be disabled");
             bool backup = false;
             foreach (string path in Directory.GetFiles(Path.Combine(dir, "backups"), "*.bak"))
                 if (File.ReadAllText(path) == original) backup = true;
@@ -40,6 +51,10 @@ class TradingUiTests
             TradingUiConfiguration.Register(restart.General);
             restart.Finish();
             Check(!TradingUiConfiguration.Enabled, "disabled preference survives restart");
+            Check(!TradingUiConfiguration.IsCategoryEnabled(ShopCategory.Metals) && TradingUiConfiguration.HideItems,
+                "category and sales policy survive restart");
+            restart.General["Trading UI", "Show Metals tab"].BoxedValue = true;
+            Check(TradingUiConfiguration.IsCategoryEnabled(ShopCategory.Metals), "category can be restored");
             string pathConfig = restart.General.ConfigFilePath;
             File.WriteAllText(pathConfig, File.ReadAllText(pathConfig).Replace("Enable Haldor tabs = false", "Enable Haldor tabs = true"));
             UnityEngine.Time.unscaledTime = 10;
@@ -47,7 +62,7 @@ class TradingUiTests
             UnityEngine.Time.unscaledTime = 12;
             restart.Update();
             Check(TradingUiConfiguration.Enabled, "editing general.cfg reloads tabs setting during play");
-            Console.WriteLine("6 trading UI configuration checks passed (real BepInEx; game/network adapters stubbed)");
+            Console.WriteLine("Trading UI configuration checks passed (real BepInEx; game/network adapters stubbed)");
         }
         finally { Directory.Delete(dir, true); }
     }
