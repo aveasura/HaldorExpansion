@@ -13,8 +13,8 @@ namespace HaldorExpansion.Features.Berserker
 {
     internal static class BerserkerCloakItemRegistration
     {
-        // Prefer the same proven Troll Cape source selection used by Pelt of Helheim.
-        private static readonly string[] SourcePrefabs = { "CapeTroll", "CapeTrollHide" };
+        // Use the Ashen Cape as the appearance source only. All gameplay stats are assigned below.
+        private static readonly string[] SourcePrefabs = { "CapeAsh" };
 
         internal const int Price = 2500;
         internal const string IconFileName = "berserker_cloak.png";
@@ -58,7 +58,7 @@ namespace HaldorExpansion.Features.Berserker
                 if (source == null)
                 {
                     HaldorExpansionPlugin.Log?.LogWarning(
-                        $"[Berserker] Source Troll cloak prefab not found (CapeTroll / CapeTrollHide)");
+                        $"[Berserker] Source Ashen Cape prefab not found (CapeAsh)");
                     return false;
                 }
 
@@ -66,7 +66,7 @@ namespace HaldorExpansion.Features.Berserker
                 if (cloak == null)
                 {
                     HaldorExpansionPlugin.Log?.LogWarning(
-                        "[Berserker] Failed to clone Troll cloak for Berserker cloak.");
+                        "[Berserker] Failed to clone Ashen Cape for Berserker cloak.");
                     return false;
                 }
 
@@ -149,6 +149,12 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_value = 0;
             shared.m_movementModifier = 0f;
             shared.m_eitrRegenModifier = 0f;
+            // CapeAsh grants -10% attack stamina use and -20% block stamina use.
+            // They belong to the vanilla Ashen Cape and must NOT carry over.
+            // Reflection keeps this compatible with Valheim builds where these
+            // optional Ashlands fields are absent or have moved.
+            ReflectionAccess.SetFieldIfExists(shared, "m_attackStaminaModifier", 0f);
+            ReflectionAccess.SetFieldIfExists(shared, "m_blockStaminaModifier", 0f);
             shared.m_canBeReparied = true;
             shared.m_useDurability = true;
 
@@ -159,9 +165,9 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_weight = 4f;
             BerserkerAppearance.ApplyArmorMaterial(shared, BerserkerAppearance.Style.Cloak);
 
-            // Troll cape supplies only the visual prefab. Strip inherited set bonuses and
-            // damage modifiers; equip a Berserker-only visual status effect below.
-            // Berserker's gameplay stays in the existing runtime patches.
+            // CapeAsh supplies only the visual prefab. Strip inherited set bonuses and
+            // damage modifiers (including frost resistance); equip the Berserker
+            // status effect below. Berserker gameplay stays in its runtime patches.
             shared.m_setName = string.Empty;
             shared.m_setSize = 0;
             shared.m_setStatusEffect = null;
