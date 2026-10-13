@@ -91,7 +91,8 @@ namespace HaldorExpansion.Features.Berserker
                 CastRoutine(player, castSeconds, debtAtActivation, auraStrength));
         }
 
-        private static IEnumerator CastRoutine(Player player, float castSeconds, double debtAtActivation, float auraStrength)
+        private static IEnumerator CastRoutine(Player player, float castSeconds, double debtAtActivation,
+            float auraStrength)
         {
             try
             {
@@ -236,8 +237,16 @@ namespace HaldorExpansion.Features.Berserker
             hit.m_damage.m_lightning = damage * 0.45f;
             hit.m_damage.m_blunt = damage * 0.45f;
             hit.m_damage.m_fire = damage * 0.10f;
+
+            // Trees
             hit.m_damage.m_chop = damage;
+
+            // Rocks and ore deposits
+            hit.m_damage.m_pickaxe = damage;
+
+            // Shared tool tier for both damage types
             hit.m_toolTier = 4;
+            
             hit.m_pushForce = MeteorPushForce;
             hit.m_skill = Skills.SkillType.Axes;
             hit.m_blockable = true;
