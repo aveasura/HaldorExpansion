@@ -48,7 +48,7 @@ namespace HaldorExpansion.Features.Awakened
 
         internal static class Brisingamen
         {
-            internal const float StaminaRegenBonus = .35f;
+            internal const float StaminaRegenBonus = .40f;
         }
 
         internal static class ScorchedEnduranceCloak
