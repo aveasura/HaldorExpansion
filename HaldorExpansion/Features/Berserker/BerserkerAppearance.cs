@@ -7,13 +7,17 @@ using Object = UnityEngine.Object;
 namespace HaldorExpansion.Features.Berserker
 {
     // Texture/material copies only. Never recolor vanilla shared materials or the axe's particle VFX.
+    // Reuse the same crimson-black palette for the Cuirass of Silent Reckoning.
     internal static class BerserkerAppearance
     {
         internal enum Style
         {
             Axe,
             Cloak,
-            Helmet
+            Helmet,
+
+            // Cuirass of Silent Reckoning uses the same crimson-black finish.
+            Cuirass
         }
 
         private const string Suffix = "_HE_Berserker_";
@@ -22,11 +26,13 @@ namespace HaldorExpansion.Features.Berserker
         {
             new Dictionary<Material, Material>(),
             new Dictionary<Material, Material>(),
+            new Dictionary<Material, Material>(),
             new Dictionary<Material, Material>()
         };
 
         private static readonly Dictionary<Texture, Texture2D>[] Textures =
         {
+            new Dictionary<Texture, Texture2D>(),
             new Dictionary<Texture, Texture2D>(),
             new Dictionary<Texture, Texture2D>(),
             new Dictionary<Texture, Texture2D>()

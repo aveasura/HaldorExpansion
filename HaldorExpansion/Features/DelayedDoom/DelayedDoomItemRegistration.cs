@@ -1,5 +1,6 @@
 using System;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
 using HaldorExpansion.Presentation;
@@ -13,7 +14,7 @@ namespace HaldorExpansion.Features.DelayedDoom
     internal static class DelayedDoomItemRegistration
     {
         internal const string DelayedDoomChestPrefabName = "ArmorDelayedDoomChest";
-        internal const string DelayedDoomChestSourcePrefab = "ArmorPaddedCuirass";
+        internal const string DelayedDoomChestSourcePrefab = "ArmorFlametalChest";
         internal const int DelayedDoomChestPrice = 3500;
         internal const float DelayedDoomChestFoodRegenBonus = 5f;
 
@@ -55,6 +56,7 @@ namespace HaldorExpansion.Features.DelayedDoom
                         ItemDrop.ItemData.SharedData shared = DelayedDoomChestItemDrop.m_itemData.m_shared;
                         ConfigureDelayedDoomChestShared(shared);
                         ApplyDelayedDoomChestIcon(shared);
+                        BerserkerAppearance.Apply(existing, BerserkerAppearance.Style.Cuirass);
 
                         DelayedDoomChestItemDrop.m_itemData.m_dropPrefab = existing;
                         shared.m_canBeReparied = true;
@@ -94,6 +96,7 @@ namespace HaldorExpansion.Features.DelayedDoom
                 ConfigureDelayedDoomChestShared(sharedNew);
                 ApplyDelayedDoomChestIcon(sharedNew);
                 drop.m_itemData.m_dropPrefab = chestGo;
+                BerserkerAppearance.Apply(chestGo, BerserkerAppearance.Style.Cuirass);
 
                 ItemManager.Instance.AddItem(new CustomItem(chestGo, fixReference: false));
 
@@ -125,6 +128,7 @@ namespace HaldorExpansion.Features.DelayedDoom
             shared.m_maxQuality = 2; // Native forge list requires > 1; ordinary upgrades stay disabled.
             shared.m_weight = 5f;
             shared.m_value = 0;
+            shared.m_movementModifier = -0.05f;
 
             shared.m_maxDurability = ItemUpgradeBalance.DelayedDoomChest.BaseDurability;
             shared.m_durabilityPerLevel = ItemUpgradeBalance.DelayedDoomChest.DurabilityPerLevel;
@@ -136,6 +140,17 @@ namespace HaldorExpansion.Features.DelayedDoom
             shared.m_setSize = 0;
             shared.m_setStatusEffect = null;
 
+            // Remove inherited vanilla bonuses.
+            shared.m_damageModifiers?.Clear();
+            shared.m_eitrRegenModifier = 0f;
+
+            // Remove Flametal heat resistance (+20%).
+            ReflectionAccess.SetFieldIfExists(
+                shared, "m_heatResistanceModifier", 0f);
+
+            // The equipped padded-armor mesh uses m_armorMaterial (not the item prefab's renderer).
+            // Clone and recolor it separately so vanilla padded armor is never affected.
+            BerserkerAppearance.ApplyArmorMaterial(shared, BerserkerAppearance.Style.Cuirass);
             ApplyDelayedDoomChestVisualEffect(shared);
         }
 
