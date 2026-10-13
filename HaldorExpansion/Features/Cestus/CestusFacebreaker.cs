@@ -204,6 +204,8 @@ namespace HaldorExpansion.Features.Cestus
                 MaintainCastFacing(player);
                 CestusAbility.ClearHumanoidAttackState(player);
                 CestusAbility.ClearHumanoidBlockState(player);
+                // Independent cosmetic air-grab ribbons; never controls the pull.
+                CestusFacebreakerFx.StartCast(player, axis);
                 castRoutine = HaldorExpansionPlugin.Instance.StartCoroutine(CastRoutine(player, axis));
                 return;
             }
@@ -299,7 +301,10 @@ namespace HaldorExpansion.Features.Cestus
             // synchronized track only if enemies were caught on BOTH sides.
             // The impact inside that track lands at the normal stagger timing.
             if (clash)
+            {
                 CestusFacebreakerAudio.SelectStagger(player);
+                CestusFacebreakerFx.SelectClash(player);
+            }
 
             Candidates.Clear();
         }
@@ -347,6 +352,7 @@ namespace HaldorExpansion.Features.Cestus
             castRoutine = null;
             casting = false;
             CestusFacebreakerAnimation.EndLocal(currentPlayer);
+            CestusFacebreakerFx.Cancel(currentPlayer);
             CancelAim();
             Candidates.Clear();
             currentPlayer = null;

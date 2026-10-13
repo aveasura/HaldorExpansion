@@ -200,7 +200,7 @@ namespace HaldorExpansion.Features.Cestus
             source.clip = clip;
             source.loop = false;
             source.pitch = 1f;
-            // Full original stereo playback for the caster. 3D positional audio for others.
+            // Full original stereo playback for the caster; 3D positional audio for others.
             source.spatialBlend = local ? 0f : 1f;
             source.rolloffMode = AudioRolloffMode.Logarithmic;
             source.minDistance = 3.5f;

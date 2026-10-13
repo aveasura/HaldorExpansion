@@ -187,6 +187,7 @@
         <Compile Include="Features\Cestus\CestusFacebreakerAnimation.cs"/>
         <Compile Include="Features\Cestus\CestusFacebreakerAudio.cs"/>
         <Compile Include="Features\Cestus\CestusFacebreakerAudioData.cs"/>
+        <Compile Include="Features\Cestus\CestusFacebreakerFx.cs"/>
         <Compile Include="Features\Cestus\CestusFacebreakerPreview.cs"/>
         <Compile Include="Features\Cestus\CestusFacebreakerSlow.cs"/>
         <Compile Include="Features\Cestus\CestusFacebreakerNetwork.cs"/>
