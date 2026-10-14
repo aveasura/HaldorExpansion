@@ -43,7 +43,8 @@ namespace HaldorExpansion.Patches
     [HarmonyPatch(typeof(StoreGui), nameof(StoreGui.Show))]
     internal static class HaldorTabsShowPatch
     {
-        private static void Postfix(StoreGui __instance) => HaldorTabsController.Sync(__instance);
+        private static void Postfix(StoreGui __instance) =>
+            HaldorTabsController.Sync(__instance, listAlreadyFilled: true);
     }
 
     [HarmonyPatch(typeof(StoreGui), "Update")]

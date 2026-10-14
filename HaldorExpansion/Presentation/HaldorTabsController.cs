@@ -31,7 +31,7 @@ namespace HaldorExpansion.Presentation
                    HaldorShopUpdater.IsHaldor(TraderField.GetValue(gui) as Trader);
         }
 
-        internal static void Sync(StoreGui gui)
+        internal static void Sync(StoreGui gui, bool listAlreadyFilled = false)
         {
             int state = TradingUiConfiguration.State;
             bool settingsChanged = state != lastState;
@@ -61,7 +61,11 @@ namespace HaldorExpansion.Presentation
                 view = HaldorTabsView.Create(gui);
                 Category = ShopCategory.All;
                 view.Select(Category);
-                Refresh(gui);
+                // Show has already filled All (including the hidden-category filter).
+                // Creating the tab buttons does not change that row/index mapping.
+                // Keep selection from the native fill and only reset the scroll.
+                if (listAlreadyFilled) ResetScrollAfterRefresh(gui);
+                else Refresh(gui);
             }
             catch (Exception error)
             {
@@ -100,6 +104,11 @@ namespace HaldorExpansion.Presentation
         {
             SelectedField.SetValue(gui, null);
             FillList.Invoke(gui, null);
+            ResetScrollAfterRefresh(gui);
+        }
+
+        private static void ResetScrollAfterRefresh(StoreGui gui)
+        {
             ResetListScroll(gui);
             // A short list may not have updated the ScrollRect bounds yet. Only the
             // most recent refresh gets one deferred correction; no layout rebuilds.
