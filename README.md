@@ -13,9 +13,10 @@ Every relic offers **powerful advantages with meaningful drawbacks**. The mod su
 - **Berserker:** new Greataxe, Helmet, and Cloak with escalating Wrath, Blood Debt, Reckoning, and a devastating meteor-storm ability, **Ragnarök**.
 - **Forge of Possibilities:** upgrade 12 unique artifacts **beyond quality 10**. At quality **10+**, 11 artifacts awaken new abilities or passive effects. Their powers stay active at higher qualities. **Hel's Oath's awakening is still in development.**
 - **Facebreaker:** a new Bone Crushers ability with a custom casting animation and impact sounds. Pull enemies from both sides, slow them, and stagger them when both sides are caught.
-- **Haldor Idol and idol trading:** a new upgrade idol can drop alongside existing idols. Haldor buys and sells **all 16 vanilla idols plus the Haldor Idol**, one at a time.
+- **Haldor's Idols:** the regular Haldor Idol can drop alongside existing idols. The new **Haldor's Adamantine Idol** offers a safer upgrade attempt: on failure, equipment loses one quality level instead of being destroyed (minimum quality 1).
+- **Idol trading:** Haldor buys and sells **all 16 vanilla idols and both custom HaldorExpansion idols**, one at a time, with individually configurable prices and availability.
 - **Improved Haldor shop:** six category tabs, better item previews, scrolling tooltips, and faster navigation.
-- **Artifact lore:** 12 relics now feature connected Norse-inspired stories in English and Russian.
+- **Artifact lore:** 12 relics and both Haldor idols feature Norse-inspired stories in English and Russian, with hidden connections between their legends.
 - **In-game settings:** optional **BepInEx ConfigurationManager (F1)** support, a customizable Blood Debt HUD, and live updates to configuration files without restarting.
 - **Combat and quality-of-life fixes:** refined existing equipment interactions, fixed equipment visibility issues, and improved configuration migration.
 
@@ -43,7 +44,7 @@ Haldor sells unique equipment, resources, and crafting materials. Depending on w
 
 The shop offers **six tabs: All / Equipment / Wood / Ores and Metals / Resources / Other**. All idols appear in **Other** (there is no separate idol tab). Category visibility is configurable in `general.cfg` or ConfigurationManager (F1). Hiding a tab does not hide its goods from **All** unless **Hide items from disabled tabs** is also enabled. Disable the entire tab interface to restore Haldor's traditional layout. Disabling and re-enabling an item retains its catalog order.
 
-For the 12 relics with stories, **shop previews emphasize the legend**, while the item's **inventory tooltip includes its story and mechanical details**. The Crossbow of the Shadow Hunt retains a conventional description pending a future redesign.
+For the 12 relics with stories **and both Haldor idols**, **shop previews emphasize the legend**, while the item's **inventory tooltip includes its story and mechanical details**. The Crossbow of the Shadow Hunt retains a conventional description pending a future redesign.
 
 Long item descriptions scroll using the mouse wheel while the pointer is over the tooltip, or with **Page Up / Page Down**. This also helps on smaller displays.
 
@@ -112,16 +113,16 @@ Normal bow hits charge **Hel's Embrace** based on outgoing damage before target 
 
 ## Forge of Possibilities and Awakened Potential
 
-**12 of the 13 unique items** can be upgraded using the **Haldor Idol** at the Forge of Possibilities. Each attempt consumes **one idol**. Upgrades follow the forge's normal success/failure rules, and a failed attempt **may destroy the item**. The **Thread of the Norns** is not one of the upgradeable artifacts.
+**12 of the 13 unique items** can be upgraded at the Forge of Possibilities. The **Haldor Idol** uses the normal success/failure rules: an unsuccessful upgrade **may destroy the item**. The **Adamantine Haldor Idol** offers a separate upgrade option for equipment already supported by the forge. It uses the **same success chance** as the regular Haldor Idol: success increases quality by **1**, while failure decreases it by **1**, but **never below quality 1**. The equipment **cannot be destroyed** by an adamantine attempt. Each attempt consumes **one idol**, including failed attempts at quality 1. The **Thread of the Norns** is not one of the upgradeable artifacts.
 
-**Quality 10 is the awakening threshold, not the upgrade cap.** You can continue upgrading above 10, and awakened effects remain available at **quality 11, 12, and beyond** while the relevant item is equipped and its other requirements are met. The awakening belongs to the **particular upgraded item**, not to all copies of that artifact.
+**Quality 10 is the awakening threshold, not the upgrade cap.** You can continue upgrading above 10, and awakened effects remain available at **quality 11, 12, and beyond** while the relevant item is equipped and its other requirements are met. If an adamantine failure lowers an item from quality 10 to 9, its awakening becomes inactive until it reaches quality 10 again. The awakening belongs to the **particular upgraded item**, not to all copies of that artifact.
 
 <details>
 <summary>Show awakened abilities at quality +10 (spoilers)</summary>
 
 | Artifact | Awakened effect at quality 10+                                                                                      |
 | --- |---------------------------------------------------------------------------------------------------------------------|
-| **Berserker Greataxe** | **Bloody Harvest:** Greataxe kills grant **40 Blood Debt**.                                                         |
+| **Berserker Greataxe** | **Bloody Harvest:** Greataxe kills grant **30 Blood Debt**.                                                         |
 | **Berserker Helmet** | **Feast of the Fallen:** kills with the Greataxe during Wrath heal **10% of missing health**.                       |
 | **Berserker Cloak** | Ragnarök **preserves Wrath**. Blood Debt consumption and Exhaustion remain.                                         |
 | **Bone Crushers** | Normal attacks heal **3% of actual enemy HP lost**.                                                                 |
@@ -156,14 +157,15 @@ Haldor sells crafting materials at configurable prices. The amounts below are th
 
 ### Idols
 
-Haldor **buys and sells 17 idols**: all **16 standard battle/protection idols** and the custom **Haldor Idol**. Idols appear under the **Other** shop tab, not in a separate category. Each idol is purchased **one at a time**, even if its inventory stack size is 20.
+Haldor **buys and sells 18 idols**: all **16 standard battle/protection idols**, the **Haldor Idol**, and **Haldor's Adamantine Idol**. Idols appear under the **Other** shop tab, not in a separate category. Each idol is purchased **one at a time**, even if its inventory stack size is 20.
 
 | Idol | Haldor sells to you | Haldor buys from you |
 | --- | ---: | ---: |
 | Each of the 16 standard idols | **1000 coins per idol** | **300 coins per idol** |
 | **Haldor Idol** | **1000 coins per idol** | **300 coins per idol** |
+| **Haldor's Adamantine Idol** | **4000 coins per idol** | **2500 coins per idol** |
 
-All these prices are configurable **individually** in `trading.yml` or via **F1** with the optional ConfigurationManager. Each idol's availability and world-progression requirement are independently configurable. Haldor Idols can also drop from eligible sources **in addition to**, rather than instead of, standard idols.
+All these prices are configurable **individually** in `trading.yml` or via **F1** with the optional ConfigurationManager. Each idol's availability and world-progression requirement are independently configurable. The regular Haldor Idol can drop alongside standard idols. The Adamantine Haldor Idol has an **independent 1% chance per eligible chest** by default (configurable in `balance.cfg`); these additional rolls do not replace standard loot or regular Haldor Idol drops.
 
 You can also **sell supported trophies** (including Deep North and boss trophies) and **Surtling Core, Black Core, and Molten Core** to Haldor. Prices can be configured per item, with a fallback for trophies lacking an individual entry. Setting a **sell** price to `0` disables selling that item. Your existing/migrated prices may differ from the defaults listed here.
 
@@ -202,7 +204,7 @@ Set `Enable Haldor tabs = false` to restore the original shop layout. To remove 
 
 ### `balance.cfg`
 
-Contains synchronized settings for Hel's Oath, the Berserker's Wrath/Blood Debt/Reckoning/Ragnarök, and other configurable combat effects. For example, Hel's Oath provides **Damage for full charge**, **Explosion radius**, **Embrace coefficient**, **Touch V Embrace coefficient**, and **Touch stack interval**. Ragnarök has configurable thresholds, casting time, Exhaustion, and its ability key.
+Contains synchronized settings for Hel's Oath, the Berserker's Wrath/Blood Debt/Reckoning/Ragnarök, and other configurable combat effects. For example, Hel's Oath provides **Damage for full charge**, **Explosion radius**, **Embrace coefficient**, **Touch V Embrace coefficient**, and **Touch stack interval**. Ragnarök has configurable thresholds, casting time, Exhaustion, and its ability key. **Forge of Possibilities → Adamantine Idol chest drop chance** controls the independent chest drop rate (**1%** by default; `0` disables it, maximum `100`).
 
 **Edit the entries already generated by the mod**, rather than copying old configuration sections from 1.2.x. The **Ragnarök key** and other local button bindings are stored with input settings, not in `trading.yml`.
 
@@ -222,6 +224,11 @@ shop:
     enabled: true
     stack: 1
     requiredGlobalKey: ""
+  aveasura_he_adamantine_idol:
+    price: 4000
+    enabled: true
+    stack: 1
+    requiredGlobalKey: ""
   Iron:
     price: 250
     enabled: true
@@ -235,6 +242,8 @@ sell:
     price: 50
   aveasura_he_idol:
     price: 300
+  aveasura_he_adamantine_idol:
+    price: 2500
 ```
 
 In this **example**, Iron is locked behind the Elder. The default value in your generated file may be different. Keep the original entries for all other products and trophies.
