@@ -307,3 +307,11 @@ Copy `HaldorExpansion/HaldorExpansion.Local.props.example`, rename it to `Haldor
 Available MSBuild path properties include `R2ModmanProfileDir`, `ValheimInstallDir`, `ValheimDedicatedServerDir`, `ClientPluginDeployDir`, and `ServerPluginDeployDir`.
 
 Source PNGs are in `HaldorExpansion/Assets/Icons/` and are embedded in the DLL when built. Players do not need these files.
+
+## ❤️ Support Development
+
+HaldorExpansion is free and will always remain free.
+
+If you enjoy the mod and would like to support its continued development, you can make a one-time donation or become a supporter on [Boosty](https://boosty.to/aveasura).
+
+Your support is entirely optional, but always appreciated. Thank you! 🍻

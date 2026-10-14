@@ -307,3 +307,11 @@ HaldorExpansion/HaldorExpansion.Local.props
 Поддерживаемые MSBuild-свойства путей: `R2ModmanProfileDir`, `ValheimInstallDir`, `ValheimDedicatedServerDir`, `ClientPluginDeployDir`, `ServerPluginDeployDir`.
 
 Исходные PNG находятся в `HaldorExpansion/Assets/Icons/` и встраиваются в DLL при сборке. Игрокам эти файлы не нужны.
+
+## ❤️ Поддержать разработку
+
+HaldorExpansion распространяется бесплатно и всегда останется бесплатным.
+
+Если вам нравится мод и вы хотите поддержать его дальнейшее развитие, вы можете сделать разовое пожертвование или оформить подписку на [Boosty](https://boosty.to/aveasura).
+
+Поддержка полностью добровольная, но я искренне благодарен каждому, кто решит помочь. Спасибо! 🍻
