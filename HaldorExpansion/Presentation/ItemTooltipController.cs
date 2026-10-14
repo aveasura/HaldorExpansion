@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using BepInEx.Configuration;
 using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Brisingamen;
@@ -10,6 +10,7 @@ using HaldorExpansion.Features.PeltOfHelheim;
 using HaldorExpansion.Features.PitKing;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.StaminaCape;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Features.WoundedBeast;
 using UnityEngine;
 
@@ -25,7 +26,8 @@ namespace HaldorExpansion.Presentation
             ShadowCrossbowItemRegistration.ShadowCrossbowItemKey, WoundedBeastItemRegistration.WoundedBeastCapeItemKey,
             StaminaCapeItemRegistration.ItemKey, PeltOfHelheimItemRegistration.ItemKey,
             BerserkerIds.AxeItemKey, BerserkerIds.CloakItemKey,
-            BerserkerIds.HelmetItemKey
+            BerserkerIds.HelmetItemKey,
+            IdolRegistration.ItemKey, AdamantineIdolRegistration.ItemKey
         };
 
         private static ConfigEntry<bool> enabled;
