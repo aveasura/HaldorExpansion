@@ -94,12 +94,12 @@ namespace HaldorExpansion.Configuration
             if (!newGeneral) ConfigText.Parse(File.ReadAllText(generalPath));
             if (!newBalance) ConfigText.Parse(File.ReadAllText(balancePath));
             General = new ConfigFile(generalPath, false, plugin.Info.Metadata) { SaveOnConfigSet = false };
-            pollInterval = General.Bind("Configuration", "Config check interval (seconds)", 2f,
+            pollInterval = General.Bind("Configuration", "Config check interval (seconds)", 3f,
                 new ConfigDescription(
                     "How often to check general.cfg, balance.cfg and trading.yml for external changes. " +
                     "Checks file timestamps and sizes before reading; modified files are verified twice " +
-                    "before applying. Minimum 0.5 seconds. Local setting, applies while playing. " +
-                    "Интервал проверки изменений конфигов в секундах. По умолчанию 2, минимум 0.5.",
+                    "before applying. Minimum 0.5 seconds, by default 3. Local setting, applies while playing. " +
+                    "Интервал проверки изменений конфигов в секундах. По умолчанию 3, минимум 0.5.",
                     new AcceptableValueRange<float>(0.5f, float.MaxValue)));
             Balance = new ConfigFile(balancePath, false, plugin.Info.Metadata) { SaveOnConfigSet = false };
             TradeEntries = new ConfigFile(Path.Combine(folder, ".trading-memory"), false) { SaveOnConfigSet = false };

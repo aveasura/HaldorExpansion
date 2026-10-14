@@ -11,7 +11,15 @@ namespace HarmonyLib { static class AccessTools {
  public static MethodInfo Method(Type t,string n)=>t.GetMethod(n,BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic);
 } }
 class Root { public bool activeSelf=true; }
-class Scroll { public float value; }
+namespace UnityEngine { static class Time { public static int frameCount; } }
+namespace UnityEngine.UI {
+ public class Scrollbar { public float value; }
+ public class ScrollRect {
+  public Scrollbar verticalScrollbar; public bool vertical=true;
+  public float verticalNormalizedPosition; public int stopCalls;
+  public void StopMovement(){stopCalls++;}
+ }
+}
 class ItemDrop {
  public string name; public Data m_itemData=new Data();
  public class Data { public Shared m_shared=new Shared(); }
@@ -25,7 +33,12 @@ class Trader {
 }
 class StoreGui {
  public static StoreGui instance;
- public Root m_rootPanel=new Root(); public Scroll m_listScroll=new Scroll();
+ public Root m_rootPanel=new Root(); public UnityEngine.UI.Scrollbar m_listScroll=new UnityEngine.UI.Scrollbar();
+ public UnityEngine.UI.ScrollRect listRect=new UnityEngine.UI.ScrollRect(); public int scrollSearches;
+ public StoreGui(){listRect.verticalScrollbar=m_listScroll;}
+ public T[] GetComponentsInChildren<T>(bool includeInactive) where T:class {
+  scrollSearches++; return new T[]{listRect as T};
+ }
  public Trader m_trader; public object m_selectedItem;
  public List<Trader.TradeItem> visible; public int fills;
  public void FillList() { fills++;visible=HaldorTabsController.GetVisibleItems(m_trader); m_selectedItem=visible.Count>0?visible[0]:null; }
@@ -59,7 +72,33 @@ class HaldorControllerTests {
   Check(Names(gui.visible)=="Copper,Wood,Sap,Iron,Eitr","restoring category preserves item order with UI off");
   config["Trading UI","Enable Haldor tabs"].BoxedValue=true;HaldorTabsController.Tick(gui);
   HaldorTabsController.Select(ShopCategory.Metals);
+  int searches=gui.scrollSearches;
   Check(Names(gui.visible)=="Copper,Iron","metal tab shows matching products");
+  Check(gui.m_listScroll.value==1f&&gui.listRect.verticalNormalizedPosition==1f,
+   "switching categories immediately resets linked shop list and scrollbar to top");
+  Check(gui.scrollSearches==searches,"linked ScrollRect is resolved only once per GUI");
+  // Simulate Unity changing content bounds later in the same frame. Only the
+  // next frame should correct the scroll; subsequent frames must allow user scrolling.
+  gui.listRect.verticalNormalizedPosition=0.5f;gui.m_listScroll.value=0.5f;
+  HaldorTabsController.Tick(gui);
+  Check(gui.listRect.verticalNormalizedPosition==0.5f,
+   "layout correction is deferred until a subsequent frame");
+  UnityEngine.Time.frameCount++;HaldorTabsController.Tick(gui);
+  Check(gui.listRect.verticalNormalizedPosition==1f&&gui.m_listScroll.value==1f,
+   "next frame corrects list bounds without calling FillList again");
+  int refreshed=gui.fills;
+  gui.listRect.verticalNormalizedPosition=0.3f;UnityEngine.Time.frameCount++;
+  HaldorTabsController.Tick(gui);
+  Check(gui.listRect.verticalNormalizedPosition==0.3f&&gui.fills==refreshed,
+   "deferred reset runs once and never blocks subsequent user scrolling");
+  // Rapid changes replace the pending correction instead of accumulating work.
+  HaldorTabsController.Select(ShopCategory.Wood);
+  HaldorTabsController.Select(ShopCategory.All);
+  gui.listRect.verticalNormalizedPosition=0.4f;
+  UnityEngine.Time.frameCount++;HaldorTabsController.Tick(gui);
+  Check(gui.listRect.verticalNormalizedPosition==1f&&gui.scrollSearches==searches,
+   "rapid category changes leave a single pending correction");
+  HaldorTabsController.Select(ShopCategory.Metals);
   gui.m_selectedItem=t.stock[0];config["Trading UI","Show Metals tab"].BoxedValue=false;HaldorTabsController.Tick(gui);
   Check(HaldorTabsController.Category==ShopCategory.All&&ReferenceEquals(gui.m_selectedItem,t.stock[1]),"hiding selected tab resets category and selects first allowed product");
   HaldorTabsController.Select(ShopCategory.Metals);
@@ -76,6 +115,10 @@ class HaldorControllerTests {
   t.haldor=false;HaldorTabsController.Tick(gui);gui.FillList();
   Check(Names(gui.visible)=="Copper,Wood,Sap,Iron,Eitr","other traders unaffected");
   Check(Names(t.stock)=="Copper,Wood,Sap,Iron,Eitr","original stock never mutated");
-  HaldorTabsController.Reset();if(File.Exists(path))File.Delete(path);
+  HaldorTabsController.Reset();
+  int stops=gui.listRect.stopCalls;
+  UnityEngine.Time.frameCount++;HaldorTabsController.Tick(gui);
+  Check(gui.listRect.stopCalls==stops,"closing or changing trader cancels pending scroll work");
+  if(File.Exists(path))File.Delete(path);
  }
 }

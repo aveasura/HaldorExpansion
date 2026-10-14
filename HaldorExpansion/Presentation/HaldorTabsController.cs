@@ -4,6 +4,8 @@ using System.Reflection;
 using HaldorExpansion.Configuration;
 using HaldorExpansion.Trading;
 using HarmonyLib;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace HaldorExpansion.Presentation
 {
@@ -15,6 +17,10 @@ namespace HaldorExpansion.Presentation
         private static HaldorTabsView view;
         private static StoreGui failedGui;
         private static int lastState = -1;
+        private static StoreGui pendingScrollGui;
+        private static int pendingScrollFrame;
+        private static StoreGui scrollRectGui;
+        private static ScrollRect linkedScrollRect;
         internal static ShopCategory Category { get; private set; }
 
         internal static bool Applies(StoreGui gui)
@@ -70,6 +76,13 @@ namespace HaldorExpansion.Presentation
         {
             Sync(gui);
             if (!Applies(gui)) return;
+            // Do this once after Unity has had a frame to update the new list's layout.
+            if (pendingScrollGui == gui && Time.frameCount > pendingScrollFrame)
+            {
+                pendingScrollGui = null;
+                ResetListScroll(gui);
+            }
+
             view.UpdateLayout();
             if (ZInput.GetButtonDown("JoyTabLeft")) view.Cycle(Category, -1);
             else if (ZInput.GetButtonDown("JoyTabRight")) view.Cycle(Category, 1);
@@ -87,7 +100,41 @@ namespace HaldorExpansion.Presentation
         {
             SelectedField.SetValue(gui, null);
             FillList.Invoke(gui, null);
-            if (gui.m_listScroll != null) gui.m_listScroll.value = 1f;
+            ResetListScroll(gui);
+            // A short list may not have updated the ScrollRect bounds yet. Only the
+            // most recent refresh gets one deferred correction; no layout rebuilds.
+            if (view != null && view.Gui == gui)
+            {
+                pendingScrollGui = gui;
+                pendingScrollFrame = Time.frameCount;
+            }
+        }
+
+        private static void ResetListScroll(StoreGui gui)
+        {
+            if (gui == null || gui.m_listScroll == null) return;
+            gui.m_listScroll.value = 1f;
+            if (view == null || view.Gui != gui) return;
+
+            // The Scrollbar may already read 1 while the content is still offset.
+            // Reset the linked ScrollRect directly, without touching unrelated UI.
+            if (scrollRectGui != gui)
+            {
+                scrollRectGui = gui;
+                linkedScrollRect = null;
+                foreach (ScrollRect rect in gui.GetComponentsInChildren<ScrollRect>(true))
+                {
+                    if (rect != null && rect.verticalScrollbar == gui.m_listScroll && rect.vertical)
+                    {
+                        linkedScrollRect = rect;
+                        break;
+                    }
+                }
+            }
+
+            if (linkedScrollRect == null) return;
+            linkedScrollRect.StopMovement();
+            linkedScrollRect.verticalNormalizedPosition = 1f;
         }
 
         // Called only by the three StoreGui methods which map visible rows to purchases.
@@ -125,6 +172,9 @@ namespace HaldorExpansion.Presentation
 
         internal static void Reset()
         {
+            pendingScrollGui = null;
+            scrollRectGui = null;
+            linkedScrollRect = null;
             HaldorTabsView old = view;
             view = null;
             Category = ShopCategory.All;
