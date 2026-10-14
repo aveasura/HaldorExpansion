@@ -20,6 +20,12 @@ Every relic offers **powerful advantages with meaningful drawbacks**. The mod su
 - **In-game settings:** optional **BepInEx ConfigurationManager (F1)** support, a customizable Blood Debt HUD, and live updates to configuration files without restarting.
 - **Combat and quality-of-life fixes:** refined existing equipment interactions, fixed equipment visibility issues, and improved configuration migration.
 
+### 🎬 Ragnarök — Ability Showcase
+
+[![Ragnarök Ability Showcase](https://img.youtube.com/vi/U9n6rRKwHu8/hqdefault.jpg)](https://youtu.be/U9n6rRKwHu8)
+
+*Watch the Berserker unleash Ragnarök in-game.*
+
 See the [changelog](CHANGELOG.md) for the full list of changes since 1.2.2.
 
 ## Installation
