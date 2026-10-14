@@ -21,23 +21,27 @@ namespace HaldorExpansion.Features.Upgrades
                 int bottom = Mathf.Max(0, Mathf.FloorToInt(Mathf.Min(a.y, Mathf.Min(b.y, c.y))));
                 int top = Mathf.Min(height - 1, Mathf.CeilToInt(Mathf.Max(a.y, Mathf.Max(b.y, c.y))));
                 for (int y = bottom; y <= top; y++)
-                    for (int x = left; x <= right; x++)
-                    {
-                        Vector2 point = new Vector2(x + 0.5f, y + 0.5f);
-                        float wb = Cross(point - a, c - a) / area;
-                        float wc = Cross(b - a, point - a) / area;
-                        float wa = 1f - wb - wc;
-                        if (wa < -0.00001f || wb < -0.00001f || wc < -0.00001f) continue;
-                        Vector2 sample = uv[ia] * wa + uv[ib] * wb + uv[ic] * wc;
-                        // Pixel centers map exactly for both unrotated and rotated atlas entries.
-                        int sx = Mathf.Clamp(Mathf.FloorToInt(sample.x * atlasWidth), 0, atlasWidth - 1);
-                        int sy = Mathf.Clamp(Mathf.FloorToInt(sample.y * atlasHeight), 0, atlasHeight - 1);
-                        result[y * width + x] = atlas[sy * atlasWidth + sx];
-                    }
+                for (int x = left; x <= right; x++)
+                {
+                    Vector2 point = new Vector2(x + 0.5f, y + 0.5f);
+                    float wb = Cross(point - a, c - a) / area;
+                    float wc = Cross(b - a, point - a) / area;
+                    float wa = 1f - wb - wc;
+                    if (wa < -0.00001f || wb < -0.00001f || wc < -0.00001f) continue;
+                    Vector2 sample = uv[ia] * wa + uv[ib] * wb + uv[ic] * wc;
+                    // Pixel centers map exactly for both unrotated and rotated atlas entries.
+                    int sx = Mathf.Clamp(Mathf.FloorToInt(sample.x * atlasWidth), 0, atlasWidth - 1);
+                    int sy = Mathf.Clamp(Mathf.FloorToInt(sample.y * atlasHeight), 0, atlasHeight - 1);
+                    result[y * width + x] = atlas[sy * atlasWidth + sx];
+                }
             }
+
             return result;
         }
 
-        private static float Cross(Vector2 a, Vector2 b) { return a.x * b.y - a.y * b.x; }
+        private static float Cross(Vector2 a, Vector2 b)
+        {
+            return a.x * b.y - a.y * b.x;
+        }
     }
 }

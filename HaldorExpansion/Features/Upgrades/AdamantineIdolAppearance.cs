@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.Upgrades
 {
@@ -30,7 +31,8 @@ namespace HaldorExpansion.Features.Upgrades
                         if (materials[i] == null) continue;
                         Material original;
                         if (!Originals.TryGetValue(materials[i], out original)) original = materials[i];
-                        var material = new Material(original) { name = original.name + (adamantine ? "_he_adamantine" : "_he_haldor") };
+                        var material = new Material(original)
+                            { name = original.name + (adamantine ? "_he_adamantine" : "_he_haldor") };
                         Originals[material] = original;
                         materials[i] = material;
                         if (material.HasProperty("_MainTex") && material.GetTexture("_MainTex") != null)
@@ -41,22 +43,32 @@ namespace HaldorExpansion.Features.Upgrades
                                 recolored = Recolor(texture, adamantine);
                                 textures.Add(texture, recolored);
                             }
+
                             material.SetTexture("_MainTex", recolored);
                             if (material.HasProperty("_Color")) material.SetColor("_Color", Color.white);
                         }
-                        else if (material.HasProperty("_Color")) material.SetColor("_Color", adamantine ? Dark : (Color)new Color32(0x49, 0x2d, 0x1e, 255));
-                        if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", adamantine ? 0.8f : 0.65f);
-                        if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", adamantine ? 0.55f : 0.35f);
+                        else if (material.HasProperty("_Color"))
+                            material.SetColor("_Color", adamantine ? Dark : (Color)new Color32(0x49, 0x2d, 0x1e, 255));
+
+                        if (material.HasProperty("_Metallic"))
+                            material.SetFloat("_Metallic", adamantine ? 0.8f : 0.65f);
+                        if (material.HasProperty("_Glossiness"))
+                            material.SetFloat("_Glossiness", adamantine ? 0.55f : 0.35f);
                         // Keep the original emission mask; never turn the entire surface into a lamp.
-                        if (material.HasProperty("_EmissionColor")) material.SetColor("_EmissionColor", (adamantine ? Turquoise : new Color(1f, 0.48f, 0.10f)) * 0.18f);
+                        if (material.HasProperty("_EmissionColor"))
+                            material.SetColor("_EmissionColor",
+                                (adamantine ? Turquoise : new Color(1f, 0.48f, 0.10f)) * 0.18f);
                     }
+
                     renderer.sharedMaterials = materials;
                 }
+
                 foreach (Light light in prefab.GetComponentsInChildren<Light>(true))
                 {
                     light.color = adamantine ? Turquoise : new Color(1f, 0.48f, 0.10f);
                     light.intensity = Mathf.Min(light.intensity, 0.35f);
                 }
+
                 if (sourceIcon != null)
                 {
                     // rect describes the original sprite, not its position in a packed atlas.
@@ -77,9 +89,14 @@ namespace HaldorExpansion.Features.Upgrades
                         icon.filterMode = FilterMode.Bilinear;
                         icon.Apply();
                         sprite = Sprite.Create(icon, new Rect(0, 0, width, height),
-                            new Vector2(sourceIcon.pivot.x / width, sourceIcon.pivot.y / height), sourceIcon.pixelsPerUnit);
+                            new Vector2(sourceIcon.pivot.x / width, sourceIcon.pivot.y / height),
+                            sourceIcon.pixelsPerUnit);
                     }
-                    finally { UnityEngine.Object.Destroy(atlas); }
+                    finally
+                    {
+                        Object.Destroy(atlas);
+                    }
+
                     sprite.name = adamantine ? "he_adamantine_idol_icon" : "he_haldor_idol_icon";
                     prefab.GetComponent<ItemDrop>().m_itemData.m_shared.m_icons = new[] { sprite };
                 }
@@ -92,7 +109,8 @@ namespace HaldorExpansion.Features.Upgrades
 
         private static Texture2D Recolor(Texture source, bool adamantine)
         {
-            RenderTexture target = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGB32);
+            RenderTexture target =
+                RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGB32);
             RenderTexture previous = RenderTexture.active;
             try
             {
@@ -109,8 +127,11 @@ namespace HaldorExpansion.Features.Upgrades
                     float saturation = l - Mathf.Min(old.r, Mathf.Min(old.g, old.b));
                     Color dark = adamantine ? Dark : (Color)new Color32(0x49, 0x2d, 0x1e, 255);
                     Color middle = adamantine ? Steel : (Color)new Color32(0x9c, 0x63, 0x30, 255);
-                    Color edge = adamantine ? Color.Lerp(Silver, Ice, Mathf.Max(0f, l - 0.97f) * 10f) : (Color)new Color32(0xe1, 0xb4, 0x6b, 255);
-                    Color metal = l < 0.65f ? Color.Lerp(dark * 0.5f, middle, l / 0.65f)
+                    Color edge = adamantine
+                        ? Color.Lerp(Silver, Ice, Mathf.Max(0f, l - 0.97f) * 10f)
+                        : (Color)new Color32(0xe1, 0xb4, 0x6b, 255);
+                    Color metal = l < 0.65f
+                        ? Color.Lerp(dark * 0.5f, middle, l / 0.65f)
                         : Color.Lerp(middle, edge, (l - 0.65f) / 0.35f);
                     // Only the brightest colored details get an accent. Gold is the native
                     // idol's main surface, so saturation alone must not turn it all cyan.
@@ -120,6 +141,7 @@ namespace HaldorExpansion.Features.Upgrades
                     metal.a = old.a;
                     pixels[i] = metal;
                 }
+
                 texture.SetPixels(pixels);
                 texture.wrapMode = source.wrapMode;
                 texture.filterMode = source.filterMode;

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.Upgrades
 {
@@ -24,7 +24,8 @@ namespace HaldorExpansion.Features.Upgrades
             foreach (Piece.Requirement requirement in recipe.m_resources)
                 if (requirement?.m_resItem != null && requirement.m_upgraderResource &&
                     (requirement.m_resItem == IdolRegistration.ItemDrop ||
-                     IdolRegistration.IsNativeIdol(requirement.m_resItem.gameObject))) return true;
+                     IdolRegistration.IsNativeIdol(requirement.m_resItem.gameObject)))
+                    return true;
             return false;
         }
 
@@ -34,11 +35,12 @@ namespace HaldorExpansion.Features.Upgrades
                 AdamantineIdolRegistration.ItemDrop == null) return;
             if (database != ObjectDB.instance)
             {
-                foreach (Recipe variant in Originals.Keys) UnityEngine.Object.Destroy(variant);
+                foreach (Recipe variant in Originals.Keys) Object.Destroy(variant);
                 Originals.Clear();
                 Alternatives.Clear();
                 database = ObjectDB.instance;
             }
+
             // Only recipes already offered by Valheim/HE acquire an alternative. Keeping the
             // row without an idol makes the cost visible and avoids silently switching choices.
             int count = available.Count;
@@ -48,20 +50,24 @@ namespace HaldorExpansion.Features.Upgrades
                 if (!Eligible(source)) continue;
                 if (!Alternatives.TryGetValue(source, out Recipe variant))
                 {
-                    variant = UnityEngine.Object.Instantiate(source);
+                    variant = Object.Instantiate(source);
                     variant.name = source.name + "_he_adamantine";
                     variant.m_enabled = false;
                     variant.m_noCraftOnlyUpgrade = true;
                     variant.m_amount = 1;
                     variant.m_requireOnlyOneIngredient = false;
-                    variant.m_resources = new[] { new Piece.Requirement
+                    variant.m_resources = new[]
                     {
-                        m_resItem = AdamantineIdolRegistration.ItemDrop,
-                        m_amount = 1, m_amountPerLevel = 0, m_upgraderResource = true, m_recover = false
-                    } };
+                        new Piece.Requirement
+                        {
+                            m_resItem = AdamantineIdolRegistration.ItemDrop,
+                            m_amount = 1, m_amountPerLevel = 0, m_upgraderResource = true, m_recover = false
+                        }
+                    };
                     Alternatives.Add(source, variant);
                     Originals.Add(variant, source);
                 }
+
                 if (!available.Contains(variant)) available.Add(variant);
             }
         }
@@ -79,7 +85,11 @@ namespace HaldorExpansion.Features.Upgrades
             foreach (ItemDrop.ItemData candidate in player.GetInventory().GetAllItems())
                 if (candidate?.m_dropPrefab == AdamantineIdolRegistration.Prefab && candidate.m_stack > 0 &&
                     candidate.m_worldLevel >= Game.m_worldLevel)
-                { idol = candidate; break; }
+                {
+                    idol = candidate;
+                    break;
+                }
+
             if (idol == null || ReferenceEquals(idol, item)) return false;
 
             int previous = item.m_quality;
@@ -98,9 +108,13 @@ namespace HaldorExpansion.Features.Upgrades
                     success = false;
                     return false;
                 }
+
                 return true;
             }
-            finally { refining = false; }
+            finally
+            {
+                refining = false;
+            }
         }
     }
 }

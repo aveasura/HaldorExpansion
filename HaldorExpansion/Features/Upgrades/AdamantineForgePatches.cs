@@ -3,6 +3,7 @@ using System.Reflection;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace HaldorExpansion.Features.Upgrades
 {
@@ -15,15 +16,16 @@ namespace HaldorExpansion.Features.Upgrades
             // Called exclusively for our alternative. Never fall through to destructive vanilla crafting.
             try
             {
-                if (!AdamantineRefinement.TryRefine(player, recipe, item, UnityEngine.Random.Range(0f, 1f),
+                if (!AdamantineRefinement.TryRefine(player, recipe, item, Random.Range(0f, 1f),
                         out bool success))
                 {
                     player?.Message(MessageHud.MessageType.Center, "$msg_missingrequirement");
                     Refresh.Invoke(gui, new object[] { false });
                     return;
                 }
+
                 player.Message(MessageHud.MessageType.Center, Localization.instance.Localize(
-                    success ? "$msg_upgrader_success" : "$msg_upgrader_failed",
+                    success ? "$msg_upgrader_success" : "$msg_upgrader_fail",
                     Localization.instance.Localize(item.m_shared.m_name), item.m_quality.ToString()), 0, null, true);
                 CraftingStation station = player.GetCurrentCraftingStation();
                 (success ? station.m_craftItemDoneEffects : station.m_craftItemDoneFailEffects)
@@ -32,7 +34,8 @@ namespace HaldorExpansion.Features.Upgrades
             }
             catch (Exception error)
             {
-                HaldorExpansionPlugin.Log?.LogError("[Adamantine Idol] Upgrade interrupted; vanilla fallback suppressed: " + error);
+                HaldorExpansionPlugin.Log?.LogError(
+                    "[Adamantine Idol] Upgrade interrupted. Vanilla fallback suppressed: " + error);
             }
         }
     }
@@ -46,7 +49,9 @@ namespace HaldorExpansion.Features.Upgrades
             Transform row = ___m_recipeListRoot.GetChild(___m_recipeListRoot.childCount - 1);
             TMP_Text label = row.Find("name")?.GetComponent<TMP_Text>();
             if (label != null)
-                label.text = "<color=#30D8E6>" + Localization.instance.Localize(AdamantineIdolRegistration.ForgeLabelKey) + "</color> " + label.text;
+                label.text = "<color=#30D8E6>" +
+                             Localization.instance.Localize(AdamantineIdolRegistration.ForgeLabelKey) + "</color> " +
+                             label.text;
         }
     }
 
@@ -57,7 +62,9 @@ namespace HaldorExpansion.Features.Upgrades
         // invalid IL on the game's Harmony/Mono runtime; reflection boxes it safely.
         private static readonly FieldInfo SelectedRecipe = typeof(InventoryGui).GetField(
             "m_selectedRecipe", BindingFlags.Instance | BindingFlags.NonPublic);
+
         private static readonly PropertyInfo RecipeProperty = SelectedRecipe?.FieldType.GetProperty("Recipe");
+
         private static void Postfix(InventoryGui __instance, TMP_Text ___m_itemCraftType)
         {
             if (__instance == null || ___m_itemCraftType == null || RecipeProperty == null) return;
