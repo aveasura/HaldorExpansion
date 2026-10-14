@@ -32,12 +32,18 @@ class TradingUiTests
             Check(TradingUiConfiguration.Enabled, "new tabs default to true after schema upgrade");
             Check(!(bool)upgraded.General["Compatibility", "Enable long item tooltips"].BoxedValue, "existing user preference preserved");
             Check(!TradingUiConfiguration.HideItems, "category sales ban defaults OFF");
+            Check(TradingUiConfiguration.IsCategoryEnabled(ShopCategory.Idols), "idol tab defaults visible");
             foreach (ShopCategory category in Enum.GetValues(typeof(ShopCategory)))
                 Check(TradingUiConfiguration.IsCategoryEnabled(category), category + " defaults visible");
             int originalState = TradingUiConfiguration.State;
             upgraded.General["Trading UI", "Show Metals tab"].BoxedValue = false;
             Check(!TradingUiConfiguration.IsCategoryEnabled(ShopCategory.Metals), "metal toggle applies live");
             Check(TradingUiConfiguration.State != originalState, "shop detects changed visibility");
+            int metalState = TradingUiConfiguration.State;
+            upgraded.General["Trading UI", "Show Idols tab"].BoxedValue = false;
+            Check(!TradingUiConfiguration.IsCategoryEnabled(ShopCategory.Idols) &&
+                  TradingUiConfiguration.State != metalState, "idol tab live toggle");
+            upgraded.General["Trading UI", "Show Idols tab"].BoxedValue = true;
             upgraded.General["Trading UI", "Hide items from disabled tabs"].BoxedValue = true;
             Check(TradingUiConfiguration.HideItems, "sales policy applies live");
             Check(TradingUiConfiguration.IsCategoryEnabled(ShopCategory.All), "ALL cannot be disabled");

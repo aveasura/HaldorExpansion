@@ -11,6 +11,7 @@ using HaldorExpansion.Features.PitKing;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.StaminaCape;
 using HaldorExpansion.Features.WoundedBeast;
+using HaldorExpansion.Trading;
 using Jotunn.Extensions;
 
 namespace HaldorExpansion.Configuration
@@ -114,9 +115,17 @@ namespace HaldorExpansion.Configuration
             BindShopItemConfig("Shop Progression - Materials", "Obsidian", "Obsidian", 250);
             BindShopItemConfig("Shop Progression - Materials", "Needle", "Needle", 250);
             BindShopItemConfig("Shop Progression - Materials", "Tar", "Tar", 250);
-            
-            // Haldor Idol
-            BindShopItemConfig("Shop Progression - Materials", "aveasura_he_idol", "Haldor Idol", 1000);
+
+            // Preserve the existing Haldor Idol config keys in Materials on upgrade.
+            BindShopItemConfig("Shop Progression - Materials", HaldorIdolCatalog.CustomId,
+                "Haldor Idol", HaldorIdolCatalog.BuyPrice);
+
+            // Valheim's 16 Forge of Potential idols. All prices are per ONE idol.
+            foreach (HaldorIdolCatalog.Entry idol in HaldorIdolCatalog.Items)
+            {
+                if (idol.Id == HaldorIdolCatalog.CustomId) continue;
+                BindShopItemConfig("Shop Progression - Idols", idol.Id, idol.Name, HaldorIdolCatalog.BuyPrice);
+            }
         }
 
         private const string ShopProgressionDescription =

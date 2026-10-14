@@ -30,8 +30,8 @@ namespace HaldorExpansion.Trading
 
                 ItemDrop.ItemData.SharedData shared = drop.m_itemData.m_shared;
 
-                // Сначала - отдельные нетрофейные предметы
-                if (ExtraSellableItems.Contains(go.name))
+                // Non-trophies bought by Haldor, including all 17 idols.
+                if (ExtraSellableItems.Contains(go.name) || HaldorIdolCatalog.IsIdol(go.name))
                 {
                     int configuredExtraValue = SellPriceConfiguration.GetConfiguredHaldorSellPrice(go.name, 0);
                     shared.m_value = configuredExtraValue;
@@ -64,7 +64,7 @@ namespace HaldorExpansion.Trading
             if (string.IsNullOrEmpty(prefabName))
                 return false;
 
-            if (ExtraSellableItems.Contains(prefabName))
+            if (ExtraSellableItems.Contains(prefabName) || HaldorIdolCatalog.IsIdol(prefabName))
                 return item.m_shared.m_value > 0;
 
             return item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Trophy

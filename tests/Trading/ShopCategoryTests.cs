@@ -17,6 +17,11 @@ class ShopCategoryTests
         foreach (string type in new[] { "OneHandedWeapon", "TwoHandedWeapon", "TwoHandedWeaponLeft", "Bow", "Shield", "Chest", "Legs", "Hands", "Shoulder", "Utility", "Tool", "Torch", "Trinket" })
             Check(ShopCategoryFilter.Classify(type) == ShopCategory.Equipment, type + " is equipment");
         Check(ShopCategoryFilter.Classify("Material") == ShopCategory.Resources, "crafting material is a resource");
+        foreach (HaldorIdolCatalog.Entry idol in HaldorIdolCatalog.Items)
+            Check(ShopCategoryFilter.Classify("Material", idol.Id, "$item_upgrader") == ShopCategory.Idols,
+                "idol has its own tab: " + idol.Id);
+        Check(ShopCategoryFilter.Classify("Material", "Stone", "$item_upgrader") == ShopCategory.Resources,
+            "unrelated material must not be classified as idol");
         foreach (string type in new[] { "Fish", "Consumable", "Trophy", "Ammo", "Misc", "FutureModType", null })
             Check(ShopCategoryFilter.Classify(type) == ShopCategory.Other, "unclassified item remains in Other: " + type);
         var items = new List<string> { "Material", "Helmet", "Mystery", "Bow", "Material" };

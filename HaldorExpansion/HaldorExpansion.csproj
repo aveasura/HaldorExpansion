@@ -223,6 +223,7 @@
         <Compile Include="Presentation\UiTextIds.cs"/>
         <Compile Include="Presentation\ShopItemTooltip.cs"/>
         <Compile Include="Configuration\TradingUiConfiguration.cs"/>
+        <Compile Include="Trading\HaldorIdolCatalog.cs"/>
         <Compile Include="Trading\ShopCategoryFilter.cs"/>
         <Compile Include="Presentation\HaldorTabsController.cs"/>
         <Compile Include="Presentation\HaldorTabsView.cs"/>

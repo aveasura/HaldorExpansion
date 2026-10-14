@@ -11,6 +11,7 @@ namespace HaldorExpansion.Presentation
         internal const string ShopMetals = "$aveasura_he_shop_metals";
         internal const string ShopResources = "$aveasura_he_shop_resources";
         internal const string ShopOther = "$aveasura_he_shop_other";
+        internal const string ShopIdols = "$aveasura_he_shop_idols";
 
         internal static string ShopCategoryKey(ShopCategory category)
         {
@@ -21,6 +22,7 @@ namespace HaldorExpansion.Presentation
                 case ShopCategory.Metals: return ShopMetals;
                 case ShopCategory.Resources: return ShopResources;
                 case ShopCategory.Other: return ShopOther;
+                case ShopCategory.Idols: return ShopIdols;
                 default: return ShopAll;
             }
         }

@@ -24,12 +24,21 @@ class BindingTests
         var trade = new ConfigFile(Path.Combine(dir, "trade-memory"), false) { SaveOnConfigSet = false };
         new ShopConfiguration().RegisterShopProgressionConfig(trade);
         new SellPriceConfiguration().RegisterHaldorSellPriceConfig(trade);
-        if (trade.Count != 148 || TradingCatalog.Defaults.Shop.Count != 37 || TradingCatalog.Defaults.Sell.Count != 74)
+        if (trade.Count != 209 || TradingCatalog.Defaults.Shop.Count != 59 || TradingCatalog.Defaults.Sell.Count != 91)
             throw new Exception("Missing trading bindings");
         var ui = general.Bind("Compatibility", "Enable long item tooltips", true, "");
-        if (general.Count + balance.Count + trade.Count != 174) throw new Exception("Wrong total");
+        if (general.Count + balance.Count + trade.Count != 235) throw new Exception("Wrong total");
+        // Every idol is configurable for both buy and sell; the shop stack is fixed at one.
+        foreach (var idol in HaldorExpansion.Trading.HaldorIdolCatalog.Items)
+        {
+            TradeSetting buy = TradingCatalog.Defaults.Shop[idol.Id];
+            TradeSetting sell = TradingCatalog.Defaults.Sell[idol.Id];
+            if (buy.Price != 1000 || sell.Price != 300 || buy.Stack != 1 ||
+                TradingCatalog.Stack(idol.Id, 20, 20) != 1)
+                throw new Exception("Wrong idol buy/sell default or stack: " + idol.Id);
+        }
         TradingDocument.Parse(TradingCatalog.Defaults.Serialize(), TradingCatalog.Defaults);
-        Console.WriteLine("PASS: all 174 settings bind; full 37/74 trading document roundtrips");
+        Console.WriteLine("PASS: all 235 settings bind; full 59/91 trading document roundtrips");
         general.Save();
         balance.Save();
         var read = new ConfigFile(balance.ConfigFilePath, false);

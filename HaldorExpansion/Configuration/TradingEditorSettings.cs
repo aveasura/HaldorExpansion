@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using BepInEx.Configuration;
+using HaldorExpansion.Trading;
 
 namespace HaldorExpansion.Configuration
 {
@@ -34,14 +35,19 @@ namespace HaldorExpansion.Configuration
             foreach (TradeSetting row in document.Shop.Values)
             {
                 string section = "Trading - Buy - " + row.Category.Replace("Shop Progression - ", "");
+                bool idol = HaldorIdolCatalog.IsIdol(row.Id);
                 Add(section, row.Id + " Price", row.Price,
-                    "Price for the WHOLE stack / Цена за всю пачку. " + row.Label,
+                    (idol
+                        ? "Price for ONE idol / Цена за ОДИН идол. "
+                        : "Price for the WHOLE stack / Цена за всю пачку. ") + row.Label,
                     "shop", row.Id, "price", new AcceptableValueRange<int>(0, int.MaxValue), config, row.Label);
                 Add(section, row.Id + " Enabled", row.Enabled, "Show item in Haldor's shop. " + row.Label,
                     "shop", row.Id, "enabled", null, config, row.Label);
-                Add(section, row.Id + " Stack", row.Stack,
-                    "0 = item's maximum stack, otherwise 1..10000 (capped to the prefab maximum). " + row.Label,
-                    "shop", row.Id, "stack", new AcceptableValueRange<int>(0, 10000), config, row.Label);
+                // Idol stacks are fixed at one; do not offer a misleading quantity control in F1.
+                if (!idol)
+                    Add(section, row.Id + " Stack", row.Stack,
+                        "0 = item's maximum stack, otherwise 1..10000 (capped to the prefab maximum). " + row.Label,
+                        "shop", row.Id, "stack", new AcceptableValueRange<int>(0, 10000), config, row.Label);
                 Add(section, row.Id + " RequiredGlobalKey", row.RequiredKey,
                     "World global key required for this item. Empty = always available. " + row.Label,
                     "shop", row.Id, "requiredGlobalKey", null, config, row.Label);
@@ -63,7 +69,9 @@ namespace HaldorExpansion.Configuration
             var field = new Field
             {
                 Group = group, Id = id, Name = name, Entry = entry,
-                DisplayLabel = section == "Trading - Buy - Custom Items" ? label : null
+                DisplayLabel = section == "Trading - Buy - Custom Items" || section == "Trading - Buy - Idols"
+                    ? label
+                    : null
             };
             fields.Add(field);
             byEntry.Add(entry, field);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using BepInEx.Configuration;
+using HaldorExpansion.Trading;
 
 namespace HaldorExpansion.Configuration
 {
@@ -33,13 +34,14 @@ namespace HaldorExpansion.Configuration
                 case "Eitr":
                 case "Softtissue": stack = 0; break;
                 default:
-                    if (category != "Shop Progression - Custom Items") stack = 0;
+                    if (category != "Shop Progression - Custom Items" && !HaldorIdolCatalog.IsIdol(id)) stack = 0;
                     break;
             }
 
             Defaults.Shop.Add(id, new TradeSetting
             {
-                Id = id, Label = ItemNames.Label(label), Category = category,
+                Id = id, Label = HaldorIdolCatalog.Label(id) ?? ItemNames.Label(label),
+                Category = HaldorIdolCatalog.IsIdol(id) ? "Shop Progression - Idols" : category,
                 Price = price.Value, RequiredKey = key.Value, Stack = stack
             });
         }
@@ -82,6 +84,9 @@ namespace HaldorExpansion.Configuration
 
         internal static int Stack(string id, int fallback, int maxStack)
         {
+            // Idol prices always refer to a single idol, even if an edited YAML
+            // contains a different stack value or the prefab stacks to 20.
+            if (HaldorIdolCatalog.IsIdol(id)) return 1;
             TradeSetting row;
             if (Current == null || !Current.Shop.TryGetValue(id, out row)) return fallback;
             return row.Stack == 0

@@ -131,6 +131,11 @@ namespace HaldorExpansion.Configuration
             BindExtraSellPrice("Sell Prices - Cores", "SurtlingCore", "Surtling Core", 50);
             BindExtraSellPrice("Sell Prices - Cores", "BlackCore", "Black Core", 100);
             BindExtraSellPrice("Sell Prices - Cores", "MoltenCore", "Molten Core", 150);
+
+            // Each vanilla idol and the Haldor idol sell for 300 coins per ITEM.
+            // A value of 0 disables selling the corresponding idol.
+            foreach (HaldorIdolCatalog.Entry idol in HaldorIdolCatalog.Items)
+                BindExtraSellPrice("Sell Prices - Idols", idol.Id, idol.Name, HaldorIdolCatalog.SellPrice);
         }
 
         private void BindTrophySellPrice(string section, string prefabName, string displayName, int defaultPrice)
