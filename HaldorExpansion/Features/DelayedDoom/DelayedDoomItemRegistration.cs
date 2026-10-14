@@ -123,12 +123,12 @@ namespace HaldorExpansion.Features.DelayedDoom
             shared.m_name = DelayedDoomIds.ItemKey;
             shared.m_description = DelayedDoomIds.DescriptionKey;
 
-            shared.m_armor = 32f;
+            shared.m_armor = 28f;
             shared.m_armorPerLevel = ItemUpgradeBalance.DelayedDoomChest.ArmorPerLevel;
             shared.m_maxQuality = 2; // Native forge list requires > 1; ordinary upgrades stay disabled.
-            shared.m_weight = 5f;
+            shared.m_weight = 3f;
             shared.m_value = 0;
-            shared.m_movementModifier = -0.05f;
+            shared.m_movementModifier = -0.03f;
 
             shared.m_maxDurability = ItemUpgradeBalance.DelayedDoomChest.BaseDurability;
             shared.m_durabilityPerLevel = ItemUpgradeBalance.DelayedDoomChest.DurabilityPerLevel;

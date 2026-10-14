@@ -33,8 +33,8 @@ namespace HaldorExpansion.Configuration
         internal static void Register(ConfigFile config)
         {
             enabled = config.Bind("Trading UI", "Enable Haldor tabs", true,
-                "Show category tabs in Haldor's shop. Disabling only changes the interface. Category sales restrictions remain active. " +
-                "Показывать вкладки у Хальдора. Выключение меняет только интерфейс. Запреты продажи категорий продолжают действовать.");
+                "Show category tabs in Haldor's shop. Disabling only changes the interface; category sales restrictions remain active. " +
+                "Показывать вкладки у Хальдора. Выключение меняет только интерфейс; запреты продажи категорий продолжают действовать.");
             hideItems = config.Bind("Trading UI", "Hide items from disabled tabs", false,
                 "OFF: hiding a category tab leaves its items available in ALL. ON: hiding a tab also removes that category's items from Haldor's shop, including ALL. " +
                 "Re-enabling restores only items allowed by other trading settings and world progression, in their original order. Applies even when the tab interface is disabled. " +

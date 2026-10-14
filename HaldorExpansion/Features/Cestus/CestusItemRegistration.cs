@@ -18,8 +18,7 @@ namespace HaldorExpansion.Features.Cestus
         // ключи эффектов
         internal const string CestusEffectNameKey = "$se_weapon_gritcestus";
         internal const string CestusEffectDescKey = "$se_weapon_gritcestus_desc";
-
-        // todo Пока возьму когти за основу, потом можно переделать на кулаки
+        
         internal const string GritCestusSourcePrefab = "FistFenrirClaw";
 
         internal const int GritCestusPrice = 2500;
@@ -29,7 +28,6 @@ namespace HaldorExpansion.Features.Cestus
 
         private const float GritCestusWeight = 2f;
 
-        private const float GritCestusMaxDurability = 1000f;
 
         // Урон
         private const float GritCestusBluntDamage = 20f;
@@ -142,7 +140,7 @@ namespace HaldorExpansion.Features.Cestus
 
             shared.m_canBeReparied = true;
             shared.m_useDurability = true;
-            shared.m_maxDurability = GritCestusMaxDurability;
+            shared.m_maxDurability = ItemUpgradeBalance.BoneCrushers.BaseDurability;
             shared.m_durabilityPerLevel = ItemUpgradeBalance.BoneCrushers.DurabilityPerLevel;
 
             // Обычный урон
@@ -164,6 +162,7 @@ namespace HaldorExpansion.Features.Cestus
             shared.m_damagesPerLevel.m_lightning = ItemUpgradeBalance.BoneCrushers.LightningPerLevel;
             shared.m_damagesPerLevel.m_poison = 0f;
             shared.m_damagesPerLevel.m_spirit = 0f;
+            shared.m_movementModifier = -0.01f;
 
             // блок / парирование
             shared.m_blockPower = GritCestusBlockPower;
@@ -181,7 +180,7 @@ namespace HaldorExpansion.Features.Cestus
 
             if (shared.m_secondaryAttack != null)
             {
-                shared.m_secondaryAttack.m_attackStamina = 12;
+                shared.m_secondaryAttack.m_attackStamina = 9;
                 shared.m_secondaryAttack.m_staggerMultiplier = GritCestusSecondaryStaggerMultiplier;
             }
 

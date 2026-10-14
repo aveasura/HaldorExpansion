@@ -17,7 +17,7 @@ namespace HaldorExpansion.Features.Berserker
 
         internal const int Price = 2500;
         internal const string IconFileName = "berserker_helmet.png";
-        internal const float BaseArmor = 15f;
+        internal const float BaseArmor = 14f;
 
         internal static GameObject Prefab;
         internal static ItemDrop ItemDrop;

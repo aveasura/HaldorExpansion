@@ -197,7 +197,7 @@ namespace HaldorExpansion.Features.WoundedBeast
             shared.m_weight = 1f;
             shared.m_value = 0;
 
-            shared.m_maxDurability = 1800f;
+            shared.m_maxDurability = ItemUpgradeBalance.WoundedBeastCloak.BaseDurability;
             shared.m_durabilityPerLevel = ItemUpgradeBalance.WoundedBeastCloak.DurabilityPerLevel;
             shared.m_canBeReparied = true;
             shared.m_useDurability = true;

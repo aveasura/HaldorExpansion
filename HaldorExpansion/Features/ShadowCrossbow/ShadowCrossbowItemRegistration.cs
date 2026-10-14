@@ -117,7 +117,7 @@ namespace HaldorExpansion.Features.ShadowCrossbow
             shared.m_damagesPerLevel = new HitData.DamageTypes();
             shared.m_damagesPerLevel.m_pierce = ItemUpgradeBalance.ShadowCrossbow.PiercePerLevel;
 
-            shared.m_maxDurability = 400f;
+            shared.m_maxDurability = ItemUpgradeBalance.ShadowCrossbow.BaseDurability;
             shared.m_durabilityPerLevel = ItemUpgradeBalance.ShadowCrossbow.DurabilityPerLevel;
             shared.m_useDurability = true;
             shared.m_canBeReparied = true;

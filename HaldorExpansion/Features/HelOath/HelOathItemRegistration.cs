@@ -130,7 +130,7 @@ namespace HaldorExpansion.Features.HelOath
             shared.m_damagesPerLevel.m_lightning = ItemUpgradeBalance.HelOath.LightningPerLevel;
             shared.m_damagesPerLevel.m_frost = ItemUpgradeBalance.HelOath.FrostPerLevel;
 
-            shared.m_maxDurability = 1800f;
+            shared.m_maxDurability = ItemUpgradeBalance.HelOath.BaseDurability;
             shared.m_durabilityPerLevel = ItemUpgradeBalance.HelOath.DurabilityPerLevel;
             shared.m_useDurability = true;
             shared.m_canBeReparied = true;

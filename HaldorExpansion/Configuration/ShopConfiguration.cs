@@ -76,43 +76,47 @@ namespace HaldorExpansion.Configuration
                 HelOathItemRegistration.HelOathPrice);
 
             // Metals.
-            BindShopItemConfig("Shop Progression - Metals", "Iron", "Iron", 225);
-            BindShopItemConfig("Shop Progression - Metals", "Copper", "Copper", 310);
-            BindShopItemConfig("Shop Progression - Metals", "Tin", "Tin", 180);
-            BindShopItemConfig("Shop Progression - Metals", "Silver", "Silver", 550);
-            BindShopItemConfig("Shop Progression - Metals", "Flametal", "Flametal", 800);
+            BindShopItemConfig("Shop Progression - Metals", "Copper", "Copper", 150);
+            BindShopItemConfig("Shop Progression - Metals", "Tin", "Tin", 150);
+            BindShopItemConfig("Shop Progression - Metals", "Iron", "Iron", 250);
+            BindShopItemConfig("Shop Progression - Metals", "Silver", "Silver", 450);
+            BindShopItemConfig("Shop Progression - Metals", "BlackMetal", "Black metal", 200);
+            BindShopItemConfig("Shop Progression - Metals", "Flametal", "Flametal", 1000);
 
             // Stone / building materials.
-            BindShopItemConfig("Shop Progression - Building Materials", "Stone", "Stone", 20);
-            BindShopItemConfig("Shop Progression - Building Materials", "Grausten", "Grausten", 25);
-            BindShopItemConfig("Shop Progression - Building Materials", "BlackMarble", "Black Marble", 40);
+            BindShopItemConfig("Shop Progression - Building Materials", "Stone", "Stone", 25);
+            BindShopItemConfig("Shop Progression - Building Materials", "Grausten", "Grausten", 50);
+            BindShopItemConfig("Shop Progression - Building Materials", "BlackMarble", "Black Marble", 50);
 
             // Wood.
-            BindShopItemConfig("Shop Progression - Wood", "Wood", "Wood", 10);
-            BindShopItemConfig("Shop Progression - Wood", "RoundLog", "Core Wood", 10);
-            BindShopItemConfig("Shop Progression - Wood", "ElderBark", "Ancient Bark", 30);
-            BindShopItemConfig("Shop Progression - Wood", "FineWood", "Fine Wood", 150);
-            BindShopItemConfig("Shop Progression - Wood", "YggdrasilWood", "Yggdrasil Wood", 250);
-            BindShopItemConfig("Shop Progression - Wood", "Ashwood", "Ashwood", 30);
-            BindShopItemConfig("Shop Progression - Wood", "Blackwood", "Blackwood", 100);
-            BindShopItemConfig("Shop Progression - Wood", "CharredWood", "Charred Wood", 50);
+            BindShopItemConfig("Shop Progression - Wood", "Wood", "Wood", 25);
+            BindShopItemConfig("Shop Progression - Wood", "RoundLog", "Core Wood", 50);
+            BindShopItemConfig("Shop Progression - Wood", "ElderBark", "Ancient Bark", 100);
+            BindShopItemConfig("Shop Progression - Wood", "FineWood", "Fine Wood", 200);
+            BindShopItemConfig("Shop Progression - Wood", "YggdrasilWood", "Yggdrasil Wood", 300);
+            BindShopItemConfig("Shop Progression - Wood", "Ashwood", "Ashwood", 100);
 
             // Textiles.
-            BindShopItemConfig("Shop Progression - Textiles", "JuteRed", "Red Jute", 250);
-            BindShopItemConfig("Shop Progression - Textiles", "JuteBlue", "Blue Jute", 250);
+            BindShopItemConfig("Shop Progression - Textiles", "JuteRed", "Red Jute", 300);
+            BindShopItemConfig("Shop Progression - Textiles", "JuteBlue", "Blue Jute", 300);
+            BindShopItemConfig("Shop Progression - Textiles", "LinenThread", "Linen thread", 800);
 
             // Eitr refining materials.
-            BindShopItemConfig("Shop Progression - Materials", "Softtissue", "Soft Tissue", 300);
-            BindShopItemConfig("Shop Progression - Materials", "Sap", "Sap", 300);
-            BindShopItemConfig("Shop Progression - Materials", "Eitr", "Refined Eitr", 600);
+            BindShopItemConfig("Shop Progression - Materials", "Softtissue", "Soft Tissue", 400);
+            BindShopItemConfig("Shop Progression - Materials", "Sap", "Sap", 400);
+            BindShopItemConfig("Shop Progression - Materials", "Eitr", "Refined Eitr", 900);
 
             // Other materials.
             BindShopItemConfig("Shop Progression - Materials", "Resin", "Resin", 100);
+            BindShopItemConfig("Shop Progression - Materials", "GreydwarfEye", "Greydwarf Eye", 100);
             BindShopItemConfig("Shop Progression - Materials", "Feathers", "Feathers", 150);
-            BindShopItemConfig("Shop Progression - Materials", "GreydwarfEye", "Greydwarf Eye", 200);
-            BindShopItemConfig("Shop Progression - Materials", "Tar", "Tar", 250);
             BindShopItemConfig("Shop Progression - Materials", "Crystal", "Crystal", 250);
+            BindShopItemConfig("Shop Progression - Materials", "Obsidian", "Obsidian", 250);
             BindShopItemConfig("Shop Progression - Materials", "Needle", "Needle", 250);
+            BindShopItemConfig("Shop Progression - Materials", "Tar", "Tar", 250);
+            
+            // Haldor Idol
+            BindShopItemConfig("Shop Progression - Materials", "aveasura_he_idol", "Haldor Idol", 1000);
         }
 
         private const string ShopProgressionDescription =

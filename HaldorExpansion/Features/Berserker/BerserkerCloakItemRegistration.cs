@@ -18,7 +18,7 @@ namespace HaldorExpansion.Features.Berserker
 
         internal const int Price = 2500;
         internal const string IconFileName = "berserker_cloak.png";
-        internal const float Armor = 4f;
+        internal const float Armor = 6f;
 
         internal static GameObject Prefab;
         internal static ItemDrop ItemDrop;
@@ -160,9 +160,9 @@ namespace HaldorExpansion.Features.Berserker
 
             // Keep Berserker durability and weight unchanged when switching models.
             // This is a visual-only change, not a progression/stat adjustment.
-            shared.m_maxDurability = 1200f;
+            shared.m_maxDurability = ItemUpgradeBalance.BerserkerCloak.BaseDurability;
             shared.m_durabilityPerLevel = ItemUpgradeBalance.BerserkerCloak.DurabilityPerLevel;
-            shared.m_weight = 4f;
+            shared.m_weight = 2f;
             BerserkerAppearance.ApplyArmorMaterial(shared, BerserkerAppearance.Style.Cloak);
 
             // CapeAsh supplies only the visual prefab. Strip inherited set bonuses and

@@ -1,6 +1,7 @@
 using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
+using HaldorExpansion.Compatibility;
 using HaldorExpansion.Configuration;
 using HaldorExpansion.Diagnostics;
 using HaldorExpansion.Features.Berserker;
@@ -47,6 +48,7 @@ namespace HaldorExpansion
         {
             Instance = this;
             Log = Logger;
+            KnownAssetWarningFilter.Install();
 
             _configuration.Open(this);
             _shopConfiguration.RegisterShopProgressionConfig(_configuration.TradeEntries);
@@ -88,6 +90,7 @@ namespace HaldorExpansion
             ItemTooltipController.Reset();
             HaldorTabsController.Reset();
             ObjectDB_Awake_Patch.Shutdown();
+            KnownAssetWarningFilter.Shutdown();
         }
     }
 }

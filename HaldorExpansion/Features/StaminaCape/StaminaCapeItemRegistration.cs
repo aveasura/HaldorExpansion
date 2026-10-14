@@ -184,7 +184,7 @@ namespace HaldorExpansion.Features.StaminaCape
             shared.m_maxQuality = 2; // Native upgrader eligibility; saved levels have no cap.
             shared.m_weight = 1f;
 
-            shared.m_maxDurability = 1800f;
+            shared.m_maxDurability = ItemUpgradeBalance.ScorchedEnduranceCloak.BaseDurability;
             shared.m_durabilityPerLevel = ItemUpgradeBalance.ScorchedEnduranceCloak.DurabilityPerLevel;
 
             shared.m_value = 0;

@@ -124,7 +124,7 @@ namespace HaldorExpansion.Features.PitKing
             shared.m_name = PitKingChestItemKey;
             shared.m_description = PitKingChestItemDescKey;
 
-            shared.m_armor = 16f;
+            shared.m_armor = 14f;
             shared.m_armorPerLevel = ItemUpgradeBalance.PitKingChest.ArmorPerLevel;
             shared.m_maxQuality = 2; // Native forge list requires > 1; ordinary upgrades stay disabled.
             shared.m_weight = 3f;
@@ -137,7 +137,7 @@ namespace HaldorExpansion.Features.PitKing
             shared.m_canBeReparied = true;
 
             shared.m_eitrRegenModifier = 0f;
-            shared.m_movementModifier = -0.05f;
+            shared.m_movementModifier = -0.02f;
 
             // обнулить унаследованный набор
             shared.m_setName = "";

@@ -157,7 +157,7 @@ namespace HaldorExpansion.Features.PeltOfHelheim
             shared.m_description = ItemDescKey;
 
             shared.m_armor = 4f;
-            shared.m_maxDurability = 1800f;
+            shared.m_maxDurability = ItemUpgradeBalance.HelheimPelt.BaseDurability;
 
             shared.m_maxQuality = 2; // Native upgrader eligibility; saved levels have no cap.
             shared.m_armorPerLevel = ItemUpgradeBalance.HelheimPelt.ArmorPerLevel;

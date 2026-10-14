@@ -146,7 +146,7 @@ namespace HaldorExpansion.Features.Berserker
             shared.m_damagesPerLevel = new HitData.DamageTypes();
             shared.m_damagesPerLevel.m_slash = ItemUpgradeBalance.BerserkerAxe.SlashPerLevel;
             shared.m_maxQuality = 2; // Native upgrader eligibility; normal crafting remains disabled.
-            shared.m_maxDurability = 1200;
+            shared.m_maxDurability = ItemUpgradeBalance.BerserkerAxe.BaseDurability;
             shared.m_durabilityPerLevel = ItemUpgradeBalance.BerserkerAxe.DurabilityPerLevel;
 
             // Less raw safety/control than the vanilla Deep North greataxe: the build should prefer

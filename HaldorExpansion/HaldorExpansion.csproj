@@ -231,6 +231,7 @@
         <Compile Include="Features\SteelHeart\SteelHeartSet.cs"/>
         <Compile Include="Features\PitKing\PitKingEquipment.cs"/>
         <Compile Include="Compatibility\ReflectionAccess.cs"/>
+        <Compile Include="Compatibility\KnownAssetWarningFilter.cs"/>
         <Compile Include="Compatibility\CharacterHealthAccess.cs"/>
         <Compile Include="Features\Brisingamen\BrisingamenItemRegistration.cs"/>
         <Compile Include="Features\NornThread\NornThreadItemRegistration.cs"/>
@@ -354,10 +355,6 @@
         </EmbeddedResource>
         <EmbeddedResource Include="Assets\Icons\shop_all.png">
             <LogicalName>HaldorExpansion.Assets.Icons.shop_all.png</LogicalName>
-        </EmbeddedResource>
-
-        <EmbeddedResource Include="Assets\Icons\shop_equipment.png">
-            <LogicalName>HaldorExpansion.Assets.Icons.shop_equipment.png</LogicalName>
         </EmbeddedResource>
 
         <EmbeddedResource Include="Assets\Icons\shop_resources.png">

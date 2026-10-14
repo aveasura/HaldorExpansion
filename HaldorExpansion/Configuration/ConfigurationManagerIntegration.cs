@@ -22,7 +22,7 @@ namespace HaldorExpansion.Configuration
         private static ConstructorInfo settingConstructor;
         private static MethodInfo setReadOnly, setDisplayName;
         private static readonly List<object> visibleServerEntries = new List<object>();
-        private static bool installed, unavailable;
+        private static bool installed, unavailable, categoryOrderUnavailable;
         private static bool? lastClientState;
         private static float nextAttempt;
 
@@ -81,6 +81,10 @@ namespace HaldorExpansion.Configuration
                 new Harmony(HaldorExpansionPlugin.ModGuid + ".configurationmanager").Patch(buildSettings,
                     postfix: new HarmonyMethod(AccessTools.Method(typeof(ConfigurationManagerIntegration),
                         nameof(AddExtendedSettings))));
+                new Harmony(HaldorExpansionPlugin.ModGuid + ".configurationmanager.order").Patch(
+                    rebuildFilteredSettings,
+                    postfix: new HarmonyMethod(AccessTools.Method(typeof(ConfigurationManagerIntegration),
+                        nameof(PrioritizeCompatibility))));
                 installed = true;
                 HaldorExpansionPlugin.Log.LogInfo(
                     "[Config] ConfigurationManager: balance.cfg and trading.yml settings available in F1.");
@@ -91,6 +95,48 @@ namespace HaldorExpansion.Configuration
                 HaldorExpansionPlugin.Log.LogWarning("[Config] ConfigurationManager integration disabled: " +
                                                      e.Message);
             }
+        }
+
+        // Sort the final displayed groups, after the manager's own sorting/search.
+        // Do not rename config sections or reorder another plugin's categories.
+        private static void PrioritizeCompatibility(object __instance)
+        {
+            if (categoryOrderUnavailable) return;
+            try
+            {
+                var plugins = ReadMember(__instance, "_filteredSetings") as IEnumerable;
+                if (plugins == null) return;
+                foreach (object group in plugins)
+                {
+                    var info = ReadMember(group, "Info") as BepInPlugin;
+                    if (info == null || info.GUID != HaldorExpansionPlugin.ModGuid) continue;
+                    var categories = ReadMember(group, "Categories") as IList;
+                    if (categories == null || categories.IsReadOnly || categories.IsFixedSize) continue;
+                    for (int i = 1; i < categories.Count; i++)
+                    {
+                        if (!string.Equals(ReadMember(categories[i], "Name") as string, "Compatibility",
+                                StringComparison.Ordinal)) continue;
+                        object compatibility = categories[i];
+                        categories.RemoveAt(i);
+                        categories.Insert(0, compatibility);
+                        break;
+                    }
+                }
+            }
+            catch (Exception error)
+            {
+                categoryOrderUnavailable = true;
+                HaldorExpansionPlugin.Log.LogWarning("[Config] Cannot prioritize Compatibility in F1: " +
+                                                     error.Message);
+            }
+        }
+
+        private static object ReadMember(object instance, string name)
+        {
+            if (instance == null) return null;
+            var field = AccessTools.Field(instance.GetType(), name);
+            if (field != null) return field.GetValue(instance);
+            return AccessTools.Property(instance.GetType(), name)?.GetValue(instance, null);
         }
 
         private static void AddExtendedSettings(object __instance)

@@ -13,7 +13,6 @@ namespace HaldorExpansion.Presentation
     internal sealed class HaldorTabsView : IDisposable
     {
         private static readonly int CategoryCount = Enum.GetValues(typeof(ShopCategory)).Length;
-        private readonly TMP_Text[] labels = new TMP_Text[CategoryCount];
         private GameObject tooltipPrefab;
         private const float ScreenMargin = 5f;
         private static readonly FieldInfo SellButtonField = AccessTools.Field(typeof(StoreGui), "m_sellButton");
@@ -110,7 +109,7 @@ namespace HaldorExpansion.Presentation
             CopyImage(nativeSell.GetComponent<Image>(), background);
             background.raycastTarget = true;
 
-            Sprite sprite = category == ShopCategory.All ? null : CategoryIcon(category);
+            Sprite sprite = CategoryIcon(category);
             if (sprite != null)
             {
                 var iconGo = new GameObject("CategoryIcon", typeof(RectTransform), typeof(Image));
@@ -125,11 +124,6 @@ namespace HaldorExpansion.Presentation
                 icons[index].sprite = sprite;
                 icons[index].preserveAspect = true;
                 icons[index].raycastTarget = false;
-            }
-            else
-            {
-                labels[index] = CreateText(rect, nativeSell.GetComponentInChildren<TMP_Text>(true), "Label");
-                labels[index].text = Localization.instance.Localize(UiTextIds.ShopCategoryKey(category));
             }
 
             var button = go.GetComponent<Button>();
@@ -164,14 +158,16 @@ namespace HaldorExpansion.Presentation
 
         private static TMP_Text CreateText(Transform parent, TMP_Text source, string name)
         {
-            var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
+            var go = new GameObject(name, typeof(RectTransform));
+            // Assign the game font before TMP is enabled; avoid its missing default-font lookup.
+            go.SetActive(false);
+            var text = go.AddComponent<TextMeshProUGUI>();
             var rect = (RectTransform)go.transform;
             rect.SetParent(parent, false);
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.offsetMin = new Vector2(4f, 2f);
             rect.offsetMax = new Vector2(-4f, -2f);
-            var text = go.GetComponent<TextMeshProUGUI>();
             if (source != null)
             {
                 text.font = source.font;
@@ -186,12 +182,13 @@ namespace HaldorExpansion.Presentation
             text.fontSizeMin = 10f;
             text.fontSizeMax = source != null ? source.fontSize : 18f;
             text.raycastTarget = false;
+            go.SetActive(true);
             return text;
         }
 
         private GameObject ResolveTooltipPrefab(Button nativeSell)
         {
-            // Search children too. mods/game versions may move the tooltip component.
+            // Search children too; mods/game versions may move the tooltip component.
             foreach (var tooltip in Gui.GetComponentsInChildren<UITooltip>(true))
                 if (tooltip.m_tooltipPrefab != null)
                     return tooltip.m_tooltipPrefab;
@@ -210,7 +207,10 @@ namespace HaldorExpansion.Presentation
             popupRect.pivot = new Vector2(0f, 1f);
             popupRect.sizeDelta = new Vector2(240f, 48f);
             CopyImage(nativeHolderRect.GetComponent<Image>(), popup.GetComponent<Image>());
-            CreateText(popupRect, nativeSell.GetComponentInChildren<TMP_Text>(true), "Text");
+            // Item-name font supports the current language. button-title font may lack Cyrillic.
+            var itemName = Gui.m_listElement != null ? Gui.m_listElement.transform.Find("name") : null;
+            var textSource = itemName != null ? itemName.GetComponent<TMP_Text>() : null;
+            CreateText(popupRect, textSource ?? nativeSell.GetComponentInChildren<TMP_Text>(true), "Text");
             return prefab;
         }
 
@@ -279,8 +279,6 @@ namespace HaldorExpansion.Presentation
                 bool visible = TradingUiConfiguration.IsCategoryEnabled((ShopCategory)i);
                 holderRects[i].gameObject.SetActive(visible);
                 if (visible) visibleCount++;
-                if (labels[i] != null)
-                    labels[i].text = Localization.instance.Localize(UiTextIds.ShopCategoryKey((ShopCategory)i));
             }
 
             var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
@@ -365,7 +363,6 @@ namespace HaldorExpansion.Presentation
                 buttons[i].colors = tint;
                 Color color = selected ? new Color(1f, 0.88f, 0.51f, 1f) : Color.white;
                 if (icons[i] != null) icons[i].color = color;
-                if (labels[i] != null) labels[i].color = color;
             }
         }
 
