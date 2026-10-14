@@ -17,7 +17,8 @@ All notable changes to HaldorExpansion will be documented in this file.
 - **Forge of Possibilities:** Added upgrade support for 12 unique HaldorExpansion artifacts. Equipment can be upgraded beyond quality level 10, allowing players to continue strengthening their gear.
 - **Awakened Potential:** Introduced unique awakened abilities and passive bonuses for 11 of the 12 upgradeable artifacts upon reaching quality level 10. Awakened powers remain active at all subsequent upgrade levels. The awakened ability for **Hel's Oath (bow)** is still in development and will be added in a future update.
 - **Haldor Idol:** Introduced a new upgrade resource obtainable from eligible loot sources alongside existing idols, without replacing their original drops.
-- **Idol Trading:** Haldor now buys and sells all 16 vanilla idols and the custom Haldor Idol, with individually configurable prices and availability.
+- **Adamantine Haldor Idol:** Introduced a new upgrade resource that protects equipment from destruction when an upgrade fails, though failure may still reduce its quality.
+- **Idol Trading:** Haldor now buys and sells all 16 vanilla idols and both custom HaldorExpansion idols, with individually configurable prices and availability.
 
 - **Facebreaker:** Introduced a new active ability for Bone Crushers that pulls enemies together, slowing them and staggering those caught on opposite sides.
 - **Custom Facebreaker Animation:** Added a unique casting animation with directional character positioning, synchronized enemy pulling, impact, and knockback.
@@ -26,6 +27,7 @@ All notable changes to HaldorExpansion will be documented in this file.
 - **Haldor's Shop Categories:** Added category tabs for easier navigation through Haldor's inventory.
 - **Scrollable Item Tooltips:** Added scrolling support for long item descriptions, improving accessibility on smaller screens.
 - **Artifact Lore:** Added original Norse-inspired stories and interconnected sagas for 12 relics, fully localized in English and Russian.
+- **Interconnected Idol Lore:** Added two emotional, interconnected stories for Haldor's idols, featuring hidden connections to existing artifact lore and subtle clues about their mysterious origins.
 - **New Trading Resources:** Added Sap, Refined Eitr, Soft Tissue, Linen Thread, and Black Metal to Haldor's inventory.
 
 - **In-Game Configuration:** Added optional BepInEx ConfigurationManager support, allowing players to manage mod settings directly in-game.
