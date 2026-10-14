@@ -42,4 +42,4 @@ Thumbs.db
 *.py
 
 # test
-tests
+/tests
