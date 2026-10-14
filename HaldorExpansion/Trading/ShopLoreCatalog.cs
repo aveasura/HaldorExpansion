@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using HaldorExpansion.Features.Berserker;
-using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Features.Brisingamen;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
@@ -10,6 +9,7 @@ using HaldorExpansion.Features.PeltOfHelheim;
 using HaldorExpansion.Features.PitKing;
 using HaldorExpansion.Features.ShadowCrossbow;
 using HaldorExpansion.Features.StaminaCape;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Features.WoundedBeast;
 
 namespace HaldorExpansion.Trading
@@ -21,6 +21,7 @@ namespace HaldorExpansion.Trading
         private static readonly Dictionary<string, string> Descriptions = new Dictionary<string, string>
         {
             [AdamantineIdolRegistration.ItemKey] = AdamantineIdolRegistration.LoreKey,
+            [IdolRegistration.ItemKey] = IdolRegistration.LoreKey,
             [BerserkerIds.AxeItemKey] = BerserkerIds.AxeItemKey + "_lore",
             [BerserkerIds.CloakItemKey] = BerserkerIds.CloakItemKey + "_lore",
             [BerserkerIds.HelmetItemKey] = BerserkerIds.HelmetItemKey + "_lore",

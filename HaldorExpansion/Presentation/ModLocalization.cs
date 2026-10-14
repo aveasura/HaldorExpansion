@@ -277,11 +277,64 @@ namespace HaldorExpansion.Presentation
                     "\n\n<color=#B1ABA5><i>«Искал силу богов, чтобы владеть всем. Но не сумел сохранить даже то, что уже держал в руках.»</i></color>",
                 [BrisingamenIds.EffectDescriptionKey] = "+{0:0.##} к переносимому весу.",
                 [AdamantineIdolRegistration.ItemKey] = "Адамантиновый идол Хальдора",
-                [AdamantineIdolRegistration.DescriptionKey] = "Универсальный идол для любого снаряжения, которое поддерживает Кузница возможностей.\nУспех: качество +1. Неудача: качество −1, но не ниже 1.\nСнаряжение никогда не уничтожается. Один идол расходуется при каждой попытке.\nШанс успеха соответствует обычным идолам Кузницы.",
-                [AdamantineIdolRegistration.LoreKey] = "Среди торговцев ходит история о том, как однажды Хальдор выменял у странствующего дворфа слиток металла, который не поддавался ни молоту, ни пламени.\nЛишь спустя годы среди товаров Хальдора появились первые адамантиновые идолы. Их сила не гарантировала успеха при улучшении снаряжения, зато оберегала его от полного разрушения.\nКогда Хальдора спросили, как ему удалось раскрыть тайну неподатливого металла, он задумчиво ответил:\n«Даже в том, что кажется безвозвратно испорченным, порой остаётся искра былого величия».\nИ почему-то его взгляд задержался на старом украшении среди товаров.",
+                [AdamantineIdolRegistration.DescriptionKey] =
+                    "Универсальный идол для любого снаряжения, которое поддерживает Кузница возможностей.\nУспех: качество +1. Неудача: качество −1, но не ниже 1.\nСнаряжение никогда не уничтожается. Один идол расходуется при каждой попытке.\nШанс успеха соответствует обычным идолам Кузницы.",
+                [AdamantineIdolRegistration.LoreKey] =
+                    "<color=#C9A56B><b>То, что мы оставляем</b></color>" +
+                    "\n<color=#B1ABA5><i>«Некоторые обещания дают мёртвым. А исполняют — ради живых.»</i></color>" +
+                    "\n\nМного зим назад Хальдор выменял у странствующего дворфа слиток необычного металла. Ни пламя кузнечного горна, ни удары молота не могли изменить его форму." +
+                    "\n\nДолгое время торговец хранил диковинку среди своих товаров. Говорили, что порой он часами разглядывал её, а затем переводил взгляд на старое, изуродованное украшение, давно лишившееся драгоценных камней." +
+                    "\n\nОднажды внимательный покупатель заметил на прежде гладкой поверхности слитка тонкую, безупречно ровную грань. Казалось, металл не пытались ковать, а огранили, словно драгоценный камень." +
+                    "\n\nСпустя некоторое время слиток исчез из лавки." +
+                    "\n\nА ещё через несколько зим среди товаров Хальдора появились необычные идолы, отливавшие холодным блеском адамантина." +
+                    "\n\nОни не обещали успеха в Кузнице возможностей. Но даже если пламя отвергало старания кузнеца, снаряжение оставалось целым." +
+                    "\n\nНикто не знал, откуда появились эти фигурки. А Хальдор, как водится, не спешил делиться историями о своих товарах." +
+                    "\n\nСреди кузнецов рассказывают историю о старом воине, который однажды пришёл к Кузнице возможностей вместе со своим сыном." +
+                    "\n\nЮноша нёс недавно выкованный меч — первый клинок, подаренный ему отцом." +
+                    "\n\nСам же воин носил у пояса старые пустые ножны." +
+                    "\n\nНикто не знал, почему он хранил их столько лет." +
+                    "\n\nЮноша мечтал сделать свой клинок сильнее. Он говорил о великих битвах, о подвигах и славе, которой однажды покроет своё имя." +
+                    "\n\nОтец слушал его и едва заметно улыбался." +
+                    "\n\nНо когда сын протянул меч к пламени Кузницы, старый воин остановил его." +
+                    "\n\n— Подожди." +
+                    "\n\nОн достал из сумки небольшой идол, отливавший холодным блеском адамантина." +
+                    "\n\n— Возьми этот." +
+                    "\n\nЮноша удивился. Он слышал, что такие идолы не даруют большей удачи, чем обычные, а при неудаче могут даже ослабить клинок." +
+                    "\n\nНо отец лишь покачал головой." +
+                    "\n\n— Поверь, сын. Иногда важно не то, сколько силы ты обретёшь, а то, что сумеешь сохранить." +
+                    "\n\nЮноша послушался." +
+                    "\n\nПламя Кузницы вспыхнуло, раздался звон металла, и на мгновение оба зажмурились от ослепительного света." +
+                    "\n\nКогда огонь угас, меч лежал на наковальне." +
+                    "\n\nЕго лезвие потускнело, а сталь утратила часть прежней прочности." +
+                    "\n\nПопытка закончилась неудачей." +
+                    "\n\n— Не повезло, — разочарованно произнёс юноша." +
+                    "\n\nНо отец ничего не ответил." +
+                    "\n\nОн смотрел на уцелевший клинок, а затем неожиданно обнял сына так крепко, словно боялся больше никогда его не увидеть." +
+                    "\n\nГоворят, когда они проходили мимо лавки Хальдора, старый воин на мгновение остановился." +
+                    "\n\nТорговец взглянул на пустые ножны у его пояса." +
+                    "\n\nОни молча кивнули друг другу." +
+                    "\n\nА много лет спустя на внутренней стороне тех самых ножен обнаружили вырезанные слова:" +
+                    "\n\n<color=#B1ABA5><i>«Когда-то я не сумел сохранить меч отца. Но сегодня сумел сохранить меч своего сына.»</i></color>",
                 [AdamantineIdolRegistration.ForgeLabelKey] = "[Адамантин]",
-                [AdamantineIdolRegistration.ForgeWarningKey] = "Адамантиновый идол: успех +1; неудача −1 (минимум 1). Без разрушения.",
+                [AdamantineIdolRegistration.ForgeWarningKey] =
+                    "Адамантиновый идол: успех +1, Неудача −1 (минимум 1). Без разрушения.",
                 [IdolRegistration.ItemKey] = "Идол Хальдора",
+                [IdolRegistration.LoreKey] =
+                    "<color=#C9A56B><b>Цена совершенства</b></color>" +
+                    "\n<color=#B1ABA5><i>«Не всё, что пережило битву, способно пережить надежду.»</i></color>" +
+                    "\n\nСреди кузнецов ходит предание о воине, который однажды приобрёл у Хальдора небольшую бронзовую фигурку. Торговец уверял, что заключённая в ней сила способна превзойти пределы кузнечного мастерства, будь то оружие или доспехи. Но предупреждал: не всякое снаряжение выдержит попытку стать чем-то большим." +
+                    "\n\nВоин принёс идол в Кузницу возможностей вместе со старым мечом, доставшимся ему от отца." +
+                    "\n\nМного зим назад, ещё ребёнком, он пережил падение древней крепости. От той ночи в памяти сохранились лишь обрывки: пламя у разрушенных ворот, собственные дрожащие руки и израненный отец, который в последний раз склонился перед ним, прежде чем вновь поднять оружие и уйти навстречу врагам." +
+                    "\n\nМеч нашли среди павших после битвы. С тех пор сын берёг его как единственное, что осталось от отца." +
+                    "\n\nНо годы брали своё. Клинок износился, и воин надеялся, что сила идола позволит сохранить его ещё на многие зимы." +
+                    "\n\nВ первый раз меч стал прочнее и острее. Во второй — на его лезвии проступили руны, которых прежде никто не видел." +
+                    "\n\nНо воин боялся, что однажды и этой силы окажется недостаточно." +
+                    "\n\nНа третьей попытке меч рассыпался в прах, не оставив даже осколка." +
+                    "\n\nГоворят, воин вернулся к Хальдору и молча положил перед ним пустые ножны. Торговец долго смотрел на них, а затем вернул воину золото, потраченное на идолы." +
+                    "\n\nС тех пор одни кузнецы называли эти фигурки величайшим даром, другие — жестокой насмешкой над человеческой жадностью." +
+                    "\n\nА Хальдор продолжал торговать ими, неизменно предупреждая покупателей о цене неудачи." +
+                    "\n\nЛишь старые торговцы поговаривали, что после той встречи он стал необычайно задумчив всякий раз, когда речь заходила о снаряжении, утраченном навсегда." +
+                    "\n\n<color=#B1ABA5><i>«Он оставил мне меч. Я оставил от него лишь ножны.»</i></color>",
                 [IdolRegistration.DescriptionKey] =
                     "Идол для улучшения уникального снаряжения Хальдора в Кузнице возможностей.\nПри неудаче предмет может быть уничтожен.",
 
@@ -668,11 +721,64 @@ namespace HaldorExpansion.Presentation
                     "\n\n<color=#B1ABA5><i>“He sought the might of gods to possess all things, yet could not keep even what he already held.”</i></color>",
                 [BrisingamenIds.EffectDescriptionKey] = "+{0:0.##} maximum carry weight.",
                 [AdamantineIdolRegistration.ItemKey] = "Haldor's Adamantine Idol",
-                [AdamantineIdolRegistration.DescriptionKey] = "A universal idol for any equipment supported by the Forge of Possibilities.\nSuccess: quality +1. Failure: quality −1, never below 1.\nEquipment is never destroyed. One idol is consumed on every attempt.\nThe success chance follows the Forge’s standard idols.",
-                [AdamantineIdolRegistration.LoreKey] = "Among merchants, a tale is told of how Haldor once bartered with a wandering dwarf for an ingot of metal that would yield to neither hammer nor flame.\nOnly years later did the first adamantine idols appear among Haldor’s wares. Their power promised no certainty of success when improving equipment, yet shielded it from utter destruction.\nWhen Haldor was asked how he had unlocked the secret of the unyielding metal, he replied thoughtfully:\n“Even in what seems ruined beyond all hope, a spark of former greatness sometimes lingers.”\nAnd, for some reason, his gaze lingered on an old piece of jewelry among his wares.",
+                [AdamantineIdolRegistration.DescriptionKey] =
+                    "A universal idol for any equipment supported by the Forge of Possibilities.\nSuccess: quality +1. Failure: quality −1, never below 1.\nEquipment is never destroyed. One idol is consumed on every attempt.\nThe success chance follows the Forge’s standard idols.",
+                [AdamantineIdolRegistration.LoreKey] =
+                    "<color=#C9A56B><b>What We Leave Behind</b></color>" +
+                    "\n<color=#B1ABA5><i>“Some promises are made to the dead. But kept for the living.”</i></color>" +
+                    "\n\nMany winters ago, Haldor traded with a wandering dwarf for an ingot of strange metal. Neither the flames of a smith’s forge nor the blows of a hammer could change its shape." +
+                    "\n\nFor a long time, the merchant kept the curiosity among his wares. Some said he would study it for hours, then turn his gaze toward an old, disfigured ornament that had long since lost its precious stones." +
+                    "\n\nOne day, an observant customer noticed a fine, perfectly straight facet on the ingot’s once-smooth surface. It seemed the metal had not been forged, but cut like a gemstone." +
+                    "\n\nAfter a time, the ingot disappeared from the shop." +
+                    "\n\nAnd several winters later, strange new idols appeared among Haldor’s wares, gleaming with the cold sheen of adamantine." +
+                    "\n\nThey promised no success at the Forge of Possibilities. Yet even when the flames rejected a smith’s efforts, the equipment remained intact." +
+                    "\n\nNo one knew where these figurines had come from. And Haldor, as ever, was in no hurry to share stories of his wares." +
+                    "\n\nAmong smiths, another tale is told of an aging warrior who once came to the Forge of Possibilities with his son." +
+                    "\n\nThe young man carried a newly forged sword — the first blade his father had ever given him." +
+                    "\n\nThe warrior himself wore an old, empty scabbard at his belt." +
+                    "\n\nNo one knew why he had kept it for so many years." +
+                    "\n\nThe young man dreamed of making his blade stronger. He spoke of great battles, heroic deeds, and the glory he would one day bring to his name." +
+                    "\n\nHis father listened with the faintest smile." +
+                    "\n\nBut when the son held out his sword toward the flames of the Forge, the old warrior stopped him." +
+                    "\n\n“Wait.”" +
+                    "\n\nHe drew a small idol from his satchel, gleaming with the cold sheen of adamantine." +
+                    "\n\n“Take this one.”" +
+                    "\n\nThe young man was surprised. He had heard that such idols brought no better luck than ordinary ones, and that failure could even weaken a blade." +
+                    "\n\nBut his father merely shook his head." +
+                    "\n\n“Trust me, son. Sometimes what matters is not how much strength you gain, but what you manage to keep.”" +
+                    "\n\nThe young man obeyed." +
+                    "\n\nThe Forge blazed, metal rang out, and for an instant they both squeezed their eyes shut against the dazzling light." +
+                    "\n\nWhen the fire faded, the sword lay upon the anvil." +
+                    "\n\nIts edge had grown dull, and the steel had lost some of its former strength." +
+                    "\n\nThe attempt had failed." +
+                    "\n\n“No luck,” the young man said bitterly." +
+                    "\n\nBut his father said nothing." +
+                    "\n\nHe looked at the surviving blade, then suddenly embraced his son so tightly it seemed he feared he might never see him again." +
+                    "\n\nThey say that as they passed Haldor’s shop, the old warrior stopped for a moment." +
+                    "\n\nThe merchant glanced at the empty scabbard at his belt." +
+                    "\n\nThey exchanged a silent nod." +
+                    "\n\nAnd many years later, words were found carved into the inside of that same scabbard:" +
+                    "\n\n<color=#B1ABA5><i>“Once, I failed to save my father’s sword. But today, I saved my son’s.”</i></color>",
                 [AdamantineIdolRegistration.ForgeLabelKey] = "[Adamantine]",
-                [AdamantineIdolRegistration.ForgeWarningKey] = "Adamantine Idol: success +1; failure −1 (minimum 1). No destruction.",
+                [AdamantineIdolRegistration.ForgeWarningKey] =
+                    "Adamantine Idol: success +1. Failure −1 (minimum 1). No destruction.",
                 [IdolRegistration.ItemKey] = "Haldor’s Idol",
+                [IdolRegistration.LoreKey] =
+                    "<color=#C9A56B><b>The Price of Perfection</b></color>" +
+                    "\n<color=#B1ABA5><i>“Not everything that survives a battle can survive hope.”</i></color>" +
+                    "\n\nAmong smiths, a tale is told of a warrior who once bought a small bronze figurine from Haldor. The merchant claimed that the power within it could surpass the limits of the smith’s craft, whether for weapons or armor. But he warned that not all equipment could endure the attempt to become something greater." +
+                    "\n\nThe warrior brought the idol to the Forge of Possibilities, along with an old sword inherited from his father." +
+                    "\n\nMany winters earlier, when he was still a child, he had survived the fall of an ancient fortress. Only fragments of that night remained in his memory: flames at the shattered gates, his own trembling hands, and his wounded father kneeling before him one last time, then taking up his weapon and walking out to meet the enemy." +
+                    "\n\nThe sword was found among the fallen after the battle. Ever since, the son had treasured it as the only thing left of his father." +
+                    "\n\nBut the years took their toll. The blade had grown worn, and the warrior hoped the idol’s power would preserve it for many winters to come." +
+                    "\n\nThe first time, the sword grew stronger and sharper. The second time, runes appeared upon its blade that no one had ever seen before." +
+                    "\n\nBut the warrior feared that one day even this strength might not be enough." +
+                    "\n\nOn the third attempt, the sword crumbled to dust, leaving not so much as a shard." +
+                    "\n\nThey say the warrior returned to Haldor and silently laid the empty scabbard before him. The merchant gazed at it for a long while, then returned the gold the warrior had spent on the idols." +
+                    "\n\nFrom that day onward, some smiths called these figurines the greatest of gifts; others, a cruel mockery of human greed." +
+                    "\n\nAnd Haldor continued to sell them, always warning his customers of the price of failure." +
+                    "\n\nOnly the oldest merchants whispered that after that encounter, he grew strangely thoughtful whenever talk turned to equipment lost forever." +
+                    "\n\n<color=#B1ABA5><i>“He left me a sword. I left nothing of it but the scabbard.”</i></color>",
                 [IdolRegistration.DescriptionKey] =
                     "An idol for refining Haldor’s unique equipment at the Forge of Potential.\nFailure may destroy the item.",
 
@@ -816,7 +922,9 @@ namespace HaldorExpansion.Presentation
         {
             AwakenedDescriptions.AddTranslations(text, ru);
             text[AdamantineIdolRegistration.DescriptionKey] = text[AdamantineIdolRegistration.LoreKey] +
-                "\n\n" + text[AdamantineIdolRegistration.DescriptionKey];
+                                                              "\n\n" + text[AdamantineIdolRegistration.DescriptionKey];
+            text[IdolRegistration.DescriptionKey] = text[IdolRegistration.LoreKey] +
+                                                    "\n\n" + text[IdolRegistration.DescriptionKey];
             text[HelOathItemRegistration.HelOathItemDescKey] = text[HelOathItemRegistration.HelOathItemKey + "_lore"] +
                                                                "\n\n" +
                                                                text[HelOathItemRegistration.HelOathItemDescKey];

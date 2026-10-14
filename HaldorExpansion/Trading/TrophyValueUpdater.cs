@@ -30,7 +30,7 @@ namespace HaldorExpansion.Trading
 
                 ItemDrop.ItemData.SharedData shared = drop.m_itemData.m_shared;
 
-                // Non-trophies bought by Haldor, including all 17 idols.
+                // Non-trophies bought by Haldor, including all 18 idols.
                 if (ExtraSellableItems.Contains(go.name) || HaldorIdolCatalog.IsIdol(go.name))
                 {
                     int configuredExtraValue = SellPriceConfiguration.GetConfiguredHaldorSellPrice(go.name, 0);

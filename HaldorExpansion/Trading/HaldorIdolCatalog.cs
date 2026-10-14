@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HaldorExpansion.Trading
 {
-    // The 16 vanilla Forge of Potential idols and our separate Haldor idol.
+    // The 16 vanilla Forge of Potential idols and our two Haldor idols.
     // Keep this in the trading layer: idol upgrades/loot are not changed by the shop.
     internal static class HaldorIdolCatalog
     {

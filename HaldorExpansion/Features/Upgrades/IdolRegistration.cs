@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using HaldorExpansion.Configuration;
 using HaldorExpansion.Integration;
+using HaldorExpansion.Trading;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using UnityEngine;
@@ -14,6 +16,7 @@ namespace HaldorExpansion.Features.Upgrades
         internal const string PrefabName = "aveasura_he_idol";
         internal const string ItemKey = "$item_aveasura_he_idol";
         internal const string DescriptionKey = ItemKey + "_desc";
+        internal const string LoreKey = ItemKey + "_lore";
         internal static GameObject Prefab;
         internal static ItemDrop ItemDrop;
         internal static Sprite NativeIcon;
@@ -187,7 +190,9 @@ namespace HaldorExpansion.Features.Upgrades
             var native = source.m_itemData.m_shared;
             shared.m_name = ItemKey;
             shared.m_description = DescriptionKey;
-            shared.m_value = 0;
+            shared.m_value =
+                SellPriceConfiguration.GetConfiguredHaldorSellPrice(
+                    PrefabName, HaldorIdolCatalog.SellPrice);
             shared.m_upgradeChance = native.m_upgradeChance;
             shared.m_breakChance = native.m_breakChance;
             shared.m_breakReturnIngreientsAmount = native.m_breakReturnIngreientsAmount;
