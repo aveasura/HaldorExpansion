@@ -97,7 +97,11 @@ namespace HaldorExpansion.Patches
 
             StaminaCapeItemRegistration.RegisterRecipe();
 
-            if (IdolRegistration.EnsureReady()) UpgradeRecipes.Register();
+            if (IdolRegistration.EnsureReady())
+            {
+                UpgradeRecipes.Register();
+                AdamantineIdolRegistration.EnsureReady();
+            }
         }
     }
 }

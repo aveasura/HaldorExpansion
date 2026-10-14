@@ -423,6 +423,12 @@
         <Compile Include="Features\Upgrades\IdolLootPatches.cs"/>
         <Compile Include="Features\Upgrades\UpgradePatches.cs"/>
         <Compile Include="Features\Upgrades\IdolRegistration.cs"/>
+        <Compile Include="Features\Upgrades\AdamantineRefinement.cs"/>
+        <Compile Include="Features\Upgrades\AdamantineForgePatches.cs"/>
+        <Compile Include="Features\Upgrades\AdamantineIdolRegistration.cs"/>
+        <Compile Include="Features\Upgrades\AdamantineIdolAppearance.cs"/>
+        <Compile Include="Features\Upgrades\IdolIconRasterizer.cs"/>
+        <Compile Include="Features\Upgrades\AdamantineLoot.cs"/>
         <Compile Include="Features\Upgrades\ItemUpgradeBalance.cs"/>
         <Compile Include="Features\Upgrades\UpgradeRecipes.cs"/>
         <Compile Include="Features\Upgrades\IdolLoot.cs"/>

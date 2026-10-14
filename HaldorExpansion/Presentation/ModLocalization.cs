@@ -276,6 +276,11 @@ namespace HaldorExpansion.Presentation
                     "\n\nА конунг так и не узнал, что собственными руками отверг божественный дар, чью истинную ценность не сумел постичь." +
                     "\n\n<color=#B1ABA5><i>«Искал силу богов, чтобы владеть всем. Но не сумел сохранить даже то, что уже держал в руках.»</i></color>",
                 [BrisingamenIds.EffectDescriptionKey] = "+{0:0.##} к переносимому весу.",
+                [AdamantineIdolRegistration.ItemKey] = "Адамантиновый идол Хальдора",
+                [AdamantineIdolRegistration.DescriptionKey] = "Универсальный идол для любого снаряжения, которое поддерживает Кузница возможностей.\nУспех: качество +1. Неудача: качество −1, но не ниже 1.\nСнаряжение никогда не уничтожается. Один идол расходуется при каждой попытке.\nШанс успеха соответствует обычным идолам Кузницы.",
+                [AdamantineIdolRegistration.LoreKey] = "Среди торговцев ходит история о том, как однажды Хальдор выменял у странствующего дворфа слиток металла, который не поддавался ни молоту, ни пламени.\nЛишь спустя годы среди товаров Хальдора появились первые адамантиновые идолы. Их сила не гарантировала успеха при улучшении снаряжения, зато оберегала его от полного разрушения.\nКогда Хальдора спросили, как ему удалось раскрыть тайну неподатливого металла, он задумчиво ответил:\n«Даже в том, что кажется безвозвратно испорченным, порой остаётся искра былого величия».\nИ почему-то его взгляд задержался на старом украшении среди товаров.",
+                [AdamantineIdolRegistration.ForgeLabelKey] = "[Адамантин]",
+                [AdamantineIdolRegistration.ForgeWarningKey] = "Адамантиновый идол: успех +1; неудача −1 (минимум 1). Без разрушения.",
                 [IdolRegistration.ItemKey] = "Идол Хальдора",
                 [IdolRegistration.DescriptionKey] =
                     "Идол для улучшения уникального снаряжения Хальдора в Кузнице возможностей.\nПри неудаче предмет может быть уничтожен.",
@@ -662,6 +667,11 @@ namespace HaldorExpansion.Presentation
                     "\n\nAnd the king never learned that with his own hands he had cast aside a divine gift whose true worth he had failed to comprehend." +
                     "\n\n<color=#B1ABA5><i>“He sought the might of gods to possess all things, yet could not keep even what he already held.”</i></color>",
                 [BrisingamenIds.EffectDescriptionKey] = "+{0:0.##} maximum carry weight.",
+                [AdamantineIdolRegistration.ItemKey] = "Haldor's Adamantine Idol",
+                [AdamantineIdolRegistration.DescriptionKey] = "A universal idol for any equipment supported by the Forge of Possibilities.\nSuccess: quality +1. Failure: quality −1, never below 1.\nEquipment is never destroyed. One idol is consumed on every attempt.\nThe success chance follows the Forge’s standard idols.",
+                [AdamantineIdolRegistration.LoreKey] = "Among merchants, a tale is told of how Haldor once bartered with a wandering dwarf for an ingot of metal that would yield to neither hammer nor flame.\nOnly years later did the first adamantine idols appear among Haldor’s wares. Their power promised no certainty of success when improving equipment, yet shielded it from utter destruction.\nWhen Haldor was asked how he had unlocked the secret of the unyielding metal, he replied thoughtfully:\n“Even in what seems ruined beyond all hope, a spark of former greatness sometimes lingers.”\nAnd, for some reason, his gaze lingered on an old piece of jewelry among his wares.",
+                [AdamantineIdolRegistration.ForgeLabelKey] = "[Adamantine]",
+                [AdamantineIdolRegistration.ForgeWarningKey] = "Adamantine Idol: success +1; failure −1 (minimum 1). No destruction.",
                 [IdolRegistration.ItemKey] = "Haldor’s Idol",
                 [IdolRegistration.DescriptionKey] =
                     "An idol for refining Haldor’s unique equipment at the Forge of Potential.\nFailure may destroy the item.",
@@ -805,6 +815,8 @@ namespace HaldorExpansion.Presentation
         private static Dictionary<string, string> WithConfiguredValues(Dictionary<string, string> text, bool ru)
         {
             AwakenedDescriptions.AddTranslations(text, ru);
+            text[AdamantineIdolRegistration.DescriptionKey] = text[AdamantineIdolRegistration.LoreKey] +
+                "\n\n" + text[AdamantineIdolRegistration.DescriptionKey];
             text[HelOathItemRegistration.HelOathItemDescKey] = text[HelOathItemRegistration.HelOathItemKey + "_lore"] +
                                                                "\n\n" +
                                                                text[HelOathItemRegistration.HelOathItemDescKey];

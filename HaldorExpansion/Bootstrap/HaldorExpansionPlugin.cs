@@ -61,6 +61,7 @@ namespace HaldorExpansion
             BerserkerConfiguration.Register(_configuration.Balance, Config);
             ItemTooltipController.RegisterConfig(Config);
             TradingUiConfiguration.Register(Config);
+            AdamantineIdolRegistration.RegisterConfig(_configuration.Balance);
 
             _configuration.Finish();
             ConfigurationManagerIntegration.Initialize(_configuration, this);

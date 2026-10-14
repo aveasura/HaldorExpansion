@@ -31,14 +31,20 @@ namespace HaldorExpansion.Features.Upgrades
         private static void Postfix(Player __instance, List<Recipe> __0)
         {
             UpgradeRecipes.AppendAvailable(__instance, __0);
+            AdamantineRefinement.AppendAvailable(__instance, __0);
         }
     }
 
     [HarmonyPatch(typeof(InventoryGui), "DoCrafting")]
     internal static class UpgradeCraftingGuardPatch
     {
-        private static bool Prefix(Player __0, Recipe ___m_craftRecipe, ItemDrop.ItemData ___m_craftUpgradeItem)
+        private static bool Prefix(InventoryGui __instance, Player __0, Recipe ___m_craftRecipe, ItemDrop.ItemData ___m_craftUpgradeItem)
         {
+            if (AdamantineRefinement.IsAlternative(___m_craftRecipe))
+            {
+                AdamantineForge.Craft(__instance, __0, ___m_craftRecipe, ___m_craftUpgradeItem);
+                return false;
+            }
             if (___m_craftRecipe == null || !UpgradeRecipes.IsSupported(___m_craftRecipe.m_item?.m_itemData))
                 return true;
             // Guard the operation, not only the list: no-cost mode must not create free copies.

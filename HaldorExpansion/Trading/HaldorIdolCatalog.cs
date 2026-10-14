@@ -8,6 +8,9 @@ namespace HaldorExpansion.Trading
     internal static class HaldorIdolCatalog
     {
         internal const string CustomId = "aveasura_he_idol";
+        internal const string AdamantineId = "aveasura_he_adamantine_idol";
+        internal const int AdamantineBuyPrice = 4000;
+        internal const int AdamantineSellPrice = 2500;
         internal const int BuyPrice = 1000;
         internal const int SellPrice = 300;
 
@@ -43,7 +46,8 @@ namespace HaldorExpansion.Trading
             new Entry("Upgrader6Armor", "Flametal Protection Idol", "Пламенно-металлический идол защиты"),
             new Entry("Upgrader7Weapon", "Bloodgold Battle Idol", "Идол битвы из кровавого золота"),
             new Entry("Upgrader7Armor", "Bloodgold Protection Idol", "Идол защиты из кровавого золота"),
-            new Entry(CustomId, "Haldor Idol", "Идол Хальдора")
+            new Entry(CustomId, "Haldor Idol", "Идол Хальдора"),
+            new Entry(AdamantineId, "Haldor's Adamantine Idol", "Адамантиновый идол Хальдора")
         };
 
         private static readonly HashSet<string> Ids = BuildIds();

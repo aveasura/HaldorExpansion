@@ -124,7 +124,8 @@ namespace HaldorExpansion.Configuration
             foreach (HaldorIdolCatalog.Entry idol in HaldorIdolCatalog.Items)
             {
                 if (idol.Id == HaldorIdolCatalog.CustomId) continue;
-                BindShopItemConfig("Shop Progression - Idols", idol.Id, idol.Name, HaldorIdolCatalog.BuyPrice);
+                BindShopItemConfig("Shop Progression - Idols", idol.Id, idol.Name,
+                    idol.Id == HaldorIdolCatalog.AdamantineId ? HaldorIdolCatalog.AdamantineBuyPrice : HaldorIdolCatalog.BuyPrice);
             }
         }
 

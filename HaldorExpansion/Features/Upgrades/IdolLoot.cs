@@ -49,6 +49,7 @@ namespace HaldorExpansion.Features.Upgrades
                 sampling = false;
             }
 
+            AdamantineLoot.AppendItems(table, result);
             return result;
         }
 

@@ -330,3 +330,6 @@ namespace HaldorExpansion.Features.StaminaCape
     }
 }
 namespace HaldorExpansion.Features.Upgrades { static class IdolRegistration { public static bool EnsureReady() => true; } static class UpgradeRecipes { public static void Register() { Probe.Recipes++; } } }
+
+namespace HaldorExpansion.Features.Upgrades {internal static class AdamantineIdolRegistration {internal static bool EnsureReady()=>true;}}
+namespace HaldorExpansion.Features.Cestus {internal static class CestusFacebreakerSlow {internal static void EnsureRegistered(){}}}

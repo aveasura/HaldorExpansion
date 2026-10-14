@@ -16,6 +16,9 @@ namespace HaldorExpansion.Features.Upgrades
         internal const string DescriptionKey = ItemKey + "_desc";
         internal static GameObject Prefab;
         internal static ItemDrop ItemDrop;
+        internal static Sprite NativeIcon;
+        private static readonly MethodInfo CloneShared = typeof(object).GetMethod("MemberwiseClone",
+            BindingFlags.Instance | BindingFlags.NonPublic);
         private static bool diagnosticRegistered;
 
         private static readonly MethodInfo UpdateRegisters = typeof(ObjectDB).GetMethod("UpdateRegisters",
@@ -53,6 +56,7 @@ namespace HaldorExpansion.Features.Upgrades
                 }
 
                 if (source == null) return false;
+                NativeIcon = source.m_itemData.GetIcon();
 
                 GameObject prefab = ItemPrefabLookup.Registered(PrefabName);
                 if (prefab == null)
@@ -61,7 +65,9 @@ namespace HaldorExpansion.Features.Upgrades
                     if (prefab == null) return false;
                     ItemDrop drop = prefab.GetComponent<ItemDrop>();
                     if (drop == null) return false;
+                    drop.m_itemData.m_shared = (ItemDrop.ItemData.SharedData)CloneShared.Invoke(source.m_itemData.m_shared, null);
                     Configure(drop, source, prefab);
+                    AdamantineIdolAppearance.Apply(prefab, NativeIcon, false);
                     if (!ItemManager.Instance.AddItem(new CustomItem(prefab, fixReference: false))) return false;
                 }
 

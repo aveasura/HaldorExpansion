@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HaldorExpansion.Features.Berserker;
+using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Features.Brisingamen;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
@@ -19,6 +20,7 @@ namespace HaldorExpansion.Trading
         // An item with no entry keeps its normal shop tooltip (including vanilla items).
         private static readonly Dictionary<string, string> Descriptions = new Dictionary<string, string>
         {
+            [AdamantineIdolRegistration.ItemKey] = AdamantineIdolRegistration.LoreKey,
             [BerserkerIds.AxeItemKey] = BerserkerIds.AxeItemKey + "_lore",
             [BerserkerIds.CloakItemKey] = BerserkerIds.CloakItemKey + "_lore",
             [BerserkerIds.HelmetItemKey] = BerserkerIds.HelmetItemKey + "_lore",

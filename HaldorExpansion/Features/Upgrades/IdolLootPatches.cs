@@ -58,7 +58,8 @@ namespace HaldorExpansion.Features.Upgrades
         {
             Container container = IdolContainerScopePatch.Current;
             if (__result || container == null || __instance != container.GetInventory() ||
-                __0?.m_dropPrefab != IdolRegistration.Prefab) return;
+                (__0?.m_dropPrefab != IdolRegistration.Prefab &&
+                 __0?.m_dropPrefab != AdamantineIdolRegistration.Prefab)) return;
             ItemDrop.DropItem(__0, __0.m_stack, container.transform.position + Vector3.up, Quaternion.identity);
         }
     }
