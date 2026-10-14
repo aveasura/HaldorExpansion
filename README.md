@@ -2,7 +2,7 @@
 
 [English](README.md) | [Русский](README.ru.md) | [Changelog](CHANGELOG.md)
 
-**Version: 1.3.0 (unreleased)**
+**Version: 1.3.0**
 
 Haldor Expansion is a Valheim mod for **BepInEx 5 + Jotunn** that expands Haldor's shop with **13 unique pieces of equipment**, distinctive combat mechanics, and configurable prices, quantities, and world-progression requirements. Version 1.3.0 also enables upgrades for **12 artifacts** at the **Forge of Possibilities**, with **11 playable awakened powers** unlocked at quality 10.
 
