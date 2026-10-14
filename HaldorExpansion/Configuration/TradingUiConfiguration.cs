@@ -6,7 +6,7 @@ namespace HaldorExpansion.Configuration
     internal static class TradingUiConfiguration
     {
         private static ConfigEntry<bool> enabled, hideItems;
-        private static readonly ConfigEntry<bool>[] categories = new ConfigEntry<bool>[7];
+        private static readonly ConfigEntry<bool>[] categories = new ConfigEntry<bool>[(int)ShopCategory.Other + 1];
         internal static bool Enabled => enabled != null && enabled.Value;
         internal static bool HideItems => hideItems != null && hideItems.Value;
 
@@ -45,7 +45,6 @@ namespace HaldorExpansion.Configuration
             BindCategory(config, ShopCategory.Metals, "Руды и металлы / Ores and metals");
             BindCategory(config, ShopCategory.Resources, "Ресурсы / Resources");
             BindCategory(config, ShopCategory.Other, "Прочее / Other");
-            BindCategory(config, ShopCategory.Idols, "Идолы / Idols");
         }
 
         private static void BindCategory(ConfigFile config, ShopCategory category, string label)

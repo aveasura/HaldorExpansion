@@ -10,8 +10,7 @@ namespace HaldorExpansion.Trading
         Wood,
         Metals,
         Resources,
-        Other,
-        Idols
+        Other
     }
 
     internal static class ShopCategoryFilter
@@ -36,7 +35,8 @@ namespace HaldorExpansion.Trading
 
         internal static ShopCategory Classify(string itemType, string prefab, string sharedName)
         {
-            if (HaldorIdolCatalog.IsIdol(prefab)) return ShopCategory.Idols;
+            // Idols share the existing Other tab; buying and selling remain independently configurable.
+            if (HaldorIdolCatalog.IsIdol(prefab)) return ShopCategory.Other;
             ShopCategory basic = Classify(itemType);
             if (basic != ShopCategory.Resources) return basic;
             if (WoodIds.Contains(prefab ?? "") || WoodIds.Contains(sharedName ?? "")) return ShopCategory.Wood;

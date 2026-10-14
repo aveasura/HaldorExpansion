@@ -241,17 +241,6 @@ namespace HaldorExpansion.Presentation
                 case ShopCategory.Metals: prefab = "CopperOre"; break;
                 case ShopCategory.Resources: prefab = "Sap"; break;
                 case ShopCategory.Other: prefab = "Ruby"; break;
-                case ShopCategory.Idols:
-                    // Use the idol's actual inventory icon, not a new texture.
-                    foreach (string candidate in new[]
-                                 { HaldorIdolCatalog.CustomId, "Upgrader0Armor", "Upgrader0Weapon" })
-                    {
-                        var idol = ObjectDB.instance?.GetItemPrefab(candidate)?.GetComponent<ItemDrop>();
-                        var sprite = idol?.m_itemData?.m_shared?.m_icons;
-                        if (sprite != null && sprite.Length > 0 && sprite[0] != null) return sprite[0];
-                    }
-
-                    return EmbeddedIconLoader.LoadUiIcon("shop_resources.png");
             }
 
             if (prefab != null && ObjectDB.instance != null)

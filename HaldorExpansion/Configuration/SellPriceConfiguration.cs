@@ -115,17 +115,17 @@ namespace HaldorExpansion.Configuration
             BindTrophySellPrice("Sell Prices - Ashlands", "TrophyFader", "Fader Trophy", 1000);
 
             // Deep North.
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBarka", "Barka Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyElaking", "Elaking Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyMole", "Eyeless One Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBlob_Frost", "Frost Blob Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyJotunWitch", "Hexen Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyJotunWarrior", "Krigen Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyMoose", "Moose Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBlob_Morkhalla", "Pulp Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophySeal", "Seal Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyWrithan", "Writhan Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyDeerWhite", "White Deer Trophy", 50);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBarka", "Barka Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyElaking", "Elaking Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyMole", "Eyeless One Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBlob_Frost", "Frost Blob Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyJotunWitch", "Hexen Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyJotunWarrior", "Krigen Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyMoose", "Moose Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBlob_Morkhalla", "Pulp Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophySeal", "Seal Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyWrithan", "Writhan Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyDeerWhite", "White Deer Trophy", 100);
 
             // The three non-trophy items that HaldorExpansion explicitly allows Haldor to buy.
             BindExtraSellPrice("Sell Prices - Cores", "SurtlingCore", "Surtling Core", 50);

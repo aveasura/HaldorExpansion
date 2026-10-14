@@ -18,10 +18,19 @@ class ShopCategoryTests
             Check(ShopCategoryFilter.Classify(type) == ShopCategory.Equipment, type + " is equipment");
         Check(ShopCategoryFilter.Classify("Material") == ShopCategory.Resources, "crafting material is a resource");
         foreach (HaldorIdolCatalog.Entry idol in HaldorIdolCatalog.Items)
-            Check(ShopCategoryFilter.Classify("Material", idol.Id, "$item_upgrader") == ShopCategory.Idols,
-                "idol has its own tab: " + idol.Id);
+            Check(ShopCategoryFilter.Classify("Material", idol.Id, "$item_upgrader") == ShopCategory.Other,
+                "idol belongs to Other tab: " + idol.Id);
         Check(ShopCategoryFilter.Classify("Material", "Stone", "$item_upgrader") == ShopCategory.Resources,
             "unrelated material must not be classified as idol");
+        var mixedStock = new List<string> { "Stone", "Upgrader0Weapon", "aveasura_he_idol", "Wood" };
+        Func<string, ShopCategory> classifyMixed = id => ShopCategoryFilter.Classify("Material", id, null);
+        var idolsInOther = ShopCategoryFilter.Filter(mixedStock, ShopCategory.Other, classifyMixed);
+        Check(string.Join(",", idolsInOther) == "Upgrader0Weapon,aveasura_he_idol",
+            "both vanilla and custom idols are visible in Other, in original order");
+        var hideOther = ShopCategoryFilter.Filter(mixedStock, ShopCategory.All, classifyMixed,
+            c => c != ShopCategory.Other);
+        Check(string.Join(",", hideOther) == "Stone,Wood",
+            "disabling Other with Hide items from disabled tabs also hides idols from All");
         foreach (string type in new[] { "Fish", "Consumable", "Trophy", "Ammo", "Misc", "FutureModType", null })
             Check(ShopCategoryFilter.Classify(type) == ShopCategory.Other, "unclassified item remains in Other: " + type);
         var items = new List<string> { "Material", "Helmet", "Mystery", "Bow", "Material" };

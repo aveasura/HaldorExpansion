@@ -98,7 +98,8 @@ namespace HaldorExpansion.Configuration
         }
 
         // Sort the final displayed groups, after the manager's own sorting/search.
-        // Do not rename config sections or reorder another plugin's categories.
+        // Keep Compatibility first and Trading UI directly below it, without renaming
+        // any config sections or changing categories of other plugins.
         private static void PrioritizeCompatibility(object __instance)
         {
             if (categoryOrderUnavailable) return;
@@ -121,12 +122,27 @@ namespace HaldorExpansion.Configuration
                         categories.Insert(0, compatibility);
                         break;
                     }
+
+                    // Only move Trading UI if Compatibility is visible in the filtered list.
+                    // Moving the same objects preserves the original settings and their values.
+                    if (categories.Count == 0 ||
+                        !string.Equals(ReadMember(categories[0], "Name") as string, "Compatibility",
+                            StringComparison.Ordinal)) continue;
+                    for (int i = 2; i < categories.Count; i++)
+                    {
+                        if (!string.Equals(ReadMember(categories[i], "Name") as string, "Trading UI",
+                                StringComparison.Ordinal)) continue;
+                        object trading = categories[i];
+                        categories.RemoveAt(i);
+                        categories.Insert(1, trading);
+                        break;
+                    }
                 }
             }
             catch (Exception error)
             {
                 categoryOrderUnavailable = true;
-                HaldorExpansionPlugin.Log.LogWarning("[Config] Cannot prioritize Compatibility in F1: " +
+                HaldorExpansionPlugin.Log.LogWarning("[Config] Cannot prioritize Compatibility and Trading UI in F1: " +
                                                      error.Message);
             }
         }
