@@ -95,7 +95,7 @@ namespace HaldorExpansion.Configuration
             BindShopItemConfig("Shop Progression - Wood", "ElderBark", "Ancient Bark", 100);
             BindShopItemConfig("Shop Progression - Wood", "FineWood", "Fine Wood", 200);
             BindShopItemConfig("Shop Progression - Wood", "YggdrasilWood", "Yggdrasil Wood", 300);
-            BindShopItemConfig("Shop Progression - Wood", "blackwood", "Ashwood", 100);
+            BindShopItemConfig("Shop Progression - Wood", "Blackwood", "Ashwood", 100);
 
             // Textiles.
             BindShopItemConfig("Shop Progression - Textiles", "JuteRed", "Red Jute", 300);
