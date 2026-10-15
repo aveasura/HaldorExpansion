@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using HaldorExpansion.Configuration;
@@ -95,6 +95,7 @@ namespace HaldorExpansion.Features.Upgrades
                 if (!diagnosticRegistered)
                 {
                     CommandManager.Instance.AddConsoleCommand(new LootTestCommand());
+                    CommandManager.Instance.AddConsoleCommand(new MobLootTestCommand());
                     diagnosticRegistered = true;
                 }
 
@@ -181,6 +182,164 @@ namespace HaldorExpansion.Features.Upgrades
                 {
                     Random.state = randomState;
                 }
+            }
+        }
+
+        // Temporary developer diagnostic for Valheim 1.0.20 CharacterDrop compatibility.
+        // Uses the real native generator and our Harmony postfix on an existing, registered
+        // creature prefab. No enemies/items are spawned and no saved world data is touched.
+        private sealed class MobLootTestCommand : ConsoleCommand
+        {
+            public override string Name => "he_idolmobtest";
+
+            public override string Help =>
+                "[HE TEST] he_idolmobtest; check CharacterDrop idol compatibility (no world drops).";
+
+            public override void Run(string[] args, Terminal terminal)
+            {
+                if (args.Length != 0)
+                {
+                    terminal?.AddString(Help);
+                    return;
+                }
+
+                if (ZNetScene.instance?.m_prefabs == null || ObjectDB.instance?.m_recipes == null ||
+                    Prefab == null)
+                {
+                    terminal?.AddString("[HE Idol Mob Test] Enter a world first.");
+                    return;
+                }
+
+                // Find an actual vanilla upgrader resource from the game's recipes,
+                // rather than assuming a particular native idol prefab name.
+                GameObject native = null;
+                foreach (Recipe recipe in ObjectDB.instance.m_recipes)
+                {
+                    if (recipe?.m_resources == null) continue;
+                    foreach (Piece.Requirement requirement in recipe.m_resources)
+                    {
+                        ItemDrop resource = requirement?.m_resItem;
+                        if (requirement != null && requirement.m_upgraderResource &&
+                            resource != null && IsNativeIdol(resource.gameObject))
+                        {
+                            native = resource.gameObject;
+                            break;
+                        }
+                    }
+
+                    if (native != null) break;
+                }
+
+                if (native == null)
+                {
+                    terminal?.AddString("[HE Idol Mob Test] FAIL: native idol resource not found.");
+                    return;
+                }
+
+                // Prefer a simple common creature, but work with any registered creature
+                // with a CharacterDrop if the usual ones are absent or renamed by mods.
+                CharacterDrop source = null;
+                string sourceName = null;
+                foreach (string preferred in new[] { "Greydwarf", "Boar", "Neck" })
+                {
+                    foreach (GameObject prefab in ZNetScene.instance.m_prefabs)
+                    {
+                        if (prefab == null || prefab.name != preferred) continue;
+                        CharacterDrop candidate = prefab.GetComponent<CharacterDrop>();
+                        if (candidate?.m_drops == null || candidate.m_drops.Count == 0) continue;
+                        source = candidate;
+                        sourceName = prefab.name;
+                        break;
+                    }
+
+                    if (source != null) break;
+                }
+
+                if (source == null)
+                {
+                    foreach (GameObject prefab in ZNetScene.instance.m_prefabs)
+                    {
+                        if (prefab == null) continue;
+                        CharacterDrop candidate = prefab.GetComponent<CharacterDrop>();
+                        if (candidate?.m_drops == null || candidate.m_drops.Count == 0) continue;
+                        source = candidate;
+                        sourceName = prefab.name;
+                        break;
+                    }
+                }
+
+                if (source == null)
+                {
+                    terminal?.AddString("[HE Idol Mob Test] FAIL: no creature CharacterDrop prefab found.");
+                    return;
+                }
+
+                // 100% removes randomness from the assertion and keeps the test outside
+                // the game's rare-drop pseudo-counter branch. Do not modify the original
+                // entries: replace only the list reference for one synchronous call.
+                var originalDrops = source.m_drops;
+                var testDrops = new List<CharacterDrop.Drop>
+                {
+                    new CharacterDrop.Drop
+                    {
+                        m_prefab = native,
+                        m_amountMin = 1,
+                        m_amountMax = 1,
+                        m_chance = 1f,
+                        m_onePerPlayer = false,
+                        m_levelMultiplier = false,
+                        m_dontScale = true
+                    }
+                };
+                var randomState = Random.state;
+                List<KeyValuePair<GameObject, int>> result = null;
+                Exception failure = null;
+                try
+                {
+                    source.m_drops = testDrops;
+                    // Calls Valheim's actual method, which runs our Harmony postfix.
+                    result = source.GenerateDropList();
+                }
+                catch (Exception error)
+                {
+                    failure = error;
+                }
+                finally
+                {
+                    source.m_drops = originalDrops;
+                    Random.state = randomState;
+                }
+
+                if (failure != null)
+                {
+                    string message = "[HE Idol Mob Test] FAIL: " + sourceName +
+                                     " GenerateDropList threw " + failure.GetType().Name +
+                                     ": " + failure.Message + "; original table restored.";
+                    terminal?.AddString(message);
+                    HaldorExpansionPlugin.Log?.LogWarning(message + " " + failure);
+                    return;
+                }
+
+                int vanillaCount = 0;
+                int customCount = 0;
+                if (result != null)
+                {
+                    foreach (KeyValuePair<GameObject, int> entry in result)
+                    {
+                        if (entry.Key == native) vanillaCount += entry.Value;
+                        if (entry.Key == Prefab) customCount += entry.Value;
+                    }
+                }
+
+                bool restored = ReferenceEquals(originalDrops, source.m_drops);
+                bool passed = vanillaCount == 1 && customCount == 1 && restored;
+                string report = "[HE Idol Mob Test] " + (passed ? "PASS" : "FAIL") +
+                                ": creature=" + sourceName + " vanilla=" + vanillaCount +
+                                " custom=" + customCount + " restored=" + restored +
+                                ". No world items spawned.";
+                terminal?.AddString(report);
+                if (passed) HaldorExpansionPlugin.Log?.LogInfo(report);
+                else HaldorExpansionPlugin.Log?.LogWarning(report);
             }
         }
 
