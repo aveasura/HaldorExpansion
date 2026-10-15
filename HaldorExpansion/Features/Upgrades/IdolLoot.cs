@@ -9,9 +9,6 @@ namespace HaldorExpansion.Features.Upgrades
         [ThreadStatic] private static bool sampling;
         private static bool failureLogged;
 
-        private static readonly Dictionary<string, Tuple<float, int>> ShadowCounters =
-            new Dictionary<string, Tuple<float, int>>();
-
         private static bool Eligible(DropTable table)
         {
             if (sampling || IdolRegistration.Prefab == null || table?.m_drops == null) return false;
@@ -89,19 +86,35 @@ namespace HaldorExpansion.Features.Upgrades
                     idols.Add(drop);
             if (idols.Count == 0) return original;
 
-            // Creature loot uses pseudo-drop counters, not DropTable. Keep a separate sequence
-            // so the independent draw neither consumes nor observes the vanilla idol counters.
+            // The game's pseudo-random counter storage changed in Valheim 1.0.20.
+            // Roll a copy of each native idol entry under our OWN prefab name instead of
+            // replacing the game's counter dictionary. The native generator handles the
+            // actual chance/level/pseudo-random rules and keeps the two item sequences
+            // independent (they have distinct prefab names).
+            var shadowDrops = new List<CharacterDrop.Drop>(idols.Count);
+            foreach (CharacterDrop.Drop drop in idols)
+            {
+                shadowDrops.Add(new CharacterDrop.Drop
+                {
+                    m_prefab = IdolRegistration.Prefab,
+                    m_amountMin = drop.m_amountMin,
+                    m_amountMax = drop.m_amountMax,
+                    m_chance = drop.m_chance,
+                    m_onePerPlayer = drop.m_onePerPlayer,
+                    m_levelMultiplier = drop.m_levelMultiplier,
+                    m_dontScale = drop.m_dontScale
+                });
+            }
+
             var drops = source.m_drops;
-            var counters = CharacterDrop.s_pseudoCounter;
             var result = new List<KeyValuePair<GameObject, int>>(original);
             try
             {
                 sampling = true;
-                source.m_drops = idols;
-                CharacterDrop.s_pseudoCounter = ShadowCounters;
+                source.m_drops = shadowDrops;
                 foreach (var drop in source.GenerateDropList())
                 {
-                    if (drop.Value <= 0 || !IdolRegistration.IsNativeIdol(drop.Key)) continue;
+                    if (drop.Value <= 0 || drop.Key != IdolRegistration.Prefab) continue;
                     result.Add(new KeyValuePair<GameObject, int>(IdolRegistration.Prefab, 1));
                     break;
                 }
@@ -112,7 +125,6 @@ namespace HaldorExpansion.Features.Upgrades
             }
             finally
             {
-                CharacterDrop.s_pseudoCounter = counters;
                 source.m_drops = drops;
                 sampling = false;
             }
