@@ -90,12 +90,10 @@ namespace HaldorExpansion.Features.Awakened
                   " maximum stamina. Fall damage reduced by " +
                   Percent(AwakenedBalance.HelheimPelt.FallDamageReduction) + ".");
             text[Key(Artifact.PitKingChest)] = title + (ru
-                ? "С Костоломами: бонус комплекта к щиту заменяется на +" +
-                  Percent(AwakenedBalance.PitKingChest.ShieldMultiplier - 1f) +
-                  ". Урон Возмездия усиливается соответственно."
-                : "With Bone Crushers: replaces the set's shield bonus with +" +
-                  Percent(AwakenedBalance.PitKingChest.ShieldMultiplier - 1f) +
-                  ". Retribution damage increases accordingly.");
+                ? "[Стальное Сердце]: бонус сета заменяется на +" +
+                  Percent(AwakenedBalance.PitKingChest.ShieldMultiplier - 1f)
+                : "[Steel Heart]: replaces the set's bonus with +" +
+                  Percent(AwakenedBalance.PitKingChest.ShieldMultiplier - 1f));
             text[Key(Artifact.BerserkerAxe)] = title + (ru
                 ? "Кровавая жатва. Каждое убийство обычной или альтернативной атакой даёт " +
                   Number(AwakenedBalance.BerserkerAxe.DebtOnKill) + " кровавого долга."
