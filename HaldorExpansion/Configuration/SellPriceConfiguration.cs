@@ -38,99 +38,100 @@ namespace HaldorExpansion.Configuration
             WatchSellPriceEntry(DefaultTrophySellPriceConfig);
 
             // Meadows.
-            BindTrophySellPrice("Sell Prices - Meadows", "TrophyDeer", "Deer Trophy", 15);
-            BindTrophySellPrice("Sell Prices - Meadows", "TrophyBoar", "Boar Trophy", 15);
+            BindTrophySellPrice("Sell Prices - Meadows", "TrophyDeer", "Deer Trophy", 25);
+            BindTrophySellPrice("Sell Prices - Meadows", "TrophyBoar", "Boar Trophy", 25);
             BindTrophySellPrice("Sell Prices - Meadows", "TrophyNeck", "Neck Trophy", 25);
-            BindTrophySellPrice("Sell Prices - Meadows", "TrophyEikthyr", "Eikthyr Trophy", 70);
+            BindTrophySellPrice("Sell Prices - Meadows", "TrophyEikthyr", "Eikthyr Trophy", 350);
 
             // Black Forest.
-            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyGreydwarf", "Greydwarf Trophy", 15);
-            BindTrophySellPrice("Sell Prices - Black Forest", "TrophySkeleton", "Skeleton Trophy", 15);
-            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyGreydwarfShaman", "Greydwarf Shaman Trophy", 20);
-            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyGhost", "Ghost Trophy", 25);
-            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyGreydwarfBrute", "Greydwarf Brute Trophy", 20);
-            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyBjorn", "Bear Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyFrostTroll", "Troll Trophy", 50);
+            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyGreydwarf", "Greydwarf Trophy", 35);
+            BindTrophySellPrice("Sell Prices - Black Forest", "TrophySkeleton", "Skeleton Trophy", 35);
+            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyGreydwarfShaman", "Greydwarf Shaman Trophy", 45);
+            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyGhost", "Ghost Trophy", 50);
+            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyGreydwarfBrute", "Greydwarf Brute Trophy", 50);
+            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyBjorn", "Bear Trophy", 80);
+            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyFrostTroll", "Troll Trophy", 80);
             BindTrophySellPriceAlias("TrophyForestTroll", "TrophyFrostTroll");
-            BindTrophySellPrice("Sell Prices - Black Forest", "TrophySkeletonPoison", "Rancid Remains Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Black Forest", "TrophySkeletonHildir", "Brenna Trophy", 80);
-            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyTheElder", "The Elder Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Black Forest", "TrophySkeletonPoison", "Rancid Remains Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Black Forest", "TrophySkeletonHildir", "Brenna Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Black Forest", "TrophyTheElder", "The Elder Trophy", 650);
 
             // Ocean.
-            BindTrophySellPrice("Sell Prices - Ocean", "TrophySerpent", "Serpent Trophy", 500);
-            BindTrophySellPrice("Sell Prices - Ocean", "TrophyBonemawSerpent", "Bonemaw Trophy", 500);
+            BindTrophySellPrice("Sell Prices - Ocean", "TrophySerpent", "Serpent Trophy", 2500);
+            BindTrophySellPrice("Sell Prices - Ocean", "TrophyBonemawSerpent", "Bonemaw Trophy", 2500);
 
             // Swamp.
-            BindTrophySellPrice("Sell Prices - Swamp", "TrophyBlob", "Blob Trophy", 15);
-            BindTrophySellPrice("Sell Prices - Swamp", "TrophyDraugr", "Draugr Trophy", 15);
+            BindTrophySellPrice("Sell Prices - Swamp", "TrophyBlob", "Blob Trophy", 35);
+            BindTrophySellPrice("Sell Prices - Swamp", "TrophyDraugr", "Draugr Trophy", 55);
             BindTrophySellPriceAlias("TrophyDraugrFem", "TrophyDraugr");
-            BindTrophySellPrice("Sell Prices - Swamp", "TrophyLeech", "Leech Trophy", 15);
-            BindTrophySellPrice("Sell Prices - Swamp", "TrophySurtling", "Surtling Trophy", 15);
-            BindTrophySellPrice("Sell Prices - Swamp", "TrophyDraugrElite", "Draugr Elite Trophy", 30);
-            BindTrophySellPrice("Sell Prices - Swamp", "TrophyWraith", "Wraith Trophy", 35);
-            BindTrophySellPrice("Sell Prices - Swamp", "TrophyAbomination", "Abomination Trophy", 75);
-            BindTrophySellPrice("Sell Prices - Swamp", "TrophyKvastur", "Kvastur Trophy", 80);
-            BindTrophySellPrice("Sell Prices - Swamp", "TrophyBonemass", "Bonemass Trophy", 150);
+            BindTrophySellPrice("Sell Prices - Swamp", "TrophyLeech", "Leech Trophy", 55);
+            BindTrophySellPrice("Sell Prices - Swamp", "TrophySurtling", "Surtling Trophy", 35);
+            BindTrophySellPrice("Sell Prices - Swamp", "TrophyDraugrElite", "Draugr Elite Trophy", 60);
+            BindTrophySellPrice("Sell Prices - Swamp", "TrophyWraith", "Wraith Trophy", 70);
+            BindTrophySellPrice("Sell Prices - Swamp", "TrophyAbomination", "Abomination Trophy", 120);
+            BindTrophySellPrice("Sell Prices - Swamp", "TrophyKvastur", "Kvastur Trophy", 120);
+            BindTrophySellPrice("Sell Prices - Swamp", "TrophyBonemass", "Bonemass Trophy", 950);
 
             // Mountains.
-            BindTrophySellPrice("Sell Prices - Mountains", "TrophyWolf", "Wolf Trophy", 15);
-            BindTrophySellPrice("Sell Prices - Mountains", "TrophyHatchling", "Drake Trophy", 15);
-            BindTrophySellPrice("Sell Prices - Mountains", "TrophyUlv", "Ulv Trophy", 20);
-            BindTrophySellPrice("Sell Prices - Mountains", "TrophyFenring", "Fenring Trophy", 25);
-            BindTrophySellPrice("Sell Prices - Mountains", "TrophyCultist", "Cultist Trophy", 40);
-            BindTrophySellPrice("Sell Prices - Mountains", "TrophySGolem", "Stone Golem Trophy", 70);
-            BindTrophySellPrice("Sell Prices - Mountains", "TrophyCultist_Hildir", "Geirrhafa Trophy", 80);
-            BindTrophySellPrice("Sell Prices - Mountains", "TrophyDragonQueen", "Moder Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Mountains", "TrophyWolf", "Wolf Trophy", 35);
+            BindTrophySellPrice("Sell Prices - Mountains", "TrophyHatchling", "Drake Trophy", 70);
+            BindTrophySellPrice("Sell Prices - Mountains", "TrophyUlv", "Ulv Trophy", 80);
+            BindTrophySellPrice("Sell Prices - Mountains", "TrophyFenring", "Fenring Trophy", 80);
+            BindTrophySellPrice("Sell Prices - Mountains", "TrophyCultist", "Cultist Trophy", 150);
+            BindTrophySellPrice("Sell Prices - Mountains", "TrophySGolem", "Stone Golem Trophy", 250);
+            BindTrophySellPrice("Sell Prices - Mountains", "TrophyCultist_Hildir", "Geirrhafa Trophy", 250);
+            BindTrophySellPrice("Sell Prices - Mountains", "TrophyDragonQueen", "Moder Trophy", 1200);
 
             // Plains.
-            BindTrophySellPrice("Sell Prices - Plains", "TrophyDeathsquito", "Deathsquito Trophy", 15);
-            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblin", "Fuling Trophy", 15);
-            BindTrophySellPrice("Sell Prices - Plains", "TrophyGrowth", "Growth Trophy", 15);
-            BindTrophySellPrice("Sell Prices - Plains", "TrophyBjornUndead", "Vile Trophy", 50);
-            BindTrophySellPrice("Sell Prices - Plains", "TrophyLox", "Lox Trophy", 35);
-            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblinShaman", "Fuling Shaman Trophy", 30);
-            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblinBrute", "Fuling Berserker Trophy", 70);
-            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblinBruteBrosShaman", "Zil Trophy", 80);
-            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblinBruteBrosBrute", "Thungr Trophy", 80);
-            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblinKing", "Yagluth Trophy", 350);
+            BindTrophySellPrice("Sell Prices - Plains", "TrophyDeathsquito", "Deathsquito Trophy", 50);
+            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblin", "Fuling Trophy", 50);
+            BindTrophySellPrice("Sell Prices - Plains", "TrophyGrowth", "Growth Trophy", 50);
+            BindTrophySellPrice("Sell Prices - Plains", "TrophyBjornUndead", "Vile Trophy", 150);
+            BindTrophySellPrice("Sell Prices - Plains", "TrophyLox", "Lox Trophy", 120);
+            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblinShaman", "Fuling Shaman Trophy", 80);
+            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblinBrute", "Fuling Berserker Trophy", 150);
+            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblinBruteBrosShaman", "Zil Trophy", 250);
+            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblinBruteBrosBrute", "Thungr Trophy", 250);
+            BindTrophySellPrice("Sell Prices - Plains", "TrophyGoblinKing", "Yagluth Trophy", 1500);
 
             // Mistlands.
-            BindTrophySellPrice("Sell Prices - Mistlands", "TrophySeeker", "Seeker Trophy", 20);
-            BindTrophySellPrice("Sell Prices - Mistlands", "TrophyTick", "Tick Trophy", 20);
-            BindTrophySellPrice("Sell Prices - Mistlands", "TrophyDvergr", "Dvergr Trophy", 20);
-            BindTrophySellPrice("Sell Prices - Mistlands", "TrophyHare", "Hare Trophy", 20);
-            BindTrophySellPrice("Sell Prices - Mistlands", "TrophyGjall", "Gjall Trophy", 70);
-            BindTrophySellPrice("Sell Prices - Mistlands", "TrophySeekerBrute", "Seeker Soldier Trophy", 80);
-            BindTrophySellPrice("Sell Prices - Mistlands", "TrophySeekerQueen", "The Queen Trophy", 500);
+            BindTrophySellPrice("Sell Prices - Mistlands", "TrophySeeker", "Seeker Trophy", 65);
+            BindTrophySellPrice("Sell Prices - Mistlands", "TrophyTick", "Tick Trophy", 35);
+            BindTrophySellPrice("Sell Prices - Mistlands", "TrophyDvergr", "Dvergr Trophy", 65);
+            BindTrophySellPrice("Sell Prices - Mistlands", "TrophyHare", "Hare Trophy", 35);
+            BindTrophySellPrice("Sell Prices - Mistlands", "TrophyGjall", "Gjall Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Mistlands", "TrophySeekerBrute", "Seeker Soldier Trophy", 250);
+            BindTrophySellPrice("Sell Prices - Mistlands", "TrophySeekerQueen", "The Queen Trophy", 2500);
 
             // Ashlands.
-            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyCharredArcher", "Marksman Trophy", 20);
-            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyVolture", "Volture Trophy", 20);
-            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyAsksvin", "Asksvin Trophy", 20);
-            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyCharredMage", "Warlock Trophy", 25);
-            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyCharredMelee", "Warrior Trophy", 25);
-            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyBlob_Lava", "Lava Blob Trophy", 30);
-            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyMorgen", "Morgen Trophy", 100);
-            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyFallenValkyrie", "Fallen Valkyrie Trophy", 120);
-            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyFader", "Fader Trophy", 1000);
+            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyCharredArcher", "Marksman Trophy", 80);
+            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyVolture", "Volture Trophy", 120);
+            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyAsksvin", "Asksvin Trophy", 120);
+            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyCharredMage", "Warlock Trophy", 120);
+            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyCharredMelee", "Warrior Trophy", 120);
+            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyBlob_Lava", "Lava Blob Trophy", 80);
+            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyMorgen", "Morgen Trophy", 400);
+            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyFallenValkyrie", "Fallen Valkyrie Trophy", 500);
+            BindTrophySellPrice("Sell Prices - Ashlands", "TrophyFader", "Fader Trophy", 5000);
 
             // Deep North.
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBarka", "Barka Trophy", 100);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyElaking", "Elaking Trophy", 100);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyMole", "Eyeless One Trophy", 100);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBlob_Frost", "Frost Blob Trophy", 100);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyJotunWitch", "Hexen Trophy", 100);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyJotunWarrior", "Krigen Trophy", 100);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyMoose", "Moose Trophy", 100);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBlob_Morkhalla", "Pulp Trophy", 100);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophySeal", "Seal Trophy", 100);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyWrithan", "Writhan Trophy", 100);
-            BindTrophySellPrice("Sell Prices - Deep North", "TrophyDeerWhite", "White Deer Trophy", 100);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBarka", "Barka Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyElaking", "Elaking Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyMole", "Eyeless One Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBlob_Frost", "Frost Blob Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyJotunWitch", "Hexen Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyJotunWarrior", "Krigen Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyMoose", "Moose Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyBlob_Morkhalla", "Pulp Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophySeal", "Seal Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyWrithan", "Writhan Trophy", 200);
+            BindTrophySellPrice("Sell Prices - Deep North", "TrophyDeerWhite", "White Deer Trophy", 200);
 
             // The three non-trophy items that HaldorExpansion explicitly allows Haldor to buy.
-            BindExtraSellPrice("Sell Prices - Cores", "SurtlingCore", "Surtling Core", 50);
-            BindExtraSellPrice("Sell Prices - Cores", "BlackCore", "Black Core", 100);
-            BindExtraSellPrice("Sell Prices - Cores", "MoltenCore", "Molten Core", 150);
+            BindExtraSellPrice("Sell Prices - Cores", "SurtlingCore", "Surtling Core", 70);
+            BindExtraSellPrice("Sell Prices - Cores", "BlackCore", "Black Core", 200);
+            BindExtraSellPrice("Sell Prices - Cores", "MoltenCore", "Molten Core", 350);
+            BindExtraSellPrice("Sell Prices - Cores", "FrostCore", "Frost Core", 550);
 
             // Each vanilla idol and the normal Haldor idol sell for 300 coins per item.
             // The adamantine Haldor idol has its own 2500-coin default.

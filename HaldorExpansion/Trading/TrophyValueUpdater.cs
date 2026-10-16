@@ -11,7 +11,7 @@ namespace HaldorExpansion.Trading
         // Отдельно: не трофеи, но Хальдор может купить
         private static readonly HashSet<string> ExtraSellableItems = new HashSet<string>
         {
-            "SurtlingCore", "BlackCore", "MoltenCore"
+            "SurtlingCore", "BlackCore", "MoltenCore", "FrostCore"
         };
 
         internal static void ApplyTrophyValues(ObjectDB db)
