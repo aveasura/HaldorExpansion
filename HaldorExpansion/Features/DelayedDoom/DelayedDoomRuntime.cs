@@ -66,19 +66,25 @@ namespace HaldorExpansion.Features.DelayedDoom
             state.TicksLeft = DelayedDoomTicks;
             DelayedDoomDebtStatus.SetActive(player, true);
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Delayed Doom debt added: " +
-                $"added={delayedDamageTotal:0.##}, " +
-                $"total={state.RemainingDamage:0.##}, " +
-                $"ticksLeft={state.TicksLeft}, " +
-                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Delayed Doom debt added: " +
+                    $"added={delayedDamageTotal:0.##}, " +
+                    $"total={state.RemainingDamage:0.##}, " +
+                    $"ticksLeft={state.TicksLeft}, " +
+                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            }
 
             if (state.Routine == null)
             {
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Delayed Doom routine start: " +
-                    $"waitPerTick={DelayedDoomDuration / DelayedDoomTicks:0.###}, " +
-                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Delayed Doom routine start: " +
+                        $"waitPerTick={DelayedDoomDuration / DelayedDoomTicks:0.###}, " +
+                        $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                }
 
                 state.Routine = HaldorExpansionPlugin.Instance.StartCoroutine(DelayedDoomRoutine(state));
             }
@@ -130,19 +136,27 @@ namespace HaldorExpansion.Features.DelayedDoom
 
                     if (player.IsDead())
                     {
-                        HaldorExpansionPlugin.DebugLog(
-                            $"[HaldorExpansion] Delayed Doom routine stop: player dead, " +
-                            $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                        if (HaldorExpansionPlugin.DebugLogging)
+                        {
+                            HaldorExpansionPlugin.DebugLog(
+                                $"[HaldorExpansion] Delayed Doom routine stop: player dead, " +
+                                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                        }
+
                         yield break;
                     }
 
                     if (state.RemainingDamage <= 0f || state.TicksLeft <= 0)
                     {
-                        HaldorExpansionPlugin.DebugLog(
-                            $"[HaldorExpansion] Delayed Doom routine stop: exhausted, " +
-                            $"remaining={state.RemainingDamage:0.##}, " +
-                            $"ticksLeft={state.TicksLeft}, " +
-                            $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                        if (HaldorExpansionPlugin.DebugLogging)
+                        {
+                            HaldorExpansionPlugin.DebugLog(
+                                $"[HaldorExpansion] Delayed Doom routine stop: exhausted, " +
+                                $"remaining={state.RemainingDamage:0.##}, " +
+                                $"ticksLeft={state.TicksLeft}, " +
+                                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                        }
+
                         yield break;
                     }
 
@@ -152,12 +166,15 @@ namespace HaldorExpansion.Features.DelayedDoom
                     state.RemainingDamage = Mathf.Max(0f, state.RemainingDamage - tickDamage);
                     state.TicksLeft--;
 
-                    HaldorExpansionPlugin.DebugLog(
-                        $"[HaldorExpansion] Delayed Doom pooled tick: " +
-                        $"tick={tickDamage:0.##}, " +
-                        $"remaining={state.RemainingDamage:0.##}, " +
-                        $"ticksLeft={state.TicksLeft}, " +
-                        $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                    if (HaldorExpansionPlugin.DebugLogging)
+                    {
+                        HaldorExpansionPlugin.DebugLog(
+                            $"[HaldorExpansion] Delayed Doom pooled tick: " +
+                            $"tick={tickDamage:0.##}, " +
+                            $"remaining={state.RemainingDamage:0.##}, " +
+                            $"ticksLeft={state.TicksLeft}, " +
+                            $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                    }
 
                     bool survived = ApplyDelayedDoomHealthTick(player, tickDamage);
                     if (!survived)
@@ -171,11 +188,14 @@ namespace HaldorExpansion.Features.DelayedDoom
             {
                 if (state.Player != null)
                 {
-                    HaldorExpansionPlugin.DebugLog(
-                        $"[HaldorExpansion] Delayed Doom routine finally: " +
-                        $"remainingBeforeClear={state.RemainingDamage:0.##}, " +
-                        $"ticksLeftBeforeClear={state.TicksLeft}, " +
-                        $"{PlayerDiagnostics.GetCestusDebugPlayerTag(state.Player)}");
+                    if (HaldorExpansionPlugin.DebugLogging)
+                    {
+                        HaldorExpansionPlugin.DebugLog(
+                            $"[HaldorExpansion] Delayed Doom routine finally: " +
+                            $"remainingBeforeClear={state.RemainingDamage:0.##}, " +
+                            $"ticksLeftBeforeClear={state.TicksLeft}, " +
+                            $"{PlayerDiagnostics.GetCestusDebugPlayerTag(state.Player)}");
+                    }
                 }
 
                 // Do not clear a newer debt state if this coroutine was cancelled earlier.
@@ -204,12 +224,15 @@ namespace HaldorExpansion.Features.DelayedDoom
 
             float newHealth = currentHealth - amount;
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Delayed Doom tick: " +
-                $"current={currentHealth:0.##}, " +
-                $"tick={amount:0.##}, " +
-                $"new={newHealth:0.##}, " +
-                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Delayed Doom tick: " +
+                    $"current={currentHealth:0.##}, " +
+                    $"tick={amount:0.##}, " +
+                    $"new={newHealth:0.##}, " +
+                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            }
 
             if (newHealth > 0f)
             {
@@ -226,10 +249,13 @@ namespace HaldorExpansion.Features.DelayedDoom
             if (player == null || amount <= 0f)
                 return;
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Delayed Doom lethal tick invoke damage: " +
-                $"amount={amount:0.##}, " +
-                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Delayed Doom lethal tick invoke damage: " +
+                    $"amount={amount:0.##}, " +
+                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            }
 
             HitData delayedHit = new HitData();
             delayedHit.m_damage.m_damage = amount;

@@ -41,7 +41,7 @@ namespace HaldorExpansion.Features.HelOath
         internal static float TouchStaminaMultiplier(Player player) =>
             1f - EffectiveTouchStacks(player) * HelOathState.TouchStaminaReductionPerStack;
 
-        internal static void Refresh(Player player)
+        internal static void Refresh(Player player, bool? touchEligible = null)
         {
             if (player == null || player != Player.m_localPlayer) return;
             if (owner != player)
@@ -77,25 +77,28 @@ namespace HaldorExpansion.Features.HelOath
             if (player.IsDead()) State.ResetTouch();
 
             HelOathEffects.SyncPrepared(player, State.Prepared);
-            SyncTouch(player);
+            SyncTouch(player, touchEligible);
         }
 
         internal static void Update(Player player)
         {
             if (player != Player.m_localPlayer) return;
-            Refresh(player);
+            // None of the refresh/touch/activation work below mutates equipment.
+            // Event paths keep fresh eligibility checks instead of sharing this snapshot.
+            bool touchEligible = TouchEligible(player);
+            Refresh(player, touchEligible);
 
-            State.UpdateTouch(Time.time, TouchEligible(player), HelOathConfiguration.TouchStackIntervalValue);
-            SyncTouch(player);
+            State.UpdateTouch(Time.time, touchEligible, HelOathConfiguration.TouchStackIntervalValue);
+            SyncTouch(player, touchEligible);
 
             if (!Equipped(player) || State.Charge < 100f || State.Prepared) return;
             if (!(bool)TakeInput.Invoke(player, null) || player.InAttack() || player.InDodge()) return;
             if (!(bool)GetButtonDown.Invoke(null, new object[] { HelOathConfiguration.Button.Name })) return;
-            if (State.Activate(Time.time, 0f, TouchEligible(player)))
+            if (State.Activate(Time.time, 0f, touchEligible))
             {
                 PersistCharge();
                 State.Tick(Time.time);
-                SyncTouch(player);
+                SyncTouch(player, touchEligible);
                 HelOathEffects.SyncPrepared(player, true);
                 player.Message(MessageHud.MessageType.Center, HelOathIds.PreparedKey);
             }
@@ -137,9 +140,9 @@ namespace HaldorExpansion.Features.HelOath
             SyncTouch(player);
         }
 
-        private static void SyncTouch(Player player)
+        private static void SyncTouch(Player player, bool? touchEligible = null)
         {
-            int activeTouch = EffectiveTouchStacks(player);
+            int activeTouch = (touchEligible ?? TouchEligible(player)) ? State.TouchStacks : 0;
             if (activeTouch == lastSyncedTouch && Time.time < nextTouchStatusSync) return;
             nextTouchStatusSync = Time.time + 1f;
             if (activeTouch != lastSyncedTouch)

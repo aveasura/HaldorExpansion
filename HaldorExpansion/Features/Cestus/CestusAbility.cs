@@ -71,14 +71,17 @@ namespace HaldorExpansion.Features.Cestus
             state.CastRoutine =
                 HaldorExpansionPlugin.Instance.StartCoroutine(CestusCastRoutine(state, shieldAmount, awakenedSet));
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Cestus cast started: " +
-                $"baseShield={baseShieldAmount:0.##}, " +
-                $"shieldMultiplier={shieldMultiplier:0.##}, " +
-                $"shield={shieldAmount:0.##}, " +
-                $"setBonus={hasSetBonus}, " +
-                $"maxHealth={maxHealth:0.##}, " +
-                $"cooldownUntil={state.CooldownUntil:0.##}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Cestus cast started: " +
+                    $"baseShield={baseShieldAmount:0.##}, " +
+                    $"shieldMultiplier={shieldMultiplier:0.##}, " +
+                    $"shield={shieldAmount:0.##}, " +
+                    $"setBonus={hasSetBonus}, " +
+                    $"maxHealth={maxHealth:0.##}, " +
+                    $"cooldownUntil={state.CooldownUntil:0.##}");
+            }
 
             return true;
         }
@@ -137,10 +140,13 @@ namespace HaldorExpansion.Features.Cestus
                 TriggerCestusNova(player, novaShield);
                 CestusEffects.PlayPreparedCestusExplosionAudio(state);
 
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Cestus cast resolved: " +
-                    $"shield={shieldAmount:0.##}, " +
-                    $"duration={CestusCastDuration:0.##}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Cestus cast resolved: " +
+                        $"shield={shieldAmount:0.##}, " +
+                        $"duration={CestusCastDuration:0.##}");
+                }
             }
             finally
             {
@@ -185,12 +191,15 @@ namespace HaldorExpansion.Features.Cestus
                 hits++;
             }
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Cestus nova triggered: " +
-                $"shield={shieldAmount:0.##}, " +
-                $"damage={damage:0.##}, " +
-                $"radius={CestusNovaRadius:0.##}, " +
-                $"hits={hits}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Cestus nova triggered: " +
+                    $"shield={shieldAmount:0.##}, " +
+                    $"damage={damage:0.##}, " +
+                    $"radius={CestusNovaRadius:0.##}, " +
+                    $"hits={hits}");
+            }
         }
 
         private static bool ShouldHitCestusNovaTarget(Player player, Character target, Vector3 origin)

@@ -22,6 +22,7 @@ namespace HaldorExpansion.Features.Upgrades
         internal static GameObject Prefab;
         internal static ItemDrop ItemDrop;
         internal static ConfigEntry<float> ChestChance;
+        internal static ConfigEntry<bool> RandomizeDefaultChestChance;
         private static bool commandRegistered;
 
         private static readonly MethodInfo CloneShared = typeof(object).GetMethod("MemberwiseClone",
@@ -33,8 +34,12 @@ namespace HaldorExpansion.Features.Upgrades
         internal static void RegisterConfig(ConfigFile config)
         {
             ChestChance = config.BindConfig("Forge of Possibilities", "Adamantine Idol chest drop chance", 1f,
-                "Independent chance (%) per eligible chest, 0 disables drops. / Независимый шанс (%) на подходящий сундук; 0 отключает выпадение.",
+                "Independent chance (%) per eligible chest; 0 disables drops. At 1, randomization below selects 1-2%. Other values remain fixed. / Независимый шанс (%) на подходящий сундук; 0 отключает выпадение. При значении 1 настройка ниже выбирает 1-2%; другие значения фиксированы.",
                 synced: true, acceptableValues: new AcceptableValueRange<float>(0f, 100f));
+            RandomizeDefaultChestChance = config.BindConfig("Forge of Possibilities",
+                "Randomize default Adamantine Idol chest chance", true,
+                "When chance is 1%, choose an independent chance from 1-2% per eligible chest. Disable for fixed 1%. / При шансе 1% выбирать случайный шанс 1-2% для каждого подходящего сундука. Отключите для фиксированного 1%.",
+                synced: true);
         }
 
         internal static bool EnsureReady()

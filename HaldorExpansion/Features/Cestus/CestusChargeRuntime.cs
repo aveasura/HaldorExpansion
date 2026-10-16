@@ -35,7 +35,7 @@ namespace HaldorExpansion.Features.Cestus
             return Mathf.Clamp(state.Charge, 0f, CestusChargeMax);
         }
 
-        internal static void UpdateCestusLocalDamageCharge(Player player)
+        internal static void UpdateCestusLocalDamageCharge(Player player, bool? cestusEquipped = null)
         {
             if (!CestusRuntime.ShouldProcessCestusLocally(player))
                 return;
@@ -57,7 +57,7 @@ namespace HaldorExpansion.Features.Cestus
             state.LastObservedHealth = currentHealth;
             state.LastObservedMaxHealth = currentMaxHealth;
 
-            if (!CestusEquipment.HasCestusEquipped(player))
+            if (!(cestusEquipped ?? CestusEquipment.HasCestusEquipped(player)))
                 return;
 
             float observedHealthLoss = previousHealth - currentHealth;
@@ -67,14 +67,17 @@ namespace HaldorExpansion.Features.Cestus
             if (observedDamage <= 0.05f)
                 return;
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Observed local Cestus damage: " +
-                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}, " +
-                $"prevHp={previousHealth:0.##}, " +
-                $"currentHp={currentHealth:0.##}, " +
-                $"prevMaxHp={previousMaxHealth:0.##}, " +
-                $"currentMaxHp={currentMaxHealth:0.##}, " +
-                $"effectiveDelta={observedDamage:0.##}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Observed local Cestus damage: " +
+                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}, " +
+                    $"prevHp={previousHealth:0.##}, " +
+                    $"currentHp={currentHealth:0.##}, " +
+                    $"prevMaxHp={previousMaxHealth:0.##}, " +
+                    $"currentMaxHp={currentMaxHealth:0.##}, " +
+                    $"effectiveDelta={observedDamage:0.##}");
+            }
 
             if (state.ShieldRemaining > 0.001f && !player.IsDead())
             {
@@ -97,13 +100,16 @@ namespace HaldorExpansion.Features.Cestus
                         CestusNetworkState.SyncCestusShieldState(player, state);
                     }
 
-                    HaldorExpansionPlugin.DebugLog(
-                        $"[HaldorExpansion] Cestus shield corrected via local observer: " +
-                        $"observedDamage={observedDamage:0.##}, " +
-                        $"absorbed={absorbedByShield:0.##}, " +
-                        $"correctedHealth={correctedHealth:0.##}, " +
-                        $"remaining={state.ShieldRemaining:0.##}, " +
-                        $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                    if (HaldorExpansionPlugin.DebugLogging)
+                    {
+                        HaldorExpansionPlugin.DebugLog(
+                            $"[HaldorExpansion] Cestus shield corrected via local observer: " +
+                            $"observedDamage={observedDamage:0.##}, " +
+                            $"absorbed={absorbedByShield:0.##}, " +
+                            $"correctedHealth={correctedHealth:0.##}, " +
+                            $"remaining={state.ShieldRemaining:0.##}, " +
+                            $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                    }
 
                     observedDamage = Mathf.Max(0f, observedDamage - absorbedByShield);
                 }
@@ -119,15 +125,23 @@ namespace HaldorExpansion.Features.Cestus
 
             if (!CestusRuntime.ShouldProcessCestusLocally(player))
             {
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Skip Cestus charge on non-local player: {PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Skip Cestus charge on non-local player: {PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                }
+
                 return;
             }
 
             if (!CestusEquipment.HasCestusEquipped(player))
             {
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Skip Cestus charge because weapon not detected: {PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Skip Cestus charge because weapon not detected: {PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                }
+
                 return;
             }
 
@@ -149,12 +163,15 @@ namespace HaldorExpansion.Features.Cestus
 
             EnsureCestusChargeDecayRoutine(state);
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Cestus charge added: " +
-                $"healthLoss={healthLoss:0.##}, maxHealthBefore={maxHealthBeforeDamage:0.##}, " +
-                $"lostHealthPercent={lostHealthPercent:0.##}, added={added:0.##}, " +
-                $"before={before:0.##}, " +
-                $"after={state.Charge:0.##}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Cestus charge added: " +
+                    $"healthLoss={healthLoss:0.##}, maxHealthBefore={maxHealthBeforeDamage:0.##}, " +
+                    $"lostHealthPercent={lostHealthPercent:0.##}, added={added:0.##}, " +
+                    $"before={before:0.##}, " +
+                    $"after={state.Charge:0.##}");
+            }
         }
 
         private static void EnsureCestusChargeDecayRoutine(CestusStateStore.CestusState state)
@@ -202,11 +219,14 @@ namespace HaldorExpansion.Features.Cestus
 
                     state.Charge = Mathf.Max(0f, state.Charge - decay);
 
-                    HaldorExpansionPlugin.DebugLog(
-                        $"[HaldorExpansion] Cestus charge decay: " +
-                        $"before={before:0.##}, " +
-                        $"decay={decay:0.##}, " +
-                        $"after={state.Charge:0.##}");
+                    if (HaldorExpansionPlugin.DebugLogging)
+                    {
+                        HaldorExpansionPlugin.DebugLog(
+                            $"[HaldorExpansion] Cestus charge decay: " +
+                            $"before={before:0.##}, " +
+                            $"decay={decay:0.##}, " +
+                            $"after={state.Charge:0.##}");
+                    }
 
                     if (state.Charge <= 0.001f)
                     {

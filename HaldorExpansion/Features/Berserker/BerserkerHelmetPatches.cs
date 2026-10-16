@@ -1,8 +1,6 @@
-using System;
 using HaldorExpansion.Combat;
 using HaldorExpansion.Features.DelayedDoom;
 using HarmonyLib;
-using UnityEngine;
 
 namespace HaldorExpansion.Features.Berserker
 {
@@ -43,9 +41,12 @@ namespace HaldorExpansion.Features.Berserker
             float multiplier = BerserkerHelmetRuntime.IncomingDamageMultiplier(player);
             hit.m_damage.Modify(multiplier);
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[Berserker] Helmet damage reduction Wrath {stage}: {before:0.##} -> " +
-                $"{HitDamageMath.GetHitTotalDamage(hit):0.##} (x{multiplier:0.###})");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[Berserker] Helmet damage reduction Wrath {stage}: {before:0.##} -> " +
+                    $"{HitDamageMath.GetHitTotalDamage(hit):0.##} (x{multiplier:0.###})");
+            }
         }
     }
 

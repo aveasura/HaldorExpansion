@@ -5,7 +5,6 @@ namespace HaldorExpansion.Features.Cestus
 {
     internal static class CestusEffects
     {
-
         internal const string CestusCastFxPrefabName = "vfx_StaminaUpgrade";
         internal const string CestusCastSfxPrefabName = "";
         internal const float CestusCastFxAudioPitch = 1.25f;
@@ -30,7 +29,12 @@ namespace HaldorExpansion.Features.Cestus
             GameObject fxPrefab = ZNetScene.instance.GetPrefab(CestusCastFxPrefabName);
             if (fxPrefab == null)
             {
-                HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Missing Cestus FX prefab: {CestusCastFxPrefabName}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Missing Cestus FX prefab: {CestusCastFxPrefabName}");
+                }
+
                 return;
             }
 
@@ -44,7 +48,7 @@ namespace HaldorExpansion.Features.Cestus
 
             for (int i = 0; i < amount; i++)
             {
-                GameObject fxInstance = UnityEngine.Object.Instantiate(fxPrefab, origin, rotation);
+                GameObject fxInstance = Object.Instantiate(fxPrefab, origin, rotation);
                 fxInstance.transform.localScale *= scale;
 
                 TrySpeedUpCestusFx(fxInstance, state);
@@ -79,7 +83,10 @@ namespace HaldorExpansion.Features.Cestus
             }
 
             ZSFX[] sfxComponents = fxInstance.GetComponentsInChildren<ZSFX>(true);
-            HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] ZSFX found: {sfxComponents.Length}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] ZSFX found: {sfxComponents.Length}");
+            }
 
             foreach (ZSFX sfx in sfxComponents)
             {
@@ -94,12 +101,15 @@ namespace HaldorExpansion.Features.Cestus
 
                 string sfxName = sfx.gameObject.name.ToLowerInvariant();
 
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] ZSFX name={sfx.gameObject.name}, " +
-                    $"clips={(audioClips != null ? audioClips.Length : 0)}, " +
-                    $"clip={(audioSource.clip != null ? audioSource.clip.name : "null")}, " +
-                    $"isPlaying={audioSource.isPlaying}, playOnAwake={audioSource.playOnAwake}, " +
-                    $"pitch={audioSource.pitch:0.##}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] ZSFX name={sfx.gameObject.name}, " +
+                        $"clips={(audioClips != null ? audioClips.Length : 0)}, " +
+                        $"clip={(audioSource.clip != null ? audioSource.clip.name : "null")}, " +
+                        $"isPlaying={audioSource.isPlaying}, playOnAwake={audioSource.playOnAwake}, " +
+                        $"pitch={audioSource.pitch:0.##}");
+                }
 
                 sfx.enabled = false;
                 audioSource.playOnAwake = false;
@@ -115,8 +125,12 @@ namespace HaldorExpansion.Features.Cestus
                     if (state != null)
                         state.PreparedExplosionAudios.Add(audioSource);
 
-                    HaldorExpansionPlugin.DebugLog(
-                        $"[HaldorExpansion] Prepared explosion audio: {sfx.gameObject.name}, clip={audioSource.clip.name}");
+                    if (HaldorExpansionPlugin.DebugLogging)
+                    {
+                        HaldorExpansionPlugin.DebugLog(
+                            $"[HaldorExpansion] Prepared explosion audio: {sfx.gameObject.name}, clip={audioSource.clip.name}");
+                    }
+
                     continue;
                 }
 
@@ -134,10 +148,13 @@ namespace HaldorExpansion.Features.Cestus
                 audioSource.time = startOffset;
                 audioSource.Play();
 
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Manual FX sound play: " +
-                    $"name={sfx.gameObject.name}, clip={audioSource.clip.name}, " +
-                    $"pitch={audioSource.pitch:0.##}, startOffset={startOffset:0.##}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Manual FX sound play: " +
+                        $"name={sfx.gameObject.name}, clip={audioSource.clip.name}, " +
+                        $"pitch={audioSource.pitch:0.##}, startOffset={startOffset:0.##}");
+                }
             }
         }
 
@@ -155,9 +172,12 @@ namespace HaldorExpansion.Features.Cestus
                 audioSource.time = 0f;
                 audioSource.Play();
 
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Explosion audio played: " +
-                    $"clip={audioSource.clip.name}, pitch={audioSource.pitch:0.##}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Explosion audio played: " +
+                        $"clip={audioSource.clip.name}, pitch={audioSource.pitch:0.##}");
+                }
             }
 
             state.PreparedExplosionAudios.Clear();
@@ -198,14 +218,19 @@ namespace HaldorExpansion.Features.Cestus
             GameObject sfxPrefab = ZNetScene.instance.GetPrefab(CestusCastSfxPrefabName);
             if (sfxPrefab == null)
             {
-                HaldorExpansionPlugin.DebugLog($"[HaldorExpansion] Missing Cestus SFX prefab: {CestusCastSfxPrefabName}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Missing Cestus SFX prefab: {CestusCastSfxPrefabName}");
+                }
+
                 return;
             }
 
             Vector3 origin = GetCestusCastFxOrigin(player);
             Quaternion rotation = Quaternion.LookRotation(player.transform.forward, Vector3.up);
 
-            UnityEngine.Object.Instantiate(sfxPrefab, origin, rotation);
+            Object.Instantiate(sfxPrefab, origin, rotation);
         }
 
         private static Vector3 GetCestusCastFxOrigin(Player player)

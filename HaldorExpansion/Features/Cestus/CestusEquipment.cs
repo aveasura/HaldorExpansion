@@ -74,10 +74,10 @@ namespace HaldorExpansion.Features.Cestus
             return field?.GetValue(player) as ItemDrop.ItemData;
         }
 
-        internal static bool HasCestusSetBonus(Player player)
+        internal static bool HasCestusSetBonus(Player player, bool? cestusEquipped = null)
         {
             return player != null &&
-                   HasCestusEquipped(player) &&
+                   (cestusEquipped ?? HasCestusEquipped(player)) &&
                    PitKingEquipment.HasPitKingChestEquipped(player);
         }
 

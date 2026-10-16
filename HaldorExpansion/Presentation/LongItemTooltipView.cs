@@ -52,13 +52,13 @@ namespace HaldorExpansion.Presentation
             TMP_Text sourceBody = bodyTransform != null ? bodyTransform.GetComponent<TMP_Text>() : null;
             TMP_Text sourceTitle = titleTransform != null ? titleTransform.GetComponent<TMP_Text>() : null;
             if (sourceBody == null || sourceTitle == null) return null;
-            LayoutRebuilder.ForceRebuildLayoutImmediate(original);
             var view = new LongItemTooltipView(owner, tooltip, original, sourceBody, sourceTitle);
             if (!view.NeedsReplacement()) return null;
             try
             {
                 view.Build();
-                view.Refresh();
+                // NeedsReplacement just measured the unchanged native panel.
+                view.RefreshLayout();
                 view.originalActive = original.gameObject.activeSelf;
                 original.gameObject.SetActive(false);
                 view.Place();
@@ -182,6 +182,12 @@ namespace HaldorExpansion.Presentation
         internal bool Refresh()
         {
             if (!Alive || !NeedsReplacement()) return false;
+            return RefreshLayout();
+        }
+
+        private bool RefreshLayout()
+        {
+            if (!Alive) return false;
             lastBody = originalBody.text;
             lastTitle = originalTitle.text;
             body.text = lastBody;

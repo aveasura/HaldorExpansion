@@ -334,7 +334,7 @@ namespace HaldorExpansion.Configuration
                     var trader = AccessTools.Field(typeof(StoreGui), "m_trader").GetValue(StoreGui.instance) as Trader;
                     if (HaldorShopUpdater.IsHaldor(trader))
                     {
-                        HaldorShopExpansionPatch.Refresh(trader);
+                        HaldorShopExpansionPatch.Refresh(trader, applyTrophyValues: false);
                         AccessTools.Method(typeof(StoreGui), "FillList").Invoke(StoreGui.instance, null);
                     }
                 }

@@ -23,10 +23,13 @@ namespace HaldorExpansion.Features.Berserker
 
             hit.m_damage.Modify(BerserkerCloakRuntime.IncomingDamageMultiplier);
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[Berserker] Cloak incoming damage: {before:0.##} -> " +
-                $"{HitDamageMath.GetHitTotalDamage(hit):0.##} " +
-                $"(x{BerserkerCloakRuntime.IncomingDamageMultiplier:0.##})");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[Berserker] Cloak incoming damage: {before:0.##} -> " +
+                    $"{HitDamageMath.GetHitTotalDamage(hit):0.##} " +
+                    $"(x{BerserkerCloakRuntime.IncomingDamageMultiplier:0.##})");
+            }
         }
     }
 }

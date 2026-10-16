@@ -31,9 +31,9 @@ namespace HaldorExpansion.Features.Upgrades
                     if (item.m_stack <= 0 || !IdolRegistration.IsNativeIdol(item.m_dropPrefab)) continue;
                     ItemDrop.ItemData idol = IdolRegistration.ItemDrop.m_itemData.Clone();
                     idol.m_dropPrefab = IdolRegistration.Prefab;
-                    idol.m_stack = 1;
+                    idol.m_stack = IdolLootAmount.Roll(3);
                     idol.m_worldLevel = (byte)Game.m_worldLevel;
-                    result.Add(idol);
+                    if (idol.m_stack > 0) result.Add(idol);
                     break;
                 }
             }
@@ -60,7 +60,8 @@ namespace HaldorExpansion.Features.Upgrades
                 foreach (GameObject item in table.GetDropList())
                 {
                     if (!IdolRegistration.IsNativeIdol(item)) continue;
-                    result.Add(IdolRegistration.Prefab);
+                    int amount = IdolLootAmount.Roll(3);
+                    for (int i = 0; i < amount; i++) result.Add(IdolRegistration.Prefab);
                     break;
                 }
             }
@@ -115,7 +116,9 @@ namespace HaldorExpansion.Features.Upgrades
                 foreach (var drop in source.GenerateDropList())
                 {
                     if (drop.Value <= 0 || drop.Key != IdolRegistration.Prefab) continue;
-                    result.Add(new KeyValuePair<GameObject, int>(IdolRegistration.Prefab, 1));
+                    int amount = IdolLootAmount.Roll(3);
+                    if (amount > 0)
+                        result.Add(new KeyValuePair<GameObject, int>(IdolRegistration.Prefab, amount));
                     break;
                 }
             }

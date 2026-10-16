@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.HelOath
 {
@@ -14,8 +15,16 @@ namespace HaldorExpansion.Features.HelOath
         private const string ExplosionRpc = "HE_HelExplosion_v2";
         private static readonly FieldInfo LeftVisual = AccessTools.Field(typeof(VisEquipment), "m_leftItemInstance");
         private static readonly FieldInfo LeftHash = AccessTools.Field(typeof(VisEquipment), "m_currentLeftItemHash");
-        private sealed class VisualState { internal GameObject Weapon; internal HelOathWeaponGlow Glow; }
-        private static readonly ConditionalWeakTable<Player, VisualState> Visuals = new ConditionalWeakTable<Player, VisualState>();
+
+        private sealed class VisualState
+        {
+            internal GameObject Weapon;
+            internal HelOathWeaponGlow Glow;
+        }
+
+        private static readonly ConditionalWeakTable<Player, VisualState> Visuals =
+            new ConditionalWeakTable<Player, VisualState>();
+
         private static Material material;
         private static Material lineMaterial;
         private static Material spikeIceMaterial;
@@ -47,6 +56,7 @@ namespace HaldorExpansion.Features.HelOath
                 view.GetZDO().Set(PreparedKey, prepared);
                 if (prepared) view.InvokeRPC(ZNetView.Everybody, ActivationRpc, player.GetCenterPoint());
             }
+
             // Owner sees the change immediately; other clients read the same ZDO flag.
             UpdateWeapon(player);
         }
@@ -78,6 +88,7 @@ namespace HaldorExpansion.Features.HelOath
                 var prefab = ObjectDB.instance?.GetItemPrefab((int)LeftHash.GetValue(equipment));
                 if (prefab == null || prefab.name != HelOathItemRegistration.HelOathPrefabName) weapon = null;
             }
+
             if (state.Weapon == weapon && weapon != null && state.Glow != null) return;
 
             // A visual clone can be replaced during equipment refreshes. Cross-fade rather
@@ -96,7 +107,8 @@ namespace HaldorExpansion.Features.HelOath
         internal static void BroadcastExplosion(Player player, Vector3 point, float radius, bool empowered)
         {
             var view = HelOathNetwork.View(player);
-            if (view != null && view.IsValid()) view.InvokeRPC(ZNetView.Everybody, ExplosionRpc, point, radius, empowered);
+            if (view != null && view.IsValid())
+                view.InvokeRPC(ZNetView.Everybody, ExplosionRpc, point, radius, empowered);
             else if (CanRender) PlayExplosion(point, radius, empowered);
         }
 
@@ -108,13 +120,16 @@ namespace HaldorExpansion.Features.HelOath
             material = new Material(shader) { name = "HelOath_IceLight" };
             texture = new Texture2D(32, 32, TextureFormat.RGBA32, false);
             var pixels = new Color[1024];
-            for (int y = 0; y < 32; y++) for (int x = 0; x < 32; x++)
+            for (int y = 0; y < 32; y++)
+            for (int x = 0; x < 32; x++)
             {
                 float dx = (x - 15.5f) / 15.5f, dy = (y - 15.5f) / 15.5f;
                 float alpha = Mathf.Clamp01(1f - Mathf.Sqrt(dx * dx + dy * dy));
                 pixels[y * 32 + x] = new Color(1f, 1f, 1f, alpha * alpha);
             }
-            texture.SetPixels(pixels); texture.Apply();
+
+            texture.SetPixels(pixels);
+            texture.Apply();
             material.mainTexture = texture;
             return material;
         }
@@ -135,7 +150,8 @@ namespace HaldorExpansion.Features.HelOath
                     : new Color(0.50f, 0.87f, 0.98f, 0.82f)
             };
             mat.renderQueue = 3000;
-            if (dark) spikeDarkMaterial = mat; else spikeIceMaterial = mat;
+            if (dark) spikeDarkMaterial = mat;
+            else spikeIceMaterial = mat;
             return mat;
         }
 
@@ -150,35 +166,59 @@ namespace HaldorExpansion.Features.HelOath
 
         internal static LineRenderer Line(Transform parent, Material mat, float width, int count)
         {
-            var go = new GameObject("IceArc"); go.transform.SetParent(parent, false);
+            var go = new GameObject("IceArc");
+            go.transform.SetParent(parent, false);
             var line = go.AddComponent<LineRenderer>();
-            line.useWorldSpace = false; line.positionCount = count;
+            line.useWorldSpace = false;
+            line.positionCount = count;
             // A radial sprite is suitable for sparks but would fade out the ends of a long bolt.
-            if (lineMaterial == null) lineMaterial = new Material(mat) { name = "HelOath_SolidLightning", mainTexture = Texture2D.whiteTexture };
-            line.sharedMaterial = lineMaterial; line.widthMultiplier = width;
+            if (lineMaterial == null)
+                lineMaterial = new Material(mat)
+                    { name = "HelOath_SolidLightning", mainTexture = Texture2D.whiteTexture };
+            line.sharedMaterial = lineMaterial;
+            line.widthMultiplier = width;
             line.startColor = line.endColor = new Color(0.4f, 0.85f, 1f, 1f);
-            line.shadowCastingMode = ShadowCastingMode.Off; line.receiveShadows = false;
+            line.shadowCastingMode = ShadowCastingMode.Off;
+            line.receiveShadows = false;
             return line;
         }
 
-        internal static ParticleSystem Particles(Transform parent, Material mat, bool loop, float size, float speed, int burstCount = 150, float lifetime = 0.65f)
+        internal static ParticleSystem Particles(Transform parent, Material mat, bool loop, float size, float speed,
+            int burstCount = 150, float lifetime = 0.65f)
         {
-            var go = new GameObject("IceSparks"); go.transform.SetParent(parent, false);
-            var ps = go.AddComponent<ParticleSystem>(); ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            var main = ps.main; main.loop = loop; main.playOnAwake = false; main.duration = 1f;
-            main.startLifetime = loop ? 0.3f : lifetime; main.startSize = size; main.startSpeed = speed;
-            main.startColor = new Color(0.55f, 0.9f, 1f, 0.95f); main.maxParticles = 512;
+            var go = new GameObject("IceSparks");
+            go.transform.SetParent(parent, false);
+            var ps = go.AddComponent<ParticleSystem>();
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            var main = ps.main;
+            main.loop = loop;
+            main.playOnAwake = false;
+            main.duration = 1f;
+            main.startLifetime = loop ? 0.3f : lifetime;
+            main.startSize = size;
+            main.startSpeed = speed;
+            main.startColor = new Color(0.55f, 0.9f, 1f, 0.95f);
+            main.maxParticles = 512;
             main.simulationSpace = loop ? ParticleSystemSimulationSpace.Local : ParticleSystemSimulationSpace.World;
-            var emission = ps.emission; emission.enabled = loop; emission.rateOverTime = 35f;
-            var shape = ps.shape; shape.shapeType = ParticleSystemShapeType.Sphere; shape.radius = loop ? 0.25f : 0.12f;
-            var fade = ps.colorOverLifetime; fade.enabled = true;
+            var emission = ps.emission;
+            emission.enabled = loop;
+            emission.rateOverTime = 35f;
+            var shape = ps.shape;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radius = loop ? 0.25f : 0.12f;
+            var fade = ps.colorOverLifetime;
+            fade.enabled = true;
             var gradient = new Gradient();
-            gradient.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(new Color(0.3f, 0.7f, 1f), 1f) },
+            gradient.SetKeys(
+                new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(new Color(0.3f, 0.7f, 1f), 1f) },
                 new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0f, 1f) });
             fade.color = gradient;
-            var renderer = ps.GetComponent<ParticleSystemRenderer>(); renderer.sharedMaterial = mat;
-            renderer.shadowCastingMode = ShadowCastingMode.Off; renderer.receiveShadows = false;
-            ps.Play(); if (!loop && burstCount > 0) ps.Emit(burstCount);
+            var renderer = ps.GetComponent<ParticleSystemRenderer>();
+            renderer.sharedMaterial = mat;
+            renderer.shadowCastingMode = ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            ps.Play();
+            if (!loop && burstCount > 0) ps.Emit(burstCount);
             return ps;
         }
     }
@@ -207,12 +247,19 @@ namespace HaldorExpansion.Features.HelOath
                 Bounds bounds = renderer.localBounds;
                 for (int corner = 0; corner < 8; corner++)
                 {
-                    Vector3 sign = new Vector3((corner & 1) == 0 ? -1f : 1f, (corner & 2) == 0 ? -1f : 1f, (corner & 4) == 0 ? -1f : 1f);
-                    Vector3 point = weapon.InverseTransformPoint(renderer.transform.TransformPoint(bounds.center + Vector3.Scale(bounds.extents, sign)));
-                    if (!found) { combined = new Bounds(point, Vector3.zero); found = true; }
+                    Vector3 sign = new Vector3((corner & 1) == 0 ? -1f : 1f, (corner & 2) == 0 ? -1f : 1f,
+                        (corner & 4) == 0 ? -1f : 1f);
+                    Vector3 point = weapon.InverseTransformPoint(
+                        renderer.transform.TransformPoint(bounds.center + Vector3.Scale(bounds.extents, sign)));
+                    if (!found)
+                    {
+                        combined = new Bounds(point, Vector3.zero);
+                        found = true;
+                    }
                     else combined.Encapsulate(point);
                 }
             }
+
             if (!found) combined = new Bounds(Vector3.zero, new Vector3(0.3f, 1.6f, 0.3f));
             transform.localPosition = combined.center;
             Vector3 e = combined.extents;
@@ -250,7 +297,7 @@ namespace HaldorExpansion.Features.HelOath
             fadeOutStarted = Time.time;
             fadeOutDuration = Mathf.Max(0.18f, duration);
             // Keep the object alive long enough for the last soft particles to dissipate.
-            UnityEngine.Object.Destroy(gameObject, fadeOutDuration + 0.55f);
+            Destroy(gameObject, fadeOutDuration + 0.55f);
         }
 
         private void Update()
@@ -262,6 +309,23 @@ namespace HaldorExpansion.Features.HelOath
             if (fadingOut)
                 fadeOut = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((Time.time - fadeOutStarted) / fadeOutDuration));
             float visibility = fadeIn * fadeOut;
+
+            if (fadingOut && fadeOut <= 0f && Time.time - fadeOutStarted >= fadeOutDuration)
+            {
+                for (int i = 0; i < arcs.Length; i++)
+                    if (arcs[i] != null)
+                        arcs[i].enabled = false;
+                for (int i = 0; i < sparks.Length; i++)
+                {
+                    if (sparks[i] == null) continue;
+                    var emission = sparks[i].emission;
+                    emission.rateOverTime = 0f;
+                }
+
+                // Retain the root and already emitted particles for the scheduled tail.
+                enabled = false;
+                return;
+            }
 
             // Continuous deterministic motion replaces the old ~22 Hz random jitter.
             // The aura still feels electrically alive, but its path flows around the bow.
@@ -279,15 +343,17 @@ namespace HaldorExpansion.Features.HelOath
                     float t = i / (float)(ArcPoints - 1);
                     float envelope = Mathf.Sin(t * Mathf.PI);
                     float angle = t * Mathf.PI * (3.0f + arc * 0.34f)
-                        + Time.time * (2.05f + arc * 0.23f) * direction
-                        + arc * Mathf.PI * 0.73f;
+                                  + Time.time * (2.05f + arc * 0.23f) * direction
+                                  + arc * Mathf.PI * 0.73f;
                     float breathe = 1f + Mathf.Sin(Time.time * 1.15f + t * 7.2f + arc) * 0.055f;
-                    float secondary = Mathf.Sin(t * Mathf.PI * 5f - Time.time * 1.35f + arc * 1.7f) * spread * 0.22f * envelope;
+                    float secondary = Mathf.Sin(t * Mathf.PI * 5f - Time.time * 1.35f + arc * 1.7f) * spread * 0.22f *
+                                      envelope;
                     Vector3 curl = side * Mathf.Cos(angle) + forward * Mathf.Sin(angle);
-                    Vector3 drift = (side * Mathf.Sin(angle * 0.52f + arc) + forward * Mathf.Cos(angle * 0.47f - arc)) * secondary;
+                    Vector3 drift = (side * Mathf.Sin(angle * 0.52f + arc) + forward * Mathf.Cos(angle * 0.47f - arc)) *
+                                    secondary;
                     Vector3 point = axis * Mathf.Lerp(-extent, extent, t)
-                        + curl * spread * envelope * breathe
-                        + drift;
+                                    + curl * spread * envelope * breathe
+                                    + drift;
                     arcs[arc].SetPosition(i, point);
                 }
             }
@@ -385,35 +451,39 @@ namespace HaldorExpansion.Features.HelOath
 
             CreateGroundSpikes(touchV);
             CreateParticles(mat, touchV);
-            UnityEngine.Object.Destroy(gameObject, touchV ? 2.36f : 2.08f);
+            Destroy(gameObject, touchV ? 2.36f : 2.08f);
         }
 
         private void CreateParticles(Material mat, bool touchV)
         {
             // Dense central bloom. Large soft sprites fill the centre while smaller frost fragments
             // preserve detail, so the burst reads as a mass of black frost rather than empty lines.
-            var darkBloom = HelOathEffects.Particles(transform, mat, false, touchV ? 2.9f : 2.35f, radius * 0.10f, 0, touchV ? 0.82f : 0.70f);
+            var darkBloom = HelOathEffects.Particles(transform, mat, false, touchV ? 2.9f : 2.35f, radius * 0.10f, 0,
+                touchV ? 0.82f : 0.70f);
             var darkBloomMain = darkBloom.main;
             darkBloomMain.startColor = new Color(0.018f, 0.028f, 0.050f, touchV ? 0.52f : 0.43f);
             var darkBloomShape = darkBloom.shape;
             darkBloomShape.radius = radius * 0.09f;
             darkBloom.Emit(touchV ? 54 : 38);
 
-            var frostBloom = HelOathEffects.Particles(transform, mat, false, touchV ? 0.62f : 0.52f, radius * (touchV ? 0.38f : 0.31f), 0, 0.72f);
+            var frostBloom = HelOathEffects.Particles(transform, mat, false, touchV ? 0.62f : 0.52f,
+                radius * (touchV ? 0.38f : 0.31f), 0, 0.72f);
             var frostBloomMain = frostBloom.main;
             frostBloomMain.startColor = new Color(0.55f, 0.88f, 1f, touchV ? 0.82f : 0.72f);
             var frostBloomShape = frostBloom.shape;
             frostBloomShape.radius = radius * 0.11f;
             frostBloom.Emit(touchV ? 105 : 76);
 
-            var frost = HelOathEffects.Particles(transform, mat, false, touchV ? 0.21f : 0.18f, radius * (touchV ? 0.78f : 0.67f), 0, 1.02f);
+            var frost = HelOathEffects.Particles(transform, mat, false, touchV ? 0.21f : 0.18f,
+                radius * (touchV ? 0.78f : 0.67f), 0, 1.02f);
             var frostMain = frost.main;
             frostMain.startColor = new Color(0.72f, 0.94f, 1f, 0.94f);
             var frostShape = frost.shape;
             frostShape.radius = radius * 0.15f;
             frost.Emit(touchV ? 220 : 160);
 
-            var shards = HelOathEffects.Particles(transform, mat, false, touchV ? 0.39f : 0.34f, radius * (touchV ? 0.67f : 0.55f), 0, 1.18f);
+            var shards = HelOathEffects.Particles(transform, mat, false, touchV ? 0.39f : 0.34f,
+                radius * (touchV ? 0.67f : 0.55f), 0, 1.18f);
             var shardMain = shards.main;
             shardMain.startColor = new Color(0.66f, 0.91f, 1f, 0.90f);
             var shardRenderer = shards.GetComponent<ParticleSystemRenderer>();
@@ -422,21 +492,24 @@ namespace HaldorExpansion.Features.HelOath
             shardRenderer.velocityScale = 0.055f;
             shards.Emit(touchV ? 112 : 78);
 
-            var mist = HelOathEffects.Particles(transform, mat, false, touchV ? 2.45f : 2.05f, radius * (touchV ? 0.23f : 0.20f), 0, touchV ? 1.62f : 1.42f);
+            var mist = HelOathEffects.Particles(transform, mat, false, touchV ? 2.45f : 2.05f,
+                radius * (touchV ? 0.23f : 0.20f), 0, touchV ? 1.62f : 1.42f);
             var mistMain = mist.main;
             mistMain.startColor = new Color(0.055f, 0.082f, 0.125f, touchV ? 0.42f : 0.34f);
             var mistShape = mist.shape;
             mistShape.radius = radius * 0.26f;
             mist.Emit(touchV ? 132 : 92);
 
-            var snow = HelOathEffects.Particles(transform, mat, false, touchV ? 0.19f : 0.16f, radius * 0.27f, 0, touchV ? 1.58f : 1.34f);
+            var snow = HelOathEffects.Particles(transform, mat, false, touchV ? 0.19f : 0.16f, radius * 0.27f, 0,
+                touchV ? 1.58f : 1.34f);
             var snowMain = snow.main;
             snowMain.startColor = new Color(0.97f, 0.995f, 1f, touchV ? 0.80f : 0.66f);
             var snowShape = snow.shape;
             snowShape.radius = radius * 0.22f;
             snow.Emit(touchV ? 210 : 145);
 
-            var shadowFlecks = HelOathEffects.Particles(transform, mat, false, touchV ? 0.23f : 0.19f, radius * 0.36f, 0, touchV ? 1.34f : 1.12f);
+            var shadowFlecks = HelOathEffects.Particles(transform, mat, false, touchV ? 0.23f : 0.19f, radius * 0.36f,
+                0, touchV ? 1.34f : 1.12f);
             var shadowMain = shadowFlecks.main;
             shadowMain.startColor = new Color(0.018f, 0.030f, 0.052f, touchV ? 0.78f : 0.62f);
             var shadowShape = shadowFlecks.shape;
@@ -448,7 +521,8 @@ namespace HaldorExpansion.Features.HelOath
             flashMain.startColor = new Color(0.36f, 0.82f, 0.97f, touchV ? 0.32f : 0.27f);
             flash.Emit(touchV ? 7 : 5);
 
-            var inhale = HelOathEffects.Particles(transform, mat, false, touchV ? 0.20f : 0.18f, -(radius * 0.42f), 0, 0.24f);
+            var inhale = HelOathEffects.Particles(transform, mat, false, touchV ? 0.20f : 0.18f, -(radius * 0.42f), 0,
+                0.24f);
             var inhaleMain = inhale.main;
             inhaleMain.startColor = new Color(0.60f, 0.88f, 1f, 0.38f);
             var inhaleShape = inhale.shape;
@@ -541,6 +615,7 @@ namespace HaldorExpansion.Features.HelOath
                 uv[i] = new Vector2(i / (float)sides, 0f);
                 uv[sides + i] = new Vector2(i / (float)sides, 0.62f);
             }
+
             vertices[sides * 2] = new Vector3(0.08f, 1f, -0.04f);
             uv[sides * 2] = new Vector2(0.5f, 1f);
 
@@ -594,7 +669,8 @@ namespace HaldorExpansion.Features.HelOath
                 float widthScale = Mathf.Lerp(0.18f, 1f, grow) * Mathf.Lerp(0.30f, 1f, vanish);
                 float heightScale = grow * Mathf.Lerp(0.18f, 1f, vanish);
                 Vector3 full = spikeFullScales[i];
-                spike.transform.localScale = new Vector3(full.x * widthScale, full.y * heightScale, full.z * widthScale);
+                spike.transform.localScale =
+                    new Vector3(full.x * widthScale, full.y * heightScale, full.z * widthScale);
 
                 // They do not fly away: after erupting they remain rooted in the impact field,
                 // then sink back under the surface during the final black-frost aftermath.
@@ -605,9 +681,15 @@ namespace HaldorExpansion.Features.HelOath
 
         private void UpdateCore(float age)
         {
+            if (!coreDark.enabled) return;
             float collapse = Mathf.Clamp01(age / 0.095f);
             float bloom = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((age - 0.045f) / (empowered ? 0.46f : 0.39f)));
             float fade = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(age / (empowered ? 0.88f : 0.73f)));
+            if (fade <= 0f && age >= (empowered ? 0.88f : 0.73f))
+            {
+                coreDark.enabled = coreFrost.enabled = false;
+                return;
+            }
 
             float darkRadius = Mathf.Lerp(radius * 0.42f, radius * 0.055f, collapse);
             darkRadius = Mathf.Lerp(darkRadius, radius * (empowered ? 0.24f : 0.20f), bloom * 0.86f);
@@ -623,14 +705,22 @@ namespace HaldorExpansion.Features.HelOath
         {
             for (int i = 0; i < shockwaves.Length; i++)
             {
+                if (!shockwaves[i].enabled) continue;
                 float delay = i == 0 ? 0.065f : (i == 1 ? 0.135f : (i == 2 ? 0.24f : 0.38f));
                 float duration = i == 0 ? 0.63f : (i == 1 ? 0.76f : (i == 2 ? 0.84f : 0.68f));
                 float t = Mathf.Clamp01((age - delay) / duration);
                 float alpha = age < delay ? 0f : 1f - Mathf.SmoothStep(0f, 1f, t);
+                if (t >= 1f && alpha <= 0f)
+                {
+                    shockwaves[i].enabled = false;
+                    continue;
+                }
+
                 float eased = 1f - (1f - t) * (1f - t);
                 float scale = i == 1 ? 0.78f : (i == 2 ? 1.02f : (i == 3 ? 1.15f : 1f));
                 float waveRadius = radius * (0.08f + 0.92f * eased) * scale;
-                SetCircle(shockwaves[i], waveRadius, 0.025f + i * 0.011f, radius * (0.034f - i * 0.004f) * (1f - t), age * (i % 2 == 0 ? 1.55f : -1.25f), i * 0.73f);
+                SetCircle(shockwaves[i], waveRadius, 0.025f + i * 0.011f, radius * (0.034f - i * 0.004f) * (1f - t),
+                    age * (i % 2 == 0 ? 1.55f : -1.25f), i * 0.73f);
 
                 Color color;
                 if (i == 0) color = new Color(0.025f, 0.050f, 0.085f, alpha * 0.98f);
@@ -643,11 +733,19 @@ namespace HaldorExpansion.Features.HelOath
 
         private void UpdateTendrils(float age)
         {
+            if (!tendrils[0].enabled) return;
             float start = 0.075f;
             float growthDuration = empowered ? 0.74f : 0.63f;
             float fadeDuration = empowered ? 1.16f : 0.98f;
             float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((age - start) / growthDuration));
-            float alphaBase = age < start ? 0f : 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((age - start) / fadeDuration));
+            float alphaBase = age < start
+                ? 0f
+                : 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((age - start) / fadeDuration));
+            if (age >= start + fadeDuration && alphaBase <= 0f)
+            {
+                for (int i = 0; i < tendrils.Length; i++) tendrils[i].enabled = false;
+                return;
+            }
 
             for (int i = 0; i < tendrils.Length; i++)
             {
@@ -666,8 +764,8 @@ namespace HaldorExpansion.Features.HelOath
                     float waveA = Mathf.Sin(t * (5.2f + tendrilSeeds[i]) + age * 3.8f + tendrilSeeds[i] * 1.45f);
                     float waveB = Mathf.Cos(t * (3.5f + tendrilSeeds[i] * 0.45f) - age * 2.7f + tendrilSeeds[i]);
                     Vector3 pos = tendrilDirections[i] * reach
-                        + tendrilSides[i] * wobble * waveA
-                        + tendrilForwards[i] * (wobble * 0.68f) * waveB;
+                                  + tendrilSides[i] * wobble * waveA
+                                  + tendrilForwards[i] * (wobble * 0.68f) * waveB;
                     pos.y = 0.032f + 0.18f * envelope * (1f - t) * (0.86f + 0.14f * Mathf.Sin(age * 2.0f + i));
                     tendrils[i].SetPosition(point, pos);
                 }
@@ -676,9 +774,18 @@ namespace HaldorExpansion.Features.HelOath
 
         private void UpdateCrown(float age)
         {
+            if (!crown[0].enabled) return;
             float start = 0.09f;
             float rise = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((age - start) / (empowered ? 0.46f : 0.40f)));
-            float alphaBase = age < start ? 0f : 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((age - start) / (empowered ? 0.88f : 0.72f)));
+            float alphaBase = age < start
+                ? 0f
+                : 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((age - start) / (empowered ? 0.88f : 0.72f)));
+            if (age >= start + (empowered ? 0.88f : 0.72f) && alphaBase <= 0f)
+            {
+                for (int i = 0; i < crown.Length; i++) crown[i].enabled = false;
+                return;
+            }
+
             float crownRadius = radius * (empowered ? 0.46f : 0.39f);
             float crownHeight = empowered ? 2.75f : 2.18f;
 
@@ -707,11 +814,20 @@ namespace HaldorExpansion.Features.HelOath
 
         private void UpdateSpirals(float age)
         {
+            if (!spirals[0].enabled) return;
             float start = 0.14f;
             float growthDuration = empowered ? 0.94f : 0.80f;
             float fadeDuration = empowered ? 1.36f : 1.12f;
             float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((age - start) / growthDuration));
-            float alphaBase = age < start ? 0f : 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((age - start) / fadeDuration));
+            float alphaBase = age < start
+                ? 0f
+                : 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((age - start) / fadeDuration));
+            if (age >= start + fadeDuration && alphaBase <= 0f)
+            {
+                for (int i = 0; i < spirals.Length; i++) spirals[i].enabled = false;
+                return;
+            }
+
             float maxHeight = empowered ? 2.65f : 2.05f;
             float maxOrbit = radius * (empowered ? 0.27f : 0.21f);
 
@@ -724,7 +840,8 @@ namespace HaldorExpansion.Features.HelOath
                 spirals[i].startColor = spirals[i].endColor = color;
 
                 float direction = i % 2 == 0 ? 1f : -1f;
-                Vector3 offset = new Vector3(Mathf.Cos(spiralSeeds[i]), 0f, Mathf.Sin(spiralSeeds[i])) * radius * 0.08f * progress;
+                Vector3 offset = new Vector3(Mathf.Cos(spiralSeeds[i]), 0f, Mathf.Sin(spiralSeeds[i])) * radius *
+                                 0.08f * progress;
                 for (int point = 0; point < SpiralPoints; point++)
                 {
                     float t = point / (float)(SpiralPoints - 1);
@@ -737,15 +854,16 @@ namespace HaldorExpansion.Features.HelOath
             }
         }
 
-        private void SetCircle(LineRenderer line, float circleRadius, float y, float wobble, float phase, float angleOffset)
+        private void SetCircle(LineRenderer line, float circleRadius, float y, float wobble, float phase,
+            float angleOffset)
         {
             for (int i = 0; i < WavePoints; i++)
             {
                 float t = i / (float)(WavePoints - 1);
                 float angle = t * Mathf.PI * 2f + angleOffset;
                 float localRadius = circleRadius
-                    + Mathf.Sin(angle * 3f + phase) * wobble
-                    + Mathf.Cos(angle * 5f - phase * 0.7f) * wobble * 0.35f;
+                                    + Mathf.Sin(angle * 3f + phase) * wobble
+                                    + Mathf.Cos(angle * 5f - phase * 0.7f) * wobble * 0.35f;
                 line.SetPosition(i, new Vector3(Mathf.Cos(angle) * localRadius, y, Mathf.Sin(angle) * localRadius));
             }
         }

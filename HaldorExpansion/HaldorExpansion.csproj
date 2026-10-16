@@ -431,6 +431,7 @@
         <Compile Include="Features\Upgrades\AdamantineLoot.cs"/>
         <Compile Include="Features\Upgrades\ItemUpgradeBalance.cs"/>
         <Compile Include="Features\Upgrades\UpgradeRecipes.cs"/>
+        <Compile Include="Features\Upgrades\IdolLootAmount.cs"/>
         <Compile Include="Features\Upgrades\IdolLoot.cs"/>
         <Compile Include="Features\Brisingamen\BrisingamenCarryStatus.cs"/>
     </ItemGroup>

@@ -20,20 +20,23 @@ namespace HaldorExpansion.Patches
             if (ProcessedPlayers.Contains(id))
                 return;
 
-            // временный лог рецептов для всех предметов в инвентаре
-            foreach (var item in __instance.GetInventory().GetAllItems())
+            if (HaldorExpansionPlugin.DebugLogging)
             {
-                if (item == null || item.m_shared == null)
-                    continue;
+                // временный лог рецептов для всех предметов в инвентаре
+                foreach (var item in __instance.GetInventory().GetAllItems())
+                {
+                    if (item == null || item.m_shared == null)
+                        continue;
 
-                Recipe r = ObjectDB.instance.GetRecipe(item);
+                    Recipe r = ObjectDB.instance.GetRecipe(item);
 
-                HaldorExpansionPlugin.DebugLog(
-                    $"[RepairDebug] item={item.m_shared.m_name}, " +
-                    $"recipe={(r != null ? r.name : "null")}, " +
-                    $"craft={(r != null ? r.m_craftingStation?.name : "null")}, " +
-                    $"repair={(r != null ? r.m_repairStation?.name : "null")}, " +
-                    $"durability={item.m_durability:0.##}/{item.GetMaxDurability():0.##}");
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[RepairDebug] item={item.m_shared.m_name}, " +
+                        $"recipe={(r != null ? r.name : "null")}, " +
+                        $"craft={(r != null ? r.m_craftingStation?.name : "null")}, " +
+                        $"repair={(r != null ? r.m_repairStation?.name : "null")}, " +
+                        $"durability={item.m_durability:0.##}/{item.GetMaxDurability():0.##}");
+                }
             }
 
             bool done = DelayedDoomInventoryRebind.FixDelayedDoomItemsInInventory(__instance);

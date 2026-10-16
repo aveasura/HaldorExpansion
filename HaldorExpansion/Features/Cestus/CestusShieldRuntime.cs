@@ -17,11 +17,12 @@ namespace HaldorExpansion.Features.Cestus
         // Only the extra awakened share expires on removal. The original set shield
         // keeps its existing lifetime and damage absorption rules. Re-equipping never
         // restores consumed shield or reapplies this multiplier to a running cast.
-        internal static void RefreshAwakenedShield(Player player, CestusStateStore.CestusState state)
+        internal static void RefreshAwakenedShield(Player player, CestusStateStore.CestusState state,
+            bool? cestusEquipped = null)
         {
             if (state == null || !state.AwakenedShieldBonusActive ||
                 !CestusNetworkState.IsCestusShieldAuthorityRuntime(player)) return;
-            if (CestusEquipment.HasCestusSetBonus(player) &&
+            if (CestusEquipment.HasCestusSetBonus(player, cestusEquipped) &&
                 AwakenedEquipment.Has(player, Artifact.PitKingChest)) return;
             state.AwakenedShieldBonusActive = false;
             float retained = AwakenedAbilityMath.ShieldRetainedFraction(CestusAbility.CestusSetBonusMultiplier);
@@ -101,13 +102,16 @@ namespace HaldorExpansion.Features.Cestus
                 CestusNetworkState.SyncCestusShieldState(player, state);
             }
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Cestus shield absorbed: " +
-                $"incoming={incomingDamage:0.##}, " +
-                $"absorbed={absorbed:0.##}, " +
-                $"remaining={state.ShieldRemaining:0.##}, " +
-                $"syncedRemaining={CestusNetworkState.GetSyncedCestusShieldRemaining(player):0.##}, " +
-                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Cestus shield absorbed: " +
+                    $"incoming={incomingDamage:0.##}, " +
+                    $"absorbed={absorbed:0.##}, " +
+                    $"remaining={state.ShieldRemaining:0.##}, " +
+                    $"syncedRemaining={CestusNetworkState.GetSyncedCestusShieldRemaining(player):0.##}, " +
+                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            }
 
             return absorbed;
         }
@@ -151,14 +155,17 @@ namespace HaldorExpansion.Features.Cestus
                 CestusNetworkState.SyncCestusShieldState(player, state);
             }
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Cestus shield corrected post-damage: " +
-                $"before={beforeHealth:0.##}, " +
-                $"after={afterHealth:0.##}, " +
-                $"absorbed={absorbed:0.##}, " +
-                $"newHealth={correctedHealth:0.##}, " +
-                $"remaining={state.ShieldRemaining:0.##}, " +
-                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Cestus shield corrected post-damage: " +
+                    $"before={beforeHealth:0.##}, " +
+                    $"after={afterHealth:0.##}, " +
+                    $"absorbed={absorbed:0.##}, " +
+                    $"newHealth={correctedHealth:0.##}, " +
+                    $"remaining={state.ShieldRemaining:0.##}, " +
+                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            }
 
             return absorbed;
         }
@@ -198,11 +205,14 @@ namespace HaldorExpansion.Features.Cestus
                         CestusNetworkState.SyncCestusShieldState(player, state);
                     }
 
-                    HaldorExpansionPlugin.DebugLog(
-                        $"[HaldorExpansion] Cestus shield decay: " +
-                        $"decay={decay:0.##}, " +
-                        $"remaining={state.ShieldRemaining:0.##}, " +
-                        $"ticksLeft={state.ShieldTicksLeft}");
+                    if (HaldorExpansionPlugin.DebugLogging)
+                    {
+                        HaldorExpansionPlugin.DebugLog(
+                            $"[HaldorExpansion] Cestus shield decay: " +
+                            $"decay={decay:0.##}, " +
+                            $"remaining={state.ShieldRemaining:0.##}, " +
+                            $"ticksLeft={state.ShieldTicksLeft}");
+                    }
 
                     if (state.ShieldRemaining <= 0.001f)
                         yield break;

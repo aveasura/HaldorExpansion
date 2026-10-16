@@ -68,6 +68,27 @@ namespace HaldorExpansion.Features.Awakened
                    Identify(item) != Artifact.None;
         }
 
+        // Same equipped/quality/identifier rules as Has, in one traversal for both passives.
+        // Recomputed each refresh so upgrades of the same equipped instance remain visible.
+        internal static int StatRefreshSignature(Player player)
+        {
+            Inventory inventory = player != null ? player.GetInventory() : null;
+            var items = inventory != null ? inventory.GetAllItems() : null;
+            if (items == null) return 0;
+            int signature = 0;
+            foreach (ItemDrop.ItemData item in items)
+            {
+                if (item == null || !item.m_equipped || item.m_quality < AwakenedBalance.QualityThreshold)
+                    continue;
+                Artifact artifact = Identify(item);
+                if (artifact == Artifact.WoundedBeastCloak) signature |= 1;
+                else if (artifact == Artifact.HelheimPelt) signature |= 2;
+                if (signature == 3) break;
+            }
+
+            return signature;
+        }
+
         internal static bool Has(Player player, Artifact artifact)
         {
             if (player == null || artifact == Artifact.None) return false;

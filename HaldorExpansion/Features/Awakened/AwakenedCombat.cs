@@ -44,6 +44,7 @@ namespace HaldorExpansion.Features.Awakened
         private static readonly Dictionary<long, Pending> PendingHits = new Dictionary<long, Pending>();
         private static readonly Dictionary<string, float> Resolved = new Dictionary<string, float>();
         private static readonly List<long> Remove = new List<long>();
+        private static readonly List<string> StaleReplays = new List<string>();
         private static long nextToken;
         [ThreadStatic] private static int depth;
         [ThreadStatic] private static Player player;
@@ -70,7 +71,7 @@ namespace HaldorExpansion.Features.Awakened
             player = AttackPlayer?.GetValue(attack) as Player;
             weapon = AttackWeapon?.GetValue(attack) as ItemDrop.ItemData;
             secondary = ReferenceEquals(markedAttack, attack) && markedSecondary;
-            targets = new HashSet<Character>();
+            targets?.Clear();
         }
 
         internal static void Exit()
@@ -79,7 +80,7 @@ namespace HaldorExpansion.Features.Awakened
             depth = 0;
             player = null;
             weapon = null;
-            targets = null;
+            targets?.Clear();
         }
 
         internal static long CreateToken(Character target, HitData hit)
@@ -96,7 +97,9 @@ namespace HaldorExpansion.Features.Awakened
                          BerserkerRuntime.EffectiveWrathStage(player) >= 1;
             if (!harvest && !feast && !bone) return 0;
             ZNetView view = View(target);
-            if (view == null || !view.IsValid() || view.GetZDO() == null || !targets.Add(target)) return 0;
+            if (view == null || !view.IsValid() || view.GetZDO() == null) return 0;
+            if (targets == null) targets = new HashSet<Character>();
+            if (!targets.Add(target)) return 0;
             ItemDrop.ItemData helmet = null;
             if (feast)
                 foreach (ItemDrop.ItemData item in player.GetInventory().GetAllItems())
@@ -211,11 +214,13 @@ namespace HaldorExpansion.Features.Awakened
             string key = av.GetZDO().m_uid.ToString() + ":" + token;
             if (Resolved.ContainsKey(key)) return;
             // Bound replay memory to receipt lifetime; late receipts cannot reward the attacker.
-            var stale = new List<string>();
+            StaleReplays.Clear();
             foreach (var entry in Resolved)
                 if (entry.Value < Time.time)
-                    stale.Add(entry.Key);
-            foreach (string entry in stale) Resolved.Remove(entry);
+                    StaleReplays.Add(entry.Key);
+            foreach (string entry in StaleReplays) Resolved.Remove(entry);
+            // Release keys before invoking damage, which may reenter Resolve.
+            StaleReplays.Clear();
             Resolved[key] = Time.time + ReplayRetention;
             Context previous = context;
             if (previous != null && previous.Target == target) previous.NestedDamage = true;

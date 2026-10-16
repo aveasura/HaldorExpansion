@@ -32,14 +32,16 @@ namespace HaldorExpansion.Patches
 
         static void Prefix(Trader __instance) => Refresh(__instance);
 
-        internal static void Refresh(Trader __instance)
+        internal static void Refresh(Trader __instance, bool applyTrophyValues = true)
         {
             if (!HaldorShopUpdater.IsHaldor(__instance))
                 return;
 
             // Refresh trophy/core sell values from the currently active (server-synced) config
             // before the store UI is opened. SettingChanged also refreshes live changes.
-            TrophyValueUpdater.ApplyTrophyValues(ObjectDB.instance);
+            // The live configuration path already applied these values before refreshing the shop.
+            if (applyTrophyValues)
+                TrophyValueUpdater.ApplyTrophyValues(ObjectDB.instance);
 
             if (__instance.m_items == null)
                 __instance.m_items = new List<Trader.TradeItem>();

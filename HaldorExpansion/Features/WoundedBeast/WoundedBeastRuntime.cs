@@ -97,13 +97,16 @@ namespace HaldorExpansion.Features.WoundedBeast
 
             CharacterHealthAccess.SetCharacterHealth(player, newHealth);
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Wounded Beast regen tick: " +
-                $"current={currentHealth:0.##}, " +
-                $"max={maxHealth:0.##}, " +
-                $"regen={regenAmount:0.##}, " +
-                $"new={newHealth:0.##}, " +
-                $"delayedDoom={DelayedDoomEquipment.HasDelayedDoomEquipped(player)}, dotActive={dotActive}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Wounded Beast regen tick: " +
+                    $"current={currentHealth:0.##}, " +
+                    $"max={maxHealth:0.##}, " +
+                    $"regen={regenAmount:0.##}, " +
+                    $"new={newHealth:0.##}, " +
+                    $"delayedDoom={DelayedDoomEquipment.HasDelayedDoomEquipped(player)}, dotActive={dotActive}");
+            }
         }
 
         private static float GetWoundedBeastCapeRegenPerSecond(float currentHealth, float maxHealth)

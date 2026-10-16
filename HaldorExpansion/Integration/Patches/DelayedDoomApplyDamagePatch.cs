@@ -56,8 +56,12 @@ namespace HaldorExpansion.Patches
             {
                 hit.m_damage.Modify(0f);
                 __state.GracePrevented = true;
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Norn Thread grace prevented damage: incoming={incomingDamage:0.##}, before={beforeHealth:0.##}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Norn Thread grace prevented damage: incoming={incomingDamage:0.##}, before={beforeHealth:0.##}");
+                }
+
                 return;
             }
 
@@ -70,10 +74,13 @@ namespace HaldorExpansion.Patches
                 __state.DelayedDoomArmed = true;
                 float threshold = maxHealth * DelayedDoomRuntime.DelayedDoomTriggerRatio;
 
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Delayed Doom ApplyDamage prefix: " +
-                    $"incoming={incomingDamage:0.##}, before={beforeHealth:0.##}, max={maxHealth:0.##}, threshold={threshold:0.##}, " +
-                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Delayed Doom ApplyDamage prefix: " +
+                        $"incoming={incomingDamage:0.##}, before={beforeHealth:0.##}, max={maxHealth:0.##}, threshold={threshold:0.##}, " +
+                        $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                }
 
                 // A lethal direct hit also triggers the split, even below 50% max HP.
                 // Internal debt ticks are excluded by the enclosing guard.
@@ -88,10 +95,13 @@ namespace HaldorExpansion.Patches
                     __state.ImmediateDamage = immediateDamage;
                     __state.DelayedDamageTotal = delayedDamageTotal;
 
-                    HaldorExpansionPlugin.DebugLog(
-                        $"[HaldorExpansion] Delayed Doom ApplyDamage modified hit: " +
-                        $"incoming={incomingDamage:0.##}, immediate={immediateDamage:0.##}, delayed={delayedDamageTotal:0.##}, scale={scale:0.###}, " +
-                        $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                    if (HaldorExpansionPlugin.DebugLogging)
+                    {
+                        HaldorExpansionPlugin.DebugLog(
+                            $"[HaldorExpansion] Delayed Doom ApplyDamage modified hit: " +
+                            $"incoming={incomingDamage:0.##}, immediate={immediateDamage:0.##}, delayed={delayedDamageTotal:0.##}, scale={scale:0.###}, " +
+                            $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                    }
                 }
             }
 
@@ -110,9 +120,12 @@ namespace HaldorExpansion.Patches
             hit.m_damage.Modify(0f);
             __state.NornThreadTriggered = true;
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Norn Thread triggered: finalIncoming={finalIncomingDamage:0.##}, before={beforeHealth:0.##}, " +
-                $"item={(consumed?.m_shared?.m_name ?? "<unknown>")}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Norn Thread triggered: finalIncoming={finalIncomingDamage:0.##}, before={beforeHealth:0.##}, " +
+                    $"item={(consumed?.m_shared?.m_name ?? "<unknown>")}");
+            }
         }
 
         [HarmonyPriority(Priority.Last)]
@@ -138,18 +151,25 @@ namespace HaldorExpansion.Patches
 
             float afterHealth = CharacterHealthAccess.GetCharacterHealth(player);
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Delayed Doom ApplyDamage postfix: " +
-                $"incoming={__state.IncomingDamage:0.##}, immediate={__state.ImmediateDamage:0.##}, delayed={__state.DelayedDamageTotal:0.##}, " +
-                $"before={__state.BeforeHealth:0.##}, after={afterHealth:0.##}, " +
-                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Delayed Doom ApplyDamage postfix: " +
+                    $"incoming={__state.IncomingDamage:0.##}, immediate={__state.ImmediateDamage:0.##}, delayed={__state.DelayedDamageTotal:0.##}, " +
+                    $"before={__state.BeforeHealth:0.##}, after={afterHealth:0.##}, " +
+                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            }
 
             if (player.IsDead() || afterHealth <= 0f)
             {
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Delayed Doom debt skipped because player died from immediate hit: " +
-                    $"incoming={__state.IncomingDamage:0.##}, immediate={__state.ImmediateDamage:0.##}, " +
-                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Delayed Doom debt skipped because player died from immediate hit: " +
+                        $"incoming={__state.IncomingDamage:0.##}, immediate={__state.ImmediateDamage:0.##}, " +
+                        $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                }
+
                 return;
             }
 

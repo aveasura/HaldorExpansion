@@ -30,7 +30,7 @@ namespace HaldorExpansion.Patches
             return result is bool pressed && pressed;
         }
 
-        private static bool ShouldPoll(Player player)
+        private static bool ShouldPoll(Player player, bool cestusEquipped)
         {
             if (player == null || Player.m_localPlayer == null || player != Player.m_localPlayer)
                 return false;
@@ -38,7 +38,7 @@ namespace HaldorExpansion.Patches
             if (CestusInputRegistration.CestusAbilityButton == null)
                 return false;
 
-            if (!CestusEquipment.HasCestusEquipped(player))
+            if (!cestusEquipped)
                 return false;
 
             if (!CestusChargeRuntime.HasFullCestusCharge(player))
@@ -62,11 +62,14 @@ namespace HaldorExpansion.Patches
 
         static void Prefix(Player __instance)
         {
-            CestusRuntime.UpdateCestusLocalEquipState(__instance);
-            CestusChargeRuntime.UpdateCestusLocalDamageCharge(__instance);
-            CestusFacebreaker.UpdateLocal(__instance);
+            // Invocation-local only: standalone/event callers still inspect live equipment.
+            bool cestusEquipped = CestusRuntime.ShouldProcessCestusLocally(__instance) &&
+                                  CestusEquipment.HasCestusEquipped(__instance);
+            CestusRuntime.UpdateCestusLocalEquipState(__instance, cestusEquipped);
+            CestusChargeRuntime.UpdateCestusLocalDamageCharge(__instance, cestusEquipped);
+            CestusFacebreaker.UpdateLocal(__instance, cestusEquipped);
 
-            if (!ShouldPoll(__instance))
+            if (!ShouldPoll(__instance, cestusEquipped))
                 return;
 
             if (!IsCestusActivationPressed())

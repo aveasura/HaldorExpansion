@@ -93,7 +93,7 @@ namespace HaldorExpansion.Features.Cestus
                                                                      CestusInputRegistration.FacebreakerKeyConfig
                                                                          .Value == KeyCode.Mouse1;
 
-        internal static void UpdateLocal(Player player)
+        internal static void UpdateLocal(Player player, bool? cestusEquipped = null)
         {
             if (player == null || player != Player.m_localPlayer)
                 return;
@@ -107,7 +107,7 @@ namespace HaldorExpansion.Features.Cestus
             if (casting) return;
 
             bool eligible = !player.IsDead() &&
-                            CestusEquipment.HasCestusEquipped(player) &&
+                            (cestusEquipped ?? CestusEquipment.HasCestusEquipped(player)) &&
                             !CestusRuntime.IsCestusCasting(player) &&
                             CanTakeInput(player);
             if (!eligible)
@@ -149,8 +149,12 @@ namespace HaldorExpansion.Features.Cestus
                 releaseCandidateAt = -1f;
                 aiming = true;
                 aimAxis = CameraDirection(player);
-                if (preview == null)
+                if (preview == null || !preview.IsValid)
+                {
+                    preview?.Dispose();
                     preview = new CestusFacebreakerPreview();
+                }
+
                 preview.Set(player.transform.position, aimAxis, FullLength, Width);
                 return;
             }

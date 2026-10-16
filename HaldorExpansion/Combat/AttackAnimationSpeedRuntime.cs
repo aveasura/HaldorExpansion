@@ -36,6 +36,7 @@ namespace HaldorExpansion.Combat
                         animator.speed = state.BaseSpeed;
                     States.Remove(animator);
                 }
+
                 return;
             }
 

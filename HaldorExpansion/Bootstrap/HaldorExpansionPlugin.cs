@@ -28,7 +28,7 @@ namespace HaldorExpansion
         internal static ManualLogSource Log;
         internal static HaldorExpansionPlugin Instance;
 
-        private static readonly bool DebugLogging = false;
+        internal static readonly bool DebugLogging = false;
 
         // Keep config binding state scoped to this plugin instance.
         private readonly ConfigurationRuntime _configuration = new ConfigurationRuntime();

@@ -68,18 +68,21 @@ namespace HaldorExpansion.Patches
                 StaminaCapeRuntime.SpendPlayerStamina(player, staminaSpent);
             }
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Stamina cape ApplyDamage: " +
-                $"incoming={originalDamage:0.##}, " +
-                $"redirectTarget={redirectedDamageTarget:0.##}, " +
-                $"staminaCost={staminaCostTarget:0.##}, " +
-                $"staminaBefore={currentStamina:0.##}, " +
-                $"staminaSpent={staminaSpent:0.##}, " +
-                $"missingRedirect={redirectedDamageMissing:0.##}, " +
-                $"hpAfterCape={hpDamageAfterCape:0.##}, " +
-                $"overflow={(redirectedDamageMissing > 0.001f ? 1 : 0)}, " +
-                $"scale={scale:0.###}, " +
-                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Stamina cape ApplyDamage: " +
+                    $"incoming={originalDamage:0.##}, " +
+                    $"redirectTarget={redirectedDamageTarget:0.##}, " +
+                    $"staminaCost={staminaCostTarget:0.##}, " +
+                    $"staminaBefore={currentStamina:0.##}, " +
+                    $"staminaSpent={staminaSpent:0.##}, " +
+                    $"missingRedirect={redirectedDamageMissing:0.##}, " +
+                    $"hpAfterCape={hpDamageAfterCape:0.##}, " +
+                    $"overflow={(redirectedDamageMissing > 0.001f ? 1 : 0)}, " +
+                    $"scale={scale:0.###}, " +
+                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            }
         }
     }
 }

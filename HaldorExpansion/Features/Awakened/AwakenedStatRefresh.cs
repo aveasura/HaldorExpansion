@@ -19,8 +19,7 @@ namespace HaldorExpansion.Features.Awakened
         internal static void Refresh(Player player)
         {
             if (player == null || player != Player.m_localPlayer) return;
-            int signature = (AwakenedEquipment.Has(player, Artifact.WoundedBeastCloak) ? 1 : 0)
-                            | (AwakenedEquipment.Has(player, Artifact.HelheimPelt) ? 2 : 0);
+            int signature = AwakenedEquipment.StatRefreshSignature(player);
             AppliedState state = Applied.GetOrCreateValue(player);
             if (state.Signature == signature) return;
 

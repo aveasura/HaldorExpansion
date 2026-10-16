@@ -4,7 +4,6 @@ namespace HaldorExpansion.Combat
 {
     internal static class HitDamageMath
     {
-
         internal static float GetHitTotalDamage(HitData hit)
         {
             if (hit == null)

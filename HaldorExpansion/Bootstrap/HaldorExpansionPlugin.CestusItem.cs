@@ -6,7 +6,6 @@ namespace HaldorExpansion
 {
     public partial class HaldorExpansionPlugin
     {
-
         [HarmonyPatch(typeof(Player), "GetTotalFoodValue")]
         private static class CestusMaxHealthPatch
         {
@@ -18,11 +17,14 @@ namespace HaldorExpansion
                 if (CestusEquipment.HasEquippedCestus(__instance))
                     hp += CestusItemRegistration.GritCestusBonusMaxHealth;
 
-                DebugLog(
-                    $"[HaldorExpansion] Cestus HP bonus: equipped={CestusEquipment.HasEquippedCestus(__instance)}, hpBeforeBonus={hp}");
+                if (DebugLogging)
+                {
+                    DebugLog(
+                        $"[HaldorExpansion] Cestus HP bonus: equipped={CestusEquipment.HasEquippedCestus(__instance)}, hpBeforeBonus={hp}");
+                }
             }
         }
-        
+
         [HarmonyPatch(typeof(Player), "GetBodyArmor")]
         private static class CestusArmorPenaltyPatch
         {
@@ -35,7 +37,11 @@ namespace HaldorExpansion
                 if (equipped)
                     __result = Mathf.Max(0f, __result - CestusItemRegistration.GritCestusArmorPenalty);
 
-                DebugLog($"[HaldorExpansion] Cestus armor penalty: equipped={equipped}, armorAfterPenalty={__result}");
+                if (DebugLogging)
+                {
+                    DebugLog(
+                        $"[HaldorExpansion] Cestus armor penalty: equipped={equipped}, armorAfterPenalty={__result}");
+                }
             }
         }
     }

@@ -194,7 +194,11 @@ namespace HaldorExpansion.Trading
             GameObject prefab = ObjectDB.instance.GetItemPrefab(item.Id);
             if (prefab == null)
             {
-                HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Prefab not found: " + item.Id);
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Prefab not found: " + item.Id);
+                }
+
                 return;
             }
 
@@ -209,9 +213,12 @@ namespace HaldorExpansion.Trading
             int stack = ResolveStack(itemDrop, item);
 
             AddTradeItem(trader, itemDrop, item.Price, stack);
-            int configuredPrice = ShopConfiguration.GetShopPrice(item.Id, item.Price);
-            HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Added " + item.Id + " x" + stack + " for " +
-                                           configuredPrice + " coins");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                int configuredPrice = ShopConfiguration.GetShopPrice(item.Id, item.Price);
+                HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Added " + item.Id + " x" + stack + " for " +
+                                               configuredPrice + " coins");
+            }
         }
 
         private static int ResolveStack(ItemDrop itemDrop, TradeSetting item)

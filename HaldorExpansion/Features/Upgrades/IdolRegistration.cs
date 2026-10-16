@@ -332,10 +332,14 @@ namespace HaldorExpansion.Features.Upgrades
                 }
 
                 bool restored = ReferenceEquals(originalDrops, source.m_drops);
-                bool passed = vanillaCount == 1 && customCount == 1 && restored;
+                float rate = Game.m_resourceRate;
+                int minimum = Math.Max(0, (int)Math.Floor(rate));
+                int maximum = Math.Max(minimum, (int)Math.Ceiling(3f * rate));
+                bool passed = vanillaCount == 1 && customCount >= minimum && customCount <= maximum && restored;
                 string report = "[HE Idol Mob Test] " + (passed ? "PASS" : "FAIL") +
                                 ": creature=" + sourceName + " vanilla=" + vanillaCount +
-                                " custom=" + customCount + " restored=" + restored +
+                                " custom=" + customCount + " expected=" + minimum + ".." + maximum +
+                                " resourceRate=" + rate + " restored=" + restored +
                                 ". No world items spawned.";
                 terminal?.AddString(report);
                 if (passed) HaldorExpansionPlugin.Log?.LogInfo(report);

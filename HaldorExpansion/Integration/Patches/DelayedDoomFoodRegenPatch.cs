@@ -1,8 +1,8 @@
+using System;
+using System.Collections.Generic;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Diagnostics;
 using HaldorExpansion.Features.DelayedDoom;
-using System;
-using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 
@@ -82,15 +82,18 @@ namespace HaldorExpansion.Patches
 
             CharacterHealthAccess.SetCharacterHealth(__instance, newHealth);
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Food regen bonus applied: " +
-                $"baseFoodRegen={snapshot.BaseFoodRegen:0.##}, " +
-                $"foodHeal={healedByFoodTick:0.##}, " +
-                $"scale={regenScale:0.##}, " +
-                $"bonus={armorBonus:0.##}, " +
-                $"after={afterHealth:0.##}, " +
-                $"new={newHealth:0.##}, " +
-                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(__instance)}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Food regen bonus applied: " +
+                    $"baseFoodRegen={snapshot.BaseFoodRegen:0.##}, " +
+                    $"foodHeal={healedByFoodTick:0.##}, " +
+                    $"scale={regenScale:0.##}, " +
+                    $"bonus={armorBonus:0.##}, " +
+                    $"after={afterHealth:0.##}, " +
+                    $"new={newHealth:0.##}, " +
+                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(__instance)}");
+            }
         }
     }
 }

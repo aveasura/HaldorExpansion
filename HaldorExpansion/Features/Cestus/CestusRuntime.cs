@@ -56,14 +56,14 @@ namespace HaldorExpansion.Features.Cestus
             return state.IsCasting && Time.time < state.InputLockedUntil;
         }
 
-        internal static void UpdateCestusLocalEquipState(Player player)
+        internal static void UpdateCestusLocalEquipState(Player player, bool? cestusEquipped = null)
         {
             if (!ShouldProcessCestusLocally(player))
                 return;
 
             CestusStateStore.CestusState state = CestusStateStore.GetOrCreateCestusState(player);
-            CestusShieldRuntime.RefreshAwakenedShield(player, state);
-            bool isEquippedNow = CestusEquipment.HasCestusEquipped(player);
+            bool isEquippedNow = cestusEquipped ?? CestusEquipment.HasCestusEquipped(player);
+            CestusShieldRuntime.RefreshAwakenedShield(player, state, isEquippedNow);
 
             if (isEquippedNow)
             {
@@ -117,8 +117,11 @@ namespace HaldorExpansion.Features.Cestus
                 state.HasObservedHealth = true;
             }
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Cestus state reset: reason={reason}, {PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Cestus state reset: reason={reason}, {PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            }
         }
     }
 }

@@ -6,7 +6,6 @@ namespace HaldorExpansion
 {
     public partial class HaldorExpansionPlugin
     {
-
         [HarmonyPatch(typeof(Player), "GetTotalFoodValue")]
         private static class PitKingChestMaxHealthPatch
         {
@@ -22,7 +21,11 @@ namespace HaldorExpansion
                         ? PitKingItemRegistration.PitKingChestBonusMaxHealth
                         : PitKingItemRegistration.PitKingChestBonusMaxHealthWithoutCestus;
 
-                DebugLog($"[HaldorExpansion] Pit King chest HP bonus: equipped={equipped}, cestusEquipped={cestusEquipped}, hpAfterBonus={hp:0.##}");
+                if (DebugLogging)
+                {
+                    DebugLog(
+                        $"[HaldorExpansion] Pit King chest HP bonus: equipped={equipped}, cestusEquipped={cestusEquipped}, hpAfterBonus={hp:0.##}");
+                }
             }
         }
     }

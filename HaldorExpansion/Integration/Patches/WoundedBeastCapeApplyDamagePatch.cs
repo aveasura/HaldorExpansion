@@ -32,14 +32,16 @@ namespace HaldorExpansion.Patches
 
             hit.m_damage.Modify(WoundedBeastRuntime.WoundedBeastCapeIncomingDamageMultiplier);
 
-            float after = HitDamageMath.GetHitTotalDamage(hit);
-
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Wounded Beast ApplyDamage penalty: " +
-                $"before={before:0.##}, " +
-                $"after={after:0.##}, " +
-                $"mult={WoundedBeastRuntime.WoundedBeastCapeIncomingDamageMultiplier:0.##}, " +
-                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                float after = HitDamageMath.GetHitTotalDamage(hit);
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Wounded Beast ApplyDamage penalty: " +
+                    $"before={before:0.##}, " +
+                    $"after={after:0.##}, " +
+                    $"mult={WoundedBeastRuntime.WoundedBeastCapeIncomingDamageMultiplier:0.##}, " +
+                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+            }
         }
     }
 }

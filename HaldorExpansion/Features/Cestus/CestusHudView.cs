@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace HaldorExpansion.Features.Cestus
 {
@@ -12,6 +12,7 @@ namespace HaldorExpansion.Features.Cestus
 
         private static Text CestusShieldText;
         private static RectTransform CestusShieldTextRect;
+        private static int? CestusShieldDisplayedValue;
 
         private static bool CestusShieldOverlayLoggedMissing;
 
@@ -67,8 +68,14 @@ namespace HaldorExpansion.Features.Cestus
             CestusShieldOverlayImage.fillAmount = shield01;
 
             CestusShieldTextRect.rotation = Quaternion.identity;
-            
-            CestusShieldText.text = Mathf.CeilToInt(state.ShieldRemaining).ToString();
+
+            int displayedValue = Mathf.CeilToInt(state.ShieldRemaining);
+            if (CestusShieldDisplayedValue != displayedValue)
+            {
+                CestusShieldText.text = displayedValue.ToString();
+                CestusShieldDisplayedValue = displayedValue;
+            }
+
             CestusShieldTextRect.sizeDelta = new Vector2(Mathf.Max(36f, shieldPixelWidth), 18f);
             CestusShieldTextRect.anchoredPosition = new Vector2(shieldPixelWidth * 0.5f, 0f);
         }
@@ -88,7 +95,8 @@ namespace HaldorExpansion.Features.Cestus
                 if (!CestusShieldOverlayLoggedMissing)
                 {
                     CestusShieldOverlayLoggedMissing = true;
-                    HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Cestus segmented HUD: health bar component not found");
+                    HaldorExpansionPlugin.DebugLog(
+                        "[HaldorExpansion] Cestus segmented HUD: health bar component not found");
                 }
 
                 return;
@@ -100,7 +108,8 @@ namespace HaldorExpansion.Features.Cestus
                 if (!CestusShieldOverlayLoggedMissing)
                 {
                     CestusShieldOverlayLoggedMissing = true;
-                    HaldorExpansionPlugin.DebugLog("[HaldorExpansion] Cestus segmented HUD: reference RectTransform not found");
+                    HaldorExpansionPlugin.DebugLog(
+                        "[HaldorExpansion] Cestus segmented HUD: reference RectTransform not found");
                 }
 
                 return;
@@ -146,7 +155,7 @@ namespace HaldorExpansion.Features.Cestus
             textRect.anchorMin = new Vector2(0f, 0.5f);
             textRect.anchorMax = new Vector2(0f, 0.5f);
             textRect.pivot = new Vector2(0.5f, 0.5f);
-            
+
             textRect.sizeDelta = new Vector2(64f, 18f);
             textRect.localScale = Vector3.one;
             textRect.rotation = Quaternion.identity;
@@ -179,13 +188,14 @@ namespace HaldorExpansion.Features.Cestus
             Outline outline = textObject.AddComponent<Outline>();
             outline.effectColor = new Color(0f, 0f, 0f, 0.9f);
             outline.effectDistance = new Vector2(1f, -1f);
-            
+
             textObject.SetActive(false);
 
             CestusShieldOverlayImage = overlayImage;
             CestusShieldOverlayRect = overlayRect;
             CestusShieldReferenceRect = referenceRect;
             CestusShieldText = shieldText;
+            CestusShieldDisplayedValue = null;
             CestusShieldTextRect = textRect;
             CestusShieldOverlayLoggedMissing = false;
 
@@ -194,7 +204,8 @@ namespace HaldorExpansion.Features.Cestus
 
         internal static Component FindReferenceHealthBarComponent(Hud hud)
         {
-            FieldInfo[] fields = typeof(Hud).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            FieldInfo[] fields =
+                typeof(Hud).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
             Component fallback = null;
 

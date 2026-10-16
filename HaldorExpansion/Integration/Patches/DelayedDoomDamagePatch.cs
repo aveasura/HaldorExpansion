@@ -1,8 +1,8 @@
+using System.Collections.Generic;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Diagnostics;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.DelayedDoom;
-using System.Collections.Generic;
 using HarmonyLib;
 
 namespace HaldorExpansion.Patches
@@ -51,30 +51,39 @@ namespace HaldorExpansion.Patches
                 CestusRuntime.ShouldProcessCestusLocally(player) &&
                 (cestusEquipped || syncedShieldActive);
 
-            HaldorExpansionPlugin.DebugLog(
-                $"[HaldorExpansion] Damage prefix: " +
-                $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}, " +
-                $"CestusDetected={cestusEquipped}, " +
-                $"SyncedShieldActive={syncedShieldActive}, " +
-                $"CestusLocalRuntime={localCestusRuntime}");
+            if (HaldorExpansionPlugin.DebugLogging)
+            {
+                HaldorExpansionPlugin.DebugLog(
+                    $"[HaldorExpansion] Damage prefix: " +
+                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}, " +
+                    $"CestusDetected={cestusEquipped}, " +
+                    $"SyncedShieldActive={syncedShieldActive}, " +
+                    $"CestusLocalRuntime={localCestusRuntime}");
+            }
 
             bool internalDelayedDoomDamage = DelayedDoomRuntime.IsDelayedDoomInternalDamage(__instance);
             if (internalDelayedDoomDamage)
             {
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Damage prefix skip internal Delayed Doom damage: " +
-                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Damage prefix skip internal Delayed Doom damage: " +
+                        $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                }
             }
 
             if (!internalDelayedDoomDamage && localCestusRuntime)
             {
                 float beforeHealth = CharacterHealthAccess.GetCharacterHealth(player);
                 float maxHealth = CharacterHealthAccess.GetCharacterMaxHealth(player);
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Damage snapshot: " +
-                    $"before={beforeHealth:0.##}, " +
-                    $"max={maxHealth:0.##}, " +
-                    $"shieldActive={(syncedShieldActive ? 1 : 0)}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Damage snapshot: " +
+                        $"before={beforeHealth:0.##}, " +
+                        $"max={maxHealth:0.##}, " +
+                        $"shieldActive={(syncedShieldActive ? 1 : 0)}");
+                }
 
                 if (beforeHealth > 0f && maxHealth > 0f)
                 {
@@ -113,13 +122,16 @@ namespace HaldorExpansion.Patches
 
             if (ctx.HasCestus)
             {
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Damage postfix after cestus handling: " +
-                    $"before={ctx.BeforeHealth:0.##}, " +
-                    $"after={afterHealth:0.##}, " +
-                    $"cestusPreAbsorb={ctx.CestusShieldAbsorbedInApplyArmor:0.##}, " +
-                    $"cestusPostfixCorrect={ctx.CestusShieldCorrectedInPostfix:0.##}, " +
-                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Damage postfix after cestus handling: " +
+                        $"before={ctx.BeforeHealth:0.##}, " +
+                        $"after={afterHealth:0.##}, " +
+                        $"cestusPreAbsorb={ctx.CestusShieldAbsorbedInApplyArmor:0.##}, " +
+                        $"cestusPostfixCorrect={ctx.CestusShieldCorrectedInPostfix:0.##}, " +
+                        $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
+                }
             }
         }
     }

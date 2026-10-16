@@ -15,7 +15,9 @@ namespace HaldorExpansion.Features.HelOath
             internal GameObject Root;
         }
 
-        private static readonly ConditionalWeakTable<Player, VisualState> Visuals = new ConditionalWeakTable<Player, VisualState>();
+        private static readonly ConditionalWeakTable<Player, VisualState> Visuals =
+            new ConditionalWeakTable<Player, VisualState>();
+
         private static Material auraMaterial;
         private static Material softLineMaterial;
         private static Texture2D auraTexture;
@@ -67,8 +69,9 @@ namespace HaldorExpansion.Features.HelOath
             {
                 var oldAura = state.Root.GetComponent<HelOathTouchAura>();
                 if (oldAura != null) oldAura.BeginFadeOut(0.55f);
-                else UnityEngine.Object.Destroy(state.Root);
+                else Object.Destroy(state.Root);
             }
+
             state.Root = null;
             state.Stacks = stacks;
             if (stacks <= 0) return;
@@ -126,6 +129,7 @@ namespace HaldorExpansion.Features.HelOath
                 a = a * a * (3f - 2f * a);
                 pixels[y * 64 + x] = new Color(1f, 1f, 1f, a);
             }
+
             auraTexture.SetPixels(pixels);
             auraTexture.Apply();
             auraMaterial = new Material(shader) { name = "HelTouch_SoftAura", mainTexture = auraTexture };
@@ -152,6 +156,7 @@ namespace HaldorExpansion.Features.HelOath
                 a = a * a * (3f - 2f * a);
                 for (int x = 0; x < width; x++) pixels[y * width + x] = new Color(1f, 1f, 1f, a);
             }
+
             lineTexture.SetPixels(pixels);
             lineTexture.Apply();
             softLineMaterial = new Material(shader) { name = "HelTouch_SoftRibbonMaterial", mainTexture = lineTexture };
@@ -180,8 +185,14 @@ namespace HaldorExpansion.Features.HelOath
             fade.enabled = true;
             var gradient = new Gradient();
             gradient.SetKeys(
-                new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(new Color(0.24f, 0.56f, 0.72f), 1f) },
-                new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.75f, 0.20f), new GradientAlphaKey(0f, 1f) });
+                new[]
+                {
+                    new GradientColorKey(Color.white, 0f), new GradientColorKey(new Color(0.24f, 0.56f, 0.72f), 1f)
+                },
+                new[]
+                {
+                    new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.75f, 0.20f), new GradientAlphaKey(0f, 1f)
+                });
             fade.color = gradient;
             var renderer = ps.GetComponent<ParticleSystemRenderer>();
             renderer.sharedMaterial = GetAuraMaterial();
@@ -189,7 +200,7 @@ namespace HaldorExpansion.Features.HelOath
             renderer.receiveShadows = false;
             ps.Play();
             ps.Emit(8 + stage * 3);
-            UnityEngine.Object.Destroy(root, 0.95f);
+            Object.Destroy(root, 0.95f);
         }
 
         private static void PlayBreak(Vector3 point)
@@ -203,7 +214,7 @@ namespace HaldorExpansion.Features.HelOath
             var shadow = HelOathEffects.Particles(root.transform, GetAuraMaterial(), false, 0.52f, 1.75f, 40, 0.82f);
             var shadowMain = shadow.main;
             shadowMain.startColor = new Color(0.018f, 0.032f, 0.052f, 0.68f);
-            UnityEngine.Object.Destroy(root, 1.2f);
+            Object.Destroy(root, 1.2f);
         }
     }
 
@@ -227,10 +238,13 @@ namespace HaldorExpansion.Features.HelOath
             bornAt = Time.time;
 
             // Slightly larger, lower-density particles read as soft frost instead of pixel sparks.
-            CreateBodyMotes(material, 0.24f, 3.0f + stage * 0.9f, 0.068f + stage * 0.004f, 0.24f, 0.24f + stage * 0.040f);
-            CreateBodyMotes(material, 0.84f, 2.6f + stage * 1.0f, 0.072f + stage * 0.004f, 0.31f, 0.22f + stage * 0.045f);
+            CreateBodyMotes(material, 0.24f, 3.0f + stage * 0.9f, 0.068f + stage * 0.004f, 0.24f,
+                0.24f + stage * 0.040f);
+            CreateBodyMotes(material, 0.84f, 2.6f + stage * 1.0f, 0.072f + stage * 0.004f, 0.31f,
+                0.22f + stage * 0.045f);
             if (stage >= 2)
-                CreateBodyMotes(material, 1.42f, 2.3f + stage * 1.05f, 0.070f + stage * 0.004f, 0.29f, 0.23f + stage * 0.045f);
+                CreateBodyMotes(material, 1.42f, 2.3f + stage * 1.05f, 0.070f + stage * 0.004f, 0.29f,
+                    0.23f + stage * 0.045f);
 
             // Stages I-IV use soft orbits as readable progression. Stage V sheds the rings entirely:
             // only the rising black-frost spirals/mist/snow remain for a cleaner final form.
@@ -268,7 +282,8 @@ namespace HaldorExpansion.Features.HelOath
                 CreateSnow(material, 1.52f, 8f, 0.48f);
                 for (int i = 0; i < wisps.Length; i++)
                 {
-                    wisps[i] = HelOathTouchEffects.SmoothLine(transform, i % 2 == 0 ? 0.030f : 0.023f, WispPoints, false);
+                    wisps[i] = HelOathTouchEffects.SmoothLine(transform, i % 2 == 0 ? 0.030f : 0.023f, WispPoints,
+                        false);
                     wisps[i].startColor = wisps[i].endColor = new Color(0.16f, 0.42f, 0.55f, 0f);
                 }
             }
@@ -282,7 +297,7 @@ namespace HaldorExpansion.Features.HelOath
             fadeOutDuration = Mathf.Max(0.15f, duration);
             foreach (var ps in GetComponentsInChildren<ParticleSystem>())
                 ps.Stop(false, ParticleSystemStopBehavior.StopEmitting);
-            UnityEngine.Object.Destroy(gameObject, fadeOutDuration + 1.35f);
+            Destroy(gameObject, fadeOutDuration + 1.35f);
         }
 
         private void CreateBodyMotes(Material material, float y, float rate, float size, float radius, float alpha)
@@ -314,8 +329,16 @@ namespace HaldorExpansion.Features.HelOath
             fade.enabled = true;
             var gradient = new Gradient();
             gradient.SetKeys(
-                new[] { new GradientColorKey(new Color(0.82f, 0.96f, 1f), 0f), new GradientColorKey(new Color(0.16f, 0.39f, 0.54f), 1f) },
-                new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(Mathf.Clamp01(alpha + 0.16f), 0.23f), new GradientAlphaKey(0f, 1f) });
+                new[]
+                {
+                    new GradientColorKey(new Color(0.82f, 0.96f, 1f), 0f),
+                    new GradientColorKey(new Color(0.16f, 0.39f, 0.54f), 1f)
+                },
+                new[]
+                {
+                    new GradientAlphaKey(0f, 0f), new GradientAlphaKey(Mathf.Clamp01(alpha + 0.16f), 0.23f),
+                    new GradientAlphaKey(0f, 1f)
+                });
             fade.color = gradient;
             var renderer = ps.GetComponent<ParticleSystemRenderer>();
             renderer.sharedMaterial = material;
@@ -351,8 +374,14 @@ namespace HaldorExpansion.Features.HelOath
             fade.enabled = true;
             var gradient = new Gradient();
             gradient.SetKeys(
-                new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(new Color(0.20f, 0.52f, 0.70f), 1f) },
-                new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.78f, 0.20f), new GradientAlphaKey(0f, 1f) });
+                new[]
+                {
+                    new GradientColorKey(Color.white, 0f), new GradientColorKey(new Color(0.20f, 0.52f, 0.70f), 1f)
+                },
+                new[]
+                {
+                    new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.78f, 0.20f), new GradientAlphaKey(0f, 1f)
+                });
             fade.color = gradient;
             var renderer = ps.GetComponent<ParticleSystemRenderer>();
             renderer.sharedMaterial = material;
@@ -393,8 +422,16 @@ namespace HaldorExpansion.Features.HelOath
             fade.enabled = true;
             var gradient = new Gradient();
             gradient.SetKeys(
-                new[] { new GradientColorKey(new Color(0.025f, 0.05f, 0.072f), 0f), new GradientColorKey(new Color(0.005f, 0.014f, 0.025f), 1f) },
-                new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(stacks >= 5 ? 0.60f : 0.40f, 0.32f), new GradientAlphaKey(0f, 1f) });
+                new[]
+                {
+                    new GradientColorKey(new Color(0.025f, 0.05f, 0.072f), 0f),
+                    new GradientColorKey(new Color(0.005f, 0.014f, 0.025f), 1f)
+                },
+                new[]
+                {
+                    new GradientAlphaKey(0f, 0f), new GradientAlphaKey(stacks >= 5 ? 0.60f : 0.40f, 0.32f),
+                    new GradientAlphaKey(0f, 1f)
+                });
             fade.color = gradient;
             var renderer = ps.GetComponent<ParticleSystemRenderer>();
             renderer.sharedMaterial = material;
@@ -435,8 +472,14 @@ namespace HaldorExpansion.Features.HelOath
             fade.enabled = true;
             var gradient = new Gradient();
             gradient.SetKeys(
-                new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(new Color(0.35f, 0.70f, 0.84f), 1f) },
-                new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.88f, 0.18f), new GradientAlphaKey(0f, 1f) });
+                new[]
+                {
+                    new GradientColorKey(Color.white, 0f), new GradientColorKey(new Color(0.35f, 0.70f, 0.84f), 1f)
+                },
+                new[]
+                {
+                    new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.88f, 0.18f), new GradientAlphaKey(0f, 1f)
+                });
             fade.color = gradient;
             var renderer = ps.GetComponent<ParticleSystemRenderer>();
             renderer.sharedMaterial = material;
@@ -453,6 +496,22 @@ namespace HaldorExpansion.Features.HelOath
             if (fadingOut)
                 fadeOut = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((Time.time - fadeOutStarted) / fadeOutDuration));
             float visibility = fadeIn * fadeOut;
+
+            if (fadingOut && fadeOut <= 0f && Time.time - fadeOutStarted >= fadeOutDuration)
+            {
+                for (int i = 0; i < rings.Length; i++)
+                {
+                    if (rings[i] != null) rings[i].enabled = false;
+                    if (halos[i] != null) halos[i].enabled = false;
+                }
+
+                for (int i = 0; i < wisps.Length; i++)
+                    if (wisps[i] != null)
+                        wisps[i].enabled = false;
+                // Only this driver stops; the existing particle tail keeps its lifetime.
+                enabled = false;
+                return;
+            }
 
             for (int ring = 0; ring < ringCount; ring++)
             {
@@ -484,6 +543,7 @@ namespace HaldorExpansion.Features.HelOath
                 {
                     core = new Color(0.30f, 0.68f, 0.84f, coreAlpha);
                 }
+
                 rings[ring].startColor = rings[ring].endColor = core;
                 halos[ring].startColor = halos[ring].endColor = new Color(0.24f, 0.68f, 0.90f, haloAlpha);
 
@@ -494,8 +554,10 @@ namespace HaldorExpansion.Features.HelOath
                     float angle = u * Mathf.PI * 2f + Time.time * (0.24f + ring * 0.035f) * direction;
                     float wave = Mathf.Sin(angle * 3f + Time.time * 0.72f + ring) * (stacks >= 5 ? 0.010f : 0.006f);
                     float radial = radius + wave;
-                    float verticalWave = Mathf.Sin(angle * 2f - Time.time * 0.55f + ring * 0.6f) * (stacks >= 5 ? 0.012f : 0.006f);
-                    Vector3 point = new Vector3(Mathf.Cos(angle) * radial, height + verticalWave, Mathf.Sin(angle) * radial);
+                    float verticalWave = Mathf.Sin(angle * 2f - Time.time * 0.55f + ring * 0.6f) *
+                                         (stacks >= 5 ? 0.012f : 0.006f);
+                    Vector3 point = new Vector3(Mathf.Cos(angle) * radial, height + verticalWave,
+                        Mathf.Sin(angle) * radial);
                     rings[ring].SetPosition(i, point);
                     halos[ring].SetPosition(i, point);
                 }
@@ -518,10 +580,11 @@ namespace HaldorExpansion.Features.HelOath
                     float radius = 0.34f + envelope * 0.17f;
                     float direction = (wisp & 1) == 0 ? 1f : -1f;
                     float angle = t * Mathf.PI * (3.15f + wisp * 0.10f)
-                        + Time.time * (0.37f + wisp * 0.025f) * direction
-                        + wisp * Mathf.PI * 2f / wisps.Length;
+                                  + Time.time * (0.37f + wisp * 0.025f) * direction
+                                  + wisp * Mathf.PI * 2f / wisps.Length;
                     float breathe = 1f + Mathf.Sin(Time.time * 0.75f + t * 5f + wisp) * 0.025f;
-                    Vector3 point = new Vector3(Mathf.Cos(angle) * radius * breathe, y, Mathf.Sin(angle) * radius * breathe);
+                    Vector3 point = new Vector3(Mathf.Cos(angle) * radius * breathe, y,
+                        Mathf.Sin(angle) * radius * breathe);
                     wisps[wisp].SetPosition(i, point);
                 }
             }

@@ -35,8 +35,12 @@ namespace HaldorExpansion.Trading
                 {
                     int configuredExtraValue = SellPriceConfiguration.GetConfiguredHaldorSellPrice(go.name, 0);
                     shared.m_value = configuredExtraValue;
-                    HaldorExpansionPlugin.DebugLog(
-                        $"[HaldorExpansion] Extra sellable item value set: prefab={go.name}, key={shared.m_name}, value={configuredExtraValue}");
+                    if (HaldorExpansionPlugin.DebugLogging)
+                    {
+                        HaldorExpansionPlugin.DebugLog(
+                            $"[HaldorExpansion] Extra sellable item value set: prefab={go.name}, key={shared.m_name}, value={configuredExtraValue}");
+                    }
+
                     continue;
                 }
 
@@ -50,8 +54,11 @@ namespace HaldorExpansion.Trading
 
                 shared.m_value = value;
 
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Trophy value set: prefab={go.name}, key={shared.m_name}, value={value}");
+                if (HaldorExpansionPlugin.DebugLogging)
+                {
+                    HaldorExpansionPlugin.DebugLog(
+                        $"[HaldorExpansion] Trophy value set: prefab={go.name}, key={shared.m_name}, value={value}");
+                }
             }
         }
 

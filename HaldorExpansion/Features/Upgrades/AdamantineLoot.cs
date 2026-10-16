@@ -23,19 +23,30 @@ namespace HaldorExpansion.Features.Upgrades
                    (chancePercent >= 100f || roll < chancePercent / 100f);
         }
 
+        internal static bool RandomizeDefault =>
+            (AdamantineIdolRegistration.ChestChance?.Value ?? 1f) == 1f &&
+            (AdamantineIdolRegistration.RandomizeDefaultChestChance?.Value ?? true);
+
+        internal static bool TryRoll()
+        {
+            float chance = AdamantineIdolRegistration.ChestChance?.Value ?? 1f;
+            if (float.IsNaN(chance) || chance <= 0f) return false;
+            if (RandomizeDefault) chance = Random.Range(1f, 2f);
+            return Roll(chance, Random.value);
+        }
+
         internal static void AppendItems(DropTable table, List<ItemDrop.ItemData> result)
         {
             if (AdamantineIdolRegistration.ItemDrop == null || result == null || !Eligible(table) ||
                 IdolContainerScopePatch.Current?.m_defaultItems != table) return;
             // Invoked after the ordinary idol's independent sample has ended, exactly once.
             // Vanilla's owner-only default-items guard handles persistence and reopening.
-            float chance = AdamantineIdolRegistration.ChestChance?.Value ?? 1f;
-            if (!Roll(chance, Random.value)) return;
+            if (!TryRoll()) return;
             ItemDrop.ItemData item = AdamantineIdolRegistration.ItemDrop.m_itemData.Clone();
             item.m_dropPrefab = AdamantineIdolRegistration.Prefab;
-            item.m_stack = 1;
+            item.m_stack = IdolLootAmount.Roll(2);
             item.m_worldLevel = (byte)Game.m_worldLevel;
-            result.Add(item);
+            if (item.m_stack > 0) result.Add(item);
         }
     }
 
@@ -66,10 +77,12 @@ namespace HaldorExpansion.Features.Upgrades
             var state = Random.state;
             try
             {
-                float chance = AdamantineIdolRegistration.ChestChance?.Value ?? 1f;
+                string chance = AdamantineLoot.RandomizeDefault
+                    ? "random 1..2"
+                    : (AdamantineIdolRegistration.ChestChance?.Value ?? 1f).ToString();
                 int hits = 0, sources = 0;
                 for (int i = 0; i < rolls; i++)
-                    if (AdamantineLoot.Roll(chance, Random.value))
+                    if (AdamantineLoot.TryRoll())
                         hits++;
                 var visited = new HashSet<GameObject>();
                 foreach (GameObject prefab in ZNetScene.instance.m_prefabs)
