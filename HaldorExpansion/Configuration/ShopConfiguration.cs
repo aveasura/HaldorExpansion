@@ -82,7 +82,8 @@ namespace HaldorExpansion.Configuration
             BindShopItemConfig("Shop Progression - Metals", "Iron", "Iron", 250);
             BindShopItemConfig("Shop Progression - Metals", "Silver", "Silver", 450);
             BindShopItemConfig("Shop Progression - Metals", "BlackMetal", "Black metal", 200);
-            BindShopItemConfig("Shop Progression - Metals", "Flametal", "Flametal", 1000);
+            BindShopItemConfig("Shop Progression - Metals", "Flametal", "Flametal", 800);
+            BindShopItemConfig("Shop Progression - Metals", "Gold", "Bloodgold", 1000);
 
             // Stone / building materials.
             BindShopItemConfig("Shop Progression - Building Materials", "Stone", "Stone", 25);
@@ -96,6 +97,7 @@ namespace HaldorExpansion.Configuration
             BindShopItemConfig("Shop Progression - Wood", "FineWood", "Fine Wood", 200);
             BindShopItemConfig("Shop Progression - Wood", "YggdrasilWood", "Yggdrasil Wood", 300);
             BindShopItemConfig("Shop Progression - Wood", "Blackwood", "Ashwood", 100);
+            BindShopItemConfig("Shop Progression - Wood", "Frostwood", "Timberwood", 100);
 
             // Textiles.
             BindShopItemConfig("Shop Progression - Textiles", "JuteRed", "Red Jute", 300);
@@ -115,6 +117,7 @@ namespace HaldorExpansion.Configuration
             BindShopItemConfig("Shop Progression - Materials", "Obsidian", "Obsidian", 250);
             BindShopItemConfig("Shop Progression - Materials", "Needle", "Needle", 250);
             BindShopItemConfig("Shop Progression - Materials", "Tar", "Tar", 250);
+            BindShopItemConfig("Shop Progression - Materials", "Ice", "Ice", 400);
 
             // Preserve the existing Haldor Idol config keys in Materials on upgrade.
             BindShopItemConfig("Shop Progression - Materials", HaldorIdolCatalog.CustomId,

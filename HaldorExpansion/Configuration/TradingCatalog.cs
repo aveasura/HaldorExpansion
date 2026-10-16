@@ -28,8 +28,9 @@ namespace HaldorExpansion.Configuration
                 case "Copper":
                 case "Tin":
                 case "Silver":
-                case "Flametal": stack = 30; break;
-                case "Feathers": stack = 100; break;
+                case "Flametal":
+                case "Gold":
+                case "Feathers":
                 case "Sap":
                 case "Eitr":
                 case "Softtissue": stack = 0; break;

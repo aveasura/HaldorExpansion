@@ -18,29 +18,62 @@ namespace HaldorExpansion.Trading
         // Match exact IDs/keys, never translated text or substrings (wooden shields are equipment).
         private static readonly HashSet<string> WoodIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "Wood", "FineWood", "RoundLog", "ElderBark", "YggdrasilWood", "Blackwood",
-            "$item_wood", "$item_finewood", "$item_roundlog", "$item_elderbark", "$item_yggdrasilwood",
-            "$item_blackwood"
+            "Wood", "$item_wood",
+            "FineWood", "$item_finewood",
+            "RoundLog", "$item_roundlog",
+            "ElderBark", "$item_elderbark",
+            "YggdrasilWood", "$item_yggdrasilwood",
+            "Blackwood", "$item_blackwood",
+            "Frostwood", "$item_frostwood",
         };
 
         private static readonly HashSet<string> MetalIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "CopperOre", "TinOre", "SilverOre", "IronScrap", "CopperScrap", "BronzeScrap",
-            "BlackMetalScrap", "FlametalOre", "FlametalOreNew", "Copper", "Tin", "Bronze", "Iron", "Silver",
-            "BlackMetal", "Flametal", "FlametalNew", "$item_copperore", "$item_tinore", "$item_silverore",
-            "$item_ironscrap", "$item_copperscrap", "$item_bronzescrap", "$item_blackmetalscrap",
-            "$item_flametalore", "$item_flametalore_new", "$item_copper", "$item_tin", "$item_bronze",
-            "$item_iron", "$item_silver", "$item_blackmetal", "$item_flametal", "$item_flametal_new"
+            "CopperOre", "$item_copperore",
+            "TinOre", "$item_tinore",
+            "SilverOre", "$item_silverore",
+            "IronScrap", "$item_ironscrap",
+            "CopperScrap", "$item_copperscrap",
+            "BronzeScrap", "$item_bronzescrap",
+            "BlackMetalScrap", "$item_blackmetalscrap",
+            "FlametalOre", "$item_flametalore",
+            "FlametalOreNew", "$item_flametalore_new",
+            "Copper", "$item_copper",
+            "Tin", "$item_tin",
+            "Bronze", "$item_bronze",
+            "Iron", "$item_iron",
+            "Silver", "$item_silver",
+            "BlackMetal", "$item_blackmetal",
+            "Flametal", "$item_flametal",
+            "FlametalNew", "$item_flametal_new",
+            "Gold", "$item_gold"
         };
 
         internal static ShopCategory Classify(string itemType, string prefab, string sharedName)
         {
             // Idols share the existing Other tab; buying and selling remain independently configurable.
-            if (HaldorIdolCatalog.IsIdol(prefab)) return ShopCategory.Other;
+            if (HaldorIdolCatalog.IsIdol(prefab))
+            {
+                return ShopCategory.Other;
+            }
+            
             ShopCategory basic = Classify(itemType);
-            if (basic != ShopCategory.Resources) return basic;
-            if (WoodIds.Contains(prefab ?? "") || WoodIds.Contains(sharedName ?? "")) return ShopCategory.Wood;
-            if (MetalIds.Contains(prefab ?? "") || MetalIds.Contains(sharedName ?? "")) return ShopCategory.Metals;
+            
+            if (basic != ShopCategory.Resources)
+            {
+                return basic;
+            }
+            
+            if (WoodIds.Contains(prefab ?? "") || WoodIds.Contains(sharedName ?? ""))
+            {
+                return ShopCategory.Wood;
+            }
+            
+            if (MetalIds.Contains(prefab ?? "") || MetalIds.Contains(sharedName ?? ""))
+            {
+                return ShopCategory.Metals;
+            }
+            
             return basic;
         }
 
