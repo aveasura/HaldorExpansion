@@ -1,8 +1,15 @@
-# Changelog
+## 1.3.2
+- Improved overall performance and optimization.
+- Improved the drop mechanics of Haldor's Idols and Adamantine Haldor's Idols in chests, including support for world loot multipliers.
+- Added Bloodgold, Timberwood, and Ice to Haldor's shop.
+- Frostcores can now be sold to Haldor.
+- Fixed an issue where Facebreaker's ability range indicator would sometimes fail to appear in multiplayer.
 
-All notable changes to HaldorExpansion will be documented in this file.
+## 1.3.1
+- Fixed Haldor's Idol drop compatibility with the latest Valheim update.
+- No other gameplay or balance changes.
 
-## [1.3.0]
+## 1.3.0
 
 ### Added
 - **Berserker Equipment:** Introduced the Berserker Greataxe, Helmet, and Cloak — a new combat-focused equipment set built around relentless aggression, growing power, and high-risk gameplay.
