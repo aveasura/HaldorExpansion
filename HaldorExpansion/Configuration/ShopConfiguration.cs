@@ -82,8 +82,8 @@ namespace HaldorExpansion.Configuration
             BindShopItemConfig("Shop Progression - Metals", "Iron", "Iron", 250);
             BindShopItemConfig("Shop Progression - Metals", "Silver", "Silver", 450);
             BindShopItemConfig("Shop Progression - Metals", "BlackMetal", "Black metal", 200);
-            BindShopItemConfig("Shop Progression - Metals", "Flametal", "Flametal", 800);
-            BindShopItemConfig("Shop Progression - Metals", "Gold", "Bloodgold", 1000);
+            BindShopItemConfig("Shop Progression - Metals", "Flametal", "Flametal", 1000);
+            BindShopItemConfig("Shop Progression - Metals", "Gold", "Bloodgold", 1500);
 
             // Stone / building materials.
             BindShopItemConfig("Shop Progression - Building Materials", "Stone", "Stone", 25);
