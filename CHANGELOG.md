@@ -4,6 +4,7 @@
 - Added Bloodgold, Timberwood, and Ice to Haldor's shop.
 - Frostcores can now be sold to Haldor.
 - Fixed an issue where Facebreaker's ability range indicator would sometimes fail to appear in multiplayer.
+- The descriptions for certain items have been improved.
 
 ## 1.3.1
 - Fixed Haldor's Idol drop compatibility with the latest Valheim update.
