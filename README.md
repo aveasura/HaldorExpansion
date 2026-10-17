@@ -314,6 +314,14 @@ Available MSBuild path properties include `R2ModmanProfileDir`, `ValheimInstallD
 
 Source PNGs are in `HaldorExpansion/Assets/Icons/` and are embedded in the DLL when built. Players do not need these files.
 
+### Contact & Support
+
+Have questions, found a bug, or want to share feedback?
+
+You can reach me on Discord: **@aveasura**
+
+Bug reports, suggestions, and feedback are always welcome!
+
 ## ❤️ Support Development
 
 HaldorExpansion is free and will always remain free.
