@@ -30,7 +30,6 @@ namespace HaldorExpansion.Features.HelOath
             return soulEpoch;
         }
 
-        internal static int Generation => State.Generation;
         private static Player owner;
         private static bool renderFailureLogged;
 
@@ -160,12 +159,12 @@ namespace HaldorExpansion.Features.HelOath
             if (release)
             {
                 State.Consume();
-                companions.CancelShots();
+                companions.InterruptForUltimate();
             }
 
             // Queued awakened arrows belong to the new generation; earlier ordinary
             // echoes are invalidated immediately, so souls cannot be spent twice.
-            companions.Schedule(HelOathGhostShot.Capture(projectile, shot), count, State.Generation);
+            companions.Schedule(HelOathGhostShot.Capture(projectile, shot), count);
             // Schedule against the old body identities before publishing their
             // removal. The pending shots retain those identities through departure.
             if (release) Publish(player);
@@ -214,8 +213,7 @@ namespace HaldorExpansion.Features.HelOath
             internal HelOathGhostVisual Ghost;
             internal HelOathGhostShot Shot;
             internal float At;
-            internal float Expires;
-            internal int Generation;
+            internal float Expires; // Only the terminal ultimate has a recall deadline.
             internal int Index;
             internal int Cycle;
         }
@@ -294,6 +292,15 @@ namespace HaldorExpansion.Features.HelOath
             pending.Clear();
         }
 
+        internal void InterruptForUltimate()
+        {
+            CancelShots();
+            // Only the ultimate preempts a body's current draw or release.
+            // It must not wait behind its previous owner's normal arrows.
+            foreach (var ghost in ghosts) ghost?.InterruptForUltimate();
+            foreach (var ghost in retiring) ghost.InterruptForUltimate();
+        }
+
         private void DropShot(int index)
         {
             pending[index].Ghost.CancelShot(pending[index].Cycle);
@@ -324,34 +331,50 @@ namespace HaldorExpansion.Features.HelOath
                 if (active != null && active.Token == token && (special || !active.Retiring)) selected = active;
             }
 
-            if (selected == null || !selected.CanFire ||
-                remotePending.Count >= HelOathGhostRules.MaxPendingShots) return false;
-            if (special) selected.Retire(RemoteReleaseGrace);
-            int cycle = selected.QueueShot(Time.time);
+            if (selected == null || !selected.CanKeepShot) return false;
+            if (special)
+            {
+                for (int i = remotePending.Count - 1; i >= 0; i--)
+                    if (remotePending[i].Ghost == selected)
+                    {
+                        selected.CancelShot(remotePending[i].Cycle);
+                        remotePending.RemoveAt(i);
+                    }
+
+                selected.InterruptForUltimate();
+                selected.Retire(RemoteReleaseGrace);
+                // The count/ZDO update may already have marked this body retiring.
+                // Preserve a fresh bounded interval for the actual final-shot RPC.
+                selected.HoldFinalShot(RemoteReleaseGrace);
+            }
+
+            if (!selected.HasQueuedShots) selected.PrepareShot(selected.ShotOrigin + direction * 100f);
+            int cycle = selected.QueueShot(Time.time, direction);
             remotePending.Add(new RemotePending
             {
                 Ghost = selected, Cycle = cycle, Direction = direction,
-                ShowArrow = showArrow, Expires = Time.time + 1.5f
+                ShowArrow = showArrow, Expires = special ? Time.time + 2.5f : float.PositiveInfinity
             });
             return true;
         }
 
-        internal void Schedule(HelOathGhostShot shot, int desired, int generation)
+        internal void Schedule(HelOathGhostShot shot, int desired)
         {
             for (int i = 0; i < desired; i++)
             {
-                if (pending.Count >= HelOathGhostRules.MaxPendingShots) break;
+                // No finite burst cap: every owner shot enters each body's FIFO.
                 EnsureGhost(i);
                 if (ghosts[i] == null) continue;
                 if (shot.Special) ghosts[i].FinishRecall(owner, formationRotation, true);
-                ghosts[i].PrepareShot(shot.AimPoint);
+                if (!ghosts[i].HasQueuedShots) ghosts[i].PrepareShot(shot.AimPoint);
                 if (shot.Special) ghosts[i].Retire();
                 float due = Time.time + ghosts[i].ReactionDelay;
-                int cycle = ghosts[i].QueueShot(due);
+                int cycle = ghosts[i].QueueShot(due, shot.AimPoint - ghosts[i].ShotOrigin);
                 pending.Add(new PendingShot
                 {
                     Ghost = ghosts[i], Shot = shot, Cycle = cycle,
-                    At = due, Expires = due + (shot.Special ? 2f : 0.75f), Generation = generation, Index = i
+                    At = due, Expires = shot.Special ? due + 3f : float.PositiveInfinity,
+                    Index = i
                 });
             }
 
@@ -440,8 +463,11 @@ namespace HaldorExpansion.Features.HelOath
             for (int i = 0; i < pending.Count;)
             {
                 PendingShot p = pending[i];
-                if (!HelOathGhostPreview.Eligible(owner) || p.Generation != HelOathGhostPreview.Generation
-                                                         || !ReferenceEquals(p.Shot.Weapon, owner.GetCurrentWeapon()))
+                // A soul naturally decaying must not erase an arrow that was
+                // already accepted into this body's FIFO. Owner/equipment loss
+                // still cancels unsafe work; the ultimate explicitly preempts it.
+                if (!HelOathGhostPreview.Eligible(owner)
+                    || !ReferenceEquals(p.Shot.Weapon, owner.GetCurrentWeapon()))
                 {
                     DropShot(i);
                     continue;
@@ -457,7 +483,7 @@ namespace HaldorExpansion.Features.HelOath
                     }
                 }
 
-                if (!p.Ghost.CanFire)
+                if (!p.Ghost.CanKeepShot)
                 {
                     DropShot(i);
                     continue;
@@ -469,19 +495,22 @@ namespace HaldorExpansion.Features.HelOath
                     continue;
                 }
 
-                if (Time.time > p.Expires)
+                // Ordinary actions never expire while waiting for their own draw,
+                // release or a clear firing lane; only the spent soul has a bound.
+                if (p.Shot.Special && Time.time > p.Expires)
                 {
                     DropShot(i);
                     continue;
                 }
 
-                if (!p.Shot.Special && !p.Ghost.ClearShot(p.Shot.AimPoint))
-                {
-                    p.At = Time.time + 0.08f;
-                    i++;
-                    continue;
-                }
-
+                // The line of fire is a positioning preference, never a prerequisite
+                // for finishing an accepted arrow. When the owner sprints away, the
+                // old aim point can remain behind terrain while this body switches
+                // to follow mode (where it cannot reposition for that old point).
+                // Waiting for ClearShot here permanently locks its bow in the draw
+                // pose until the owner happens to shoot again. Fire on the body's
+                // independent clock instead: the projectile's normal collision
+                // handles any wall in its path, just as it does for owner shots.
                 Vector3 origin = p.Ghost.ShotOrigin;
                 if (!p.Ghost.Fired(p.Shot.AimPoint - origin, p.Cycle))
                 {
@@ -490,13 +519,24 @@ namespace HaldorExpansion.Features.HelOath
                 }
 
                 pending.RemoveAt(i);
-                HelOathGhostBolt.Launch(owner, origin, p.Shot, p.Index, p.Ghost.Token);
+                // Promote the next FIFO aim only after the previous arrow releases.
+                // Later owner shots must not redirect the head while it draws.
+                for (int next = i; next < pending.Count; next++)
+                    if (pending[next].Ghost == p.Ghost)
+                    {
+                        p.Ghost.PrepareShot(pending[next].Shot.AimPoint);
+                        break;
+                    }
+
+                // Fired() can finish turning the render body this frame. Use
+                // its post-turn bow origin rather than the pre-turn offset.
+                HelOathGhostBolt.Launch(owner, p.Ghost.ShotOrigin, p.Shot, p.Index, p.Ghost.Token);
             }
 
             for (int i = 0; i < remotePending.Count;)
             {
                 var p = remotePending[i];
-                if (!p.Ghost.CanFire || Time.time > p.Expires)
+                if (!p.Ghost.CanKeepShot || Time.time > p.Expires)
                 {
                     p.Ghost.CancelShot(p.Cycle);
                     remotePending.RemoveAt(i);
@@ -510,6 +550,13 @@ namespace HaldorExpansion.Features.HelOath
                 }
 
                 remotePending.RemoveAt(i);
+                for (int next = i; next < remotePending.Count; next++)
+                    if (remotePending[next].Ghost == p.Ghost)
+                    {
+                        p.Ghost.PrepareShot(p.Ghost.ShotOrigin + remotePending[next].Direction * 100f);
+                        break;
+                    }
+
                 p.ShowArrow();
             }
 

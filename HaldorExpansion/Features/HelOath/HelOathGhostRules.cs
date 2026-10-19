@@ -14,7 +14,6 @@ namespace HaldorExpansion.Features.HelOath
         internal const float ActiveDamageMultiplier = 0.50f;
         internal const float ReactionMin = 0.15f;
         internal const float ReactionMax = 0.40f;
-        internal const int MaxPendingShots = 24;
     }
 
     internal sealed class HelOathGhostState

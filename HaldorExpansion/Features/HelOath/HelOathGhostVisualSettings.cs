@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace HaldorExpansion.Features.HelOath
 {
-    // Все настройки внешности призраков - здесь
+    // Все настройки внешности призраков - здесь.
     internal static class HelOathGhostVisualSettings
     {
         // ТЕЛО. Opacity: 0 = невидимый, 1 = непрозрачный. Было 0.46.
@@ -21,7 +21,7 @@ namespace HaldorExpansion.Features.HelOath
         internal const float BodyPulseAmount = 0.025f;
         internal const float BodyPulseSpeed = 1.2f;
 
-        // АУРА. Opacity - непрозрачность ОДНОГО облачка; наложение усиливает эффект.
+        // АУРА. Opacity — непрозрачность ОДНОГО облачка; наложение усиливает эффект.
         internal static readonly bool AuraEnabled = true;
 
         internal const float AuraOpacity = 0.17f;

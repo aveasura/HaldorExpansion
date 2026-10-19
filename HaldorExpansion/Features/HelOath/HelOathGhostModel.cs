@@ -28,6 +28,17 @@ namespace HaldorExpansion.Features.HelOath
         private int drawHash;
         private bool hasDraw;
 
+        private static readonly int DrawPercentHash = Animator.StringToHash("drawpercent");
+
+        // Speed up the visible release clip, rather than clipping its last frames.
+        // Recovery duration is calculated from the clip length at this playback rate.
+        private const float ReleasePlaybackRate = 1.5f;
+
+        private const float FallbackReleaseClipSeconds = 0.8f;
+
+        // Give the Animator transition out of the release clip a short buffer.
+        private const float ReleaseBlendAllowance = 0.06f;
+
         private Player owner;
         private string drawStateName;
         private string fireTrigger;
@@ -44,9 +55,14 @@ namespace HaldorExpansion.Features.HelOath
             internal int Cycle;
             internal float Due;
             internal Snapshot Pose;
+            internal Vector3 Aim;
         }
 
+        private Snapshot releasePose;
         private Vector3 releaseAim;
+        private float releaseStartedAt;
+        private int releaseStateHash, releaseStateLayer = -1;
+        private float releaseStateWeight;
         private Transform visualRoot;
 
         internal void SetRise(float amount)
@@ -55,10 +71,30 @@ namespace HaldorExpansion.Features.HelOath
         }
 
         private Vector3 visualBasePosition;
-        internal float ReleaseDuration { get; private set; } = 0.8f;
 
-        internal int QueueShot(float due)
+        internal float ReleaseDuration { get; private set; } =
+            FallbackReleaseClipSeconds / ReleasePlaybackRate + ReleaseBlendAllowance;
+
+        internal bool HasQueuedShots => queuedDraws.Count > 0;
+        internal bool ReleasingShot => bowCycle.Releasing(Time.time);
+
+        internal bool ShouldFaceShot
         {
+            get
+            {
+                // The release lock prevents the next queued draw from rotating
+                // the body before the current arrow has visibly left its bow.
+                if (ReleasingShot)
+                    return Time.time - releaseStartedAt < HelOathGhostMotion.ShotFacingAfterFire;
+                return queuedDraws.Count > 0 && Time.time >= queuedDraws[0].Due
+                                             && bowCycle.DrawProgress >= HelOathGhostMotion.ShotFacingDrawFraction;
+            }
+        }
+
+        internal int QueueShot(float due, Vector3 aim)
+        {
+            // Capture only when enqueuing; subsequent owner draws cannot replace
+            // the pose/aim of the shot already being animated.
             Snapshot pose = lastDrawing;
             if (mirroring && sourceAnimator != null)
             {
@@ -71,17 +107,34 @@ namespace HaldorExpansion.Features.HelOath
             queuedDraws.Add(new QueuedDraw
             {
                 Cycle = scheduledCycle, Due = due,
-                Pose = pose ?? lastDrawing ?? (snapshots.Count > 0 ? snapshots[snapshots.Count - 1] : resting)
+                Pose = pose ?? lastDrawing ?? (snapshots.Count > 0 ? snapshots[snapshots.Count - 1] : resting),
+                Aim = aim.sqrMagnitude > 0.001f ? aim.normalized : AimDirection
             });
             return scheduledCycle;
         }
 
-        internal void CancelShot(int cycle) => queuedDraws.RemoveAll(p => p.Cycle == cycle);
+        internal void CancelShot(int cycle)
+        {
+            queuedDraws.RemoveAll(p => p.Cycle == cycle);
+            bowCycle.CancelDraw(cycle);
+        }
+
+        // The ultimate supersedes unfinished ordinary actions, not just entries
+        // in the outer owner's pending list.
+        internal void InterruptForUltimate()
+        {
+            queuedDraws.Clear();
+            bowCycle.Cancel();
+            firePending = false;
+            releasePose = null;
+        }
 
         internal bool Fired(Vector3 direction, int cycle)
         {
             if (queuedDraws.Count == 0 || queuedDraws[0].Cycle != cycle
                                        || !bowCycle.Fire(cycle, Time.time, ReleaseDuration)) return false;
+            releasePose = queuedDraws[0].Pose;
+            releaseStartedAt = Time.time;
             queuedDraws.RemoveAt(0);
             firePending = true;
             releaseAim = direction.sqrMagnitude > 0.001f ? direction.normalized : AimDirection;
@@ -214,15 +267,20 @@ namespace HaldorExpansion.Features.HelOath
             fireTrigger = weapon?.m_shared?.m_attack?.m_attackAnimation;
             if (string.IsNullOrEmpty(fireTrigger)) fireTrigger = "bow_fire";
             fireHash = Animator.StringToHash(fireTrigger);
+            // Retain the complete bow-release clip, but play it modestly faster.
+            // The previous unscaled minimum (0.8s) serialized every queued arrow
+            // behind a lengthy recovery even after the release pose had finished.
+            float releaseClipSeconds = FallbackReleaseClipSeconds;
             foreach (var clip in sourceAnimator.runtimeAnimatorController.animationClips)
             {
                 if (clip == null) continue;
                 string name = clip.name.ToLowerInvariant();
                 if (name.Contains("bow") &&
                     (name.Contains("fire") || name.Contains("shoot") || name.Contains("release")))
-                    ReleaseDuration = Mathf.Max(ReleaseDuration, clip.length);
+                    releaseClipSeconds = Mathf.Max(releaseClipSeconds, clip.length);
             }
 
+            ReleaseDuration = releaseClipSeconds / ReleasePlaybackRate + ReleaseBlendAllowance;
             foreach (var p in parameters)
                 if (p.nameHash == fireHash && p.type == AnimatorControllerParameterType.Trigger)
                     hasFireTrigger = true;
@@ -284,6 +342,9 @@ namespace HaldorExpansion.Features.HelOath
             }
 
             ReactionDelay = UnityEngine.Random.Range(HelOathGhostRules.ReactionMin, HelOathGhostRules.ReactionMax);
+            // Still a distinct, complete draw for every arrow. The former
+            // 0.32-0.48s range plus 0.8s release made long FIFO bursts lag far behind.
+            bowCycle.RequiredDraw = UnityEngine.Random.Range(0.30f, 0.38f);
             Capture();
             Apply(snapshots[0], Vector3.zero, 0f);
         }
@@ -324,6 +385,7 @@ namespace HaldorExpansion.Features.HelOath
         {
             firePending = false;
             bowCycle.Cancel();
+            releasePose = null;
             queuedDraws.Clear();
             snapshots.Clear();
             sourceDrawing = false;
@@ -420,15 +482,18 @@ namespace HaldorExpansion.Features.HelOath
             return false;
         }
 
-        private bool DrawVisible()
+        private bool ReleaseClips(int layer, bool next)
         {
-            for (int i = 0; i < animator.layerCount; i++)
+            var clips = next
+                ? sourceAnimator.GetNextAnimatorClipInfo(layer)
+                : sourceAnimator.GetCurrentAnimatorClipInfo(layer);
+            foreach (var info in clips)
             {
-                if (i > 0 && animator.GetLayerWeight(i) <= 0.01f) continue;
-                var state = animator.GetCurrentAnimatorStateInfo(i);
-                if (state.IsName(drawStateName) || state.IsName("bow_draw") || BowClips(i, false, true, animator))
-                    return true;
-                if (animator.IsInTransition(i) && BowClips(i, true, true, animator)) return true;
+                if (info.clip == null || info.weight <= 0.001f) continue;
+                string name = info.clip.name.ToLowerInvariant();
+                if (name.Contains("bow") && (name.Contains("fire") || name.Contains("release")
+                                                                   || name.Contains("shoot") ||
+                                                                   name.Contains("attack"))) return true;
             }
 
             return false;
@@ -500,6 +565,21 @@ namespace HaldorExpansion.Features.HelOath
                 else if (!blocked && currentBow) frame.States[i] = current;
 
                 frame.Weights[i] = sourceAnimator.GetLayerWeight(i);
+                if (!hasFireTrigger && !blocked && !frame.Drawing)
+                {
+                    // Avoid extra clip-info allocations in the usual trigger path.
+                    bool nextRelease = transitioning && ReleaseClips(i, true);
+                    if (nextRelease || ReleaseClips(i, false))
+                    {
+                        var candidate = nextRelease ? next : current;
+                        if (candidate.fullPathHash != 0)
+                        {
+                            releaseStateHash = candidate.fullPathHash;
+                            releaseStateLayer = i;
+                            releaseStateWeight = frame.Weights[i];
+                        }
+                    }
+                }
             }
 
             for (int i = 0; i < bowBones.Count; i++)
@@ -525,26 +605,16 @@ namespace HaldorExpansion.Features.HelOath
 
         private void Apply(Snapshot frame, Vector3 velocity, float dt)
         {
-            Snapshot pose = frame;
-            int cycle = frame.Cycle;
-            bool drawing = frame.Drawing;
-            if (queuedDraws.Count > 0)
-            {
-                var next = queuedDraws[0];
-                if (frame.Cycle != next.Cycle || !frame.Drawing)
-                {
-                    drawing = Time.time >= next.Due - HelOathGhostBowCycle.MinimumDraw;
-                    if (drawing) pose = next.Pose;
-                }
-
-                cycle = next.Cycle;
-            }
-
-            drawing = drawing && bowCycle.Draw(cycle, Time.time, 0f);
-            if (!drawing) pose = frame;
-            bool ownRelease = bowCycle.Releasing(Time.time);
+            float now = Time.time;
+            QueuedDraw head = queuedDraws.Count > 0 ? queuedDraws[0] : null;
+            bool ownRelease = bowCycle.Releasing(now);
+            bool drawing = !ownRelease && head != null && now >= head.Due
+                           && bowCycle.WantsDraw(head.Cycle, now);
+            // During recovery, always use the already-released action; never a
+            // newly enqueued owner's draw pose. Only the ultimate can interrupt it.
+            Snapshot pose = drawing ? head.Pose : ownRelease && releasePose != null ? releasePose : resting;
             IsAiming = drawing || ownRelease;
-            AimDirection = ownRelease ? releaseAim : pose.Aim;
+            AimDirection = ownRelease ? releaseAim : drawing ? head.Aim : pose.Aim;
             for (int i = 0; i < parameters.Length; i++)
             {
                 var p = parameters[i];
@@ -554,7 +624,8 @@ namespace HaldorExpansion.Features.HelOath
                     float value = EquipmentParameter(p.name) ? weaponFloats[i]
                         : p.name == "forward_speed" ? velocity.z
                         : p.name == "sideway_speed" ? velocity.x
-                        : !block && p.name.ToLowerInvariant().Contains("draw") ? pose.Floats[i] : 0f;
+                        : p.nameHash == DrawPercentHash ? (drawing ? bowCycle.DrawProgress : 0f)
+                        : !block && p.name.ToLowerInvariant().Contains("draw") && drawing ? pose.Floats[i] : 0f;
                     if (p.name == "forward_speed" || p.name == "sideway_speed")
                         animator.SetFloat(p.nameHash, value, 0.12f, dt);
                     else animator.SetFloat(p.nameHash, value);
@@ -573,41 +644,49 @@ namespace HaldorExpansion.Features.HelOath
                 firePending = false;
             }
 
-            // Advance locomotion every frame. Sampling an upper bow layer must not
-            // freeze feet by evaluating the entire controller at delta zero only.
-            animator.Update(Mathf.Max(0f, dt));
+            // The clone's bow flag + drawpercent progress are now driven only by its
+            // own queued work, never by the current owner animation or its timing.
+            // During release, advance the entire animator faster, including any
+            // blend/transition. The corresponding release lock is shortened by
+            // the same factor, so a new draw never cuts the clip off midway.
+            animator.Update(Mathf.Max(0f, dt) * (ownRelease ? ReleasePlaybackRate : 1f));
             bool copiedBowState = false;
-            for (int i = 0; i < animator.layerCount; i++)
-            {
-                var state = pose.States[i];
-                bool bow = state.fullPathHash != 0 && animator.HasState(i, state.fullPathHash);
-                if (bow && ((drawing && pose.Drawing && pose.DrawStates[i])
-                            || (ownRelease && !hasFireTrigger && !pose.Drawing &&
-                                pose.Cycle == bowCycle.ReleasedCycle)))
+            if (drawing && pose.Drawing)
+                for (int i = 0; i < animator.layerCount; i++)
                 {
-                    IsAiming = true;
+                    var state = pose.States[i];
+                    if (!pose.DrawStates[i] || state.fullPathHash == 0 ||
+                        !animator.HasState(i, state.fullPathHash)) continue;
                     copiedBowState = true;
-                    animator.SetLayerWeight(i, pose.Weights[i]);
-                    animator.Play(state.fullPathHash, i, state.normalizedTime);
+                    animator.SetLayerWeight(i, Mathf.Max(pose.Weights[i], animator.GetLayerWeight(i)));
+                    // Do not repeatedly sample the owner's frozen normalizedTime.
+                    // Our own draw progress is monotonic even in a burst of arrows.
+                    animator.Play(state.fullPathHash, i, Mathf.Min(0.95f, bowCycle.DrawProgress));
                 }
-                else
+            else
+                for (int i = 0; i < animator.layerCount; i++)
                 {
-                    // Keep the current action visible; a new cycle may interrupt
-                    // recovery, while a stale source draw may not restart it.
-                    float weight = i == 0
-                        ? 1f
-                        : drawing || ownRelease
-                            ? Mathf.Max(pose.Weights[i], animator.GetLayerWeight(i))
-                            : Mathf.MoveTowards(animator.GetLayerWeight(i), 0f, dt * 5f);
+                    float weight = i == 0 ? 1f
+                        : ownRelease ? animator.GetLayerWeight(i)
+                        : Mathf.MoveTowards(animator.GetLayerWeight(i), 0f, dt * 5f);
                     animator.SetLayerWeight(i, weight);
                 }
+
+            if (ownRelease && !hasFireTrigger && releaseStateLayer >= 0
+                && animator.HasState(releaseStateLayer, releaseStateHash))
+            {
+                animator.SetLayerWeight(releaseStateLayer, Mathf.Max(releaseStateWeight,
+                    animator.GetLayerWeight(releaseStateLayer)));
+                animator.Play(releaseStateHash, releaseStateLayer,
+                    Mathf.Min(0.99f, (now - releaseStartedAt) / Mathf.Max(0.12f, ReleaseDuration)));
+                copiedBowState = true;
             }
 
             if (copiedBowState) animator.Update(0f);
-            // Count only evaluated draw poses. A bool alone does not mean the
-            // controller has left its previous release/transition yet.
-            if (drawing && DrawVisible()) bowCycle.Draw(cycle, Time.time, dt);
-            // Only weapon transforms use sampled poses. Character bones remain under our safe animator.
+            // Advance the independent clock after this body's animation evaluation.
+            // Animator clip naming, transitions and the owner's next shot cannot
+            // strand the pending arrow forever.
+            if (drawing) bowCycle.Draw(head.Cycle, now, dt);
             for (int i = 0; i < bowBones.Count; i++)
             {
                 Transform target = bowBones[i].Value;

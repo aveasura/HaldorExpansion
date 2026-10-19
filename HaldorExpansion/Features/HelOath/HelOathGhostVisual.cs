@@ -24,7 +24,6 @@ namespace HaldorExpansion.Features.HelOath
         private int index;
         private float opacity;
         private float speed;
-        private Vector3 travelDirection;
         private Vector3 destination;
         private Vector3 followOffset, focusDirection, combatAim, ownerVelocity;
         private float nextLaneCheck, nextAimCheck, blockedSeconds;
@@ -50,8 +49,13 @@ namespace HaldorExpansion.Features.HelOath
         internal int Index => index;
         internal string Token { get; private set; }
         internal bool Recalling => recalling;
+
         internal bool CanFire => Exists && !recalling && departure.CanFire;
+
+        // Recall pauses the animation, not the FIFO or its accepted arrows.
+        internal bool CanKeepShot => Exists && departure.CanFire;
         internal float ReactionDelay => model.ReactionDelay;
+        internal bool HasQueuedShots => model.HasQueuedShots;
         internal Vector3 ShotOrigin => root.transform.position + Vector3.up * 1.35f + root.transform.forward * 0.35f;
 
         internal void Reappear() => departure.Reappear();
@@ -69,13 +73,21 @@ namespace HaldorExpansion.Features.HelOath
             }
         }
 
-        internal int QueueShot(float due) => model.QueueShot(due);
+        internal int QueueShot(float due, Vector3 direction) => model.QueueShot(due, direction);
         internal void CancelShot(int cycle) => model.CancelShot(cycle);
+        internal void InterruptForUltimate() => model.InterruptForUltimate();
+        internal void HoldFinalShot(float seconds) => departure.HoldRelease(Time.time + seconds);
 
         internal bool Fired(Vector3 direction, int cycle)
         {
             if (!CanFire || !model.Fired(direction, cycle)) return false;
             focusDirection = direction;
+            // The projectile is created before the next Tick/Move. Finish the
+            // turn synchronously so even a lagged frame cannot fire backwards.
+            Vector3 horizontal = direction;
+            horizontal.y = 0f;
+            if (horizontal.sqrMagnitude > 0.0001f)
+                root.transform.rotation = Quaternion.LookRotation(horizontal);
             intent.Focus(Time.time);
             finalShotStarted = departure.Retiring;
             departure.HoldRelease(Time.time + model.ReleaseDuration);
@@ -84,9 +96,10 @@ namespace HaldorExpansion.Features.HelOath
 
         internal void PrepareShot(Vector3 aim)
         {
-            if (!CanFire) return;
+            if (!CanKeepShot) return;
             combatAim = aim;
-            focusDirection = aim - ShotOrigin;
+            // A newer owner shot must not rotate an already drawing/releasing body.
+            if (!model.IsAiming) focusDirection = aim - ShotOrigin;
             nextAimCheck = Time.time + ReactionDelay + 0.75f;
             nextLaneCheck = 0f;
             intent.Focus(Time.time);
@@ -126,11 +139,8 @@ namespace HaldorExpansion.Features.HelOath
             speed = 0f;
             blockedSeconds = 0f;
             nextSteer = 0f;
-            travelDirection = Vector3.zero;
             recalling = false;
         }
-
-        internal bool ClearShot(Vector3 aim) => CanFire && ClearLane(ShotOrigin, aim);
 
         internal static HelOathGhostVisual Create(Player owner, int index, Quaternion formation, string token,
             HelOathGhostCompanions companions)
@@ -276,7 +286,7 @@ namespace HaldorExpansion.Features.HelOath
 
             if (intent.Focused(Time.time))
             {
-                if (Time.time >= nextAimCheck)
+                if (!model.HasQueuedShots && Time.time >= nextAimCheck)
                 {
                     nextAimCheck = Time.time + 0.25f;
                     combatAim = LookPoint(owner);
@@ -418,8 +428,14 @@ namespace HaldorExpansion.Features.HelOath
 
             opacity = Mathf.MoveTowards(opacity, 1f, dt / FadeInSeconds);
             bool focused = intent.Focused(Time.time) || model.IsAiming;
-            bool stop = departure.Retiring || resting || (focused && !intent.Following && !repositioning);
-            Vector3 movement = Move(owner, target, stop, focused, dt);
+            // v3's route-facing locomotion remains authoritative except in the
+            // final portion of this ghost's own draw and just after its fire.
+            // A newer owner shot never changes the current shot's facing.
+            bool shotFacing = model.ShouldFaceShot;
+            if (shotFacing)
+                focusDirection = model.ReleasingShot ? model.AimDirection : combatAim - ShotOrigin;
+            bool stop = shotFacing || departure.Retiring || resting || (focused && !intent.Following && !repositioning);
+            Vector3 movement = Move(owner, target, stop, focused, dt, shotFacing);
             model.Animate(root.transform.InverseTransformDirection(movement), !departure.Retiring || !finalShotStarted,
                 dt);
             float bodyFade = BodyFade(opacity);
@@ -455,12 +471,12 @@ namespace HaldorExpansion.Features.HelOath
             return false;
         }
 
-        private Vector3 Move(Player owner, Vector3 target, bool stop, bool aiming, float dt)
+        private Vector3 Move(Player owner, Vector3 target, bool stop, bool aiming, float dt, bool shotFacing = false)
         {
             Vector3 old = root.transform.position;
             // Existing overlaps (e.g. a returning body) separate with real walking
             // animation. Departing bodies finish their release without being shoved.
-            if (!departure.Retiring && !departure.Fading && companions != null)
+            if (!shotFacing && !departure.Retiring && !departure.Fading && companions != null)
             {
                 Vector3 separation = companions.Separation(this);
                 if (separation.sqrMagnitude > 0.001f)
@@ -476,37 +492,53 @@ namespace HaldorExpansion.Features.HelOath
             Vector3 desiredDirection = !stop && distance > 0.001f
                 ? Steer(old, delta / distance, Mathf.Max(1f, speed * 0.35f))
                 : Vector3.zero;
-            // Face the actual detour, not the blocked direct route. Otherwise a
-            // detour beyond 90 degrees is permanently rejected by the speed gate.
-            // At rest, preserve heading rather than returning to the old patrol leg.
-            Vector3 face = aiming ? focusDirection : desiredDirection;
+            bool hasRoute = !stop && desiredDirection.sqrMagnitude > 0.001f;
+            bool follow = intent.Following && !departure.Retiring;
+
+            // One facing for locomotion and the actual translation. Previously
+            // the body aimed at the shot target while a separate heading kept
+            // following the owner; this is what produced sideways skating.
+            // Complete the braking step before rotating to aim at rest.
+            Vector3 face = shotFacing ? focusDirection
+                : hasRoute ? desiredDirection
+                : speed > HelOathGhostMotion.StopBeforeAimingSpeed ? root.transform.forward
+                : aiming ? focusDirection : Vector3.zero;
             face.y = 0f;
             if (face.sqrMagnitude > 0.001f)
                 root.transform.rotation = Quaternion.RotateTowards(root.transform.rotation,
-                    Quaternion.LookRotation(face), (aiming ? 180f : 120f) * dt);
-            bool follow = intent.Following && !departure.Retiring;
-            float wantedSpeed = stop
+                    Quaternion.LookRotation(face), (shotFacing ? HelOathGhostMotion.ShotTurnDegrees
+                        : hasRoute ? follow
+                            ? HelOathGhostMotion.FollowTurnDegrees
+                            : HelOathGhostMotion.PatrolTurnDegrees
+                        : HelOathGhostMotion.AimTurnDegrees) * Mathf.Max(0f, dt));
+
+            if (shotFacing)
+            {
+                // Rotate in place, never translate along the shot heading.
+                // This prevents backwards pursuit and sideways skating while
+                // braking for the brief shot-facing window.
+                speed = HelOathGhostMotion.FacingSpeed(speed, 0f, 1f, dt, follow, true);
+                blockedSeconds = 0f;
+                return Vector3.zero;
+            }
+
+            Vector3 heading = root.transform.forward;
+            heading.y = 0f;
+            heading.Normalize();
+            float alignment = hasRoute ? Mathf.Clamp(Vector3.Dot(heading, desiredDirection), -1f, 1f) : 1f;
+            float wantedSpeed = !hasRoute
                 ? 0f
                 : follow && ownerVelocity.sqrMagnitude > 0.36f
                     ? HelOathGhostMotion.PursuitSpeed(distance,
                         distance > 0.01f ? Vector3.Dot(ownerVelocity, delta / distance) : 0f)
                     : HelOathGhostMotion.DesiredSpeed(distance,
                         follow ? HelOathGhostMotion.FollowSpeed : HelOathGhostMotion.WalkSpeed);
-            if (!stop && distance > 0.001f)
-            {
-                if (desiredDirection.sqrMagnitude < 0.001f) wantedSpeed = 0f;
-                else
-                {
-                    travelDirection = travelDirection.sqrMagnitude < 0.001f
-                        ? desiredDirection
-                        : Vector3.RotateTowards(travelDirection, desiredDirection, (follow ? 5f : 3f) * dt, 0f)
-                            .normalized;
-                    if (!aiming) wantedSpeed *= Mathf.Max(0f, Vector3.Dot(root.transform.forward, desiredDirection));
-                }
-            }
+            speed = HelOathGhostMotion.FacingSpeed(speed, wantedSpeed, alignment, dt, follow, !hasRoute);
 
-            speed = HelOathGhostMotion.NextSpeed(speed, wantedSpeed, dt, follow);
-            Vector3 next = old + travelDirection * (speed * dt);
+            // Always move forward in the rendered model's coordinates. Even
+            // during an active bow draw, the owner's aim cannot make a runner
+            // strafe. When standing still, independent bow aiming is unchanged.
+            Vector3 next = old + heading * (speed * Mathf.Max(0f, dt));
             float support;
             if (TryGround(next, old.y, out support) && support - old.y <= 0.65f && old.y - support < 1.5f)
             {

@@ -21,6 +21,43 @@ namespace HaldorExpansion.Features.HelOath
         internal const float IdleMaxSeconds = 3.5f;
         internal const float GroundClearance = 0.10f;
         internal const float FootprintRadius = 0.28f;
+        // While moving, the rendered body faces its path, not the bow target.
+        // Turning is fast enough for sprint follow, but acceleration is reduced
+        // until the feet are actually pointing along the chosen path.
+        internal const float PatrolTurnDegrees = 240f;
+        internal const float FollowTurnDegrees = 420f;
+        internal const float AimTurnDegrees = 180f;
+        // A chasing ghost only briefly brakes for the last part of its draw
+        // and the arrow's release. Keep the rest of its FIFO cycle mobile.
+        internal const float ShotTurnDegrees = 1080f;
+        internal const float ShotFacingDrawFraction = 0.30f;
+        internal const float ShotFacingAfterFire = 0.18f;
+        internal const float TurnBrakeFollow = 34f;
+        internal const float TurnBrakeWalk = 8f;
+        internal const float StopBrakeFollow = 40f;
+        internal const float StopBrakeWalk = 10f;
+        internal const float StopBeforeAimingSpeed = 0.2f;
+
+        // Alignment is the horizontal dot product of facing and route (-1..1).
+        // In a sharp turn a follower must slow instead of running sideways;
+        // once aligned it regains the original full chase speed.
+        internal static float FacingSpeedFactor(float alignment)
+        {
+            return Math.Max(0f, Math.Min(1f, (alignment - 0.15f) / 0.85f));
+        }
+
+        internal static float FacingSpeed(float speed, float wantedSpeed, float alignment,
+            float dt, bool following, bool stop)
+        {
+            dt = Math.Max(0f, dt);
+            float target = stop ? 0f : Math.Max(0f, wantedSpeed) * FacingSpeedFactor(alignment);
+            float acceleration = following ? FollowAcceleration : Acceleration;
+            float deceleration = stop ? (following ? StopBrakeFollow : StopBrakeWalk)
+                : alignment < 0.8f ? (following ? TurnBrakeFollow : TurnBrakeWalk)
+                : following ? FollowDeceleration : Deceleration;
+            return speed < target ? Math.Min(target, speed + acceleration * dt)
+                : Math.Max(target, speed - deceleration * dt);
+        }
 
         internal static float DesiredSpeed(float distance, float maximum)
         {
@@ -40,9 +77,7 @@ namespace HaldorExpansion.Features.HelOath
 
         internal static float NextSpeed(float speed, float target, float dt, bool following = false)
         {
-            float step =
-                (target < speed ? (following ? FollowDeceleration : Deceleration) :
-                    following ? FollowAcceleration : Acceleration) * Math.Max(0f, dt);
+            float step = (target < speed ? (following ? FollowDeceleration : Deceleration) : following ? FollowAcceleration : Acceleration) * Math.Max(0f, dt);
             return speed < target ? Math.Min(target, speed + step) : Math.Max(target, speed - step);
         }
 
@@ -83,15 +118,11 @@ namespace HaldorExpansion.Features.HelOath
         internal bool Following { get; private set; }
         internal bool Focused(float now) => now < focusUntil;
         internal void Focus(float now) => focusUntil = Math.Max(focusUntil, now + HelOathGhostMotion.CombatHoldSeconds);
-
         internal void Update(float now, float ownerSpeed, float ownerDistance, bool aiming)
         {
             if (aiming) Focus(now);
             if (ownerSpeed > 0.6f || ownerDistance > 8f)
-            {
-                Following = true;
-                followUntil = now + 0.8f;
-            }
+            { Following = true; followUntil = now + 0.8f; }
             else if (now >= followUntil && ownerDistance < 6.5f) Following = false;
         }
     }
@@ -102,44 +133,23 @@ namespace HaldorExpansion.Features.HelOath
         internal bool Fading { get; private set; }
         internal bool CanFire => !Fading;
         private float holdUntil;
-
         internal void Retire(float now = 0f, float grace = 0f)
         {
             if (!Retiring && !Fading) holdUntil = Math.Max(holdUntil, now + grace);
             Retiring = true;
         }
-
-        internal void HoldRelease(float until)
-        {
-            if (!Fading) holdUntil = Math.Max(holdUntil, until);
-        }
-
+        internal void HoldRelease(float until) { if (!Fading) holdUntil = Math.Max(holdUntil, until); }
         internal bool Waiting(float now) => !Fading && now < holdUntil;
-
-        internal void BeginFade(bool spent)
-        {
-            Retiring |= spent;
-            Fading = true;
-        }
-
-        internal void Reappear()
-        {
-            if (!Retiring) Fading = false;
-        }
+        internal void BeginFade(bool spent) { Retiring |= spent; Fading = true; }
+        internal void Reappear() { if (!Retiring) Fading = false; }
     }
 
     // Slot numbers are reused; a delayed RPC must identify the actual soul.
     internal sealed class HelOathGhostRoster
     {
         private readonly string[] tokens;
-
-        internal HelOathGhostRoster(int limit)
-        {
-            tokens = new string[limit];
-        }
-
+        internal HelOathGhostRoster(int limit) { tokens = new string[limit]; }
         internal string Token(int index) => tokens[index] ?? "";
-
         internal void Update(int count)
         {
             for (int i = 0; i < tokens.Length; i++)

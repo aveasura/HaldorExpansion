@@ -2,11 +2,10 @@ using System;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.HelOath
 {
-    // Disposable presentation object; it never owns a Player, collider or damage source.
+    // Disposable presentation object. it never owns a Player, collider or damage source.
     internal sealed class HelOathTributeFx : MonoBehaviour
     {
         private const float Duration = 1.25f;

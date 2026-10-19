@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.HelOath
 {
@@ -154,7 +155,7 @@ namespace HaldorExpansion.Features.HelOath
             {
                 RenderTexture.active = previous;
                 RenderTexture.ReleaseTemporary(temporary);
-                if (readable != null) UnityEngine.Object.Destroy(readable);
+                if (readable != null) Object.Destroy(readable);
             }
         }
 
@@ -209,11 +210,11 @@ namespace HaldorExpansion.Features.HelOath
         {
             foreach (Material material in copies.Values)
                 if (material != null)
-                    UnityEngine.Object.Destroy(material);
+                    Object.Destroy(material);
             copies.Clear();
             foreach (Texture2D texture in ownedTextures)
                 if (texture != null)
-                    UnityEngine.Object.Destroy(texture);
+                    Object.Destroy(texture);
             ownedTextures.Clear();
             aura.Dispose();
         }
