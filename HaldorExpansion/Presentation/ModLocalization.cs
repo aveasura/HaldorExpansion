@@ -1093,6 +1093,12 @@ namespace HaldorExpansion.Presentation
         private static Dictionary<string, string> WithConfiguredValues(Dictionary<string, string> text, bool ru)
         {
             AwakenedDescriptions.AddTranslations(text, ru);
+            text[HelOathTribute.PassiveNameKey] = ru ? "Дань Хель" : "Hel's Tribute";
+            text[HelOathTribute.RecoveryNameKey] = ru ? "Дань Хель — восстановление" : "Hel's Tribute — Recovery";
+            text[HelOathTribute.AcceptedMessageKey] = ru ? "Хель приняла твою дань" : "Hel has accepted your tribute";
+            text["$he_hel_tribute_recovery_description"] = ru
+                ? "Дань Хель восстанавливается. Призраки могут сражаться, но пока не способны спасти охотника."
+                : "Hel's Tribute is recovering. Ghosts can fight, but cannot yet save their hunter.";
             text[AdamantineIdolRegistration.DescriptionKey] = text[AdamantineIdolRegistration.LoreKey] +
                                                               "\n\n" + text[AdamantineIdolRegistration.DescriptionKey];
             text[IdolRegistration.DescriptionKey] = text[IdolRegistration.LoreKey] +

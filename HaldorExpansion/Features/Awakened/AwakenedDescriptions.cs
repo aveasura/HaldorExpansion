@@ -1,4 +1,5 @@
 using System;
+using HaldorExpansion.Features.HelOath;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -106,8 +107,24 @@ namespace HaldorExpansion.Features.Awakened
                 : "Attacks restore health equal to " + Percent(AwakenedBalance.BoneCrushers.LifeSteal) +
                   " of the enemy health actually lost. Does not apply to the Retribution.");
             text[Key(Artifact.HelOath)] = title + (ru
-                ? "Призраки последней охоты (в разработке)."
-                : "Ghosts of the Last Hunt (Work in Progress).");
+                ? "Эхо охотника. Успешные обычные попадания собирают до трёх душ параллельно с зарядом Объятий Хель. " +
+                  "Призраки с небольшим запозданием повторяют обычные выстрелы с " + Percent(HelOathGhostRules.NormalDamageMultiplier) + " урона. " +
+                  "При Объятиях Хель на любой стадии Касания каждый призрак выпускает стрелу с " + Percent(HelOathGhostRules.ActiveDamageMultiplier) +
+                  " урона активки и освобождается. Урон призраков не заряжает способности. " +
+                  "При снятом луке призраки скрыты, души убывают по одной за " + Number(HelOathGhostRules.SoulDecaySeconds) +
+                  " с. Без обычных попаданий первая душа уходит через " + Number(HelOathGhostRules.InactivitySeconds) +
+                  " с, остальные — с интервалом " + Number(HelOathGhostRules.SoulDecaySeconds) + " с.\n" +
+                  "Дань Хель. Три души принимают смертельный удар, оставляя 25% здоровья, имевшегося перед ударом (минимум 1), " +
+                  "и дают 3 с неуязвимости. Восстановление: 180 с. Души расходуются раньше Нити Норн."
+                : "Hunter's Echo. Successful normal hits gather up to three souls alongside Hel's Embrace charge. " +
+                  "Ghosts echo normal shots after a short delay for " + Percent(HelOathGhostRules.NormalDamageMultiplier) + " damage. " +
+                  "Whenever Hel's Embrace fires, each ghost fires for " + Percent(HelOathGhostRules.ActiveDamageMultiplier) +
+                  " of the active shot's damage and is released. Ghost damage never charges abilities. " +
+                  "While the bow is unequipped, ghosts are hidden and lose one soul per " + Number(HelOathGhostRules.SoulDecaySeconds) +
+                  " s. Without normal hits, the first soul leaves after " + Number(HelOathGhostRules.InactivitySeconds) +
+                  " s, then one every " + Number(HelOathGhostRules.SoulDecaySeconds) + " s.\n" +
+                  "Hel's Tribute. Three souls absorb a lethal hit, leaving 25% of health held before the hit (minimum 1) " +
+                  "and granting 3 s invulnerability. Recovery: 180 s. Souls are spent before Norn's Thread.");
             text[Key(Artifact.ShadowCrossbow)] = title + (ru
                 ? "Пока арбалет экипирован: +" + Number(AwakenedBalance.ShadowCrossbow.Sneak) + " к скрытности и +" +
                   Number(AwakenedBalance.ShadowCrossbow.Crossbows) +

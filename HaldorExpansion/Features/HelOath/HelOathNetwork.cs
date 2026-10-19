@@ -7,13 +7,16 @@ namespace HaldorExpansion.Features.HelOath
 {
     internal static class HelOathNetwork
     {
-        private const string DamageRpc = "HE_HelOathDamage_v1";
-        private const string CreditRpc = "HE_HelOathCredit_v1";
+        private const string DamageRpc = "HE_HelOathDamage_v2";
+        private const string CreditRpc = "HE_HelOathCredit_v2";
         private const string TouchDamageRpc = "HE_HelOathTouchDamage_v1";
         private const float LightningSplashShare = 0.80f;
         private const float FrostSplashShare = 0.20f;
         private static readonly FieldInfo CharacterView = AccessTools.Field(typeof(Character), "m_nview");
-        internal static ZNetView View(Character character) => character == null ? null : (ZNetView)CharacterView.GetValue(character);
+
+        internal static ZNetView View(Character character) =>
+            character == null ? null : (ZNetView)CharacterView.GetValue(character);
+
         private static readonly MethodInfo WeakSpot = AccessTools.Method(typeof(Character), "FindWeakSpotIndex");
 
         internal static void CreditSource(string source, float damage)
@@ -24,7 +27,8 @@ namespace HaldorExpansion.Features.HelOath
             if (split < 1 || !long.TryParse(source.Substring(0, split), out id)) return;
             var player = Player.GetPlayer(id);
             var view = View(player);
-            if (view != null && view.IsValid()) view.InvokeRPC(CreditRpc, source.Substring(split + 1), damage);
+            if (view != null && view.IsValid())
+                view.InvokeRPC(CreditRpc, source.Substring(split + 1), string.Empty, damage);
         }
 
         internal static void Register(Character character)
@@ -36,12 +40,16 @@ namespace HaldorExpansion.Features.HelOath
             {
                 HelOathEffects.Register(visualPlayer, view);
                 HelOathTouchEffects.Register(visualPlayer, view);
+                HelOathGhostPreview.Register(visualPlayer, view);
+                HelOathGhostBolt.Register(visualPlayer, view);
+                HelOathTribute.Register(visualPlayer, view);
             }
+
             if (character is Player player)
             {
-                view.Register<string, float>(CreditRpc, (sender, epoch, damage) =>
+                view.Register<string, string, float>(CreditRpc, (sender, epoch, soulEpoch, damage) =>
                 {
-                    if (view.IsOwner()) HelOathRuntime.Credit(player, epoch, damage);
+                    if (view.IsOwner()) HelOathRuntime.Credit(player, epoch, soulEpoch, damage);
                 });
                 view.Register<float>(TouchDamageRpc, (sender, damage) =>
                 {
@@ -57,13 +65,15 @@ namespace HaldorExpansion.Features.HelOath
             var view = View(target);
             if (view == null || !view.IsValid()) return false;
             // Preserve the weakspot selection normally done by Character.Damage.
-            hit.m_weakSpot = (short)WeakSpot.Invoke(target, new object[] { AccessTools.Field(typeof(HitData), "m_hitCollider").GetValue(hit) });
+            hit.m_weakSpot = (short)WeakSpot.Invoke(target,
+                new object[] { AccessTools.Field(typeof(HitData), "m_hitCollider").GetValue(hit) });
             if (shot.Special)
             {
                 shot.DirectTarget = target;
                 shot.DirectHit = hit;
             }
             else Send(target, shot, hit, 0f, hit.m_point);
+
             return true;
         }
 
@@ -73,7 +83,9 @@ namespace HaldorExpansion.Features.HelOath
             if (view == null || !view.IsValid()) return;
             var package = new ZPackage();
             Write(package, shot.Special);
+            Write(package, shot.Echo);
             Write(package, shot.Epoch);
+            Write(package, shot.SoulEpoch ?? string.Empty);
             Write(package, splash);
             Write(package, origin);
             Write(package, direct != null);
@@ -86,10 +98,12 @@ namespace HaldorExpansion.Features.HelOath
         // Select the exact overload: the game also exposes Write overloads from assembly_utils.
         private static class PackageWriter<T>
         {
-            internal static readonly MethodInfo Method = AccessTools.Method(typeof(ZPackage), "Write", new[] { typeof(T) });
+            internal static readonly MethodInfo Method =
+                AccessTools.Method(typeof(ZPackage), "Write", new[] { typeof(T) });
         }
 
-        private static void Write<T>(ZPackage package, T value) => PackageWriter<T>.Method.Invoke(package, new object[] { value });
+        internal static void Write<T>(ZPackage package, T value) =>
+            PackageWriter<T>.Method.Invoke(package, new object[] { value });
 
         private static void Receive(Character target, ZNetView view, long sender, ZPackage package)
         {
@@ -97,7 +111,9 @@ namespace HaldorExpansion.Features.HelOath
             try
             {
                 bool special = package.ReadBool();
+                bool echo = package.ReadBool();
                 string epoch = package.ReadString();
+                string soulEpoch = package.ReadString();
                 float splash = package.ReadSingle();
                 Vector3 origin = package.ReadVector3();
                 bool hasDirect = package.ReadBool();
@@ -106,15 +122,18 @@ namespace HaldorExpansion.Features.HelOath
                 var attacker = hit.GetAttacker() as Player;
                 if (attacker == null) return;
                 var attackerView = View(attacker);
-                if (attackerView == null || !attackerView.IsValid() || attackerView.GetZDO().GetOwner() != sender) return;
+                if (attackerView == null || !attackerView.IsValid() ||
+                    attackerView.GetZDO().GetOwner() != sender) return;
                 if (float.IsNaN(splash) || float.IsInfinity(splash) || splash < 0f) return;
-                if (target.IsDead() || target.GetHealth() <= 0f || target.IsTeleporting() || target.InCutscene()) return;
+                if (target.IsDead() || target.GetHealth() <= 0f || target.IsTeleporting() ||
+                    target.InCutscene()) return;
 
                 bool validEnemy = !target.IsPlayer() && BaseAI.IsEnemy(attacker, target);
-                float outgoingChargeDamage = hasDirect && !special ? hit.GetTotalDamage() : 0f;
+                float outgoingChargeDamage = hasDirect && !special && !echo ? hit.GetTotalDamage() : 0f;
                 float health = target.GetHealth();
                 Vector3 direction = target.GetCenterPoint() - origin;
-                if (direction.sqrMagnitude < 0.001f) direction = hit.m_dir.sqrMagnitude > 0f ? hit.m_dir : attacker.transform.forward;
+                if (direction.sqrMagnitude < 0.001f)
+                    direction = hit.m_dir.sqrMagnitude > 0f ? hit.m_dir : attacker.transform.forward;
                 direction.Normalize();
                 if (hasDirect)
                 {
@@ -123,39 +142,49 @@ namespace HaldorExpansion.Features.HelOath
                         hit.m_pushForce = 0f;
                         hit.m_staggerMultiplier = 0f;
                     }
+
                     // Run the real, Harmony-patched game damage pipeline on the target owner.
                     // Charge is credited once from the pre-defense outgoing payload below, so DoT
                     // channels must not be attributed again when their delayed ticks resolve.
                     HelOathDotTracking.Apply(target, sender, hit, null);
                 }
+
                 if (special && splash > 0f && !target.IsDead() && target.GetHealth() > 0f)
                 {
-                    var burst = new HitData { m_point = target.GetCenterPoint(), m_dir = direction,
+                    var burst = new HitData
+                    {
+                        m_point = target.GetCenterPoint(), m_dir = direction,
                         m_pushForce = 0f, m_staggerMultiplier = 0f, m_backstabBonus = 1f,
                         m_dodgeable = false, m_blockable = false, m_ranged = true,
-                        m_skill = Skills.SkillType.Bows, m_hitType = HitData.HitType.PlayerHit };
+                        m_skill = Skills.SkillType.Bows, m_hitType = HitData.HitType.PlayerHit
+                    };
                     burst.m_damage.m_lightning = splash * LightningSplashShare;
                     burst.m_damage.m_frost = splash * FrostSplashShare;
                     burst.SetAttacker(attacker);
                     HelOathDotTracking.Apply(target, sender, burst, null);
                 }
+
                 float actualDamage = Mathf.Max(0f, health - Mathf.Max(0f, target.GetHealth()));
                 if (special)
                 {
                     // Embrace never recharges itself, but real special-shot damage may awaken a
                     // fresh Hel's Touch cycle after activation consumed the previous stacks.
-                    if (actualDamage > 0f && validEnemy)
+                    if (!echo && actualDamage > 0f && validEnemy)
                         attackerView.InvokeRPC(TouchDamageRpc, actualDamage);
                     if (!target.IsPlayer() && !target.IsDead() && target.GetHealth() > 0f)
                     {
                         target.ApplyPushback(direction, 20f);
                         target.Stagger(direction);
                     }
+
                     return;
                 }
-                float chargeCredit = HelOathChargeCreditMath.Select(outgoingChargeDamage, actualDamage, validEnemy, special);
+
+                if (echo) return;
+                float chargeCredit =
+                    HelOathChargeCreditMath.Select(outgoingChargeDamage, actualDamage, validEnemy, special);
                 if (chargeCredit > 0f)
-                    attackerView.InvokeRPC(CreditRpc, epoch, chargeCredit);
+                    attackerView.InvokeRPC(CreditRpc, epoch, soulEpoch, chargeCredit);
             }
             catch (Exception e)
             {

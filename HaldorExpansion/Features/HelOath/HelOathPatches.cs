@@ -1,5 +1,5 @@
-using HaldorExpansion.Features.StaminaCape;
 using System;
+using HaldorExpansion.Features.StaminaCape;
 using HarmonyLib;
 using UnityEngine;
 
@@ -15,10 +15,13 @@ namespace HaldorExpansion.Features.HelOath
     internal static class HelOathUpdatePatch
     {
         private static void Prefix(Player __instance) => HelOathRuntime.Update(__instance);
+
         private static void Postfix(Player __instance)
         {
             HelOathEffects.UpdateWeapon(__instance);
             HelOathTouchEffects.UpdatePlayer(__instance);
+            HelOathGhostPreview.UpdatePlayer(__instance);
+            HelOathTribute.Update(__instance);
         }
     }
 
@@ -111,10 +114,12 @@ namespace HaldorExpansion.Features.HelOath
             __state = HelOathProjectile.Current;
             HelOathProjectile.Current = HelOathProjectile.Find(__instance);
         }
+
         private static void Postfix(Projectile __instance, Vector3 hitPoint, bool ___m_didHit)
         {
             if (___m_didHit) HelOathProjectile.Resolve(HelOathProjectile.Find(__instance), hitPoint);
         }
+
         private static Exception Finalizer(Exception __exception, HelOathShot __state)
         {
             HelOathProjectile.Current = __state;

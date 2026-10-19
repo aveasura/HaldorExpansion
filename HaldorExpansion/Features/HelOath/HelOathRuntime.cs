@@ -104,10 +104,15 @@ namespace HaldorExpansion.Features.HelOath
             }
         }
 
-        internal static void Credit(Player player, string epoch, float damage)
+        internal static void Credit(Player player, string epoch, string soulEpoch, float damage)
         {
             if (player != Player.m_localPlayer || damage <= 0f) return;
             Refresh(player);
+            // Active activation changes its charge epoch, but must not invalidate soul
+            // credit from ordinary arrows already in flight with the same equipped bow.
+            HelOathGhostPreview.OnConfirmedHit(player, soulEpoch, damage);
+            // AddDamage below keeps the original active-epoch guard; Touch still
+            // observes real owner hits as before, even if an active was fired in flight.
             // Any real, attributed damage from a normal Hel's Oath shot can awaken Touch.
             State.RegisterBowDamage(Time.time,
                 TouchEligible(player),

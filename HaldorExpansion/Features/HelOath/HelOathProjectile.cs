@@ -9,7 +9,9 @@ namespace HaldorExpansion.Features.HelOath
     {
         internal Player Owner;
         internal string Epoch;
+        internal string SoulEpoch;
         internal bool Special;
+        internal bool Echo;
         internal bool TouchV;
         internal bool Resolved;
         internal float Splash;
@@ -21,8 +23,10 @@ namespace HaldorExpansion.Features.HelOath
     internal static class HelOathProjectile
     {
         private static readonly float DirectArrowMultiplier = 3f;
-        
-        private static readonly ConditionalWeakTable<Projectile, HelOathShot> Shots = new ConditionalWeakTable<Projectile, HelOathShot>();
+
+        private static readonly ConditionalWeakTable<Projectile, HelOathShot> Shots =
+            new ConditionalWeakTable<Projectile, HelOathShot>();
+
         [ThreadStatic] internal static HelOathShot Current;
 
         internal static void Setup(Projectile projectile, Character owner, ItemDrop.ItemData item)
@@ -33,14 +37,19 @@ namespace HaldorExpansion.Features.HelOath
             bool touchV;
             bool special = HelOathRuntime.State.TryFire(Time.time, out touchV);
             if (special) HelOathEffects.SyncPrepared(player, false);
-            float coefficient = touchV ? HelOathConfiguration.TouchVEmbraceCoefficientValue : HelOathConfiguration.NormalEmbraceCoefficient;
-            float splash = special ? HelOathDamageMath.CalculateSplash(player.GetMaxStamina(), player.GetMaxHealth(), coefficient) : 0f;
+            float coefficient = touchV
+                ? HelOathConfiguration.TouchVEmbraceCoefficientValue
+                : HelOathConfiguration.NormalEmbraceCoefficient;
+            float splash = special
+                ? HelOathDamageMath.CalculateSplash(player.GetMaxStamina(), player.GetMaxHealth(), coefficient)
+                : 0f;
             var shot = new HelOathShot
             {
                 Owner = player,
                 Special = special,
                 TouchV = touchV,
                 Epoch = HelOathRuntime.State.Epoch,
+                SoulEpoch = HelOathGhostPreview.SoulEpoch(player),
                 Splash = splash,
                 Radius = HelOathConfiguration.ExplosionRadius
             };
@@ -53,6 +62,8 @@ namespace HaldorExpansion.Features.HelOath
                 projectile.m_aoe = 0f;
                 projectile.m_attackForce = 0f;
             }
+
+            HelOathGhostPreview.OnShot(projectile, shot);
         }
 
         internal static HelOathShot Find(Projectile projectile)
@@ -74,6 +85,7 @@ namespace HaldorExpansion.Features.HelOath
                 float reach = shot.Radius + Mathf.Max(0f, target.GetRadius());
                 if ((target.GetCenterPoint() - point).sqrMagnitude <= reach * reach) targets.Add(target);
             }
+
             if (shot.DirectTarget != null) targets.Add(shot.DirectTarget);
             foreach (var target in targets)
             {
@@ -81,13 +93,14 @@ namespace HaldorExpansion.Features.HelOath
                 float splash = CanExplodeOn(shot.Owner, target) ? shot.Splash : 0f;
                 HelOathNetwork.Send(target, shot, hit, splash, point);
             }
+
             HelOathEffects.BroadcastExplosion(shot.Owner, point, shot.Radius, shot.TouchV);
         }
 
         private static bool CanExplodeOn(Player owner, Character target)
         {
             return target != null && target != owner && !target.IsDead() && !target.IsPlayer()
-                && BaseAI.IsEnemy(owner, target);
+                   && BaseAI.IsEnemy(owner, target);
         }
     }
 }
