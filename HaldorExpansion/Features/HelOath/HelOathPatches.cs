@@ -21,7 +21,7 @@ namespace HaldorExpansion.Features.HelOath
             HelOathEffects.UpdateWeapon(__instance);
             HelOathTouchEffects.UpdatePlayer(__instance);
             HelOathGhostPreview.UpdatePlayer(__instance);
-            HelOathTribute.Update(__instance);
+            HelOathSoulSwap.Update(__instance);
         }
     }
 

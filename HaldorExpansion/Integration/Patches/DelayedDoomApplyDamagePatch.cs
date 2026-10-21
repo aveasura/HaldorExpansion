@@ -2,7 +2,6 @@ using HaldorExpansion.Combat;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Diagnostics;
 using HaldorExpansion.Features.DelayedDoom;
-using HaldorExpansion.Features.HelOath;
 using HaldorExpansion.Features.NornThread;
 using HarmonyLib;
 
@@ -18,7 +17,6 @@ namespace HaldorExpansion.Patches
             public bool DelayedDoomTriggered;
             public bool GracePrevented;
             public bool NornThreadTriggered;
-            public bool TributeTriggered;
             public float BeforeHealth;
             public float MaxHealth;
             public float IncomingDamage;
@@ -54,7 +52,7 @@ namespace HaldorExpansion.Patches
 
             // Short post-rescue grace prevents chained DoT / multi-hit damage from killing the
             // player in the same instant. Status effects themselves are not removed.
-            if (NornThreadRuntime.IsGraceActive(player) || HelOathTribute.IsGraceActive(player))
+            if (NornThreadRuntime.IsGraceActive(player))
             {
                 hit.m_damage.Modify(0f);
                 __state.GracePrevented = true;
@@ -70,7 +68,7 @@ namespace HaldorExpansion.Patches
             bool internalDelayedDoomDamage = DelayedDoomRuntime.IsDelayedDoomInternalDamage(player);
 
             // Preserve Delayed Doom's existing post-armor split. Internal delayed ticks must not
-            // be split again, but they are still allowed to trigger Tribute or Norn Thread below.
+            // be split again, but they may still trigger Norn Thread below.
             if (!internalDelayedDoomDamage && DelayedDoomEquipment.HasDelayedDoomEquipped(player))
             {
                 __state.DelayedDoomArmed = true;
@@ -114,13 +112,6 @@ namespace HaldorExpansion.Patches
             if (finalIncomingDamage <= 0f || finalIncomingDamage < beforeHealth)
                 return;
 
-            if (HelOathTribute.TryRescue(player, beforeHealth))
-            {
-                hit.m_damage.Modify(0f);
-                __state.TributeTriggered = true;
-                return;
-            }
-
             if (!NornThreadRuntime.TryConsume(player, out ItemDrop.ItemData consumed))
                 return;
 
@@ -144,12 +135,6 @@ namespace HaldorExpansion.Patches
                 return;
 
             Player player = __state.Player;
-
-            if (__state.TributeTriggered)
-            {
-                HelOathTribute.CompleteRescue(player, __state.BeforeHealth);
-                return;
-            }
 
             if (__state.NornThreadTriggered)
             {

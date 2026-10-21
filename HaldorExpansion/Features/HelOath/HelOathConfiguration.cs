@@ -15,6 +15,7 @@ namespace HaldorExpansion.Features.HelOath
         internal static ConfigEntry<float> TouchVEmbraceCoefficient;
         internal static ConfigEntry<float> TouchStackInterval;
         internal static ButtonConfig Button;
+        internal static ButtonConfig SoulSwapButton;
 
         internal static void Register(ConfigFile config, ConfigFile input)
         {
@@ -54,6 +55,16 @@ namespace HaldorExpansion.Features.HelOath
                 HintToken = HelOathIds.AbilityKey, BlockOtherInputs = true
             };
             InputManager.Instance.AddButton(HaldorExpansionPlugin.ModGuid, Button);
+            var swapKey = input.Bind(ItemNames.ConfigSection(ItemNames.HelOathEn, ItemNames.HelOathRu),
+                "Soul Swap Key", KeyCode.E,
+                "Instantly swap places with a materialized Hel ghost (default E). " +
+                "Requires Hel's Oath quality 10 and at least one ghost. No cooldown or soul cost.");
+            SoulSwapButton = new ButtonConfig
+            {
+                Name = "HE_HelSoulSwap", Config = swapKey,
+                HintToken = HelOathIds.SoulSwapKey, BlockOtherInputs = true
+            };
+            InputManager.Instance.AddButton(HaldorExpansionPlugin.ModGuid, SoulSwapButton);
         }
 
         private static float FiniteClamp(float value, float min, float max, float fallback)

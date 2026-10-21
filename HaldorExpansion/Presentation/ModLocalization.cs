@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Globalization;
 using HaldorExpansion.Configuration;
 using HaldorExpansion.Features.Awakened;
@@ -74,6 +74,8 @@ namespace HaldorExpansion.Presentation
                     "50% максимального здоровья превращается в максимальную выносливость.",
                 [HelOathIds.AbilityKey] = "Объятия Хель",
                 [HelOathIds.PreparedKey] = "Клятва пробуждена",
+                [HelOathIds.SoulSwapKey] = "Обмен душами",
+                [HelOathIds.SoulSwapUnavailableKey] = "Нет материализованного призрака для обмена",
                 [HelOathIds.TouchNameKey(1)] = "Касание Хель I",
                 [HelOathIds.TouchDescriptionKey(1)] =
                     "+{touch_speed}% к скорости передвижения.\n-{touch_stamina}% затрат выносливости на все действия.",
@@ -597,6 +599,9 @@ namespace HaldorExpansion.Presentation
 
                 [HelOathIds.AbilityKey] = "Hel's Embrace",
                 [HelOathIds.PreparedKey] = "Oath Awakened",
+                [HelOathIds.SoulSwapKey] = "Soul Swap",
+
+                [HelOathIds.SoulSwapUnavailableKey] = "No materialized ghost available for Soul Swap",
                 [HelOathIds.TouchNameKey(1)] = "Hel's Touch I",
                 [HelOathIds.TouchDescriptionKey(1)] =
                     "+{touch_speed}% movement speed.\n-{touch_stamina}% stamina cost for all actions.",
@@ -1093,12 +1098,6 @@ namespace HaldorExpansion.Presentation
         private static Dictionary<string, string> WithConfiguredValues(Dictionary<string, string> text, bool ru)
         {
             AwakenedDescriptions.AddTranslations(text, ru);
-            text[HelOathTribute.PassiveNameKey] = ru ? "Дань Хель" : "Hel's Tribute";
-            text[HelOathTribute.RecoveryNameKey] = ru ? "Дань Хель — восстановление" : "Hel's Tribute — Recovery";
-            text[HelOathTribute.AcceptedMessageKey] = ru ? "Хель приняла твою дань" : "Hel has accepted your tribute";
-            text["$he_hel_tribute_recovery_description"] = ru
-                ? "Дань Хель восстанавливается. Призраки могут сражаться, но пока не способны спасти охотника."
-                : "Hel's Tribute is recovering. Ghosts can fight, but cannot yet save their hunter.";
             text[AdamantineIdolRegistration.DescriptionKey] = text[AdamantineIdolRegistration.LoreKey] +
                                                               "\n\n" + text[AdamantineIdolRegistration.DescriptionKey];
             text[IdolRegistration.DescriptionKey] = text[IdolRegistration.LoreKey] +

@@ -131,18 +131,6 @@ namespace HaldorExpansion.Features.HelOath
             companions.SetCount(player, count, visible);
         }
 
-        internal static bool TryConsumeForTribute(Player player)
-        {
-            if (player != Player.m_localPlayer || !Eligible(player)) return false;
-            Adopt(player);
-            State.Update(Time.time, true);
-            if (State.Count != HelOathGhostRules.Limit) return false;
-            State.Consume();
-            player.GetComponent<HelOathGhostCompanions>()?.ReleaseAll();
-            Publish(player);
-            return true;
-        }
-
         internal static void OnShot(Projectile projectile, HelOathShot shot)
         {
             Player player = shot.Owner;
@@ -182,12 +170,7 @@ namespace HaldorExpansion.Features.HelOath
     {
         internal Player Owner;
         private void OnDisable() => HelOathGhostPreview.ResetOwner(Owner);
-
-        private void OnDestroy()
-        {
-            HelOathGhostPreview.ResetOwner(Owner);
-            HelOathTribute.Reset(Owner);
-        }
+        private void OnDestroy() => HelOathGhostPreview.ResetOwner(Owner);
     }
 
     // Attached to the real player's object solely for lifecycle cleanup; ghosts themselves are visual-only.
@@ -204,8 +187,89 @@ namespace HaldorExpansion.Features.HelOath
         private Vector3 previousOwnerPosition;
         private Vector3 ownerVelocity;
         private float retryAt;
+
         private Quaternion formationRotation;
+
+        // Shared combat target for slot 0 (the Guardian), even when there is only one soul.
+        private Character nearestThreat;
+        private float nextThreatScan;
         private bool initialized;
+        internal bool HasThreat => nearestThreat != null && !nearestThreat.IsDead();
+        internal Vector3 ThreatPosition => HasThreat ? nearestThreat.GetCenterPoint() : Vector3.zero;
+
+        private void UpdateThreat(Player player)
+        {
+            if (Time.time < nextThreatScan) return;
+            nextThreatScan = Time.time + 0.35f;
+            nearestThreat = null;
+            if (count <= 0 || !visible) return;
+            float nearest = 22f * 22f;
+            foreach (Character character in Character.GetAllCharacters())
+            {
+                if (character == null || character.IsDead() || character.IsPlayer()) continue;
+                Vector3 offset = character.transform.position - player.transform.position;
+                if (Mathf.Abs(offset.y) > 7f) continue;
+                offset.y = 0f;
+                if (offset.sqrMagnitude >= nearest || !BaseAI.IsEnemy(player, character)) continue;
+                nearest = offset.sqrMagnitude;
+                nearestThreat = character;
+            }
+        }
+
+        // Soul Swap is an intentional tactical relocation, not an automatic
+        // invulnerability/safety selector. Threat proximity never vetoes a swap.
+        // Formation uses terrain and line-of-fire checks independently.
+        // One press prioritizes the Guardian, then any materialized soul.
+        internal bool TrySelectSwap(out int selected, out string token, out Vector3 landing)
+        {
+            selected = -1;
+            token = null;
+            landing = Vector3.zero;
+            if (owner == null || owner != Player.m_localPlayer || !visible
+                || !HelOathGhostPreview.Eligible(owner)) return false;
+            int[] preference = { HelOathGhostMotion.GuardianIndex, 1, 2 };
+            foreach (int i in preference)
+            {
+                if (i >= count) continue;
+                var ghost = ghosts[i];
+                Vector3 at;
+                // No distance, height, enemy, ground or animation-state veto.
+                // The spectral body itself is the destination; no idealized
+                // "safe zone" must be found before accepting the button press.
+                if (ghost == null || !ghost.TrySwapLanding(out at)) continue;
+                selected = i;
+                token = ghost.Token;
+                landing = at;
+                return true;
+            }
+
+            return false;
+        }
+
+        internal void CompleteSwap(int selected, string token, Vector3 oldOwnerPosition)
+        {
+            if (selected < 0 || selected >= ghosts.Length) return;
+            var ghost = ghosts[selected];
+            if (ghost == null || ghost.Token != token) return;
+            ghost.RelocateForSwap(oldOwnerPosition);
+            // Ignore instantaneous owner displacement when computing pursuit velocity.
+            previousOwnerPosition = owner.transform.position;
+            ownerVelocity = Vector3.zero;
+            nextThreatScan = 0f;
+        }
+
+        internal void RemoteSwap(int selected, string token, Vector3 oldOwnerPosition)
+        {
+            if (selected < 0 || selected >= ghosts.Length) return;
+            var ghost = ghosts[selected];
+            if (ghost != null && ghost.Token == token && !ghost.Retiring)
+            {
+                ghost.RelocateForSwap(oldOwnerPosition);
+                previousOwnerPosition = owner.transform.position;
+                ownerVelocity = Vector3.zero;
+            }
+        }
+
         private readonly List<PendingShot> pending = new List<PendingShot>();
 
         private sealed class PendingShot
@@ -225,6 +289,7 @@ namespace HaldorExpansion.Features.HelOath
             internal HelOathGhostVisual Ghost;
             internal int Cycle;
             internal Vector3 Direction;
+            internal bool Special;
             internal Action ShowArrow;
             internal float Expires;
         }
@@ -353,7 +418,7 @@ namespace HaldorExpansion.Features.HelOath
             remotePending.Add(new RemotePending
             {
                 Ghost = selected, Cycle = cycle, Direction = direction,
-                ShowArrow = showArrow, Expires = special ? Time.time + 2.5f : float.PositiveInfinity
+                Special = special, ShowArrow = showArrow, Expires = special ? Time.time + 2.5f : float.PositiveInfinity
             });
             return true;
         }
@@ -459,6 +524,7 @@ namespace HaldorExpansion.Features.HelOath
             if (ownerVelocity.sqrMagnitude > 0.36f)
                 formationRotation = Quaternion.Slerp(formationRotation, Quaternion.LookRotation(ownerVelocity),
                     1f - Mathf.Exp(-3f * dt));
+            UpdateThreat(owner);
             // FIFO per body: two due arrows must never collapse into one fire trigger.
             for (int i = 0; i < pending.Count;)
             {
@@ -511,6 +577,15 @@ namespace HaldorExpansion.Features.HelOath
                 // pose until the owner happens to shoot again. Fire on the body's
                 // independent clock instead: the projectile's normal collision
                 // handles any wall in its path, just as it does for owner shots.
+                // Do not shoot into an intermediate dungeon floor. Keep the
+                // action in FIFO until the visual rejoins the owner's level.
+                // Ultimate remains the one action permitted to preempt this.
+                if (!p.Shot.Special && !p.Ghost.OnOwnerLevel(owner.transform.position))
+                {
+                    i++;
+                    continue;
+                }
+
                 Vector3 origin = p.Ghost.ShotOrigin;
                 if (!p.Ghost.Fired(p.Shot.AimPoint - origin, p.Cycle))
                 {
@@ -540,6 +615,12 @@ namespace HaldorExpansion.Features.HelOath
                 {
                     p.Ghost.CancelShot(p.Cycle);
                     remotePending.RemoveAt(i);
+                    continue;
+                }
+
+                if (!p.Special && !p.Ghost.OnOwnerLevel(owner.transform.position))
+                {
+                    i++;
                     continue;
                 }
 

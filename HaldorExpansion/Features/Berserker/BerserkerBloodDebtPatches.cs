@@ -32,7 +32,8 @@ namespace HaldorExpansion.Features.Berserker
             {
                 return;
             }
-            if ((NornThreadRuntime.IsGraceActive(player) || HaldorExpansion.Features.HelOath.HelOathTribute.IsGraceActive(player)))
+
+            if (NornThreadRuntime.IsGraceActive(player))
             {
                 return;
             }
@@ -42,14 +43,17 @@ namespace HaldorExpansion.Features.Berserker
             {
                 return;
             }
+
             if (attacker == player || attacker.IsPlayer())
             {
                 return;
             }
+
             if (!BaseAI.IsEnemy(player, attacker))
             {
                 return;
             }
+
             __state.Eligible = __state.BeforeHp > 0f;
         }
 
@@ -66,11 +70,10 @@ namespace HaldorExpansion.Features.Berserker
             if (realLoss <= 0.001f) return;
 
             if (!__state.Eligible || player.IsDead() || after <= 0f ||
-                (NornThreadRuntime.IsGraceActive(player) || HaldorExpansion.Features.HelOath.HelOathTribute.IsGraceActive(player)))
+                NornThreadRuntime.IsGraceActive(player))
                 return;
 
             BerserkerRuntime.NotifyEnemyDamage(player, realLoss);
         }
-
     }
 }

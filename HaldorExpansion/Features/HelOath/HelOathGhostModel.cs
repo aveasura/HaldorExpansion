@@ -392,7 +392,7 @@ namespace HaldorExpansion.Features.HelOath
             Detach();
         }
 
-        internal void Animate(Vector3 localVelocity, bool mirrorOwner, float dt)
+        internal void Animate(Vector3 localVelocity, bool mirrorOwner, float dt, bool allowDraw = true)
         {
             if (animator == null) return;
             if (!mirrorOwner || sourceAnimator == null)
@@ -400,7 +400,7 @@ namespace HaldorExpansion.Features.HelOath
                 // Keep our own release/locomotion moving, but never sample another
                 // owner draw, trigger or bow-bone pose after departure begins.
                 Detach();
-                Apply(resting, localVelocity, Mathf.Max(0f, Time.deltaTime));
+                Apply(resting, localVelocity, Mathf.Max(0f, Time.deltaTime), allowDraw);
                 return;
             }
 
@@ -429,7 +429,7 @@ namespace HaldorExpansion.Features.HelOath
                 display = snapshots[i];
             }
 
-            Apply(display, localVelocity, Mathf.Max(0f, Time.deltaTime));
+            Apply(display, localVelocity, Mathf.Max(0f, Time.deltaTime), allowDraw);
         }
 
         // Humanoid drives its equipped stance through statef/statei in this game
@@ -603,12 +603,15 @@ namespace HaldorExpansion.Features.HelOath
             lastCapture = clock;
         }
 
-        private void Apply(Snapshot frame, Vector3 velocity, float dt)
+        private void Apply(Snapshot frame, Vector3 velocity, float dt, bool allowDraw = true)
         {
             float now = Time.time;
             QueuedDraw head = queuedDraws.Count > 0 ? queuedDraws[0] : null;
             bool ownRelease = bowCycle.Releasing(now);
-            bool drawing = !ownRelease && head != null && now >= head.Due
+            // Keep the FIFO head and its elapsed draw time intact until this
+            // ghost has reached its assigned formation position. In particular,
+            // a newly spawned Guardian runs with a relaxed bow, not a drawn one.
+            bool drawing = allowDraw && !ownRelease && head != null && now >= head.Due
                            && bowCycle.WantsDraw(head.Cycle, now);
             // During recovery, always use the already-released action; never a
             // newly enqueued owner's draw pose. Only the ultimate can interrupt it.

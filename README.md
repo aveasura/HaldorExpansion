@@ -6,6 +6,8 @@
 
 Haldor Expansion is a Valheim mod for **BepInEx 5 + Jotunn** that expands Haldor's shop with **13 unique pieces of equipment**, distinctive combat mechanics, and configurable prices, quantities, and world-progression requirements. Version 1.3.0 also enables upgrades for **12 artifacts** at the **Forge of Possibilities**, with **11 playable awakened powers** unlocked at quality 10.
 
+**Current source branch:** Hel's Oath awakening is implemented and being playtested. The 1.3.0 release notes below are kept as release history.
+
 Every relic offers **powerful advantages with meaningful drawbacks**. The mod supports **English and Russian**, multiplayer, and dedicated servers. Haldor can also buy trophies, cores, and idols.
 
 ## What's new in 1.3.0
@@ -65,7 +67,7 @@ These are the **default purchase prices**. You can change them in `trading.yml`.
 | **Berserker Cloak** |  2500 | Faster Blood Debt generation. Unlocks Ragnarök at the cost of survivability |
 | **Bone Crushers** |  2500 | Cestus that turns damage suffered into a barrier and shockwave |
 | **Pit King's Mantle** |  3500 | Health bonus and Steel Heart synergy with Bone Crushers |
-| **Hel's Oath** |  2500 | Sacrifices maximum health for stamina. Grants Hel's Touch and Hel's Embrace |
+| **Hel's Oath** | **Ghosts of the Last Hunt:** up to three spectral archers echo your shots; the first is a distant Guardian. **Soul Swap** (G) exchanges positions with a ghost without consuming it or using a cooldown. |
 | **Pelt of Helheim** |  2500 | Very Resistant to Pierce when the Hel/Fenris synergy is complete |
 | **Cuirass of Silent Reckoning** |  3500 | Delays part of dangerous damage instead of preventing it outright |
 | **Thread of the Norns** |  6666 | One-use protection from a lethal hit |

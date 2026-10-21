@@ -42,7 +42,7 @@ namespace HaldorExpansion.Features.HelOath
                 HelOathTouchEffects.Register(visualPlayer, view);
                 HelOathGhostPreview.Register(visualPlayer, view);
                 HelOathGhostBolt.Register(visualPlayer, view);
-                HelOathTribute.Register(visualPlayer, view);
+                HelOathSoulSwap.Register(visualPlayer, view);
             }
 
             if (character is Player player)
