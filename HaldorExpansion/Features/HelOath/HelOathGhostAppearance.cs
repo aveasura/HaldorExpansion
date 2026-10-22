@@ -258,7 +258,7 @@ namespace HaldorExpansion.Features.HelOath
 
         internal void StartEffects() => aura.Start();
 
-        internal void PlaySoulSwapAura() => aura.FlashSwap(0.12f, 1.05f);
+        internal void PlaySoulSwapAura() => aura.FlashSwap(0.20f, 1.05f);
 
         internal void SetFade(float amount, float time, int index, bool ending, float auraAmount = -1f)
         {

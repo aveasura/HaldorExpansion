@@ -51,6 +51,8 @@ namespace HaldorExpansion.Features.Cestus
             internal int Revision;
             internal List<KeyValuePair<AnimationClip, AnimationClip>> BaselineOverrides;
             internal bool ClipInjected;
+            internal AnimationClip ActiveClip;
+            internal bool SoulSwapActive;
         }
 
         private static bool attemptedLoad;
@@ -85,7 +87,8 @@ namespace HaldorExpansion.Features.Cestus
             });
             view.Register<bool>(StopVisualRpc, (sender, ignored) =>
             {
-                if (ValidSender(view, sender) && player != Player.m_localPlayer)
+                if (ValidSender(view, sender) && player != Player.m_localPlayer &&
+                    !IsSoulSwapActive(player))
                     RestoreAfterEmote(player);
             });
             Registered.Add(view, new object());
@@ -119,7 +122,57 @@ namespace HaldorExpansion.Features.Cestus
             }
         }
 
+        // Soul Swap uses the SAME persistent point-emote override as Facebreaker.
+        // Never stack a second AnimatorOverrideController on the player.
+        internal static bool TryBeginSoulSwap(Player player, AnimationClip clip)
+        {
+            if (player == null || player != Player.m_localPlayer || clip == null ||
+                !InstallOverride(player, clip, true)) return false;
+            try
+            {
+                player.StartEmote(EmoteName, true);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                HaldorExpansionPlugin.Log?.LogWarning("[Soul Swap Animation] Start failed: " + ex.Message);
+                RestorePointClip(player);
+                return false;
+            }
+        }
+
+        internal static void BeginRemoteSoulSwap(Player player, AnimationClip clip, float duration)
+        {
+            if (player == null || player == Player.m_localPlayer || clip == null ||
+                !InstallOverride(player, clip, true) || HaldorExpansionPlugin.Instance == null) return;
+            VisualState state = Visuals.GetValue(player, _ => new VisualState());
+            if (state.RemoteTimeout != null)
+                HaldorExpansionPlugin.Instance.StopCoroutine(state.RemoteTimeout);
+            state.RemoteTimeout = HaldorExpansionPlugin.Instance.StartCoroutine(
+                RemoteExpiry(player, duration + 0.30f));
+        }
+
+        internal static bool IsSoulSwapActive(Player player) =>
+            player != null && Visuals.TryGetValue(player, out VisualState state) &&
+            state.ClipInjected && state.SoulSwapActive;
+
+        internal static void EndSoulSwap(Player player)
+        {
+            if (IsSoulSwapActive(player)) EndCustomLocal(player, false);
+        }
+
+        internal static void EndRemoteSoulSwap(Player player)
+        {
+            if (player != null && player != Player.m_localPlayer && IsSoulSwapActive(player))
+                RestoreAfterEmote(player);
+        }
+
         internal static void EndLocal(Player player)
+        {
+            if (!IsSoulSwapActive(player)) EndCustomLocal(player, true);
+        }
+
+        private static void EndCustomLocal(Player player, bool facebreaker)
         {
             if (player == null || !Visuals.TryGetValue(player, out VisualState state) ||
                 state.Override == null || !state.ClipInjected)
@@ -142,7 +195,8 @@ namespace HaldorExpansion.Features.Cestus
             }
 
             RestoreAfterEmote(player);
-            if (player == Player.m_localPlayer) Broadcast(player, StopVisualRpc, true);
+            if (facebreaker && player == Player.m_localPlayer)
+                Broadcast(player, StopVisualRpc, true);
         }
 
         private static void Broadcast<T>(Player player, string rpc, T arg)
@@ -197,7 +251,7 @@ namespace HaldorExpansion.Features.Cestus
                    state.Animator != null && state.Animator.runtimeAnimatorController == state.Override)
             {
                 bool emoteActive = player.InEmote();
-                bool clipActive = IsFacebreakerPlaying(state.Animator);
+                bool clipActive = IsCustomClipPlaying(state.Animator, state.ActiveClip);
                 bool transitioning = IsAnimatorTransitioning(state.Animator);
                 if (!emoteActive && !clipActive && !transitioning)
                 {
@@ -237,19 +291,19 @@ namespace HaldorExpansion.Features.Cestus
             return false;
         }
 
-        private static bool IsFacebreakerPlaying(Animator animator)
+        private static bool IsCustomClipPlaying(Animator animator, AnimationClip activeClip)
         {
-            if (animator == null || !animator.isActiveAndEnabled || castClip == null) return false;
+            if (animator == null || !animator.isActiveAndEnabled || activeClip == null) return false;
             for (int layer = 0; layer < animator.layerCount; layer++)
             {
                 AnimatorClipInfo[] current = animator.GetCurrentAnimatorClipInfo(layer);
                 for (int i = 0; i < current.Length; i++)
-                    if (current[i].clip == castClip && current[i].weight > 0.001f)
+                    if (current[i].clip == activeClip && current[i].weight > 0.001f)
                         return true;
                 if (!animator.IsInTransition(layer)) continue;
                 AnimatorClipInfo[] next = animator.GetNextAnimatorClipInfo(layer);
                 for (int i = 0; i < next.Length; i++)
-                    if (next[i].clip == castClip && next[i].weight > 0.001f)
+                    if (next[i].clip == activeClip && next[i].weight > 0.001f)
                         return true;
             }
 
@@ -267,9 +321,9 @@ namespace HaldorExpansion.Features.Cestus
 
         // Reapply the cast clip only while this Facebreaker is running. During
         // ordinary play (including Nova) the original point animation is kept.
-        private static bool ApplyFacebreakerClip(VisualState state)
+        private static bool ApplyClip(VisualState state, AnimationClip clip, bool soulSwap)
         {
-            if (state == null || state.Override == null || state.BaselineOverrides == null)
+            if (state == null || state.Override == null || state.BaselineOverrides == null || clip == null)
                 return false;
 
             var replacements = new List<KeyValuePair<AnimationClip, AnimationClip>>(state.BaselineOverrides);
@@ -279,13 +333,15 @@ namespace HaldorExpansion.Features.Cestus
                 AnimationClip key = replacements[i].Key;
                 if (key == null || key.name.IndexOf(EmoteName, StringComparison.OrdinalIgnoreCase) < 0)
                     continue;
-                replacements[i] = new KeyValuePair<AnimationClip, AnimationClip>(key, castClip);
+                replacements[i] = new KeyValuePair<AnimationClip, AnimationClip>(key, clip);
                 count++;
             }
 
             if (count == 0) return false;
             state.Override.ApplyOverrides(replacements);
             state.ClipInjected = true;
+            state.ActiveClip = clip;
+            state.SoulSwapActive = soulSwap;
             return true;
         }
 
@@ -312,16 +368,27 @@ namespace HaldorExpansion.Features.Cestus
             finally
             {
                 state.ClipInjected = false;
+                state.ActiveClip = null;
+                state.SoulSwapActive = false;
             }
         }
 
         private static bool InstallOverride(Player player)
         {
-            if (!CanRender || !LoadClip()) return false;
+            if (!LoadClip()) return false;
+            return InstallOverride(player, castClip, false);
+        }
+
+        private static bool InstallOverride(Player player, AnimationClip clip, bool soulSwap)
+        {
+            if (!CanRender || clip == null) return false;
             Animator animator = AnimatorField?.GetValue(player) as Animator;
             if (animator == null || animator.runtimeAnimatorController == null)
                 return false;
             VisualState state = Visuals.GetValue(player, _ => new VisualState());
+            // Do not steal the point-emote from the other ability mid-cast.
+            if (state.ClipInjected && state.SoulSwapActive != soulSwap && player.InEmote())
+                return false;
             if (state.Override != null && state.Animator == animator &&
                 animator.runtimeAnimatorController == state.Override)
             {
@@ -333,7 +400,7 @@ namespace HaldorExpansion.Features.Cestus
                 state.RemoteTimeout = null;
                 try
                 {
-                    return ApplyFacebreakerClip(state);
+                    return ApplyClip(state, clip, soulSwap);
                 }
                 catch (Exception ex)
                 {
@@ -356,7 +423,7 @@ namespace HaldorExpansion.Features.Cestus
                 state.Original = original;
                 state.Override = copy;
                 state.BaselineOverrides = baseline;
-                if (!ApplyFacebreakerClip(state))
+                if (!ApplyClip(state, clip, soulSwap))
                 {
                     HaldorExpansionPlugin.Log?.LogWarning(
                         "[Facebreaker Animation] Could not find a " + EmoteName +
@@ -399,6 +466,8 @@ namespace HaldorExpansion.Features.Cestus
             state.Animator = null;
             state.BaselineOverrides = null;
             state.ClipInjected = false;
+            state.ActiveClip = null;
+            state.SoulSwapActive = false;
         }
 
         private static bool LoadClip()

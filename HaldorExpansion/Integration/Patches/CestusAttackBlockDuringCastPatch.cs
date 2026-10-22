@@ -1,4 +1,5 @@
 ﻿using HaldorExpansion.Features.Cestus;
+using HaldorExpansion.Features.HelOath;
 using HarmonyLib;
 
 namespace HaldorExpansion.Patches
@@ -15,7 +16,8 @@ namespace HaldorExpansion.Patches
                 return true;
 
             if (!CestusRuntime.IsCestusInputLocked(player) &&
-                !CestusFacebreaker.IsCastLocked(player))
+                !CestusFacebreaker.IsCastLocked(player) &&
+                !HelOathSoulSwap.IsCastLocked(player))
                 return true;
 
             CestusAbility.ClearHumanoidAttackState(player);

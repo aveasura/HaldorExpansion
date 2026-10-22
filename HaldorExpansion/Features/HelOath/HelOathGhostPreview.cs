@@ -246,27 +246,47 @@ namespace HaldorExpansion.Features.HelOath
             return false;
         }
 
-        internal void CompleteSwap(int selected, string token, Vector3 oldOwnerPosition)
+        internal void BeginSwapAura(int selected, string token)
+        {
+            if (selected < 0 || selected >= ghosts.Length) return;
+            var ghost = ghosts[selected];
+            if (ghost != null && ghost.Token == token && !ghost.Retiring)
+                HelOathSoulSwapEffects.PlayGhostAura(ghost);
+        }
+
+        internal bool TryResolveSwap(int selected, string token, out Vector3 landing)
+        {
+            landing = Vector3.zero;
+            if (owner != Player.m_localPlayer || !visible ||
+                !HelOathGhostPreview.Eligible(owner) || selected < 0 || selected >= count)
+                return false;
+            var ghost = ghosts[selected];
+            return ghost != null && ghost.Token == token && ghost.TrySwapLanding(out landing);
+        }
+
+        internal void CompleteSwap(int selected, string token, Vector3 oldOwnerPosition,
+            bool auraAlreadyStarted = false)
         {
             if (selected < 0 || selected >= ghosts.Length) return;
             var ghost = ghosts[selected];
             if (ghost == null || ghost.Token != token) return;
             ghost.RelocateForSwap(oldOwnerPosition);
-            HelOathSoulSwapEffects.PlayGhostAura(ghost);
+            if (!auraAlreadyStarted) HelOathSoulSwapEffects.PlayGhostAura(ghost);
             // Ignore instantaneous owner displacement when computing pursuit velocity.
             previousOwnerPosition = owner.transform.position;
             ownerVelocity = Vector3.zero;
             nextThreatScan = 0f;
         }
 
-        internal void RemoteSwap(int selected, string token, Vector3 oldOwnerPosition)
+        internal void RemoteSwap(int selected, string token, Vector3 oldOwnerPosition,
+            bool auraAlreadyStarted = false)
         {
             if (selected < 0 || selected >= ghosts.Length) return;
             var ghost = ghosts[selected];
             if (ghost != null && ghost.Token == token && !ghost.Retiring)
             {
                 ghost.RelocateForSwap(oldOwnerPosition);
-                HelOathSoulSwapEffects.PlayGhostAura(ghost);
+                if (!auraAlreadyStarted) HelOathSoulSwapEffects.PlayGhostAura(ghost);
                 previousOwnerPosition = owner.transform.position;
                 ownerVelocity = Vector3.zero;
             }

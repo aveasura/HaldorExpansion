@@ -127,6 +127,7 @@
         <Compile Include="Features\HelOath\HelOathGhostPreview.cs"/>
         <Compile Include="Features\HelOath\HelOathSoulSwapEffects.cs"/>
         <Compile Include="Features\HelOath\HelOathSoulSwap.cs"/>
+        <Compile Include="Features\HelOath\HelOathSoulSwapAnimation.cs"/>
         <Compile Include="Features\HelOath\HelOathSoulSwapAudio.cs"/>
         <Compile Include="Features\HelOath\HelOathSoulSwapAudioData.cs"/>
         <Compile Include="Features\HelOath\HelOathGhostAppearance.cs"/>
@@ -366,6 +367,9 @@
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="Assets\haldor_soulswap">
+            <LogicalName>HaldorExpansion.Assets.haldor_soulswap</LogicalName>
+        </EmbeddedResource>
         <EmbeddedResource Include="Assets\haldor_facebreaker">
             <LogicalName>HaldorExpansion.Assets.haldor_facebreaker</LogicalName>
         </EmbeddedResource>

@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.HelOath
 {
@@ -25,7 +24,7 @@ namespace HaldorExpansion.Features.HelOath
 
         // Effects are best-effort. A shader or particle failure must never prevent
         // the actual swap, local Rigidbody update, or remote companion relocation.
-        internal static void PlayVisuals(Player player, Vector3 fromFoot, Vector3 toFoot)
+        internal static void BeginAura(Player player)
         {
             if (!CanRender) return;
             try
@@ -41,7 +40,13 @@ namespace HaldorExpansion.Features.HelOath
             {
                 LogFailure(error);
             }
+        }
 
+        internal static void PlayVisuals(Player player, Vector3 fromFoot, Vector3 toFoot,
+            bool startAura = true)
+        {
+            if (!CanRender) return;
+            if (startAura) BeginAura(player);
             try
             {
                 if (!Finite(fromFoot) || !Finite(toFoot) || (fromFoot - toFoot).sqrMagnitude < 0.04f) return;

@@ -10,11 +10,18 @@ using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.HelOath
 {
-    // Play the approved teleport sample at the actual instant of the position exchange.
+    // Start the approved teleport sample during the seal gesture, ahead of the position exchange.
     // This is presentation-only: audio errors cannot affect movement or ghost state.
     internal static class HelOathSoulSwapAudio
     {
         private const float MaxDistance = 48f;
+
+        // Sound timing relative to pressing Soul Swap (seconds):
+        //  0f = start immediately; positive = delay; negative = start immediately
+        //        but skip that many seconds at the beginning of the sample.
+        // For example -0.03f moves the sound's strong attack ~30ms earlier,
+        // without changing the teleport at animation frame 4 (0.125s).
+        internal const float SoundDelay = 0.00f;
         internal const float LocalVolume = 0.95f;
         internal const float RemoteVolume = 0.78f;
 
@@ -32,7 +39,7 @@ namespace HaldorExpansion.Features.HelOath
         private static AudioClip clip;
         private static bool loggedFailure;
 
-        internal static void Play(Player player, Vector3 destination)
+        internal static void Play(Player player, Vector3 destination, float delay = 0f)
         {
             if (player == null || Application.isBatchMode ||
                 SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null) return;
@@ -62,8 +69,17 @@ namespace HaldorExpansion.Features.HelOath
                 source.maxDistance = MaxDistance;
                 source.dopplerLevel = 0f;
                 source.volume = (local ? LocalVolume : RemoteVolume) * AudioMan.GetSFXVolume();
-                source.Play();
-                Object.Destroy(root, clip.length + 0.25f);
+                // Schedule against Unity audio time rather than delaying the swap coroutine.
+                // This keeps the actual teleport fixed at animation frame 4.
+                float startDelay = Mathf.Max(0f, delay);
+                int skippedSamples = delay < 0f
+                    ? Mathf.Clamp(Mathf.RoundToInt(-delay * clip.frequency), 0, clip.samples - 1)
+                    : 0;
+                if (skippedSamples > 0) source.timeSamples = skippedSamples;
+                if (startDelay > 0f) source.PlayDelayed(startDelay);
+                else source.Play();
+                float remaining = clip.length - skippedSamples / (float)clip.frequency;
+                Object.Destroy(root, remaining + startDelay + 0.25f);
             }
             catch (Exception error)
             {

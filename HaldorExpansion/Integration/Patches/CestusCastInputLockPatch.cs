@@ -1,4 +1,5 @@
 ﻿using HaldorExpansion.Features.Cestus;
+using HaldorExpansion.Features.HelOath;
 using HarmonyLib;
 using UnityEngine;
 
@@ -21,7 +22,8 @@ namespace HaldorExpansion.Patches
                 return;
 
             if (!CestusRuntime.IsCestusInputLocked(__instance) &&
-                !CestusFacebreaker.IsCastLocked(__instance))
+                !CestusFacebreaker.IsCastLocked(__instance) &&
+                !HelOathSoulSwap.IsCastLocked(__instance))
             {
                 // Ready + aiming with RMB: Facebreaker replaces vanilla block/parry.
                 // On cooldown (or on another key bind) leave BOTH block inputs intact.
@@ -30,6 +32,7 @@ namespace HaldorExpansion.Patches
                     block = false;
                     blockHold = false;
                 }
+
                 return;
             }
 
