@@ -13,6 +13,9 @@ namespace HaldorExpansion.Features.HelOath
         private const int MaxParticlesPerLayer = 128;
         private readonly ParticleSystem[] layers = new ParticleSystem[3];
         private readonly float[] rates = new float[3];
+        private readonly float[] baseOpacities = new float[3];
+        private static readonly Color SwapCloudTint = new Color(0.56f, 0.94f, 1f, 1f);
+        private static readonly Color SwapTipTint = new Color(0.28f, 0.72f, 0.98f, 1f);
         private static Texture2D sharedTexture;
         private static int sharedTextureUsers;
         private Texture2D texture;
@@ -23,6 +26,11 @@ namespace HaldorExpansion.Features.HelOath
         private bool started;
         private bool disposed;
         private float fade;
+        private bool swapTintActive;
+        private float swapTintAt;
+        private float swapHold;
+        private float swapFade;
+        private float lastSwapBlend;
         internal bool Released { get; private set; }
 
         internal void Initialize(Transform parent, Transform owner)
@@ -162,26 +170,8 @@ namespace HaldorExpansion.Features.HelOath
             float opacity = Mathf.Clamp01(HelOathGhostVisualSettings.AuraOpacity
                                           * (ground ? HelOathGhostVisualSettings.AuraGroundOpacityMultiplier
                                               : veil ? HelOathGhostVisualSettings.AuraVeilOpacityMultiplier : 1f));
-            var gradient = new Gradient();
-            gradient.SetKeys(new[]
-            {
-                new GradientColorKey(HelOathGhostVisualSettings.AuraTint, 0f),
-                new GradientColorKey(HelOathGhostVisualSettings.AuraTint, 0.3f),
-                new GradientColorKey(HelOathGhostVisualSettings.AuraTipTint, 1f)
-            }, new[]
-            {
-                new GradientAlphaKey(0f, 0f),
-                new GradientAlphaKey(opacity * 0.20f, 0.10f),
-                new GradientAlphaKey(opacity * 0.80f, 0.24f),
-                new GradientAlphaKey(opacity, 0.38f),
-                new GradientAlphaKey(opacity * 0.75f, 0.56f),
-                new GradientAlphaKey(opacity * 0.28f, 0.78f),
-                new GradientAlphaKey(opacity * 0.06f, 0.92f),
-                new GradientAlphaKey(0f, 1f)
-            });
-            var color = ps.colorOverLifetime;
-            color.enabled = true;
-            color.color = new ParticleSystem.MinMaxGradient(gradient);
+            baseOpacities[index] = opacity;
+            ApplyLayerTint(index, 0f);
             var size = ps.sizeOverLifetime;
             size.enabled = true;
             size.separateAxes = true;
@@ -210,9 +200,66 @@ namespace HaldorExpansion.Features.HelOath
                     ps.Play(false);
         }
 
+        // Temporarily use the icy-blue Soul Swap palette on the same three-layer
+        // aura. Each body owns its particle systems; no shared ghost assets are modified.
+        internal void FlashSwap(float hold, float fadeOut)
+        {
+            if (material == null || Released) return;
+            swapTintActive = true;
+            swapTintAt = Time.time;
+            swapHold = Mathf.Max(0f, hold);
+            swapFade = Mathf.Max(0.01f, fadeOut);
+            ApplySwapBlend(1f);
+        }
+
+        private void UpdateSwapTint()
+        {
+            if (!swapTintActive) return;
+            float elapsed = Time.time - swapTintAt - swapHold;
+            float blend = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / swapFade));
+            if (Mathf.Abs(blend - lastSwapBlend) > 0.02f || blend <= 0f) ApplySwapBlend(blend);
+            if (blend <= 0f) swapTintActive = false;
+        }
+
+        private void ApplySwapBlend(float blend)
+        {
+            lastSwapBlend = blend;
+            for (int i = 0; i < layers.Length; i++)
+                if (layers[i] != null)
+                    ApplyLayerTint(i, blend);
+        }
+
+        private void ApplyLayerTint(int index, float blend)
+        {
+            var gradient = new Gradient();
+            float opacity = Mathf.Clamp01(baseOpacities[index] * Mathf.Lerp(1f, 2.7f, blend));
+            Color core = Color.Lerp(HelOathGhostVisualSettings.AuraTint, SwapCloudTint, blend);
+            Color tip = Color.Lerp(HelOathGhostVisualSettings.AuraTipTint, SwapTipTint, blend);
+            gradient.SetKeys(new[]
+            {
+                new GradientColorKey(core, 0f),
+                new GradientColorKey(core, 0.3f),
+                new GradientColorKey(tip, 1f)
+            }, new[]
+            {
+                new GradientAlphaKey(0f, 0f),
+                new GradientAlphaKey(opacity * 0.20f, 0.10f),
+                new GradientAlphaKey(opacity * 0.80f, 0.24f),
+                new GradientAlphaKey(opacity, 0.38f),
+                new GradientAlphaKey(opacity * 0.75f, 0.56f),
+                new GradientAlphaKey(opacity * 0.28f, 0.78f),
+                new GradientAlphaKey(opacity * 0.06f, 0.92f),
+                new GradientAlphaKey(0f, 1f)
+            });
+            var color = layers[index].colorOverLifetime;
+            color.enabled = true;
+            color.color = new ParticleSystem.MinMaxGradient(gradient);
+        }
+
         internal void SetFade(float amount, bool ending)
         {
             if (material == null || Released) return;
+            UpdateSwapTint();
             if (ending && fade > 0f)
             {
                 // Transfer lifetime to the detached root before the body can dispose it.

@@ -252,6 +252,7 @@ namespace HaldorExpansion.Features.HelOath
             var ghost = ghosts[selected];
             if (ghost == null || ghost.Token != token) return;
             ghost.RelocateForSwap(oldOwnerPosition);
+            HelOathSoulSwapEffects.PlayGhostAura(ghost);
             // Ignore instantaneous owner displacement when computing pursuit velocity.
             previousOwnerPosition = owner.transform.position;
             ownerVelocity = Vector3.zero;
@@ -265,6 +266,7 @@ namespace HaldorExpansion.Features.HelOath
             if (ghost != null && ghost.Token == token && !ghost.Retiring)
             {
                 ghost.RelocateForSwap(oldOwnerPosition);
+                HelOathSoulSwapEffects.PlayGhostAura(ghost);
                 previousOwnerPosition = owner.transform.position;
                 ownerVelocity = Vector3.zero;
             }

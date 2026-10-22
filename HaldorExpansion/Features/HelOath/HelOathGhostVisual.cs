@@ -123,6 +123,8 @@ namespace HaldorExpansion.Features.HelOath
             nextFloorRecallSearch = 0f;
         }
 
+        internal void PlaySoulSwapAura() => appearance.PlaySoulSwapAura();
+
         internal void Reappear() => departure.Reappear();
 
         internal void Retire(float grace = 0f)

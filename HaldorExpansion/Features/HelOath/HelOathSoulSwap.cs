@@ -9,7 +9,7 @@ namespace HaldorExpansion.Features.HelOath
     // Instant position swap with a materialized ghost; its body and FIFO remain intact.
     internal static class HelOathSoulSwap
     {
-        private const string SwapFxRpc = "HE_HelGhostSoulSwap_v1";
+        private const string SwapFxRpc = "HE_HelGhostSoulSwap_v2";
 
         private static readonly MethodInfo GetButtonDown = AccessTools.Method(AccessTools.TypeByName("ZInput"),
             "GetButtonDown", new[] { typeof(string) });
@@ -28,12 +28,14 @@ namespace HaldorExpansion.Features.HelOath
                     int index = packet.ReadInt();
                     string token = packet.ReadString();
                     Vector3 oldOwnerPosition = packet.ReadVector3();
+                    Vector3 landingPosition = packet.ReadVector3();
                     Guid parsed;
                     if (index < 0 || index >= HelOathGhostRules.Limit || token == null
                         || token.Length != 32 || !Guid.TryParseExact(token, "N", out parsed)
-                        || !Finite(oldOwnerPosition)
+                        || !Finite(oldOwnerPosition) || !Finite(landingPosition)
                         || (oldOwnerPosition - player.transform.position).sqrMagnitude > 35f * 35f) return;
                     player.GetComponent<HelOathGhostCompanions>()?.RemoteSwap(index, token, oldOwnerPosition);
+                    HelOathSoulSwapEffects.PlayVisuals(player, oldOwnerPosition, landingPosition);
                 }
                 catch (Exception error)
                 {
@@ -66,6 +68,7 @@ namespace HaldorExpansion.Features.HelOath
             // The character owns its Rigidbody; setting both immediately prevents a physics snap-back.
             Vector3 before = player.transform.position;
             Rigidbody body = player.GetComponent<Rigidbody>();
+            HelOathSoulSwapEffects.PlayVisuals(player, before, landing);
             player.transform.position = landing;
             if (body != null) body.position = landing;
             if (body != null) body.linearVelocity = Vector3.zero;
@@ -76,6 +79,7 @@ namespace HaldorExpansion.Features.HelOath
             HelOathNetwork.Write(packet, selected);
             HelOathNetwork.Write(packet, token);
             HelOathNetwork.Write(packet, before);
+            HelOathNetwork.Write(packet, landing);
             view.InvokeRPC(ZNetView.Everybody, SwapFxRpc, packet);
         }
 

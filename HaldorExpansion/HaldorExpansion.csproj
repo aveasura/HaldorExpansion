@@ -125,6 +125,7 @@
         <Compile Include="Features\Berserker\BerserkerWrathEffects.cs"/>
         <Compile Include="Features\HelOath\HelOathAppearance.cs"/>
         <Compile Include="Features\HelOath\HelOathGhostPreview.cs"/>
+        <Compile Include="Features\HelOath\HelOathSoulSwapEffects.cs"/>
         <Compile Include="Features\HelOath\HelOathSoulSwap.cs"/>
         <Compile Include="Features\HelOath\HelOathGhostAppearance.cs"/>
         <Compile Include="Features\HelOath\HelOathGhostVisualSettings.cs"/>
