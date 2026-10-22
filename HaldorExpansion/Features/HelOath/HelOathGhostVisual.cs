@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace HaldorExpansion.Features.HelOath
 {
@@ -304,7 +306,7 @@ namespace HaldorExpansion.Features.HelOath
                 ghost.root.transform.position = new Vector3(ghost.destination.x, ground, ghost.destination.z);
                 ghost.root.transform.rotation = owner.transform.rotation;
                 ghost.resting = true;
-                ghost.nextRoam = Time.time + UnityEngine.Random.Range(HelOathGhostMotion.IdleMinSeconds,
+                ghost.nextRoam = Time.time + Random.Range(HelOathGhostMotion.IdleMinSeconds,
                     HelOathGhostMotion.IdleMaxSeconds);
                 ghost.model.Build(owner, ghost.root.transform, ghost.appearance);
                 ghost.appearance.AddAura(ghost.root.transform, owner.transform);
@@ -355,13 +357,13 @@ namespace HaldorExpansion.Features.HelOath
 
             for (int attempt = 0; attempt < 16; attempt++)
             {
-                Vector3 direction = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f) * forward;
+                Vector3 direction = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f) * forward;
                 // Full circle is available, but the forward firing lane is chosen less often.
-                if (Vector3.Dot(direction, forward) > 0.45f && UnityEngine.Random.value < 0.75f) continue;
+                if (Vector3.Dot(direction, forward) > 0.45f && Random.value < 0.75f) continue;
                 float radius = initial
-                    ? UnityEngine.Random.Range(HelOathGhostMotion.SpawnFallbackMinRadius,
+                    ? Random.Range(HelOathGhostMotion.SpawnFallbackMinRadius,
                         HelOathGhostMotion.SpawnFallbackMaxRadius)
-                    : UnityEngine.Random.Range(HelOathGhostMotion.PatrolMinRadius,
+                    : Random.Range(HelOathGhostMotion.PatrolMinRadius,
                         HelOathGhostMotion.PatrolMaxRadius);
                 candidate = center + direction * radius;
                 float support;
@@ -439,6 +441,9 @@ namespace HaldorExpansion.Features.HelOath
                 }
             }
 
+            // A failed outer-orbit search must also respect the retry interval.
+            // Without a goal, cramped rooms otherwise repeat all 16 probes each frame.
+            if (!hasGuardianGoal && Time.time < nextGuardianChoice) return false;
             nextGuardianChoice = Time.time + 0.8f;
 
             Vector3 fromOwner = Position - center;
@@ -595,7 +600,7 @@ namespace HaldorExpansion.Features.HelOath
             {
                 destination = root.transform.position;
                 resting = true;
-                nextRoam = Time.time + UnityEngine.Random.Range(HelOathGhostMotion.IdleMinSeconds,
+                nextRoam = Time.time + Random.Range(HelOathGhostMotion.IdleMinSeconds,
                     HelOathGhostMotion.IdleMaxSeconds);
             }
 
@@ -627,7 +632,7 @@ namespace HaldorExpansion.Features.HelOath
             if (!resting && remaining.sqrMagnitude < 0.01f && speed < 0.15f)
             {
                 resting = true;
-                nextRoam = Time.time + UnityEngine.Random.Range(HelOathGhostMotion.IdleMinSeconds,
+                nextRoam = Time.time + Random.Range(HelOathGhostMotion.IdleMinSeconds,
                     HelOathGhostMotion.IdleMaxSeconds);
             }
 
@@ -1076,7 +1081,7 @@ namespace HaldorExpansion.Features.HelOath
             if (root != null)
             {
                 root.SetActive(false);
-                UnityEngine.Object.Destroy(root);
+                Object.Destroy(root);
             }
 
             appearance.Dispose();

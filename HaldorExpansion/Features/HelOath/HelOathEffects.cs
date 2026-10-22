@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Object = UnityEngine.Object;
 
 namespace HaldorExpansion.Features.HelOath
 {
@@ -228,6 +227,7 @@ namespace HaldorExpansion.Features.HelOath
         private const int ArcPoints = 64;
         private const float FadeInDuration = 0.78f;
         private readonly LineRenderer[] arcs = new LineRenderer[2];
+        private readonly Vector3[] arcPoints = new Vector3[ArcPoints];
         private readonly ParticleSystem[] sparks = new ParticleSystem[5];
         private float extent, spread, bornAt;
         private bool fadingOut;
@@ -354,8 +354,10 @@ namespace HaldorExpansion.Features.HelOath
                     Vector3 point = axis * Mathf.Lerp(-extent, extent, t)
                                     + curl * spread * envelope * breathe
                                     + drift;
-                    arcs[arc].SetPosition(i, point);
+                    arcPoints[i] = point;
                 }
+
+                arcs[arc].SetPositions(arcPoints);
             }
 
             for (int i = 0; i < sparks.Length; i++)
@@ -375,6 +377,12 @@ namespace HaldorExpansion.Features.HelOath
         private const int CrownPoints = 36;
 
         private static Mesh spikeMesh;
+
+        // Reused sequentially by each line; SetPositions copies the buffer.
+        private readonly Vector3[] wavePoints = new Vector3[WavePoints];
+        private readonly Vector3[] tendrilPoints = new Vector3[TendrilPoints];
+        private readonly Vector3[] spiralPoints = new Vector3[SpiralPoints];
+        private readonly Vector3[] crownPoints = new Vector3[CrownPoints];
         private LineRenderer coreDark;
         private LineRenderer coreFrost;
         private LineRenderer[] shockwaves;
@@ -603,7 +611,7 @@ namespace HaldorExpansion.Features.HelOath
             if (spikeMesh != null) return spikeMesh;
 
             const int sides = 6;
-            var vertices = new Vector3[sides * 2 + 1];
+            var vertices = new Vector3[sides * 3 + 2];
             var uv = new Vector2[vertices.Length];
             for (int i = 0; i < sides; i++)
             {
@@ -619,7 +627,17 @@ namespace HaldorExpansion.Features.HelOath
             vertices[sides * 2] = new Vector3(0.08f, 1f, -0.04f);
             uv[sides * 2] = new Vector2(0.5f, 1f);
 
-            var triangles = new int[sides * 12];
+            // Share the waist, mirror the shoulder and tip across local Y=0.
+            // Keeping both halves in this mesh adds no objects or renderers.
+            for (int i = sides; i <= sides * 2; i++)
+            {
+                Vector3 upper = vertices[i];
+                int lower = i + sides + 1;
+                vertices[lower] = new Vector3(upper.x, -upper.y, upper.z);
+                uv[lower] = uv[i];
+            }
+
+            var triangles = new int[sides * 18];
             int t = 0;
             for (int i = 0; i < sides; i++)
             {
@@ -634,10 +652,16 @@ namespace HaldorExpansion.Features.HelOath
                 triangles[t++] = sides + i;
                 triangles[t++] = sides + next;
                 triangles[t++] = sides * 2;
+            }
 
-                triangles[t++] = i;
-                triangles[t++] = 0;
-                triangles[t++] = next;
+            // Reflection reverses winding. There is no internal base cap.
+            int upperIndexCount = t;
+            for (int i = 0; i < upperIndexCount; i += 3)
+            {
+                int a = triangles[i], b = triangles[i + 1], c = triangles[i + 2];
+                triangles[t++] = a < sides ? a : a + sides + 1;
+                triangles[t++] = c < sides ? c : c + sides + 1;
+                triangles[t++] = b < sides ? b : b + sides + 1;
             }
 
             spikeMesh = new Mesh { name = "HelOath_ProceduralIceSpike" };
@@ -666,16 +690,14 @@ namespace HaldorExpansion.Features.HelOath
                 if (age > holdUntil)
                     vanish = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((age - holdUntil) / vanishDuration));
 
-                float widthScale = Mathf.Lerp(0.18f, 1f, grow) * Mathf.Lerp(0.30f, 1f, vanish);
-                float heightScale = grow * Mathf.Lerp(0.18f, 1f, vanish);
+                float widthScale = Mathf.Lerp(0.18f, 1f, grow) * vanish;
+                float heightScale = grow * vanish;
                 Vector3 full = spikeFullScales[i];
                 spike.transform.localScale =
                     new Vector3(full.x * widthScale, full.y * heightScale, full.z * widthScale);
 
-                // They do not fly away: after erupting they remain rooted in the impact field,
-                // then sink back under the surface during the final black-frost aftermath.
-                float sink = (1f - vanish) * full.y * 0.30f;
-                spike.transform.localPosition = spikeBasePositions[i] + Vector3.down * sink;
+                // Both tips collapse into the same fixed centre, on terrain or in mid-air.
+                spike.transform.localPosition = spikeBasePositions[i];
             }
         }
 
@@ -767,8 +789,10 @@ namespace HaldorExpansion.Features.HelOath
                                   + tendrilSides[i] * wobble * waveA
                                   + tendrilForwards[i] * (wobble * 0.68f) * waveB;
                     pos.y = 0.032f + 0.18f * envelope * (1f - t) * (0.86f + 0.14f * Mathf.Sin(age * 2.0f + i));
-                    tendrils[i].SetPosition(point, pos);
+                    tendrilPoints[point] = pos;
                 }
+
+                tendrils[i].SetPositions(tendrilPoints);
             }
         }
 
@@ -807,8 +831,10 @@ namespace HaldorExpansion.Features.HelOath
                     float outward = crownRadius * rise * (0.10f + 0.90f * t);
                     float curl = Mathf.Sin(t * Mathf.PI * 1.7f + i * 0.72f) * crownRadius * 0.10f * arch;
                     float y = 0.03f + crownHeight * rise * Mathf.Pow(t, 0.78f) * (0.72f + 0.28f * arch);
-                    crown[i].SetPosition(point, radial * outward + tangent * curl + Vector3.up * y);
+                    crownPoints[point] = radial * outward + tangent * curl + Vector3.up * y;
                 }
+
+                crown[i].SetPositions(crownPoints);
             }
         }
 
@@ -849,8 +875,10 @@ namespace HaldorExpansion.Features.HelOath
                     float angle = spiralSeeds[i] + direction * (age * 2.15f + t * (empowered ? 8.2f : 6.7f));
                     float y = 0.055f + maxHeight * progress * t;
                     Vector3 pos = new Vector3(Mathf.Cos(angle) * orbit, y, Mathf.Sin(angle) * orbit) + offset;
-                    spirals[i].SetPosition(point, pos);
+                    spiralPoints[point] = pos;
                 }
+
+                spirals[i].SetPositions(spiralPoints);
             }
         }
 
@@ -864,8 +892,10 @@ namespace HaldorExpansion.Features.HelOath
                 float localRadius = circleRadius
                                     + Mathf.Sin(angle * 3f + phase) * wobble
                                     + Mathf.Cos(angle * 5f - phase * 0.7f) * wobble * 0.35f;
-                line.SetPosition(i, new Vector3(Mathf.Cos(angle) * localRadius, y, Mathf.Sin(angle) * localRadius));
+                wavePoints[i] = new Vector3(Mathf.Cos(angle) * localRadius, y, Mathf.Sin(angle) * localRadius);
             }
+
+            line.SetPositions(wavePoints);
         }
     }
 }

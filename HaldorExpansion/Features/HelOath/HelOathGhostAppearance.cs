@@ -10,7 +10,11 @@ namespace HaldorExpansion.Features.HelOath
     internal sealed class HelOathGhostAppearance : IDisposable
     {
         private readonly Dictionary<Material, Material> copies = new Dictionary<Material, Material>();
-        private readonly List<Texture2D> ownedTextures = new List<Texture2D>();
+
+        private static readonly Dictionary<ClothingKey, ClothingEntry> clothingCache =
+            new Dictionary<ClothingKey, ClothingEntry>();
+
+        private readonly List<ClothingEntry> clothingLeases = new List<ClothingEntry>();
         private HelOathGhostAura aura = new HelOathGhostAura();
         private Transform auraParent;
         private Transform auraOwner;
@@ -53,7 +57,7 @@ namespace HaldorExpansion.Features.HelOath
                     // Feeding only _MainTex to a transparent shader loses clothing and can erase skin.
                     if (original.HasProperty("_ChestTex") && original.HasProperty("_LegsTex"))
                     {
-                        copy.mainTexture = BakeClothedBody(original);
+                        copy.mainTexture = AcquireClothedBody(original);
                         copy.mainTextureScale = Vector2.one;
                         copy.mainTextureOffset = Vector2.zero;
                     }
@@ -90,6 +94,79 @@ namespace HaldorExpansion.Features.HelOath
             return result;
         }
 
+        // Only baked pixels are shared. Each body keeps its own fade/emission materials.
+        private struct ClothingKey : IEquatable<ClothingKey>
+        {
+            private readonly Texture skin, chest, legs;
+            private readonly Color skinColor;
+            private readonly int width, height;
+
+            internal ClothingKey(Material source)
+            {
+                skin = source.HasProperty("_MainTex") ? source.GetTexture("_MainTex") : null;
+                chest = source.GetTexture("_ChestTex");
+                legs = source.GetTexture("_LegsTex");
+                skinColor = source.HasProperty("_SkinColor") ? source.GetColor("_SkinColor") : Color.white;
+                width = skin != null ? Mathf.Clamp(skin.width, 32, 1024) : 256;
+                height = skin != null ? Mathf.Clamp(skin.height, 32, 1024) : 256;
+            }
+
+            public bool Equals(ClothingKey other) => ReferenceEquals(skin, other.skin)
+                                                     && ReferenceEquals(chest, other.chest) &&
+                                                     ReferenceEquals(legs, other.legs)
+                                                     && skinColor.Equals(other.skinColor) && width == other.width &&
+                                                     height == other.height;
+
+            public override bool Equals(object obj) => obj is ClothingKey && Equals((ClothingKey)obj);
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hash = ReferenceEquals(skin, null) ? 0 : skin.GetHashCode();
+                    hash = hash * 31 + (ReferenceEquals(chest, null) ? 0 : chest.GetHashCode());
+                    hash = hash * 31 + (ReferenceEquals(legs, null) ? 0 : legs.GetHashCode());
+                    hash = hash * 31 + skinColor.GetHashCode();
+                    return (hash * 31 + width) * 31 + height;
+                }
+            }
+        }
+
+        private sealed class ClothingEntry
+        {
+            internal ClothingKey Key;
+            internal Texture2D Texture;
+            internal int Users;
+        }
+
+        private Texture2D AcquireClothedBody(Material source)
+        {
+            var key = new ClothingKey(source);
+            ClothingEntry entry;
+            if (!clothingCache.TryGetValue(key, out entry))
+            {
+                // Publish only after a successful bake; failed GPU reads leave no cache entry.
+                entry = new ClothingEntry { Key = key, Texture = BakeClothedBody(source) };
+                clothingCache.Add(key, entry);
+            }
+
+            entry.Users++;
+            clothingLeases.Add(entry);
+            return entry.Texture;
+        }
+
+        private void ReleaseClothing()
+        {
+            foreach (ClothingEntry entry in clothingLeases)
+            {
+                if (--entry.Users != 0) continue;
+                clothingCache.Remove(entry.Key);
+                if (entry.Texture != null) Object.Destroy(entry.Texture);
+            }
+
+            clothingLeases.Clear();
+        }
+
         private Texture2D BakeClothedBody(Material source)
         {
             Texture skin = source.HasProperty("_MainTex") ? source.GetTexture("_MainTex") : null;
@@ -122,10 +199,17 @@ namespace HaldorExpansion.Features.HelOath
 
             var result = new Texture2D(width, height, TextureFormat.RGBA32, true, false)
                 { name = "HE_GhostClothing", filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Repeat };
-            ownedTextures.Add(result);
-            result.SetPixels(pixels);
-            result.Apply(true, true);
-            return result;
+            try
+            {
+                result.SetPixels(pixels);
+                result.Apply(true, true);
+                return result;
+            }
+            catch
+            {
+                Object.Destroy(result);
+                throw;
+            }
         }
 
         private static Color[] ReadPixels(Texture texture, int width, int height)
@@ -212,10 +296,7 @@ namespace HaldorExpansion.Features.HelOath
                 if (material != null)
                     Object.Destroy(material);
             copies.Clear();
-            foreach (Texture2D texture in ownedTextures)
-                if (texture != null)
-                    Object.Destroy(texture);
-            ownedTextures.Clear();
+            ReleaseClothing();
             aura.Dispose();
         }
     }

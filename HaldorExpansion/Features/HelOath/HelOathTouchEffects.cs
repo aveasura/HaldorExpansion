@@ -222,6 +222,8 @@ namespace HaldorExpansion.Features.HelOath
     {
         private const int RingPoints = 96;
         private const int WispPoints = 72;
+        private readonly Vector3[] ringPoints = new Vector3[RingPoints];
+        private readonly Vector3[] wispPoints = new Vector3[WispPoints];
         private readonly LineRenderer[] rings = new LineRenderer[5];
         private readonly LineRenderer[] halos = new LineRenderer[5];
         private readonly LineRenderer[] wisps = new LineRenderer[4];
@@ -558,9 +560,11 @@ namespace HaldorExpansion.Features.HelOath
                                          (stacks >= 5 ? 0.012f : 0.006f);
                     Vector3 point = new Vector3(Mathf.Cos(angle) * radial, height + verticalWave,
                         Mathf.Sin(angle) * radial);
-                    rings[ring].SetPosition(i, point);
-                    halos[ring].SetPosition(i, point);
+                    ringPoints[i] = point;
                 }
+
+                rings[ring].SetPositions(ringPoints);
+                halos[ring].SetPositions(ringPoints);
             }
 
             if (stacks < 5) return;
@@ -585,8 +589,10 @@ namespace HaldorExpansion.Features.HelOath
                     float breathe = 1f + Mathf.Sin(Time.time * 0.75f + t * 5f + wisp) * 0.025f;
                     Vector3 point = new Vector3(Mathf.Cos(angle) * radius * breathe, y,
                         Mathf.Sin(angle) * radius * breathe);
-                    wisps[wisp].SetPosition(i, point);
+                    wispPoints[i] = point;
                 }
+
+                wisps[wisp].SetPositions(wispPoints);
             }
         }
     }

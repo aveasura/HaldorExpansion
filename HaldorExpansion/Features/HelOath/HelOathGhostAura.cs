@@ -13,7 +13,10 @@ namespace HaldorExpansion.Features.HelOath
         private const int MaxParticlesPerLayer = 128;
         private readonly ParticleSystem[] layers = new ParticleSystem[3];
         private readonly float[] rates = new float[3];
+        private static Texture2D sharedTexture;
+        private static int sharedTextureUsers;
         private Texture2D texture;
+        private bool holdsSharedTexture;
         private Material material;
         private GameObject root;
         private Transform owner;
@@ -28,7 +31,10 @@ namespace HaldorExpansion.Features.HelOath
             if (!HelOathGhostVisualSettings.AuraEnabled) return;
             Shader shader = Shader.Find("Sprites/Default");
             if (shader == null || !shader.isSupported) return;
-            texture = CreateSoftCloudTexture();
+            if (sharedTexture == null) sharedTexture = CreateSoftCloudTexture();
+            texture = sharedTexture;
+            sharedTextureUsers++;
+            holdsSharedTexture = true;
             material = new Material(shader)
             {
                 name = "HE_GhostSoulVeil",
@@ -252,7 +258,18 @@ namespace HaldorExpansion.Features.HelOath
             }
 
             if (material != null) Object.Destroy(material);
-            if (texture != null) Object.Destroy(texture);
+            // Detached souls hold their lease until their own effect finishes.
+            if (holdsSharedTexture)
+            {
+                holdsSharedTexture = false;
+                if (--sharedTextureUsers == 0)
+                {
+                    if (sharedTexture != null) Object.Destroy(sharedTexture);
+                    sharedTexture = null;
+                }
+            }
+            else if (texture != null) Object.Destroy(texture); // Failed texture construction.
+
             material = null;
             texture = null;
         }

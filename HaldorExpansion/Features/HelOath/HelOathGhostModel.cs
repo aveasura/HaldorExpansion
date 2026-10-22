@@ -4,6 +4,7 @@ using System.Reflection;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Random = UnityEngine.Random;
 
 namespace HaldorExpansion.Features.HelOath
 {
@@ -25,6 +26,9 @@ namespace HaldorExpansion.Features.HelOath
         private Animator sourceAnimator;
         private Animator animator;
         private AnimatorControllerParameter[] parameters;
+        private bool[] blockParameters, equipmentParameters, drawParameters;
+        private readonly List<AnimatorClipInfo> clipInfo = new List<AnimatorClipInfo>(8);
+        private readonly Dictionary<AnimationClip, byte> clipKinds = new Dictionary<AnimationClip, byte>();
         private int drawHash;
         private bool hasDraw;
 
@@ -249,9 +253,16 @@ namespace HaldorExpansion.Features.HelOath
             parameters = sourceAnimator.parameters;
             weaponValues = new int[parameters.Length];
             weaponFloats = new float[parameters.Length];
+            blockParameters = new bool[parameters.Length];
+            equipmentParameters = new bool[parameters.Length];
+            drawParameters = new bool[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
-                if (!EquipmentParameter(parameters[i].name)) continue;
+                string name = parameters[i].name;
+                blockParameters[i] = BlockParameter(name);
+                equipmentParameters[i] = EquipmentParameter(name);
+                drawParameters[i] = name.ToLowerInvariant().Contains("draw");
+                if (!equipmentParameters[i]) continue;
                 if (parameters[i].type == AnimatorControllerParameterType.Int)
                     weaponValues[i] = sourceAnimator.GetInteger(parameters[i].nameHash);
                 else if (parameters[i].type == AnimatorControllerParameterType.Float)
@@ -341,10 +352,10 @@ namespace HaldorExpansion.Features.HelOath
                 resting.Scales[i] = bowBones[i].Value.localScale;
             }
 
-            ReactionDelay = UnityEngine.Random.Range(HelOathGhostRules.ReactionMin, HelOathGhostRules.ReactionMax);
+            ReactionDelay = Random.Range(HelOathGhostRules.ReactionMin, HelOathGhostRules.ReactionMax);
             // Still a distinct, complete draw for every arrow. The former
             // 0.32-0.48s range plus 0.8s release made long FIFO bursts lag far behind.
-            bowCycle.RequiredDraw = UnityEngine.Random.Range(0.30f, 0.38f);
+            bowCycle.RequiredDraw = Random.Range(0.30f, 0.38f);
             Capture();
             Apply(snapshots[0], Vector3.zero, 0f);
         }
@@ -445,9 +456,10 @@ namespace HaldorExpansion.Features.HelOath
 
         private bool SourceBlocking()
         {
-            foreach (var p in parameters)
+            for (int i = 0; i < parameters.Length; i++)
             {
-                if (!BlockParameter(p.name)) continue;
+                var p = parameters[i];
+                if (!blockParameters[i]) continue;
                 if (p.type == AnimatorControllerParameterType.Bool && sourceAnimator.GetBool(p.nameHash)) return true;
                 if (p.type == AnimatorControllerParameterType.Float &&
                     sourceAnimator.GetFloat(p.nameHash) > 0.01f) return true;
@@ -464,38 +476,44 @@ namespace HaldorExpansion.Features.HelOath
                    state.IsTag("bow");
         }
 
-        private bool BowClips(int layer, bool next, bool drawOnly = false, Animator target = null)
+        // Clip names and parameter roles do not change during this model's lifetime.
+        private byte ClipKind(AnimationClip clip)
         {
-            // State names and trigger names need not match. Clip names let us retain
-            // the actual release state instead of losing it at the draw -> fire transition.
-            if (target == null) target = sourceAnimator;
-            var clips = next ? target.GetNextAnimatorClipInfo(layer) : target.GetCurrentAnimatorClipInfo(layer);
-            foreach (var info in clips)
+            byte kind;
+            if (clipKinds.TryGetValue(clip, out kind)) return kind;
+            string name = clip.name.ToLowerInvariant();
+            kind = 0;
+            if (name.Contains("bow"))
             {
-                if (info.clip == null || info.weight <= 0.001f) continue;
-                string name = info.clip.name.ToLowerInvariant();
-                if (name.Contains("bow") && (name.Contains("draw") || (!drawOnly && (name.Contains("fire")
-                        || name.Contains("release") || name.Contains("shoot") ||
-                        name.Contains("attack"))))) return true;
+                if (name.Contains("draw")) kind |= 1;
+                if (name.Contains("fire") || name.Contains("release") || name.Contains("shoot")
+                    || name.Contains("attack")) kind |= 2;
             }
 
+            clipKinds.Add(clip, kind);
+            return kind;
+        }
+
+        private bool BowClips(int layer, bool next, bool drawOnly = false)
+        {
+            clipInfo.Clear();
+            if (next) sourceAnimator.GetNextAnimatorClipInfo(layer, clipInfo);
+            else sourceAnimator.GetCurrentAnimatorClipInfo(layer, clipInfo);
+            byte mask = drawOnly ? (byte)1 : (byte)3;
+            foreach (var info in clipInfo)
+                if (info.clip != null && info.weight > 0.001f && (ClipKind(info.clip) & mask) != 0)
+                    return true;
             return false;
         }
 
         private bool ReleaseClips(int layer, bool next)
         {
-            var clips = next
-                ? sourceAnimator.GetNextAnimatorClipInfo(layer)
-                : sourceAnimator.GetCurrentAnimatorClipInfo(layer);
-            foreach (var info in clips)
-            {
-                if (info.clip == null || info.weight <= 0.001f) continue;
-                string name = info.clip.name.ToLowerInvariant();
-                if (name.Contains("bow") && (name.Contains("fire") || name.Contains("release")
-                                                                   || name.Contains("shoot") ||
-                                                                   name.Contains("attack"))) return true;
-            }
-
+            clipInfo.Clear();
+            if (next) sourceAnimator.GetNextAnimatorClipInfo(layer, clipInfo);
+            else sourceAnimator.GetCurrentAnimatorClipInfo(layer, clipInfo);
+            foreach (var info in clipInfo)
+                if (info.clip != null && info.weight > 0.001f && (ClipKind(info.clip) & 2) != 0)
+                    return true;
             return false;
         }
 
@@ -513,23 +531,55 @@ namespace HaldorExpansion.Features.HelOath
             }
         }
 
+        private Snapshot CreateSnapshot()
+        {
+            return new Snapshot
+            {
+                Floats = new float[parameters.Length], Ints = new int[parameters.Length],
+                Bools = new bool[parameters.Length], States = new AnimatorStateInfo[animator.layerCount],
+                DrawStates = new bool[animator.layerCount], Weights = new float[animator.layerCount],
+                Positions = new Vector3[bowBones.Count], Rotations = new Quaternion[bowBones.Count],
+                Scales = new Vector3[bowBones.Count]
+            };
+        }
+
+        private Snapshot AcquireSnapshot()
+        {
+            if (snapshots.Count < 40) return CreateSnapshot();
+            Snapshot frame = snapshots[0];
+            snapshots.RemoveAt(0);
+            // Eviction from history does not release ownership by a queued shot.
+            // Pinned frames remain immutable and are collected normally afterwards.
+            if (ReferenceEquals(frame, lastDrawing) || ReferenceEquals(frame, releasePose)
+                                                    || ReferenceEquals(frame, resting)) return CreateSnapshot();
+            for (int i = 0; i < queuedDraws.Count; i++)
+                if (ReferenceEquals(frame, queuedDraws[i].Pose))
+                    return CreateSnapshot();
+
+            Array.Clear(frame.Floats, 0, frame.Floats.Length);
+            Array.Clear(frame.Ints, 0, frame.Ints.Length);
+            Array.Clear(frame.Bools, 0, frame.Bools.Length);
+            Array.Clear(frame.States, 0, frame.States.Length);
+            Array.Clear(frame.DrawStates, 0, frame.DrawStates.Length);
+            Array.Clear(frame.Weights, 0, frame.Weights.Length);
+            Array.Clear(frame.Positions, 0, frame.Positions.Length);
+            Array.Clear(frame.Rotations, 0, frame.Rotations.Length);
+            Array.Clear(frame.Scales, 0, frame.Scales.Length);
+            return frame;
+        }
+
         private void Capture()
         {
             RefreshBowSources();
             bool blocked = SourceBlocking();
-            var frame = new Snapshot
-            {
-                Time = clock, Drawing = !blocked && hasDraw && sourceAnimator.GetBool(drawHash),
-                Aim = owner.GetLookDir(), Floats = new float[parameters.Length], Ints = new int[parameters.Length],
-                Bools = new bool[parameters.Length], States = new AnimatorStateInfo[animator.layerCount],
-                DrawStates = new bool[animator.layerCount],
-                Weights = new float[animator.layerCount], Positions = new Vector3[bowBones.Count],
-                Rotations = new Quaternion[bowBones.Count], Scales = new Vector3[bowBones.Count]
-            };
+            var frame = AcquireSnapshot();
+            frame.Time = clock;
+            frame.Drawing = !blocked && hasDraw && sourceAnimator.GetBool(drawHash);
+            frame.Aim = owner.GetLookDir();
             for (int i = 0; i < parameters.Length; i++)
             {
                 var p = parameters[i];
-                if (BlockParameter(p.name)) continue;
+                if (blockParameters[i]) continue;
                 if (p.type == AnimatorControllerParameterType.Float)
                     frame.Floats[i] = sourceAnimator.GetFloat(p.nameHash);
                 else if (p.type == AnimatorControllerParameterType.Int)
@@ -599,7 +649,6 @@ namespace HaldorExpansion.Features.HelOath
             frame.Cycle = sourceCycle;
             if (frame.Drawing) lastDrawing = frame;
             snapshots.Add(frame);
-            if (snapshots.Count > 40) snapshots.RemoveAt(0);
             lastCapture = clock;
         }
 
@@ -621,20 +670,20 @@ namespace HaldorExpansion.Features.HelOath
             for (int i = 0; i < parameters.Length; i++)
             {
                 var p = parameters[i];
-                bool block = BlockParameter(p.name);
+                bool block = blockParameters[i];
                 if (p.type == AnimatorControllerParameterType.Float)
                 {
-                    float value = EquipmentParameter(p.name) ? weaponFloats[i]
+                    float value = equipmentParameters[i] ? weaponFloats[i]
                         : p.name == "forward_speed" ? velocity.z
                         : p.name == "sideway_speed" ? velocity.x
                         : p.nameHash == DrawPercentHash ? (drawing ? bowCycle.DrawProgress : 0f)
-                        : !block && p.name.ToLowerInvariant().Contains("draw") && drawing ? pose.Floats[i] : 0f;
+                        : !block && drawParameters[i] && drawing ? pose.Floats[i] : 0f;
                     if (p.name == "forward_speed" || p.name == "sideway_speed")
                         animator.SetFloat(p.nameHash, value, 0.12f, dt);
                     else animator.SetFloat(p.nameHash, value);
                 }
                 else if (p.type == AnimatorControllerParameterType.Int)
-                    animator.SetInteger(p.nameHash, !block && EquipmentParameter(p.name) ? weaponValues[i] : 0);
+                    animator.SetInteger(p.nameHash, !block && equipmentParameters[i] ? weaponValues[i] : 0);
                 else if (p.type == AnimatorControllerParameterType.Bool)
                     animator.SetBool(p.nameHash,
                         !block && (p.name == "onGround" || (p.nameHash == drawHash && drawing)));
