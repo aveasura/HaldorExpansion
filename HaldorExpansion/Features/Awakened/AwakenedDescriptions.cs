@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using HaldorExpansion.Features.HelOath;
@@ -128,9 +128,11 @@ namespace HaldorExpansion.Features.Awakened
                   Number(HelOathGhostRules.SoulDecaySeconds) +
                   " с. Без обычных попаданий первая душа уходит через " + Number(HelOathGhostRules.InactivitySeconds) +
                   " с, остальные — с интервалом " + Number(HelOathGhostRules.SoulDecaySeconds) + " с.\n" +
-                  "Обмен душами. Нажмите G (по умолчанию), чтобы поменяться местами с призраком. " +
+                  "Обмен душами. Нажмите E (по умолчанию), чтобы сложить печать и переместиться " +
+                  "к выбранному материализованному призраку, поглотив его душу. " +
                   "Первый призрак — Хранитель: он появляется рядом, затем занимает дальнюю позицию с удобной линией стрельбы. " +
-                  "Души при обмене не расходуются, перезарядки нет."
+                  "Стоимость: 1 душа и " + Percent(HelOathSoulSwap.StaminaCostFraction) +
+                  " максимальной выносливости. Перезарядки нет."
                 : "Hunter's Echo. Successful normal hits gather up to three souls alongside Hel's Embrace charge. " +
                   "Ghosts echo normal shots after a short delay for " +
                   Percent(HelOathGhostRules.NormalDamageMultiplier) + " damage. " +
@@ -142,9 +144,11 @@ namespace HaldorExpansion.Features.Awakened
                   " s. Without normal hits, the first soul leaves after " +
                   Number(HelOathGhostRules.InactivitySeconds) +
                   " s, then one every " + Number(HelOathGhostRules.SoulDecaySeconds) + " s.\n" +
-                  "Soul Swap. Press G (default) to switch places with a spirit. " +
-                  "The first spirit is the Guardian: it appears nearby, then moves to a distant firing position. " +
-                  "Soul Swap consumes no spirits and has no cooldown.");
+                  "Soul Swap. Press E (default) to form a seal and teleport to a materialized spirit, " +
+                  "consuming that soul. The first spirit is the Guardian: it appears nearby, then " +
+                  "moves to a distant firing position. Cost: 1 soul and " +
+                  Percent(HelOathSoulSwap.StaminaCostFraction) +
+                  " of maximum stamina. No cooldown.");
             
             text[Key(Artifact.ShadowCrossbow)] = title + (ru
                 ? "Пока арбалет экипирован: +" + Number(AwakenedBalance.ShadowCrossbow.Sneak) + " к скрытности и +" +

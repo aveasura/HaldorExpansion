@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace HaldorExpansion.Features.HelOath
 {
@@ -238,6 +238,9 @@ namespace HaldorExpansion.Features.HelOath
             if (!Fading) holdUntil = Math.Max(holdUntil, until);
         }
 
+        // Soul Swap consumes this body outright. It has no final attack to wait for.
+        internal void ReleaseHoldForSwap() => holdUntil = 0f;
+
         internal bool Waiting(float now) => !Fading && now < holdUntil;
 
         internal void BeginFade(bool spent)
@@ -263,6 +266,16 @@ namespace HaldorExpansion.Features.HelOath
         }
 
         internal string Token(int index) => tokens[index] ?? "";
+
+        // Keep the live slots contiguous without destroying the other souls.
+        // Reuse the final active body's identity in the spent slot if needed.
+        internal void RemoveAt(int index, int oldCount)
+        {
+            if (index < 0 || oldCount <= index || oldCount > tokens.Length) return;
+            int last = oldCount - 1;
+            tokens[index] = index == last ? null : tokens[last];
+            tokens[last] = null;
+        }
 
         internal void Update(int count)
         {

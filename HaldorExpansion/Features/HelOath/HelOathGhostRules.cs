@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace HaldorExpansion.Features.HelOath
 {
@@ -82,6 +82,16 @@ namespace HaldorExpansion.Features.HelOath
             }
 
             equipped = isEquipped;
+        }
+
+        // Consume exactly one soul for Soul Swap. Remaining souls retain their
+        // lifetime, fractional charge and identities; the ultimate still uses Consume().
+        internal bool SpendOne()
+        {
+            if (Count <= 0) return false;
+            Count--;
+            Generation++;
+            return true;
         }
 
         internal int Consume()

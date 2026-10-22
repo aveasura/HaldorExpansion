@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -129,6 +129,21 @@ namespace HaldorExpansion.Features.HelOath
             if ((count == 0 || !visible) && companions == null) return;
             if (companions == null) companions = player.gameObject.AddComponent<HelOathGhostCompanions>();
             companions.SetCount(player, count, visible);
+        }
+
+        // Called only by the owner on a validated, successful Soul Swap.
+        // Preserve the precise selected body's identity and all other souls.
+        internal static bool SpendSwapSoul(Player player, int index, string token)
+        {
+            if (player == null || player != Player.m_localPlayer || !ReferenceEquals(owner, player))
+                return false;
+            int oldCount = State.Count;
+            if (index < 0 || index >= oldCount || string.IsNullOrEmpty(token) ||
+                Roster.Token(index) != token) return false;
+            if (!State.SpendOne()) return false;
+            Roster.RemoveAt(index, oldCount);
+            Publish(player);
+            return true;
         }
 
         internal static void OnShot(Projectile projectile, HelOathShot shot)
@@ -264,32 +279,87 @@ namespace HaldorExpansion.Features.HelOath
             return ghost != null && ghost.Token == token && ghost.TrySwapLanding(out landing);
         }
 
-        internal void CompleteSwap(int selected, string token, Vector3 oldOwnerPosition,
-            bool auraAlreadyStarted = false)
+        // Retire the exact soul used as the destination, and keep all other
+        // companions (including their pending shot cycles) alive in contiguous slots.
+        internal void CompleteSwap(int selected, string token, bool auraAlreadyStarted = false)
         {
-            if (selected < 0 || selected >= ghosts.Length) return;
-            var ghost = ghosts[selected];
-            if (ghost == null || ghost.Token != token) return;
-            ghost.RelocateForSwap(oldOwnerPosition);
-            if (!auraAlreadyStarted) HelOathSoulSwapEffects.PlayGhostAura(ghost);
-            // Ignore instantaneous owner displacement when computing pursuit velocity.
+            ConsumeSwapBody(selected, token, auraAlreadyStarted);
             previousOwnerPosition = owner.transform.position;
             ownerVelocity = Vector3.zero;
             nextThreatScan = 0f;
         }
 
-        internal void RemoteSwap(int selected, string token, Vector3 oldOwnerPosition,
-            bool auraAlreadyStarted = false)
+        internal void RemoteSwap(int selected, string token, bool auraAlreadyStarted = false)
         {
-            if (selected < 0 || selected >= ghosts.Length) return;
-            var ghost = ghosts[selected];
-            if (ghost != null && ghost.Token == token && !ghost.Retiring)
+            ConsumeSwapBody(selected, token, auraAlreadyStarted);
+            previousOwnerPosition = owner.transform.position;
+            ownerVelocity = Vector3.zero;
+            nextThreatScan = 0f;
+        }
+
+        private void ConsumeSwapBody(int selected, string token, bool auraAlreadyStarted)
+        {
+            if (selected < 0 || selected >= ghosts.Length || string.IsNullOrEmpty(token)) return;
+            // The remote ZDO update can precede this RPC. If the original body
+            // is already in the retiring queue, make its fade immediate, and
+            // never retire the replacement body occupying the same index.
+            var consumed = ghosts[selected];
+            if (consumed != null && consumed.Token == token && consumed.Retiring)
             {
-                ghost.RelocateForSwap(oldOwnerPosition);
-                if (!auraAlreadyStarted) HelOathSoulSwapEffects.PlayGhostAura(ghost);
-                previousOwnerPosition = owner.transform.position;
-                ownerVelocity = Vector3.zero;
+                consumed.DissolveForSwap();
+                return;
             }
+
+            if (consumed == null || consumed.Token != token)
+            {
+                foreach (var oldBody in retiring)
+                    if (oldBody.Token == token)
+                        oldBody.DissolveForSwap();
+                return;
+            }
+
+            if (!auraAlreadyStarted) HelOathSoulSwapEffects.PlayGhostAura(consumed);
+            for (int i = pending.Count - 1; i >= 0; i--)
+                if (pending[i].Ghost == consumed)
+                    DropShot(i);
+            for (int i = remotePending.Count - 1; i >= 0; i--)
+                if (remotePending[i].Ghost == consumed)
+                {
+                    consumed.CancelShot(remotePending[i].Cycle);
+                    remotePending.RemoveAt(i);
+                }
+
+            consumed.DissolveForSwap();
+            // Hand the dissolving body to the existing retirement manager.
+            if (retiring.Count >= 6)
+            {
+                var oldest = retiring[0];
+                pending.RemoveAll(p => p.Ghost == oldest);
+                oldest.Dispose();
+                retiring.RemoveAt(0);
+            }
+
+            retiring.Add(consumed);
+
+            // The owner's logical roster now holds the old last token here.
+            // Keep the live object and its queued arrows instead of respawning it.
+            int last = Mathf.Clamp(count - 1, 0, ghosts.Length - 1);
+            if (selected != last)
+            {
+                var survivor = ghosts[last];
+                ghosts[selected] = survivor;
+                if (survivor != null && !survivor.Retiring)
+                {
+                    survivor.ReassignSlot(selected);
+                    foreach (var shot in pending)
+                        if (shot.Ghost == survivor)
+                            shot.Index = selected;
+                }
+            }
+            else ghosts[selected] = null;
+
+            ghosts[last] = null;
+            count = Mathf.Max(0, count - 1);
         }
 
         private readonly List<PendingShot> pending = new List<PendingShot>();
@@ -418,6 +488,16 @@ namespace HaldorExpansion.Features.HelOath
                 if (active != null && active.Token == token && (special || !active.Retiring)) selected = active;
             }
 
+            // A shot sent before a Soul Swap may arrive after the surviving
+            // companion has been moved from the last slot to the spent slot.
+            if (selected == null)
+                foreach (var active in ghosts)
+                    if (active != null && active.Token == token && (special || !active.Retiring))
+                    {
+                        selected = active;
+                        break;
+                    }
+
             if (selected == null || !selected.CanKeepShot) return false;
             if (special)
             {
@@ -475,19 +555,7 @@ namespace HaldorExpansion.Features.HelOath
             // token is not a newly earned soul and must not create a replacement.
             if (ghosts[i] != null && ghosts[i].Retiring && ghosts[i].Token == token) return;
             if (ghosts[i] != null && (ghosts[i].Retiring || ghosts[i].Token != token))
-            {
-                ghosts[i].Retire(owner == Player.m_localPlayer ? 0f : RemoteReleaseGrace);
-                if (retiring.Count >= 6)
-                {
-                    var oldest = retiring[0];
-                    pending.RemoveAll(p => p.Ghost == oldest);
-                    oldest.Dispose();
-                    retiring.RemoveAt(0);
-                }
-
-                retiring.Add(ghosts[i]);
-                ghosts[i] = null;
-            }
+                RetireSlot(i, owner == Player.m_localPlayer ? 0f : RemoteReleaseGrace);
 
             // A quick reequip may schedule a shot before LateUpdate restores visibility.
             // Unspent bodies may return; a spent body was moved out above.
@@ -510,9 +578,46 @@ namespace HaldorExpansion.Features.HelOath
             }
         }
 
+        // ZDO updates and Soul Swap's visual RPC may arrive in either order.
+        // Reconcile moved body tokens before a LateUpdate can create duplicates.
+        private void RetireSlot(int slot, float grace)
+        {
+            var ghost = ghosts[slot];
+            if (ghost == null) return;
+            ghost.Retire(grace);
+            if (retiring.Count >= 6)
+            {
+                var oldest = retiring[0];
+                pending.RemoveAll(p => p.Ghost == oldest);
+                oldest.Dispose();
+                retiring.RemoveAt(0);
+            }
+
+            retiring.Add(ghost);
+            ghosts[slot] = null;
+        }
+
         internal void SetCount(Player player, int desired, bool show)
         {
             owner = player;
+            if (player != Player.m_localPlayer)
+                for (int i = 0; i < desired; i++)
+                {
+                    string wanted = HelOathGhostPreview.BodyToken(player, i);
+                    if (string.IsNullOrEmpty(wanted) ||
+                        (ghosts[i] != null && ghosts[i].Token == wanted)) continue;
+                    for (int j = i + 1; j < ghosts.Length; j++)
+                    {
+                        var survivor = ghosts[j];
+                        if (survivor == null || survivor.Retiring || survivor.Token != wanted) continue;
+                        if (ghosts[i] != null) RetireSlot(i, RemoteReleaseGrace);
+                        ghosts[i] = survivor;
+                        ghosts[j] = null;
+                        survivor.ReassignSlot(i);
+                        break;
+                    }
+                }
+
             for (int i = desired; i < ghosts.Length; i++)
                 ghosts[i]?.Retire(player == Player.m_localPlayer ? 0f : RemoteReleaseGrace);
             count = desired;

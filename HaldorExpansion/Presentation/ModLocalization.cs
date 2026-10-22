@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using HaldorExpansion.Configuration;
 using HaldorExpansion.Features.Awakened;
@@ -76,6 +76,7 @@ namespace HaldorExpansion.Presentation
                 [HelOathIds.PreparedKey] = "Клятва пробуждена",
                 [HelOathIds.SoulSwapKey] = "Обмен душами",
                 [HelOathIds.SoulSwapUnavailableKey] = "Нет материализованного призрака для обмена",
+                [HelOathIds.SoulSwapNoStaminaKey] = "Недостаточно выносливости для Обмена душами",
                 [HelOathIds.TouchNameKey(1)] = "Касание Хель I",
                 [HelOathIds.TouchDescriptionKey(1)] =
                     "+{touch_speed}% к скорости передвижения.\n-{touch_stamina}% затрат выносливости на все действия.",
@@ -602,6 +603,7 @@ namespace HaldorExpansion.Presentation
                 [HelOathIds.SoulSwapKey] = "Soul Swap",
 
                 [HelOathIds.SoulSwapUnavailableKey] = "No materialized ghost available for Soul Swap",
+                [HelOathIds.SoulSwapNoStaminaKey] = "Not enough stamina for Soul Swap",
                 [HelOathIds.TouchNameKey(1)] = "Hel's Touch I",
                 [HelOathIds.TouchDescriptionKey(1)] =
                     "+{touch_speed}% movement speed.\n-{touch_stamina}% stamina cost for all actions.",

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
@@ -123,9 +123,29 @@ namespace HaldorExpansion.Features.HelOath
             nextFloorRecallSearch = 0f;
         }
 
+        // A spent slot is filled by the old last companion. Retarget its role
+        // in place rather than rebuilding its mesh/animator and losing shot FIFO.
+        internal void ReassignSlot(int newIndex)
+        {
+            if (index == newIndex) return;
+            index = newIndex;
+            nextGuardianChoice = 0f;
+            hasGuardianGoal = false;
+            guardianPositioning = IsGuardian;
+            nextRetarget = 0f;
+            resting = false;
+        }
+
         internal void PlaySoulSwapAura() => appearance.PlaySoulSwapAura();
 
         internal void Reappear() => departure.Reappear();
+
+        internal void DissolveForSwap()
+        {
+            model.InterruptForUltimate();
+            Retire();
+            departure.ReleaseHoldForSwap();
+        }
 
         internal void Retire(float grace = 0f)
         {

@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using HaldorExpansion.Features.StaminaCape;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -12,7 +13,15 @@ namespace HaldorExpansion.Features.HelOath
     // Position changes remain authoritative on the local player's Rigidbody.
     internal static class HelOathSoulSwap
     {
-        private const string SwapFxRpc = "HE_HelGhostSoulSwap_v2";
+        // A successful swap consumes one materialized soul and this fraction of
+        // maximum stamina, independent of Hel's Touch's stamina discount.
+        internal const float StaminaCostFraction = 0.40f;
+        private const string SwapFxRpc = "HE_HelGhostSoulSwap_v3";
+
+        private static readonly FieldInfo MaxAirAltitude = AccessTools.Field(
+            typeof(Character), "m_maxAirAltitude");
+
+        private static bool loggedMissingFallField;
         private const string StartRpc = "HE_HelGhostSoulSwapStart_v1";
         private const string EndRpc = "HE_HelGhostSoulSwapEnd_v1";
 
@@ -77,14 +86,16 @@ namespace HaldorExpansion.Features.HelOath
                     string token = packet.ReadString();
                     Vector3 oldOwnerPosition = packet.ReadVector3();
                     Vector3 landingPosition = packet.ReadVector3();
-                    if (!ValidBody(index, token) || !Finite(oldOwnerPosition) || !Finite(landingPosition) ||
-                        (oldOwnerPosition - player.transform.position).sqrMagnitude > 35f * 35f) return;
+                    if (!ValidBody(index, token) || !Finite(oldOwnerPosition) || !Finite(landingPosition)) return;
+                    // Owner transform replication can arrive before or after this RPC.
+                    if ((oldOwnerPosition - player.transform.position).sqrMagnitude > 35f * 35f &&
+                        (landingPosition - player.transform.position).sqrMagnitude > 35f * 35f) return;
                     RemoteCast cast;
                     bool prepared = RemoteCasts.TryGetValue(player, out cast) && cast.Index == index &&
                                     cast.Token == token && Time.time - cast.At < 1.5f;
                     if (prepared) cast.Index = -1;
                     player.GetComponent<HelOathGhostCompanions>()?.RemoteSwap(
-                        index, token, oldOwnerPosition, prepared);
+                        index, token, prepared);
                     HelOathSoulSwapEffects.PlayVisuals(player, oldOwnerPosition, landingPosition, !prepared);
                     // Compatibility fallback: a client may miss the early cast RPC.
                     if (!prepared) HelOathSoulSwapAudio.Play(player, landingPosition);
@@ -110,6 +121,12 @@ namespace HaldorExpansion.Features.HelOath
             if (companions == null || !companions.TrySelectSwap(out selected, out token, out landing))
             {
                 player.Message(MessageHud.MessageType.Center, HelOathIds.SoulSwapUnavailableKey);
+                return;
+            }
+
+            if (!HasEnoughStamina(player))
+            {
+                player.Message(MessageHud.MessageType.Center, HelOathIds.SoulSwapNoStaminaKey);
                 return;
             }
 
@@ -141,7 +158,12 @@ namespace HaldorExpansion.Features.HelOath
                 // Use the body's CURRENT landing and its original identity.
                 if (player != null && player == Player.m_localPlayer && !player.IsDead() &&
                     companions != null && companions.TryResolveSwap(selected, token, out landing))
-                    Commit(player, companions, selected, token, landing, true);
+                {
+                    if (HasEnoughStamina(player))
+                        Commit(player, companions, selected, token, landing, true);
+                    else
+                        player.Message(MessageHud.MessageType.Center, HelOathIds.SoulSwapNoStaminaKey);
+                }
 
                 yield return new WaitForSeconds(Mathf.Max(0f,
                     HelOathSoulSwapAnimation.Duration - HelOathSoulSwapAnimation.TeleportDelay));
@@ -154,10 +176,48 @@ namespace HaldorExpansion.Features.HelOath
             }
         }
 
+        private static float StaminaCost(Player player) =>
+            player != null ? Mathf.Max(0f, player.GetMaxStamina()) * StaminaCostFraction : 0f;
+
+        private static bool HasEnoughStamina(Player player) =>
+            player != null && player.GetStamina() + 0.001f >= StaminaCost(player);
+
+        // Reset only the historical fall peak. Do not grant global immunity:
+        // a genuine fall after the swap must still hurt normally.
+        private static void ResetFallHistory(Player player, float newAltitude)
+        {
+            try
+            {
+                if (MaxAirAltitude != null)
+                {
+                    MaxAirAltitude.SetValue(player, newAltitude);
+                    return;
+                }
+            }
+            catch (Exception error)
+            {
+                if (!loggedMissingFallField)
+                    HaldorExpansionPlugin.Log?.LogWarning(
+                        "[Hel Soul Swap] Cannot reset fall history: " + error.Message);
+            }
+
+            if (loggedMissingFallField) return;
+            loggedMissingFallField = true;
+            HaldorExpansionPlugin.Log?.LogWarning(
+                "[Hel Soul Swap] Fall history reset unavailable on this Valheim build.");
+        }
+
         // The only authoritative swap path (both instant fallback and delayed).
         private static void Commit(Player player, HelOathGhostCompanions companions,
             int selected, string token, Vector3 landing, bool prepared)
         {
+            if (player == null || companions == null || !HasEnoughStamina(player)) return;
+            // This token-specific operation cannot spend a different/new soul if
+            // the selected spirit expired during the cast.
+            if (!HelOathGhostPreview.SpendSwapSoul(player, selected, token)) return;
+            float cost = StaminaCost(player);
+            if (cost > 0f) StaminaCapeRuntime.SpendPlayerStamina(player, cost);
+
             Vector3 before = player.transform.position;
             Rigidbody body = player.GetComponent<Rigidbody>();
             HelOathSoulSwapEffects.PlayVisuals(player, before, landing, !prepared);
@@ -166,7 +226,8 @@ namespace HaldorExpansion.Features.HelOath
             player.transform.position = landing;
             if (body != null) body.position = landing;
             if (body != null) body.linearVelocity = Vector3.zero;
-            companions.CompleteSwap(selected, token, before, prepared);
+            ResetFallHistory(player, landing.y);
+            companions.CompleteSwap(selected, token, prepared);
             var view = HelOathNetwork.View(player);
             if (view == null || !view.IsValid() || !view.IsOwner()) return;
             var packet = new ZPackage();

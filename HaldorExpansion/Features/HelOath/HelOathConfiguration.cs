@@ -1,4 +1,4 @@
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using HaldorExpansion.Configuration;
 using Jotunn.Configs;
 using Jotunn.Extensions;
@@ -57,8 +57,8 @@ namespace HaldorExpansion.Features.HelOath
             InputManager.Instance.AddButton(HaldorExpansionPlugin.ModGuid, Button);
             var swapKey = input.Bind(ItemNames.ConfigSection(ItemNames.HelOathEn, ItemNames.HelOathRu),
                 "Soul Swap Key", KeyCode.E,
-                "Instantly swap places with a materialized Hel ghost (default E). " +
-                "Requires Hel's Oath quality 10 and at least one ghost. No cooldown or soul cost.");
+                "Teleport to a materialized Hel ghost and consume that soul (default E). " +
+                "Requires Hel's Oath quality 10 and 40% maximum stamina. No cooldown.");
             SoulSwapButton = new ButtonConfig
             {
                 Name = "HE_HelSoulSwap", Config = swapKey,
