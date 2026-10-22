@@ -8,7 +8,7 @@ namespace HaldorExpansion.Features.HelOath
         // ===== FORMATION DISTANCES: EDIT THESE TO TUNE GHOST SPACING =====
         // First apparition: Guardian materializes NEAR the player, then RUNS to his orbit.
         // Keep this beyond the ghost-to-ghost minimum spacing (HelOathGhostSpacing.Minimum).
-        internal const float GuardianSpawnDistance = 3.8f;
+        internal const float GuardianSpawnDistance = 4f;
 
         // Fallback when the preferred apparition spot is obstructed.
         internal const float SpawnFallbackMinRadius = 3.2f;
@@ -53,12 +53,12 @@ namespace HaldorExpansion.Features.HelOath
         internal const int GuardianIndex = 0;
         internal const float GuardianTravelNear = 12f;
         internal const float GuardianTravelFar = 16f;
-        internal const float GuardianCombatNear = 20f;
+        internal const float GuardianCombatNear = 18f;
 
-        internal const float GuardianCombatFar = 30f;
+        internal const float GuardianCombatFar = 25f;
 
         // Emergency catch-up fade/recall; keep above GuardianCombatFar + tolerance.
-        internal const float RecallDistance = 40f;
+        internal const float RecallDistance = 33f;
 
         // Multi-floor interiors: horizontal distance alone misses a soul standing
         // directly above or below its owner. Require a stable owner-side floor
