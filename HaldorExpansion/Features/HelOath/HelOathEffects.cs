@@ -866,8 +866,9 @@ namespace HaldorExpansion.Features.HelOath
                 spirals[i].startColor = spirals[i].endColor = color;
 
                 float direction = i % 2 == 0 ? 1f : -1f;
-                Vector3 offset = new Vector3(Mathf.Cos(spiralSeeds[i]), 0f, Mathf.Sin(spiralSeeds[i])) * radius *
-                                 0.08f * progress;
+                Vector3 offset =
+                    new Vector3(Mathf.Cos(spiralSeeds[i]), 0f, Mathf.Sin(spiralSeeds[i]))
+                    * (radius * 0.08f * progress);
                 for (int point = 0; point < SpiralPoints; point++)
                 {
                     float t = point / (float)(SpiralPoints - 1);
