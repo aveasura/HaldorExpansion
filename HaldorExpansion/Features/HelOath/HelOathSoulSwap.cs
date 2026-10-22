@@ -36,6 +36,7 @@ namespace HaldorExpansion.Features.HelOath
                         || (oldOwnerPosition - player.transform.position).sqrMagnitude > 35f * 35f) return;
                     player.GetComponent<HelOathGhostCompanions>()?.RemoteSwap(index, token, oldOwnerPosition);
                     HelOathSoulSwapEffects.PlayVisuals(player, oldOwnerPosition, landingPosition);
+                    HelOathSoulSwapAudio.Play(player, landingPosition);
                 }
                 catch (Exception error)
                 {
@@ -69,6 +70,7 @@ namespace HaldorExpansion.Features.HelOath
             Vector3 before = player.transform.position;
             Rigidbody body = player.GetComponent<Rigidbody>();
             HelOathSoulSwapEffects.PlayVisuals(player, before, landing);
+            HelOathSoulSwapAudio.Play(player, landing);
             player.transform.position = landing;
             if (body != null) body.position = landing;
             if (body != null) body.linearVelocity = Vector3.zero;
