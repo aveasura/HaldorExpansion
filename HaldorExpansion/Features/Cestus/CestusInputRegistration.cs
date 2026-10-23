@@ -1,4 +1,5 @@
-﻿using BepInEx.Configuration;
+﻿using System.ComponentModel;
+using BepInEx.Configuration;
 using HaldorExpansion.Configuration;
 using Jotunn.Configs;
 using Jotunn.Managers;
@@ -52,14 +53,17 @@ namespace HaldorExpansion.Features.Cestus
             ConfigEntry<bool> migrated = Config.Bind(
                 cestusSection,
                 "Facebreaker RMB Default Migrated", false,
-                "Internal one-time migration of the old Facebreaker E default to Mouse1. " +
-                "Leave enabled to preserve subsequent manual key changes.");
+                new ConfigDescription(
+                    "Internal one-time migration of the old Facebreaker E default to Mouse1. " +
+                    "Leave enabled to preserve subsequent manual key changes.",
+                    null, new BrowsableAttribute(false)));
             if (!migrated.Value)
             {
                 if (FacebreakerKeyConfig.Value == KeyCode.E)
                     FacebreakerKeyConfig.Value = KeyCode.Mouse1;
                 migrated.Value = true;
             }
+
             FacebreakerButton = new ButtonConfig
             {
                 Name = "CestusFacebreaker",

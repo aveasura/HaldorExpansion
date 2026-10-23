@@ -98,7 +98,7 @@ namespace HaldorExpansion.Configuration
         }
 
         // Sort the final displayed groups, after the manager's own sorting/search.
-        // Keep Compatibility first and Trading UI directly below it, without renaming
+        // Keep Compatibility, Trading UI, Configuration and Awakening at the top, without renaming
         // any config sections or changing categories of other plugins.
         private static void PrioritizeCompatibility(object __instance)
         {
@@ -113,36 +113,36 @@ namespace HaldorExpansion.Configuration
                     if (info == null || info.GUID != HaldorExpansionPlugin.ModGuid) continue;
                     var categories = ReadMember(group, "Categories") as IList;
                     if (categories == null || categories.IsReadOnly || categories.IsFixedSize) continue;
-                    for (int i = 1; i < categories.Count; i++)
+                    // Pin only visible categories; searches must never recreate hidden groups.
+                    string[] priority =
                     {
-                        if (!string.Equals(ReadMember(categories[i], "Name") as string, "Compatibility",
-                                StringComparison.Ordinal)) continue;
-                        object compatibility = categories[i];
-                        categories.RemoveAt(i);
-                        categories.Insert(0, compatibility);
-                        break;
-                    }
+                        "Compatibility", "Trading UI", "Configuration",
+                        "Awakening / Пробуждение"
+                    };
+                    int destination = 0;
+                    foreach (string name in priority)
+                    {
+                        for (int i = destination; i < categories.Count; i++)
+                        {
+                            if (!string.Equals(ReadMember(categories[i], "Name") as string, name,
+                                    StringComparison.Ordinal)) continue;
+                            object category = categories[i];
+                            if (i != destination)
+                            {
+                                categories.RemoveAt(i);
+                                categories.Insert(destination, category);
+                            }
 
-                    // Only move Trading UI if Compatibility is visible in the filtered list.
-                    // Moving the same objects preserves the original settings and their values.
-                    if (categories.Count == 0 ||
-                        !string.Equals(ReadMember(categories[0], "Name") as string, "Compatibility",
-                            StringComparison.Ordinal)) continue;
-                    for (int i = 2; i < categories.Count; i++)
-                    {
-                        if (!string.Equals(ReadMember(categories[i], "Name") as string, "Trading UI",
-                                StringComparison.Ordinal)) continue;
-                        object trading = categories[i];
-                        categories.RemoveAt(i);
-                        categories.Insert(1, trading);
-                        break;
+                            destination++;
+                            break;
+                        }
                     }
                 }
             }
             catch (Exception error)
             {
                 categoryOrderUnavailable = true;
-                HaldorExpansionPlugin.Log.LogWarning("[Config] Cannot prioritize Compatibility and Trading UI in F1: " +
+                HaldorExpansionPlugin.Log.LogWarning("[Config] Cannot prioritize configuration categories in F1: " +
                                                      error.Message);
             }
         }
