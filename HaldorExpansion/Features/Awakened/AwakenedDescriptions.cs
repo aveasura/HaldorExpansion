@@ -144,11 +144,11 @@ namespace HaldorExpansion.Features.Awakened
                   Percent(HelOathSoulSwap.StaminaCostFraction) +
                   " максимальной выносливости.\n\n" +
                   "Но ни одна душа не принадлежит миру живых вечно. " +
-                  "Когда новые стрелы перестают находить жертвы, " +
+                  "Когда новые стрелы перестают находить жертву, " +
                   "через " +
                   Number(HelOathGhostRules.InactivitySeconds) +
                   " с связь с Хель начинает слабеть. " +
-                  "Один за другим павшие возвращаются в её чертоги — " +
+                  "Один за другим павшие возвращаются в её чертоги - " +
                   "по одному каждые " +
                   Number(HelOathGhostRules.SoulDecaySeconds) +
                   " с. Стоит Клятве Хель покинуть руки хозяина, " +
@@ -188,7 +188,7 @@ namespace HaldorExpansion.Features.Awakened
                   "When arrows cease to find their prey, " +
                   "the bond with Hel begins to weaken after " +
                   Number(HelOathGhostRules.InactivitySeconds) +
-                  " s. One by one, the fallen return to her halls — " +
+                  " s. One by one, the fallen return to her halls - " +
                   "one soul every " +
                   Number(HelOathGhostRules.SoulDecaySeconds) +
                   " s. Should Hel's Oath leave its bearer's hands, " +
