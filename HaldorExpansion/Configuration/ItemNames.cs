@@ -20,7 +20,7 @@ namespace HaldorExpansion.Configuration
         internal const string ShadowHuntEn = "Crossbow of the Shadow Hunt";
         internal const string BoneCrushersRu = "Костоломы";
         internal const string BoneCrushersEn = "Bone Crushers";
-        internal const string PitKingRu = "Накидка хозяина ямы";
+        internal const string PitKingRu = "Мантия хозяина ямы";
         internal const string PitKingEn = "Pit King's Mantle";
         internal const string PeltOfHelheimRu = "Шкура Хельхейма";
         internal const string PeltOfHelheimEn = "Pelt of Helheim";

@@ -496,7 +496,7 @@ namespace HaldorExpansion.Presentation
                     "+90% к скорости атаки.\n" +
                     "-8 брони.",
 
-                // ====== Накидка хозяина ямы
+                // ====== Мантия хозяина ямы
                 [PitKingItemRegistration.PitKingChestItemKey + "_lore"] =
                     "<color=#C9A56B><b>II. Король без короны</b></color>" +
                     "\n<color=#B1ABA5><i>«Они бросили его на самое дно. Оттуда он и начал своё восхождение.»</i></color>" +
@@ -523,7 +523,7 @@ namespace HaldorExpansion.Presentation
 
                 [SteelHeartSet.SteelHeartSetNameKey] = "Стальное сердце",
                 [SteelHeartSet.SteelHeartSetDescKey] =
-                    "Костоломы и Накидка хозяина ямы пробуждают истинную мощь реликвии, усиливая защитный покров и ударную волну <color=#9EDFF2><b>Возмездия</b></color> на 50%.",
+                    "Костоломы и Мантия хозяина ямы пробуждают истинную мощь реликвии, усиливая защитный покров и ударную волну <color=#9EDFF2><b>Возмездия</b></color> на 50%.",
 
 
                 // ===== Плащ раненого зверя
