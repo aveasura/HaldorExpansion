@@ -8,7 +8,7 @@ namespace HaldorExpansion.Features.HelOath
         internal const int RequiredQuality = 10;
         internal const int Limit = 3;
         internal const float SoulCostFraction = 1f / 3f;
-        internal const float InactivitySeconds = 45f;
+        internal const float InactivitySeconds = 30f;
         internal const float SoulDecaySeconds = 10f;
         internal const float NormalDamageMultiplier = 0.33f;
         internal const float ActiveDamageMultiplier = 0.50f;

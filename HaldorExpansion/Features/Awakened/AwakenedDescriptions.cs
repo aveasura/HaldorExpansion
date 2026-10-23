@@ -114,46 +114,89 @@ namespace HaldorExpansion.Features.Awakened
                   " фактически снятого здоровья врага. Не действует на Возмездие."
                 : "Attacks restore health equal to " + Percent(AwakenedBalance.BoneCrushers.LifeSteal) +
                   " of the enemy health actually lost. Does not apply to the Retribution.");
-
+            
             text[Key(Artifact.HelOath)] = title + (ru
-                ? "<b>Эхо охотника</b>\n" +
-                  "Хель возвращает отголоски павших, чтобы они охотились рядом с вами.\n\n" +
-                  "Обычные попадания по врагам собирают до трёх душ. Призраки повторяют ваши выстрелы, нанося " +
-                  Percent(HelOathGhostRules.NormalDamageMultiplier) + " их урона. " +
-                  "Их призрачным стрелам не преграда стены и камень. " +
-                  "При Объятиях Хель каждый выпускает усиленную стрелу с " +
+                ? "<color=#BFE8DF><b>Призраки последней охоты</b></color>\n" +
+                  "<i>Не всем павшим дозволено обрести покой. " +
+                  "Некоторым суждено вновь услышать зов охоты.</i>\n\n" +
+                  "Каждая стрела Клятвы Хель, настигшая врага, " +
+                  "отзывается эхом во владениях мёртвых. " +
+                  "На этот зов из холодной мглы возвращаются до трёх " +
+                  "павших охотников, обречённых вновь натянуть тетивы.\n\n" +
+                  "Их стрелы следуют за стрелами хозяина, сохраняя " +
+                  Percent(HelOathGhostRules.NormalDamageMultiplier) +
+                  " их силы. Ни стены, ни камень не властны над оружием тех, " +
+                  "кто уже переступил порог смерти.\n\n" +
+                  "Когда пробуждаются <color=#D5F5FF><b>Объятия Хель</b></color>, павшие исполняют " +
+                  "последний приказ. Каждый выпускает усиленную стрелу, " +
+                  "несущую " +
                   Percent(HelOathGhostRules.ActiveDamageMultiplier) +
-                  " урона способности, после чего покидает этот мир. " +
-                  "Даже при промахе усиленная стрела взрывается в намеченной точке. " +
-                  "Атаки призраков не заряжают способности.\n\n" +
-                  "<b>Обмен душами.</b> Нажмите E (по умолчанию), чтобы сложить печать и перенестись " +
-                  "к проявившемуся призраку, поглотив его душу.\n" +
-                  "Стоимость: 1 душа и " + Percent(HelOathSoulSwap.StaminaCostFraction) +
+                  " мощи способности, после чего души возвращаются " +
+                  "во владения своей повелительницы.\n\n" +
+                  "<color=#8ED8D1><b>Обмен душами</b></color>\n" +
+                  "<i>Завеса между жизнью и смертью истончается перед тем, " +
+                  "кто осмелится пожертвовать душой.</i>\n\n" +
+                  "Ценой одного из призраков хозяин Клятвы Хель " +
+                  "способен мгновенно преодолеть пространство, " +
+                  "заняв место павшего охотника. Но даже такой переход " +
+                  "требует жертвы собственной жизненной силой.\n" +
+                  "Клавиша: E (по умолчанию). Стоимость: 1 душа и " +
+                  Percent(HelOathSoulSwap.StaminaCostFraction) +
                   " максимальной выносливости.\n\n" +
-                  "Без обычных попаданий души начинают исчезать через " +
-                  Number(HelOathGhostRules.InactivitySeconds) + " с, затем по одной каждые " +
-                  Number(HelOathGhostRules.SoulDecaySeconds) + " с. " +
-                  "При снятом луке призраки скрываются, а души убывают по одной каждые " +
-                  Number(HelOathGhostRules.SoulDecaySeconds) + " с."
-                : "<b>Hunter's Echo</b>\n" +
-                  "Hel returns the echoes of the fallen to hunt at your side.\n\n" +
-                  "Normal hits against enemies gather up to three souls. Ghosts echo your shots for " +
-                  Percent(HelOathGhostRules.NormalDamageMultiplier) + " of their damage. " +
-                  "Walls and stone cannot stop their spectral arrows. " +
-                  "When Hel's Embrace fires, each ghost releases an empowered arrow for " +
+                  "Но ни одна душа не принадлежит миру живых вечно. " +
+                  "Когда новые стрелы перестают находить жертвы, " +
+                  "через " +
+                  Number(HelOathGhostRules.InactivitySeconds) +
+                  " с связь с Хель начинает слабеть. " +
+                  "Один за другим павшие возвращаются в её чертоги — " +
+                  "по одному каждые " +
+                  Number(HelOathGhostRules.SoulDecaySeconds) +
+                  " с. Стоит Клятве Хель покинуть руки хозяина, " +
+                  "и призраки вновь растворяются в холодной мгле, " +
+                  "а души продолжают угасать в том же ритме.\n\n" +
+                  "<color=#A9B8BA><i>Стрелы павших не питают силу " +
+                  "Клятвы Хель.</i></color>"
+                : "<color=#BFE8DF><b>Ghosts of the Last Hunt</b></color>\n" +
+                  "<i>Not all fallen are granted rest. " +
+                  "Some are destined to hear the call of the hunt once more.</i>\n\n" +
+                  "Every arrow of Hel's Oath that finds its mark " +
+                  "echoes through the realm of the dead. " +
+                  "Answering the call, up to three fallen hunters " +
+                  "emerge from the cold mist, bound to draw their bows once more.\n\n" +
+                  "Their arrows follow those of their master, retaining " +
+                  Percent(HelOathGhostRules.NormalDamageMultiplier) +
+                  " of their power. Neither walls nor stone hold sway " +
+                  "over the weapons of those who have already " +
+                  "crossed the threshold of death.\n\n" +
+                  "When <color=#D5F5FF><b>Hel's Embrace</b></color> awakens, the fallen obey " +
+                  "one final command. Each releases an empowered arrow, " +
+                  "bearing " +
                   Percent(HelOathGhostRules.ActiveDamageMultiplier) +
-                  " of the ability's damage, then departs this world. " +
-                  "Even on a miss, empowered arrows explode at the intended point. " +
-                  "Ghost attacks do not charge abilities.\n\n" +
-                  "<b>Soul Swap.</b> Press E (default) to form a seal and teleport to a materialized spirit, " +
-                  "consuming its soul.\n" +
-                  "Cost: 1 soul and " + Percent(HelOathSoulSwap.StaminaCostFraction) +
+                  " of the ability's power, before their souls " +
+                  "return to the realm of their mistress.\n\n" +
+                  "<color=#8ED8D1><b>Soul Swap</b></color>\n" +
+                  "<i>The veil between life and death grows thin " +
+                  "before one willing to sacrifice a soul.</i>\n\n" +
+                  "At the cost of a single spirit, the bearer of Hel's Oath " +
+                  "may cross the distance in an instant, taking the place " +
+                  "of a fallen hunter. Yet even such passage demands " +
+                  "a sacrifice of one's own vital strength.\n" +
+                  "Key: E (default). Cost: 1 soul and " +
+                  Percent(HelOathSoulSwap.StaminaCostFraction) +
                   " of maximum stamina.\n\n" +
-                  "Without normal hits, souls begin to fade after " + Number(HelOathGhostRules.InactivitySeconds) +
-                  " s, then one every " + Number(HelOathGhostRules.SoulDecaySeconds) + " s. " +
-                  "While the bow is unequipped, ghosts are hidden and one soul fades every " +
-                  Number(HelOathGhostRules.SoulDecaySeconds) + " s.");
-
+                  "But no soul belongs to the living world forever. " +
+                  "When arrows cease to find their prey, " +
+                  "the bond with Hel begins to weaken after " +
+                  Number(HelOathGhostRules.InactivitySeconds) +
+                  " s. One by one, the fallen return to her halls — " +
+                  "one soul every " +
+                  Number(HelOathGhostRules.SoulDecaySeconds) +
+                  " s. Should Hel's Oath leave its bearer's hands, " +
+                  "the ghosts dissolve into the cold mist once more, " +
+                  "their souls continuing to fade at the same pace.\n\n" +
+                  "<color=#A9B8BA><i>The arrows of the fallen " +
+                  "do not replenish the power of Hel's Oath.</i></color>");
+            
             text[Key(Artifact.ShadowCrossbow)] = title + (ru
                 ? "Пока арбалет экипирован: +" + Number(AwakenedBalance.ShadowCrossbow.Sneak) + " к скрытности и +" +
                   Number(AwakenedBalance.ShadowCrossbow.Crossbows) +
