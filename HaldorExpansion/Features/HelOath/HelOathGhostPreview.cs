@@ -689,24 +689,16 @@ namespace HaldorExpansion.Features.HelOath
                 }
 
                 // Ordinary actions never expire while waiting for their own draw,
-                // release or a clear firing lane; only the spent soul has a bound.
+                // release; only the spent soul has a bound.
                 if (p.Shot.Special && Time.time > p.Expires)
                 {
                     DropShot(i);
                     continue;
                 }
 
-                // The line of fire is a positioning preference, never a prerequisite
-                // for finishing an accepted arrow. When the owner sprints away, the
-                // old aim point can remain behind terrain while this body switches
-                // to follow mode (where it cannot reposition for that old point).
-                // Waiting for ClearShot here permanently locks its bow in the draw
-                // pose until the owner happens to shoot again. Fire on the body's
-                // independent clock instead: the projectile's normal collision
-                // handles any wall in its path, just as it does for owner shots.
-                // Do not shoot into an intermediate dungeon floor. Keep the
-                // action in FIFO until the visual rejoins the owner's level.
-                // Ultimate remains the one action permitted to preempt this.
+                // Fire on this body's independent clock. Scenery no longer
+                // blocks spectral arrows; retain floor recovery and the FIFO.
+                // The ultimate may still preempt ordinary queued actions.
                 if (!p.Shot.Special && !p.Ghost.OnOwnerLevel(owner.transform.position))
                 {
                     i++;

@@ -200,6 +200,25 @@ namespace HaldorExpansion.Features.HelOath
                     ps.Play(false);
         }
 
+        // Player Soul Swap keeps its emitters between casts, completely idle.
+        // Ghost departure still uses SetFade/Released and owns its normal cleanup.
+        internal void Suspend()
+        {
+            if (root == null || Released || disposed) return;
+            foreach (var ps in layers)
+                if (ps != null)
+                    ps.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+            root.SetActive(false);
+            started = false;
+        }
+
+        internal void Resume()
+        {
+            if (root == null || Released || disposed) return;
+            root.SetActive(true);
+            Start();
+        }
+
         // Temporarily use the icy-blue Soul Swap palette on the same three-layer
         // aura. Each body owns its particle systems; no shared ghost assets are modified.
         internal void FlashSwap(float hold, float fadeOut)

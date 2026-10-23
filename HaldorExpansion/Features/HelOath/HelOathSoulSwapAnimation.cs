@@ -19,6 +19,12 @@ namespace HaldorExpansion.Features.HelOath
         private static AssetBundle bundle;
         private static AnimationClip clip;
 
+        internal static void Prewarm()
+        {
+            if (!Application.isBatchMode && SystemInfo.graphicsDeviceType != GraphicsDeviceType.Null)
+                LoadClip();
+        }
+
         internal static bool TryBegin(Player player)
         {
             return LoadClip() && CestusFacebreakerAnimation.TryBeginSoulSwap(player, clip);

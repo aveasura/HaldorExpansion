@@ -74,7 +74,7 @@ namespace HaldorExpansion.Features.HelOath
             && !float.IsInfinity(point.x) && !float.IsInfinity(point.y) && !float.IsInfinity(point.z);
     }
 
-    // A short-lived, player-attached instance of the ghost's actual soul-cloud aura.
+    // A reusable, player-attached instance of the ghost's actual soul-cloud aura.
     // Unlike the ghost, the player has no persistent veil: it fades to transparent.
     internal sealed class HelOathSoulSwapPlayerAura : MonoBehaviour
     {
@@ -89,9 +89,10 @@ namespace HaldorExpansion.Features.HelOath
             {
                 aura = new HelOathGhostAura();
                 aura.Initialize(player.transform, player.transform);
-                aura.Start();
             }
 
+            enabled = true;
+            aura.Resume();
             beganAt = Time.time;
             aura.FlashSwap(Hold + FadeSeconds, 0.05f);
             aura.SetFade(1f, false);
@@ -103,10 +104,10 @@ namespace HaldorExpansion.Features.HelOath
             float progress = Mathf.Clamp01((Time.time - beganAt - Hold) / FadeSeconds);
             float visibility = 1f - Mathf.SmoothStep(0f, 1f, progress);
             aura.SetFade(visibility, false);
-            if (progress >= 1f) Destroy(this);
+            if (progress >= 1f) enabled = false;
         }
 
-        private void OnDisable() => DisposeAura();
+        private void OnDisable() => aura?.Suspend();
         private void OnDestroy() => DisposeAura();
 
         private void DisposeAura()

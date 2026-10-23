@@ -41,6 +41,9 @@ namespace HaldorExpansion.Features.Cestus
         private static readonly ConditionalWeakTable<Player, VisualState> Visuals =
             new ConditionalWeakTable<Player, VisualState>();
 
+        // Calls are synchronous on the Unity thread, so layers/players can reuse this buffer.
+        private static readonly List<AnimatorClipInfo> ClipInfoBuffer = new List<AnimatorClipInfo>(8);
+
         private sealed class VisualState
         {
             internal Animator Animator;
@@ -50,6 +53,7 @@ namespace HaldorExpansion.Features.Cestus
             internal Coroutine PendingRestore;
             internal int Revision;
             internal List<KeyValuePair<AnimationClip, AnimationClip>> BaselineOverrides;
+            internal List<KeyValuePair<AnimationClip, AnimationClip>> Replacements;
             internal bool ClipInjected;
             internal AnimationClip ActiveClip;
             internal bool SoulSwapActive;
@@ -296,14 +300,14 @@ namespace HaldorExpansion.Features.Cestus
             if (animator == null || !animator.isActiveAndEnabled || activeClip == null) return false;
             for (int layer = 0; layer < animator.layerCount; layer++)
             {
-                AnimatorClipInfo[] current = animator.GetCurrentAnimatorClipInfo(layer);
-                for (int i = 0; i < current.Length; i++)
-                    if (current[i].clip == activeClip && current[i].weight > 0.001f)
+                animator.GetCurrentAnimatorClipInfo(layer, ClipInfoBuffer);
+                for (int i = 0; i < ClipInfoBuffer.Count; i++)
+                    if (ClipInfoBuffer[i].clip == activeClip && ClipInfoBuffer[i].weight > 0.001f)
                         return true;
                 if (!animator.IsInTransition(layer)) continue;
-                AnimatorClipInfo[] next = animator.GetNextAnimatorClipInfo(layer);
-                for (int i = 0; i < next.Length; i++)
-                    if (next[i].clip == activeClip && next[i].weight > 0.001f)
+                animator.GetNextAnimatorClipInfo(layer, ClipInfoBuffer);
+                for (int i = 0; i < ClipInfoBuffer.Count; i++)
+                    if (ClipInfoBuffer[i].clip == activeClip && ClipInfoBuffer[i].weight > 0.001f)
                         return true;
             }
 
@@ -326,7 +330,12 @@ namespace HaldorExpansion.Features.Cestus
             if (state == null || state.Override == null || state.BaselineOverrides == null || clip == null)
                 return false;
 
-            var replacements = new List<KeyValuePair<AnimationClip, AnimationClip>>(state.BaselineOverrides);
+            if (state.Replacements == null)
+                state.Replacements =
+                    new List<KeyValuePair<AnimationClip, AnimationClip>>(state.BaselineOverrides.Count);
+            var replacements = state.Replacements;
+            replacements.Clear();
+            replacements.AddRange(state.BaselineOverrides);
             int count = 0;
             for (int i = 0; i < replacements.Count; i++)
             {
@@ -465,6 +474,7 @@ namespace HaldorExpansion.Features.Cestus
             state.Original = null;
             state.Animator = null;
             state.BaselineOverrides = null;
+            state.Replacements = null;
             state.ClipInjected = false;
             state.ActiveClip = null;
             state.SoulSwapActive = false;

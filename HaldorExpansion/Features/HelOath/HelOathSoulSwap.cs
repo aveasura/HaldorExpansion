@@ -30,6 +30,39 @@ namespace HaldorExpansion.Features.HelOath
 
         private static readonly MethodInfo TakeInput = AccessTools.Method(typeof(Player), "TakeInput");
 
+        private static readonly Func<Player, bool> TakeInputFast = Bind<Func<Player, bool>>(TakeInput);
+        private static readonly Func<string, bool> GetButtonDownFast = Bind<Func<string, bool>>(GetButtonDown);
+        private static readonly object[] ButtonArguments = new object[1];
+
+        private static T Bind<T>(MethodInfo method) where T : class
+        {
+            if (method == null) return null;
+            try
+            {
+                return Delegate.CreateDelegate(typeof(T), method) as T;
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+            catch (MemberAccessException)
+            {
+                return null;
+            }
+        }
+
+        private static bool AcceptsInput(Player player) => TakeInputFast != null
+            ? TakeInputFast(player)
+            : (bool)TakeInput.Invoke(player, null);
+
+        private static bool ButtonPressed(string name)
+        {
+            if (GetButtonDownFast != null) return GetButtonDownFast(name);
+            // Compatibility fallback still reuses its argument array.
+            ButtonArguments[0] = name;
+            return (bool)GetButtonDown.Invoke(null, ButtonArguments);
+        }
+
         private static readonly ConditionalWeakTable<Player, RemoteCast> RemoteCasts =
             new ConditionalWeakTable<Player, RemoteCast>();
 
@@ -112,8 +145,9 @@ namespace HaldorExpansion.Features.HelOath
             if (player == null || player != Player.m_localPlayer || IsCastLocked(player) ||
                 HelOathConfiguration.SoulSwapButton == null || GetButtonDown == null ||
                 TakeInput == null || !HelOathGhostPreview.Eligible(player)) return;
-            if (!(bool)TakeInput.Invoke(player, null)) return;
-            if (!(bool)GetButtonDown.Invoke(null, new object[] { HelOathConfiguration.SoulSwapButton.Name })) return;
+            HelOathSoulSwapAudio.Prewarm();
+            HelOathSoulSwapAnimation.Prewarm();
+            if (!AcceptsInput(player) || !ButtonPressed(HelOathConfiguration.SoulSwapButton.Name)) return;
             var companions = player.GetComponent<HelOathGhostCompanions>();
             int selected;
             string token;

@@ -49,11 +49,11 @@ namespace HaldorExpansion.Features.Awakened
                                   : "Hidden Potential: awakens at upgrade level " +
                                     AwakenedBalance.QualityThreshold + ".") +
                               "</color>";
-            
+
             string title = "<color=#FF5555><b>" +
                            (ru ? "Пробуждённый потенциал:" : "Awakened Potential:") +
                            "</b></color> ";
-            
+
             text[Key(Artifact.DelayedDoomChest)] = title + (ru
                 ? "При активном отложенном долге и здоровье не выше " +
                   Percent(AwakenedBalance.DelayedDoomChest.HealthThreshold) +
@@ -63,7 +63,7 @@ namespace HaldorExpansion.Features.Awakened
                   Percent(AwakenedBalance.DelayedDoomChest.HealthThreshold) +
                   ", restores " + Percent(AwakenedBalance.DelayedDoomChest.HealthPerSecond) +
                   " of maximum health per second.");
-            
+
             text[Key(Artifact.BerserkerHelmet)] = title + (ru
                 ? "Пир павших. При активной Ярости каждое убийство обычной или альтернативной атакой Секиры берсерка восстанавливает " +
                   Percent(AwakenedBalance.BerserkerHelmet.MissingHealthOnKill) +
@@ -71,17 +71,17 @@ namespace HaldorExpansion.Features.Awakened
                 : "Feast of the Fallen. With Wrath active, each kill with a normal or alternate Berserker Greataxe attack restores " +
                   Percent(AwakenedBalance.BerserkerHelmet.MissingHealthOnKill) +
                   " of missing health.");
-            
+
             text[Key(Artifact.BerserkerCloak)] = title + (ru
                 ? "Рагнарёк сохраняет Ярость. Расход долга и истощение остаются прежними."
                 : "Ragnarok preserves Wrath. Debt consumption and exhaustion remain unchanged.");
-            
+
             text[Key(Artifact.ScorchedEnduranceCloak)] = title + (ru
                 ? "Небольшая устойчивость к рубящему урону: снижение на " +
                   Percent(AwakenedBalance.ScorchedEnduranceCloak.SlashReduction) + "."
                 : "Slight resistance to slash damage: " +
                   Percent(AwakenedBalance.ScorchedEnduranceCloak.SlashReduction) + " reduction.");
-            
+
             text[Key(Artifact.WoundedBeastCloak)] = title + (ru
                 ? "При ношении: +" + Number(AwakenedBalance.WoundedBeastCloak.Health) + " максимального здоровья и +" +
                   Number(AwakenedBalance.WoundedBeastCloak.Unarmed) +
@@ -89,7 +89,7 @@ namespace HaldorExpansion.Features.Awakened
                 : "While equipped: +" + Number(AwakenedBalance.WoundedBeastCloak.Health) + " maximum health and +" +
                   Number(AwakenedBalance.WoundedBeastCloak.Unarmed) +
                   " Unarmed skill (capped at " + Number(AwakenedBalance.SkillCap) + ").");
-            
+
             text[Key(Artifact.HelheimPelt)] = title + (ru
                 ? "При ношении: +" + Number(AwakenedBalance.HelheimPelt.Stamina) +
                   " максимальной выносливости. Урон от падения снижен на " +
@@ -97,59 +97,65 @@ namespace HaldorExpansion.Features.Awakened
                 : "While equipped: +" + Number(AwakenedBalance.HelheimPelt.Stamina) +
                   " maximum stamina. Fall damage reduced by " +
                   Percent(AwakenedBalance.HelheimPelt.FallDamageReduction) + ".");
-            
+
             text[Key(Artifact.PitKingChest)] = title + (ru
                 ? "[Стальное Сердце]: бонус сета заменяется на +" +
                   Percent(AwakenedBalance.PitKingChest.ShieldMultiplier - 1f)
                 : "[Steel Heart]: replaces the set's bonus with +" +
                   Percent(AwakenedBalance.PitKingChest.ShieldMultiplier - 1f));
-            
+
             text[Key(Artifact.BerserkerAxe)] = title + (ru
                 ? "Кровавая жатва. Каждое убийство обычной или альтернативной атакой даёт " +
                   Number(AwakenedBalance.BerserkerAxe.DebtOnKill) + " кровавого долга."
                 : "Bloody Harvest. Each kill with a normal or alternate attack grants " +
                   Number(AwakenedBalance.BerserkerAxe.DebtOnKill) + " Blood Debt.");
-            
+
             text[Key(Artifact.BoneCrushers)] = title + (ru
                 ? "Удары восстанавливают здоровье в размере " +
                   Percent(AwakenedBalance.BoneCrushers.LifeSteal) +
                   " фактически снятого здоровья врага. Не действует на Возмездие."
                 : "Attacks restore health equal to " + Percent(AwakenedBalance.BoneCrushers.LifeSteal) +
                   " of the enemy health actually lost. Does not apply to the Retribution.");
-            
+
             text[Key(Artifact.HelOath)] = title + (ru
-                ? "Эхо охотника. Успешные обычные попадания собирают до трёх душ параллельно с зарядом Объятий Хель. " +
-                  "Призраки с небольшим запозданием повторяют обычные выстрелы с " +
-                  Percent(HelOathGhostRules.NormalDamageMultiplier) + " урона. " +
-                  "При Объятиях Хель на любой стадии Касания каждый призрак выпускает стрелу с " +
+                ? "<b>Эхо охотника</b>\n" +
+                  "Хель возвращает отголоски павших, чтобы они охотились рядом с вами.\n\n" +
+                  "Обычные попадания по врагам собирают до трёх душ. Призраки повторяют ваши выстрелы, нанося " +
+                  Percent(HelOathGhostRules.NormalDamageMultiplier) + " их урона. " +
+                  "Их призрачным стрелам не преграда стены и камень. " +
+                  "При Объятиях Хель каждый выпускает усиленную стрелу с " +
                   Percent(HelOathGhostRules.ActiveDamageMultiplier) +
-                  " урона активки и освобождается. Урон призраков не заряжает способности. " +
-                  "При снятом луке призраки скрыты, души убывают по одной за " +
-                  Number(HelOathGhostRules.SoulDecaySeconds) +
-                  " с. Без обычных попаданий первая душа уходит через " + Number(HelOathGhostRules.InactivitySeconds) +
-                  " с, остальные — с интервалом " + Number(HelOathGhostRules.SoulDecaySeconds) + " с.\n" +
-                  "Обмен душами. Нажмите E (по умолчанию), чтобы сложить печать и переместиться " +
-                  "к выбранному материализованному призраку, поглотив его душу. " +
-                  "Первый призрак — Хранитель: он появляется рядом, затем занимает дальнюю позицию с удобной линией стрельбы. " +
+                  " урона способности, после чего покидает этот мир. " +
+                  "Даже при промахе усиленная стрела взрывается в намеченной точке. " +
+                  "Атаки призраков не заряжают способности.\n\n" +
+                  "<b>Обмен душами.</b> Нажмите E (по умолчанию), чтобы сложить печать и перенестись " +
+                  "к проявившемуся призраку, поглотив его душу.\n" +
                   "Стоимость: 1 душа и " + Percent(HelOathSoulSwap.StaminaCostFraction) +
-                  " максимальной выносливости. Перезарядки нет."
-                : "Hunter's Echo. Successful normal hits gather up to three souls alongside Hel's Embrace charge. " +
-                  "Ghosts echo normal shots after a short delay for " +
-                  Percent(HelOathGhostRules.NormalDamageMultiplier) + " damage. " +
-                  "Whenever Hel's Embrace fires, each ghost fires for " +
+                  " максимальной выносливости.\n\n" +
+                  "Без обычных попаданий души начинают исчезать через " +
+                  Number(HelOathGhostRules.InactivitySeconds) + " с, затем по одной каждые " +
+                  Number(HelOathGhostRules.SoulDecaySeconds) + " с. " +
+                  "При снятом луке призраки скрываются, а души убывают по одной каждые " +
+                  Number(HelOathGhostRules.SoulDecaySeconds) + " с."
+                : "<b>Hunter's Echo</b>\n" +
+                  "Hel returns the echoes of the fallen to hunt at your side.\n\n" +
+                  "Normal hits against enemies gather up to three souls. Ghosts echo your shots for " +
+                  Percent(HelOathGhostRules.NormalDamageMultiplier) + " of their damage. " +
+                  "Walls and stone cannot stop their spectral arrows. " +
+                  "When Hel's Embrace fires, each ghost releases an empowered arrow for " +
                   Percent(HelOathGhostRules.ActiveDamageMultiplier) +
-                  " of the active shot's damage and is released. Ghost damage never charges abilities. " +
-                  "While the bow is unequipped, ghosts are hidden and lose one soul per " +
-                  Number(HelOathGhostRules.SoulDecaySeconds) +
-                  " s. Without normal hits, the first soul leaves after " +
-                  Number(HelOathGhostRules.InactivitySeconds) +
-                  " s, then one every " + Number(HelOathGhostRules.SoulDecaySeconds) + " s.\n" +
-                  "Soul Swap. Press E (default) to form a seal and teleport to a materialized spirit, " +
-                  "consuming that soul. The first spirit is the Guardian: it appears nearby, then " +
-                  "moves to a distant firing position. Cost: 1 soul and " +
-                  Percent(HelOathSoulSwap.StaminaCostFraction) +
-                  " of maximum stamina. No cooldown.");
-            
+                  " of the ability's damage, then departs this world. " +
+                  "Even on a miss, empowered arrows explode at the intended point. " +
+                  "Ghost attacks do not charge abilities.\n\n" +
+                  "<b>Soul Swap.</b> Press E (default) to form a seal and teleport to a materialized spirit, " +
+                  "consuming its soul.\n" +
+                  "Cost: 1 soul and " + Percent(HelOathSoulSwap.StaminaCostFraction) +
+                  " of maximum stamina.\n\n" +
+                  "Without normal hits, souls begin to fade after " + Number(HelOathGhostRules.InactivitySeconds) +
+                  " s, then one every " + Number(HelOathGhostRules.SoulDecaySeconds) + " s. " +
+                  "While the bow is unequipped, ghosts are hidden and one soul fades every " +
+                  Number(HelOathGhostRules.SoulDecaySeconds) + " s.");
+
             text[Key(Artifact.ShadowCrossbow)] = title + (ru
                 ? "Пока арбалет экипирован: +" + Number(AwakenedBalance.ShadowCrossbow.Sneak) + " к скрытности и +" +
                   Number(AwakenedBalance.ShadowCrossbow.Crossbows) +
@@ -157,7 +163,7 @@ namespace HaldorExpansion.Features.Awakened
                 : "While equipped: +" + Number(AwakenedBalance.ShadowCrossbow.Sneak) + " Sneak and +" +
                   Number(AwakenedBalance.ShadowCrossbow.Crossbows) +
                   " Crossbows (each skill capped at " + Number(AwakenedBalance.SkillCap) + ").");
-            
+
             text[Key(Artifact.Brisingamen)] = title + (ru
                 ? "Благословение отвергнутой богини. При ношении: +" +
                   Percent(AwakenedBalance.Brisingamen.StaminaRegenBonus) + " к восстановлению выносливости."

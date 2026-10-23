@@ -37,7 +37,7 @@ namespace HaldorExpansion.Features.HelOath
         private float speed;
         private Vector3 destination;
         private Vector3 followOffset, focusDirection, combatAim, ownerVelocity;
-        private float nextLaneCheck, nextAimCheck, blockedSeconds;
+        private float nextAimCheck, blockedSeconds;
         private bool repositioning;
         private float detourSide, detourUntil, nextSteer;
         private Vector3 lastSteerGoal, steering;
@@ -193,7 +193,6 @@ namespace HaldorExpansion.Features.HelOath
             // A newer owner shot must not rotate an already drawing/releasing body.
             if (!model.IsAiming) focusDirection = aim - ShotOrigin;
             nextAimCheck = Time.time + ReactionDelay + 0.75f;
-            nextLaneCheck = 0f;
             intent.Focus(Time.time);
         }
 
@@ -425,7 +424,7 @@ namespace HaldorExpansion.Features.HelOath
 
         // Slot 0 is permanently a distant anchor, not a follower with an
         // occasional special task. Pick a walkable point on a 360-degree ring.
-        // Visibility is a preference, NEVER a reason to collapse next to owner.
+        // Spectral arrows need no clear firing lane; only the body needs walkable ground.
         private bool TryGuardianGoal(Player owner, Quaternion formation, out Vector3 result)
         {
             result = Vector3.zero;
@@ -436,8 +435,6 @@ namespace HaldorExpansion.Features.HelOath
             rear.y = 0f;
             if (rear.sqrMagnitude < 0.01f) rear = Vector3.back;
             rear.Normalize();
-            Vector3 aim = model.HasQueuedShots ? combatAim :
-                combat ? companions.ThreatPosition : Vector3.zero;
             float close = combat ? HelOathGhostMotion.GuardianCombatNear : HelOathGhostMotion.GuardianTravelNear;
             float far = combat ? HelOathGhostMotion.GuardianCombatFar : HelOathGhostMotion.GuardianTravelFar;
 
@@ -503,10 +500,8 @@ namespace HaldorExpansion.Features.HelOath
                 // perfectly straight 19m corridor to accept an outer goal.
                 if (step.sqrMagnitude > 1f && !RouteClear(Position, candidate)
                                            && !StepRouteClear(Position, step.normalized, 1.3f)) continue;
-                bool line = !combat || ClearLane(candidate + Vector3.up * 1.35f, aim);
                 float score = (candidate - Position).sqrMagnitude * 0.05f
-                              + (distanceIndex == 0 ? 0f : 7f)
-                              + (line ? 0f : 5f);
+                              + (distanceIndex == 0 ? 0f : 7f);
                 if (score >= best) continue;
                 best = score;
                 bestGoal = candidate;
@@ -634,16 +629,11 @@ namespace HaldorExpansion.Features.HelOath
                     combatAim = LookPoint(owner);
                 }
 
-                if (Time.time >= nextLaneCheck)
-                {
-                    nextLaneCheck = Time.time + 0.4f;
-                    if (ClearLane(ShotOrigin, combatAim)) repositioning = false;
-                    else if (!repositioning || !ClearLane(destination + Vector3.up * 1.35f, combatAim))
-                        repositioning = FindFiringPosition(owner, combatAim, out destination);
-                }
-
-                if (!repositioning) destination = root.transform.position;
-                resting = !repositioning;
+                // Shots pass through scenery. Hold this position instead of
+                // probing fourteen alternate lanes around an obstructing wall.
+                repositioning = false;
+                destination = root.transform.position;
+                resting = true;
                 nextRoam = Time.time + HelOathGhostMotion.IdleMinSeconds;
                 return destination;
             }
@@ -690,48 +680,6 @@ namespace HaldorExpansion.Features.HelOath
             Vector3 leg = to - from;
             return leg.sqrMagnitude < 0.001f || !Physics.SphereCast(from + Vector3.up * 0.75f,
                 0.25f, leg.normalized, out _, leg.magnitude, GroundMask, QueryTriggerInteraction.Ignore);
-        }
-
-        private static bool ClearLane(Vector3 origin, Vector3 aim)
-        {
-            Vector3 leg = aim - origin;
-            float distance = Mathf.Max(0f, leg.magnitude - 0.35f);
-            return !Physics.CheckSphere(origin, 0.06f, GroundMask, QueryTriggerInteraction.Ignore)
-                   && (distance < 0.001f || !Physics.SphereCast(origin, 0.06f, leg.normalized,
-                       out _, distance, GroundMask, QueryTriggerInteraction.Ignore));
-        }
-
-        private bool FindFiringPosition(Player owner, Vector3 aim, out Vector3 result)
-        {
-            Vector3 current = root.transform.position;
-            result = current;
-            float best = float.PositiveInfinity;
-            Vector3 forward = aim - owner.transform.position;
-            forward.y = 0f;
-            if (forward.sqrMagnitude < 0.01f) forward = owner.transform.forward;
-            forward.Normalize();
-            Vector3 right = Vector3.Cross(Vector3.up, forward);
-            for (int i = 0; i < 14; i++)
-            {
-                Vector3 candidate = i < 6
-                    ? current + right * ((i % 2 == 0 ? 1f : -1f) * (1f + i / 2))
-                    : owner.transform.position + Quaternion.Euler(0f, (i - 6) * 45f, 0f) * forward * 3.5f;
-                Vector3 offset = candidate - owner.transform.position;
-                offset.y = 0f;
-                if (offset.sqrMagnitude > 64f || offset.sqrMagnitude < 1.4f) continue;
-                float ground;
-                if (!TryGround(candidate, current.y, out ground) || Mathf.Abs(ground - current.y) > 1.5f) continue;
-                candidate.y = ground;
-                if (!Room(candidate, true) || !BodyClear(candidate) || !RouteClear(current, candidate)
-                    || !ClearLane(candidate + Vector3.up * 1.35f, aim)) continue;
-                float score = (candidate - current).sqrMagnitude;
-                if (Vector3.Dot(offset.normalized, forward) > 0.7f) score += 12f;
-                if (score >= best) continue;
-                best = score;
-                result = candidate;
-            }
-
-            return !float.IsPositiveInfinity(best);
         }
 
         internal bool Tick(Player owner, Quaternion formation, bool wanted, bool releaseSoul, Vector3 velocity,

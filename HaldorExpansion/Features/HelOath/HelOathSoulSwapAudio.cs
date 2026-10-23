@@ -38,6 +38,34 @@ namespace HaldorExpansion.Features.HelOath
 
         private static AudioClip clip;
         private static bool loggedFailure;
+        private static bool attemptedLoad;
+
+        internal static void Prewarm() => EnsureClip();
+
+        private static bool EnsureClip()
+        {
+            if (clip != null) return true;
+            if (attemptedLoad || Application.isBatchMode ||
+                SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null) return false;
+            attemptedLoad = true;
+            try
+            {
+                clip = CreateClip();
+            }
+            catch (Exception error)
+            {
+                LogFailure(error);
+            }
+
+            return clip != null;
+        }
+
+        private static void LogFailure(Exception error)
+        {
+            if (loggedFailure) return;
+            loggedFailure = true;
+            HaldorExpansionPlugin.Log?.LogWarning("[Hel Soul Swap Audio] " + error);
+        }
 
         internal static void Play(Player player, Vector3 destination, float delay = 0f)
         {
@@ -49,14 +77,15 @@ namespace HaldorExpansion.Features.HelOath
                 (destination - Player.m_localPlayer.transform.position).sqrMagnitude > MaxDistance * MaxDistance)
                 return;
 
+            if (!EnsureClip()) return;
+            GameObject root = null;
             try
             {
-                if (clip == null) clip = CreateClip();
                 var playback = PlaybackByPlayer.GetValue(player, _ => new Playback());
                 // Rapid swaps should restart the sound, not stack several 1.7s tails.
                 if (playback.Root != null) Object.Destroy(playback.Root);
 
-                var root = new GameObject("HelOath_SoulSwapSound");
+                root = new GameObject("HelOath_SoulSwapSound");
                 root.transform.position = destination + Vector3.up * 1f;
                 playback.Root = root;
 
@@ -83,9 +112,8 @@ namespace HaldorExpansion.Features.HelOath
             }
             catch (Exception error)
             {
-                if (loggedFailure) return;
-                loggedFailure = true;
-                HaldorExpansionPlugin.Log?.LogWarning("[Hel Soul Swap Audio] " + error);
+                if (root != null) Object.Destroy(root);
+                LogFailure(error);
             }
         }
 
@@ -118,10 +146,18 @@ namespace HaldorExpansion.Features.HelOath
 
             AudioClip result = AudioClip.Create("HelOath_SoulSwap_Teleport", HelOathSoulSwapAudioData.Frames,
                 HelOathSoulSwapAudioData.Channels, HelOathSoulSwapAudioData.SampleRate, false);
-            // Reflection resolves Unity's float[] overload rather than ReadOnlySpan<float>.
-            if (SetClipData == null || !(bool)SetClipData.Invoke(result, new object[] { samples, 0 }))
-                throw new InvalidOperationException("Unable to upload embedded Soul Swap audio samples");
-            return result;
+            try
+            {
+                // Select float[] explicitly: current Unity also has a span overload.
+                if (SetClipData == null || !(bool)SetClipData.Invoke(result, new object[] { samples, 0 }))
+                    throw new InvalidOperationException("Unable to upload embedded Soul Swap audio samples");
+                return result;
+            }
+            catch
+            {
+                if (result != null) Object.Destroy(result);
+                throw;
+            }
         }
     }
 }
