@@ -1,15 +1,15 @@
 ## 1.3.3
 - Hel's Oath: Introduced a new awakened ability - Ghosts of the Last Hunt. Successful hits summon up to three spectral archers that mirror their master's shots and unleash a devastating final volley during Hel's Embrace.
-- Hel's Oath: Added awakened ability - Soul Swap, allowing players to teleport to a summoned ghost by sacrificing its soul and a portion of maximum stamina.
+- Hel's Oath: Added **Soul Swap**, allowing players to teleport to a summoned ghost by sacrificing its soul and a portion of maximum stamina.
 - Hel's Oath: Ghosts feature independent shooting animations, intelligent positioning, and a "Guardian" that maintains distance to provide tactical opportunities for Soul Swap. Their spectral arrows can pass through walls and obstacles.
 - Hel's Oath: Optimized visual effects and enhanced Hel's Embrace with redesigned, symmetrical spectral spikes.
 
 - Bone Crushers: Fixed an issue where damage-over-time effects could bypass the ability's shield.
 - Bone Crushers: Added customizable shield HUD positioning, preserving the original layout by default.
 
-- Controls: Fixed ability key conflicts with interactions. Facebreaker's default key is now E, while existing custom keybindings are preserved.
-
 - Forge of Possibilities: Added a configurable item awakening level (default: 10).
+
+- Controls: Fixed ability key conflicts with interactions. Facebreaker's default key is now E, while existing custom keybindings are preserved.
 
 ## 1.3.2
 - Improved overall performance and optimization.
