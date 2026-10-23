@@ -1,4 +1,4 @@
-# Haldor Expansion
+﻿# Haldor Expansion
 
 [English](README.md) | [Русский](README.ru.md) | [Changelog](CHANGELOG.md)
 
@@ -92,7 +92,7 @@ Most Berserker combat settings, including thresholds, bonuses, and the Ragnarök
 
 **Bone Crushers** are fast, aggressive cestus weapons. Taking real HP damage builds **Battle Fervor**. The charge gradually fades if no additional damage is taken. At full charge, activate **Retribution** with the **middle mouse button (Mouse2)** by default. It releases a nearby shockwave and grants a temporary protective barrier. Charge cannot build while the barrier is active.
 
-**Facebreaker:** hold the **right mouse button (Mouse1 / RMB)** to aim, then release it to pull nearby enemies inward from both sides. Pulled enemies are slowed for **4 seconds**. When enemies are caught on **both sides**, pulled targets also stagger. The ability uses a custom animation and synchronized impact sounds. Default cooldown: **5 seconds**. The key can be changed. While Facebreaker is ready, its default RMB binding replaces blocking while aiming.
+**Facebreaker:** hold **E (default)** to aim, then release it to pull nearby enemies inward from both sides. Pulled enemies are slowed for **4 seconds**. When enemies are caught on **both sides**, pulled targets also stagger. The ability uses a custom animation and synchronized impact sounds. Default cooldown: **5 seconds**. The key can be changed; existing saved bindings are preserved. Interacting with objects takes priority when the ability shares the interaction key. If bound to RMB (Mouse1), Facebreaker replaces blocking only while aiming and ready.
 
 Bone Crushers also grant **+10 maximum health**, **+90% attack speed**, and **-8 armor** while equipped.
 

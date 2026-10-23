@@ -483,7 +483,7 @@ namespace HaldorExpansion.Presentation
                     "<color=#9EDFF2><b>Возмездие (Кнопка колёсика мыши (по умолчанию))</b></color>\n" +
                     "При полном заряде выпускает ударную волну и создаёт защитный покров.\n" +
                     "Пока покров активен, заряд не накапливается.\n\n" +
-                    "<color=#9EDFF2><b>Мордобой (удержание ПКМ по умолчанию)</b></color>\n" +
+                    "<color=#9EDFF2><b>Мордобой (удержание E по умолчанию)</b></color>\n" +
                     "Стягивает врагов с двух сторон.\n" +
                     "Успешно притянутые враги замедляются на 60% на 4 секунды. Если в зоне были враги с обеих сторон, все притянутые цели также получают ошеломление.\n" +
                     "Перезарядка: 5 секунд",
@@ -918,7 +918,7 @@ namespace HaldorExpansion.Presentation
                     "<color=#9EDFF2><b>Retribution (middle mouse button by default)</b></color>\n" +
                     "At full charge, unleashes a shockwave and creates a protective barrier.\n" +
                     "Charge cannot build while the barrier is active.\n\n" +
-                    "<color=#9EDFF2><b>Facebreaker (hold RMB by default)</b></color>\n" +
+                    "<color=#9EDFF2><b>Facebreaker (hold E by default)</b></color>\n" +
                     "Pull enemies from both sides.\n" +
                     "Successfully pulled enemies are slowed by 60% for 4 seconds. If enemies are caught on both sides, all pulled targets also stagger.\n" +
                     "Cooldown: 5 sec",

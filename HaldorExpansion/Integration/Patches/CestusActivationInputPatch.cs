@@ -72,7 +72,7 @@ namespace HaldorExpansion.Patches
             if (!ShouldPoll(__instance, cestusEquipped))
                 return;
 
-            if (!IsCestusActivationPressed())
+            if (AbilityInteractionPriority.ShouldSuppress(__instance) || !IsCestusActivationPressed())
                 return;
 
             if (CestusAbility.TryActivateCestusShield(__instance))

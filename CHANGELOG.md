@@ -7,6 +7,8 @@
 - Bone Crushers: Fixed an issue where damage-over-time effects could bypass the ability's shield.
 - Bone Crushers: Added customizable shield HUD positioning, preserving the original layout by default.
 
+- Controls: Fixed ability key conflicts with interactions. Facebreaker's default key is now E, while existing custom keybindings are preserved.
+
 - Forge of Possibilities: Added a configurable item awakening level (default: 10).
 
 ## 1.3.2

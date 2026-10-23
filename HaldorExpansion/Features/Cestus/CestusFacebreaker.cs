@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using HaldorExpansion.Patches;
 using HarmonyLib;
 using UnityEngine;
 
@@ -134,7 +135,8 @@ namespace HaldorExpansion.Features.Cestus
                 // Require a FRESH press. When a cooldown ends while RMB is still
                 // held for blocking, Facebreaker must not steal that ongoing hold.
                 // This also avoids activating from a key held before equipping.
-                if (Time.time < nextUseTime || !ZInput.GetKeyDown(key))
+                if (Time.time < nextUseTime || AbilityInteractionPriority.ShouldSuppress(player) ||
+                    !ZInput.GetKeyDown(key))
                     return;
             }
 

@@ -33,6 +33,34 @@ namespace HaldorExpansion.Configuration
             return values;
         }
 
+        // Remove only a named, already validated obsolete setting; preserve every other line.
+        internal static string WithoutSetting(string text, string fullKey)
+        {
+            int delimiter = fullKey.IndexOf('\n');
+            if (delimiter < 1) throw new ArgumentException("Expected section and setting name", nameof(fullKey));
+            string targetSection = fullKey.Substring(0, delimiter);
+            string targetKey = fullKey.Substring(delimiter + 1);
+            string section = "";
+            var output = new StringBuilder(text.Length);
+            using (var reader = new StringReader(text))
+            {
+                string raw;
+                while ((raw = reader.ReadLine()) != null)
+                {
+                    string line = raw.Trim();
+                    if (line.StartsWith("[") && line.EndsWith("]"))
+                        section = line.Substring(1, line.Length - 2);
+                    int equals = line.IndexOf('=');
+                    if (section == targetSection && equals > 0 &&
+                        line.Substring(0, equals).Trim() == targetKey)
+                        continue;
+                    output.AppendLine(raw);
+                }
+            }
+
+            return output.ToString();
+        }
+
         internal static void WriteAtomic(string path, string text)
         {
             string temp = path + ".tmp";

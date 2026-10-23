@@ -175,6 +175,7 @@
         <Compile Include="Bootstrap\HaldorExpansionPlugin.PitKingChest.cs"/>
 
         <Compile Include="Integration\Patches\CestusAdrenalineMirrorPatch.cs"/>
+        <Compile Include="Integration\Patches\AbilityInteractionPriority.cs"/>
         <Compile Include="Integration\Patches\CestusActivationInputPatch.cs"/>
         <Compile Include="Integration\Patches\CestusAttackBlockDuringCastPatch.cs"/>
         <Compile Include="Integration\Patches\CestusCastInputLockPatch.cs"/>

@@ -1,4 +1,5 @@
 using System.Reflection;
+using HaldorExpansion.Patches;
 using HarmonyLib;
 using UnityEngine;
 
@@ -92,7 +93,8 @@ namespace HaldorExpansion.Features.HelOath
             SyncTouch(player, touchEligible);
 
             if (!Equipped(player) || State.Charge < 100f || State.Prepared) return;
-            if (!(bool)TakeInput.Invoke(player, null) || player.InAttack() || player.InDodge()) return;
+            if (!(bool)TakeInput.Invoke(player, null) || player.InAttack() || player.InDodge() ||
+                AbilityInteractionPriority.ShouldSuppress(player)) return;
             if (!(bool)GetButtonDown.Invoke(null, new object[] { HelOathConfiguration.Button.Name })) return;
             if (State.Activate(Time.time, 0f, touchEligible))
             {

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 using HaldorExpansion.Compatibility;
+using HaldorExpansion.Patches;
 using HarmonyLib;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -55,7 +56,7 @@ namespace HaldorExpansion.Features.Berserker
             if (!BerserkerCloakRuntime.HasEquipped(player)) return;
             if (BerserkerRuntime.Debt.Amount + 0.0001d < BerserkerConfiguration.RagnarokMinimumDebtValue) return;
             if (player.IsTeleporting() || player.InCutscene() || player.InAttack() || player.InDodge()) return;
-            if (!(bool)TakeInput.Invoke(player, null)) return;
+            if (!(bool)TakeInput.Invoke(player, null) || AbilityInteractionPriority.ShouldSuppress(player)) return;
             if (!(bool)GetButtonDown.Invoke(null, new object[] { BerserkerConfiguration.RagnarokButton.Name })) return;
 
             StartCast(player);

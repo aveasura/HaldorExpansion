@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using HaldorExpansion.Configuration;
 using Jotunn.Configs;
 using Jotunn.Managers;
@@ -37,32 +36,17 @@ namespace HaldorExpansion.Features.Cestus
 
             InputManager.Instance.AddButton(HaldorExpansionPlugin.ModGuid, CestusAbilityButton);
 
-            // Facebreaker takes priority over RMB/block ONLY while aiming with Bone Crushers.
-            // During its cooldown the original vanilla block input must remain untouched.
+            // A saved Facebreaker Key always takes precedence over this default.
+            // With E selected, vanilla interactions are handled first by AbilityInteractionPriority.
+            // A manually selected Mouse1 still replaces blocking only while aiming.
             string cestusSection = ItemNames.ConfigSection(ItemNames.BoneCrushersEn, ItemNames.BoneCrushersRu);
             FacebreakerKeyConfig = Config.Bind(
                 cestusSection,
-                "Facebreaker Key", KeyCode.Mouse1,
-                "Hold to aim Facebreaker, release to pull. Default: Mouse1 (right mouse button). " +
-                "While Bone Crushers is equipped and Facebreaker is ready, RMB replaces blocking. " +
-                "While on cooldown, RMB blocks normally. Change the binding if preferred.");
-
-            // Existing players have Facebreaker Key = E saved in their BepInEx config.
-            // Migrate that old DEFAULT only once, without resetting other custom keys
-            // or preventing the player from explicitly choosing E again afterwards.
-            ConfigEntry<bool> migrated = Config.Bind(
-                cestusSection,
-                "Facebreaker RMB Default Migrated", false,
-                new ConfigDescription(
-                    "Internal one-time migration of the old Facebreaker E default to Mouse1. " +
-                    "Leave enabled to preserve subsequent manual key changes.",
-                    null, new BrowsableAttribute(false)));
-            if (!migrated.Value)
-            {
-                if (FacebreakerKeyConfig.Value == KeyCode.E)
-                    FacebreakerKeyConfig.Value = KeyCode.Mouse1;
-                migrated.Value = true;
-            }
+                "Facebreaker Key", KeyCode.E,
+                "Hold to aim Facebreaker, release to pull. Default: E. " +
+                "Interactions take priority when using the same key. " +
+                "With Mouse1 selected, aiming temporarily replaces blocking while Facebreaker is ready. " +
+                "Existing key bindings are preserved.");
 
             FacebreakerButton = new ButtonConfig
             {

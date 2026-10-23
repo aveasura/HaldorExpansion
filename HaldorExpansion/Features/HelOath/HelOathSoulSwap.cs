@@ -3,6 +3,7 @@ using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using HaldorExpansion.Features.StaminaCape;
+using HaldorExpansion.Patches;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -147,7 +148,8 @@ namespace HaldorExpansion.Features.HelOath
                 TakeInput == null || !HelOathGhostPreview.Eligible(player)) return;
             HelOathSoulSwapAudio.Prewarm();
             HelOathSoulSwapAnimation.Prewarm();
-            if (!AcceptsInput(player) || !ButtonPressed(HelOathConfiguration.SoulSwapButton.Name)) return;
+            if (!AcceptsInput(player) || AbilityInteractionPriority.ShouldSuppress(player) ||
+                !ButtonPressed(HelOathConfiguration.SoulSwapButton.Name)) return;
             var companions = player.GetComponent<HelOathGhostCompanions>();
             int selected;
             string token;

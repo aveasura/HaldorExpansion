@@ -23,7 +23,13 @@ namespace HaldorExpansion.Configuration
         internal ConfigFile TradeEntries { get; private set; }
         private string folder, legacyPath, tradePath;
         private bool newGeneral, newBalance, newTrading, initialized, wasClient;
+
         private static bool tradeDirty;
+
+        // Retired configuration flag. Never bind it again or change any Facebreaker key binding.
+        private const string RemovedFacebreakerFlag =
+            "Bone Crushers / Костоломы\nFacebreaker RMB Default Migrated";
+
         private bool localizationDirty, applyingConfig, balanceSavePending;
         private float nextPoll, nextFullRead;
         private ConfigEntry<float> pollInterval;
@@ -130,11 +136,26 @@ namespace HaldorExpansion.Configuration
                 : TradingCatalog.Defaults;
             if (previous != null)
             {
-                ConfigSchema.Require(previous.General, ConfigSchema.Signature(generalDisk.Keys), "general.cfg");
+                // Only the retired Facebreaker flag may differ from an older key-set manifest.
+                // All other config entries still require an exact match.
+                string generalSignature = ConfigSchema.Signature(generalDisk.Keys);
+                if (generalSignature != previous.General)
+                {
+                    bool hasRemovedFlag = generalDisk.ContainsKey(RemovedFacebreakerFlag);
+                    IEnumerable<string> compatibleKeys = hasRemovedFlag
+                        ? generalDisk.Keys.Where(key => key != RemovedFacebreakerFlag)
+                        : generalDisk.Keys.Concat(new[] { RemovedFacebreakerFlag });
+                    ConfigSchema.Require(previous.General, ConfigSchema.Signature(compatibleKeys), "general.cfg");
+                }
+
                 ConfigSchema.Require(previous.Balance, ConfigSchema.Signature(balanceDisk.Keys), "balance.cfg");
                 ConfigSchema.Require(previous.Trading,
                     ConfigSchema.TradingSignature(tradingDisk, parseDefaults, false), "trading.yml");
             }
+
+            // The old flag has no effect and must not fail strict config validation.
+            // Remove it only after validating the previous file/schema (above).
+            bool removeFacebreakerFlag = generalDisk != null && generalDisk.Remove(RemovedFacebreakerFlag);
 
             if (migrated)
             {
@@ -162,7 +183,8 @@ namespace HaldorExpansion.Configuration
                 Balance = ConfigSchema.Signature(Values(Balance).Keys),
                 Trading = ConfigSchema.TradingSignature(TradingCatalog.Defaults.Serialize(), TradingCatalog.Defaults)
             };
-            bool updateGeneral = newGeneral || (previous != null && previous.General != current.General);
+            bool updateGeneral = newGeneral || removeFacebreakerFlag ||
+                                 (previous != null && previous.General != current.General);
             bool updateBalance = newBalance || (previous != null && previous.Balance != current.Balance);
             bool updateTrading = newTrading || oldBerserkerIds ||
                                  (previous != null && previous.Trading != current.Trading);
@@ -176,7 +198,22 @@ namespace HaldorExpansion.Configuration
                 if (previous != null) Backup(schemaPath, backups);
             }
 
-            if (updateGeneral) General.Save();
+            if (updateGeneral)
+            {
+                if (removeFacebreakerFlag)
+                {
+                    // BepInEx preserves unbound (orphaned) entries even when Save() is called.
+                    // Strip this one retired key from the backed-up file and reload the config
+                    // so later user edits cannot resurrect it from the in-memory orphan cache.
+                    string cleaned = ConfigText.WithoutSetting(File.ReadAllText(General.ConfigFilePath),
+                        RemovedFacebreakerFlag);
+                    ConfigText.WriteAtomic(General.ConfigFilePath, cleaned);
+                    General.Reload();
+                }
+
+                General.Save();
+            }
+
             if (updateBalance) Balance.Save();
             if (updateTrading) ConfigText.WriteAtomic(tradePath, localTrading.Serialize());
             Validate(General, ConfigText.Parse(File.ReadAllText(General.ConfigFilePath)), complete: true);
