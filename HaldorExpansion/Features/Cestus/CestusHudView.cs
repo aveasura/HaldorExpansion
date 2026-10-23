@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,12 @@ namespace HaldorExpansion.Features.Cestus
 {
     internal static class CestusHudView
     {
+        private static Hud attachedHud;
+        private static bool attachedToHealth;
+        private static bool capturedHealthSize;
+        private static Vector2 detachedHealthSize;
+        private static readonly Vector3[] HealthCorners = new Vector3[4];
+        private static readonly FieldInfo[] HealthBarFields = FindHealthBarFields();
         private static Image CestusShieldOverlayImage;
         private static RectTransform CestusShieldOverlayRect;
         private static RectTransform CestusShieldReferenceRect;
@@ -19,131 +26,231 @@ namespace HaldorExpansion.Features.Cestus
         internal static void UpdateCestusShieldOverlay(Hud hud, Player player)
         {
             if (hud == null)
-                return;
-
-            EnsureCestusShieldOverlay(hud);
-
-            if (CestusShieldOverlayImage == null ||
-                CestusShieldOverlayRect == null ||
-                CestusShieldReferenceRect == null ||
-                CestusShieldText == null ||
-                CestusShieldTextRect == null)
-                return;
-
-            if (player == null || player.IsDead())
             {
-                if (CestusShieldOverlayImage.gameObject.activeSelf)
-                    CestusShieldOverlayImage.gameObject.SetActive(false);
-
-                if (CestusShieldText.gameObject.activeSelf)
-                    CestusShieldText.gameObject.SetActive(false);
-
+                Clear();
                 return;
             }
 
-            CestusStateStore.CestusState state = CestusStateStore.GetOrCreateCestusState(player);
+            if (attachedHud != hud) Clear();
+            if (!CestusHudConfiguration.Visible || player == null || player.IsDead())
+            {
+                SetVisible(false);
+                return;
+            }
 
-            float shield01 = CestusShieldRuntime.GetCestusShieldBarNormalized(player);
-            bool visible = shield01 > 0.001f;
-
-            if (CestusShieldOverlayImage.gameObject.activeSelf != visible)
-                CestusShieldOverlayImage.gameObject.SetActive(visible);
-
-            if (CestusShieldText.gameObject.activeSelf != visible)
-                CestusShieldText.gameObject.SetActive(visible);
-
-            if (!visible)
+            EnsureCestusShieldOverlay(hud);
+            if (CestusShieldOverlayImage == null || CestusShieldOverlayRect == null ||
+                CestusShieldText == null || CestusShieldTextRect == null)
                 return;
 
-            float hp01 = CestusShieldRuntime.GetCestusHealthNormalized(player);
+            CestusStateStore.CestusState state = CestusStateStore.GetOrCreateCestusState(player);
+            // A detached gauge represents the shield's own capacity, so both its
+            // location and fill are independent of current/max HP.
+            float shield01 = attachedToHealth
+                ? CestusShieldRuntime.GetCestusShieldBarNormalized(player)
+                : CestusShieldRuntime.GetCestusShieldNormalized(player);
+            if (float.IsNaN(shield01) || float.IsInfinity(shield01)) shield01 = 0f;
+            shield01 = Mathf.Clamp01(shield01);
+            bool visible = attachedToHealth ? shield01 > 0.001f : state.ShieldRemaining > 0.001f;
+            SetVisible(visible);
+            if (!visible) return;
 
-            CopyRectTransform(CestusShieldReferenceRect, CestusShieldOverlayRect);
+            if (attachedToHealth)
+            {
+                // Keep the original copying, HP-relative start and fill math
+                // exactly as before with the default settings.
+                CopyRectTransform(CestusShieldReferenceRect, CestusShieldOverlayRect);
+                if (!CestusHudConfiguration.AutoSize)
+                {
+                    CestusShieldOverlayRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,
+                        CestusHudConfiguration.Width);
+                    CestusShieldOverlayRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
+                        CestusHudConfiguration.Height);
+                }
 
-            float barWidth = CestusShieldReferenceRect.rect.width;
-            Vector2 basePos = CestusShieldReferenceRect.anchoredPosition;
-            float shieldPixelWidth = barWidth * shield01;
-            float shieldStartX = barWidth * hp01;
+                float hp01 = CestusShieldRuntime.GetCestusHealthNormalized(player);
+                if (float.IsNaN(hp01) || float.IsInfinity(hp01)) hp01 = 0f;
+                float shieldStartX = CestusShieldReferenceRect.rect.width * Mathf.Clamp01(hp01);
+                CestusShieldOverlayRect.anchoredPosition = CestusShieldReferenceRect.anchoredPosition +
+                                                           new Vector2(shieldStartX, 0f);
+                CestusShieldOverlayRect.localScale *= CestusHudConfiguration.ScaleValue;
+                ApplyScreenAxisOffset();
+                float shieldPixelWidth = CestusShieldOverlayRect.rect.width * shield01;
+                CestusShieldTextRect.sizeDelta = new Vector2(Mathf.Max(36f, shieldPixelWidth), 18f);
+                CestusShieldTextRect.anchoredPosition = new Vector2(shieldPixelWidth * 0.5f, 0f);
+            }
+            else
+            {
+                PositionDetached();
+                // Keep the value centered on the gauge even near empty.
+                CestusShieldTextRect.sizeDelta = new Vector2(Mathf.Max(36f, CestusShieldOverlayRect.rect.width), 18f);
+                CestusShieldTextRect.anchoredPosition = Vector2.zero;
+            }
 
-            CestusShieldOverlayRect.anchoredPosition = basePos + new Vector2(shieldStartX, 0f);
             CestusShieldOverlayImage.fillAmount = shield01;
-
             CestusShieldTextRect.rotation = Quaternion.identity;
-
             int displayedValue = Mathf.CeilToInt(state.ShieldRemaining);
             if (CestusShieldDisplayedValue != displayedValue)
             {
                 CestusShieldText.text = displayedValue.ToString();
                 CestusShieldDisplayedValue = displayedValue;
             }
-
-            CestusShieldTextRect.sizeDelta = new Vector2(Mathf.Max(36f, shieldPixelWidth), 18f);
-            CestusShieldTextRect.anchoredPosition = new Vector2(shieldPixelWidth * 0.5f, 0f);
         }
+
+        private static void SetVisible(bool visible)
+        {
+            if (CestusShieldOverlayImage != null && CestusShieldOverlayImage.gameObject.activeSelf != visible)
+                CestusShieldOverlayImage.gameObject.SetActive(visible);
+            if (CestusShieldText != null && CestusShieldText.gameObject.activeSelf != visible)
+                CestusShieldText.gameObject.SetActive(visible);
+        }
+
+        internal static void Clear()
+        {
+            SetVisible(false); // Destroy is deferred until the end of the frame.
+            if (CestusShieldOverlayRect != null)
+                Object.Destroy(CestusShieldOverlayRect.gameObject);
+            else if (CestusShieldTextRect != null)
+                Object.Destroy(CestusShieldTextRect.gameObject);
+            attachedHud = null;
+            CestusShieldOverlayImage = null;
+            CestusShieldOverlayRect = null;
+            CestusShieldReferenceRect = null;
+            CestusShieldText = null;
+            CestusShieldTextRect = null;
+            CestusShieldDisplayedValue = null;
+            capturedHealthSize = false;
+        }
+
+        private static void ApplyScreenAxisOffset()
+        {
+            float x = CestusHudConfiguration.OffsetXValue;
+            float y = CestusHudConfiguration.OffsetYValue;
+            if (x == 0f && y == 0f) return;
+            // Vanilla's HP hierarchy may be rotated. Offsets are still screen right/up.
+            float uiScale = CestusShieldOverlayRect.parent.TransformVector(Vector3.right).magnitude;
+            if (float.IsNaN(uiScale) || float.IsInfinity(uiScale) || uiScale < 0.0001f) uiScale = 1f;
+            CestusShieldOverlayRect.position += new Vector3(x * uiScale, y * uiScale, 0f);
+        }
+
+        private static void PositionDetached()
+        {
+            RectTransform rect = CestusShieldOverlayRect;
+            rect.anchorMin = rect.anchorMax = new Vector2(CestusHudConfiguration.X, CestusHudConfiguration.Y);
+            rect.pivot = Vector2.zero;
+            rect.localScale = Vector3.one;
+            rect.rotation = Quaternion.identity;
+            rect.anchoredPosition =
+                new Vector2(CestusHudConfiguration.OffsetXValue, CestusHudConfiguration.OffsetYValue);
+            if (CestusHudConfiguration.AutoSize)
+            {
+                if (!capturedHealthSize)
+                {
+                    // Capture once, never chase changing HP geometry while detached.
+                    detachedHealthSize = new Vector2(CestusHudConfiguration.Width, CestusHudConfiguration.Height);
+                    if (CestusShieldReferenceRect != null)
+                    {
+                        CestusShieldReferenceRect.GetWorldCorners(HealthCorners);
+                        float left = HealthCorners[0].x, right = left;
+                        float bottom = HealthCorners[0].y, top = bottom;
+                        for (int i = 1; i < HealthCorners.Length; i++)
+                        {
+                            left = Mathf.Min(left, HealthCorners[i].x);
+                            right = Mathf.Max(right, HealthCorners[i].x);
+                            bottom = Mathf.Min(bottom, HealthCorners[i].y);
+                            top = Mathf.Max(top, HealthCorners[i].y);
+                        }
+
+                        float width = (right - left) / rect.TransformVector(Vector3.right).magnitude;
+                        float height = (top - bottom) / rect.TransformVector(Vector3.up).magnitude;
+                        if (FinitePositive(width) && FinitePositive(height))
+                            detachedHealthSize = new Vector2(width, height);
+                    }
+
+                    capturedHealthSize = true;
+                }
+
+                rect.sizeDelta = detachedHealthSize;
+            }
+            else
+            {
+                capturedHealthSize = false;
+                rect.sizeDelta = new Vector2(CestusHudConfiguration.Width, CestusHudConfiguration.Height);
+            }
+
+            rect.localScale = Vector3.one * CestusHudConfiguration.ScaleValue;
+        }
+
+        private static bool FinitePositive(float value)
+            => !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0.001f;
 
         private static void EnsureCestusShieldOverlay(Hud hud)
         {
-            if (CestusShieldOverlayImage != null &&
-                CestusShieldOverlayRect != null &&
-                CestusShieldReferenceRect != null &&
-                CestusShieldText != null &&
-                CestusShieldTextRect != null)
+            bool attach = CestusHudConfiguration.Attached;
+            if (attachedHud == hud && attachedToHealth == attach &&
+                CestusShieldOverlayImage != null && CestusShieldOverlayRect != null &&
+                CestusShieldText != null && CestusShieldTextRect != null &&
+                CestusShieldOverlayRect.parent != null &&
+                (!attach || (CestusShieldReferenceRect != null &&
+                             CestusShieldOverlayRect.parent == CestusShieldReferenceRect.parent)))
                 return;
 
+            Clear();
             Component healthBar = FindReferenceHealthBarComponent(hud);
-            if (healthBar == null)
+            RectTransform referenceRect = healthBar != null ? healthBar.GetComponent<RectTransform>() : null;
+            Transform parent = referenceRect != null ? referenceRect.parent : null;
+            if (!attach)
+            {
+                Canvas canvas = referenceRect != null ? referenceRect.GetComponentInParent<Canvas>() : null;
+                if (canvas == null) canvas = hud.GetComponentInParent<Canvas>();
+                if (canvas == null) canvas = hud.GetComponentInChildren<Canvas>(true);
+                parent = canvas != null ? canvas.rootCanvas.transform : null;
+            }
+
+            if (parent == null)
             {
                 if (!CestusShieldOverlayLoggedMissing)
                 {
                     CestusShieldOverlayLoggedMissing = true;
                     HaldorExpansionPlugin.DebugLog(
-                        "[HaldorExpansion] Cestus segmented HUD: health bar component not found");
+                        "[HaldorExpansion] Cestus shield HUD: health bar or HUD canvas not found");
                 }
 
                 return;
             }
 
-            RectTransform referenceRect = healthBar.GetComponent<RectTransform>();
-            if (referenceRect == null || referenceRect.parent == null)
-            {
-                if (!CestusShieldOverlayLoggedMissing)
-                {
-                    CestusShieldOverlayLoggedMissing = true;
-                    HaldorExpansionPlugin.DebugLog(
-                        "[HaldorExpansion] Cestus segmented HUD: reference RectTransform not found");
-                }
-
-                return;
-            }
+            attachedHud = hud;
+            attachedToHealth = attach;
 
             GameObject overlayObject = new GameObject(
                 "HaldorExpansion_CestusShieldSegment",
                 typeof(RectTransform));
 
             RectTransform overlayRect = overlayObject.GetComponent<RectTransform>();
-            overlayRect.SetParent(referenceRect.parent, false);
+            overlayRect.SetParent(parent, false);
 
-            CopyRectTransform(referenceRect, overlayRect);
+            if (attach) CopyRectTransform(referenceRect, overlayRect);
 
             Image overlayImage = overlayObject.AddComponent<Image>();
             overlayImage.raycastTarget = false;
             overlayImage.type = Image.Type.Filled;
-            overlayImage.fillMethod = Image.FillMethod.Horizontal;
-            overlayImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+            overlayImage.fillMethod = attach ? Image.FillMethod.Horizontal : Image.FillMethod.Vertical;
+            overlayImage.fillOrigin = attach ? (int)Image.OriginHorizontal.Left : (int)Image.OriginVertical.Bottom;
             overlayImage.fillAmount = 0f;
             overlayImage.color = new Color(0.62f, 0.62f, 0.62f, 0.78f);
 
-            Image referenceImage = healthBar.GetComponent<Image>();
-            if (referenceImage == null)
+            Image referenceImage = healthBar != null ? healthBar.GetComponent<Image>() : null;
+            if (referenceImage == null && healthBar != null)
                 referenceImage = healthBar.GetComponentInChildren<Image>(true);
 
             if (referenceImage != null)
             {
                 overlayImage.sprite = referenceImage.sprite;
                 overlayImage.material = referenceImage.material;
-                overlayImage.preserveAspect = referenceImage.preserveAspect;
+                overlayImage.preserveAspect = attach && referenceImage.preserveAspect;
             }
 
-            overlayRect.SetSiblingIndex(referenceRect.GetSiblingIndex() + 1);
+            if (attach) overlayRect.SetSiblingIndex(referenceRect.GetSiblingIndex() + 1);
             overlayObject.SetActive(false);
 
             GameObject textObject = new GameObject(
@@ -152,8 +259,8 @@ namespace HaldorExpansion.Features.Cestus
 
             RectTransform textRect = textObject.GetComponent<RectTransform>();
             textRect.SetParent(overlayRect, false);
-            textRect.anchorMin = new Vector2(0f, 0.5f);
-            textRect.anchorMax = new Vector2(0f, 0.5f);
+            textRect.anchorMin = new Vector2(attach ? 0f : 0.5f, 0.5f);
+            textRect.anchorMax = new Vector2(attach ? 0f : 0.5f, 0.5f);
             textRect.pivot = new Vector2(0.5f, 0.5f);
 
             textRect.sizeDelta = new Vector2(64f, 18f);
@@ -172,8 +279,8 @@ namespace HaldorExpansion.Features.Cestus
             shieldText.color = new Color(1f, 1f, 1f, 0.95f);
             shieldText.text = string.Empty;
 
-            Text referenceText = healthBar.GetComponent<Text>();
-            if (referenceText == null)
+            Text referenceText = healthBar != null ? healthBar.GetComponent<Text>() : null;
+            if (referenceText == null && healthBar != null)
                 referenceText = healthBar.GetComponentInChildren<Text>(true);
 
             if (referenceText != null && referenceText.font != null)
@@ -204,33 +311,32 @@ namespace HaldorExpansion.Features.Cestus
 
         internal static Component FindReferenceHealthBarComponent(Hud hud)
         {
-            FieldInfo[] fields =
-                typeof(Hud).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-            Component fallback = null;
-
-            foreach (FieldInfo field in fields)
+            if (hud == null) return null;
+            for (int i = 0; i < HealthBarFields.Length; i++)
             {
-                if (field.FieldType == null || field.FieldType.Name != "GuiBar")
-                    continue;
-
-                Component bar = field.GetValue(hud) as Component;
-                if (bar == null)
-                    continue;
-
-                string name = field.Name.ToLowerInvariant();
-
-                if (!name.Contains("health") && !name.Contains("hp"))
-                    continue;
-
-                if (name.Contains("fast"))
-                    return bar;
-
-                if (fallback == null)
-                    fallback = bar;
+                Component bar = HealthBarFields[i].GetValue(hud) as Component;
+                if (bar != null) return bar;
             }
 
-            return fallback;
+            return null;
+        }
+
+        private static FieldInfo[] FindHealthBarFields()
+        {
+            FieldInfo[] fields =
+                typeof(Hud).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var matches = new List<FieldInfo>();
+            int fastCount = 0;
+            foreach (FieldInfo field in fields)
+            {
+                if (field.FieldType.Name != "GuiBar") continue;
+                string name = field.Name.ToLowerInvariant();
+                if (!name.Contains("health") && !name.Contains("hp")) continue;
+                if (name.Contains("fast")) matches.Insert(fastCount++, field);
+                else matches.Add(field);
+            }
+
+            return matches.ToArray();
         }
 
         private static void CopyRectTransform(RectTransform source, RectTransform target)

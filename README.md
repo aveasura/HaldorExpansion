@@ -6,8 +6,6 @@
 
 Haldor Expansion is a Valheim mod for **BepInEx 5 + Jotunn** that expands Haldor's shop with **13 unique pieces of equipment**, distinctive combat mechanics, and configurable prices, quantities, and world-progression requirements. Version 1.3.0 also enables upgrades for **12 artifacts** at the **Forge of Possibilities**, with **11 playable awakened powers** unlocked at quality 10.
 
-**Current source branch:** Hel's Oath awakening is implemented and being playtested. The 1.3.0 release notes below are kept as release history.
-
 Every relic offers **powerful advantages with meaningful drawbacks**. The mod supports **English and Russian**, multiplayer, and dedicated servers. Haldor can also buy trophies, cores, and idols.
 
 ## What's new in 1.3.0
@@ -119,16 +117,18 @@ Normal bow hits charge **Hel's Embrace** based on outgoing damage before target 
 - **Corrupted Brisingamen:** adds **+150 carrying capacity**. It has no additional curse or drawback.
 - **Crossbow of the Shadow Hunt:** a heavy crossbow designed for powerful opening/backstab shots with a movement-speed penalty.
 
+The Bone Crushers shield HUD is configured locally in `general.cfg`, section `Bone Crushers Shield HUD / HUD щита Костоломов`. Its default remains the segment at the current HP endpoint. `Position X/Y` move it and `Scale` resizes it. Disable `Attach to Health Bar` for a separate gauge, then set normalized `Screen Position X/Y` (0–1, left to right / bottom to top). Disable `Match HP Bar Size` to use `Custom Width/Height`. `Enable HUD` affects only the indicator, not the shield mechanic.
+
 ## Forge of Possibilities and Awakened Potential
 
 **12 of the 13 unique items** can be upgraded at the Forge of Possibilities. The **Haldor Idol** uses the normal success/failure rules: an unsuccessful upgrade **may destroy the item**. The **Adamantine Haldor Idol** offers a separate upgrade option for equipment already supported by the forge. It uses the **same success chance** as the regular Haldor Idol: success increases quality by **1**, while failure decreases it by **1**, but **never below quality 1**. The equipment **cannot be destroyed** by an adamantine attempt. Each attempt consumes **one idol**, including failed attempts at quality 1. The **Thread of the Norns** is not one of the upgradeable artifacts.
 
-**Quality 10 is the awakening threshold, not the upgrade cap.** You can continue upgrading above 10, and awakened effects remain available at **quality 11, 12, and beyond** while the relevant item is equipped and its other requirements are met. If an adamantine failure lowers an item from quality 10 to 9, its awakening becomes inactive until it reaches quality 10 again. The awakening belongs to the **particular upgraded item**, not to all copies of that artifact.
+**The awakening threshold is configurable; its default is quality 10.** In `balance.cfg`, the `Awakening / Пробуждение` section's `Quality threshold` sets the minimum quality for all artifacts (1–1000). The server controls this value in multiplayer. Changes apply to existing and equipped items; tooltips and upgrade previews use the current threshold. Falling below that quality disables awakening until the item meets the threshold again. This is not an upgrade cap: items can continue upgrading. Awakening belongs to the **particular upgraded item**, not every copy of that artifact.
 
 <details>
-<summary>Show awakened abilities at quality +10 (spoilers)</summary>
+<summary>Show awakened abilities (quality +10 by default; spoilers)</summary>
 
-| Artifact | Awakened effect at quality 10+                                                                                      |
+| Artifact | Awakened effect at the configured quality (default 10)                                                                                      |
 | --- |---------------------------------------------------------------------------------------------------------------------|
 | **Berserker Greataxe** | **Bloody Harvest:** Greataxe kills grant **30 Blood Debt**.                                                         |
 | **Berserker Helmet** | **Feast of the Fallen:** kills with the Greataxe during Wrath heal **10% of missing health**.                       |

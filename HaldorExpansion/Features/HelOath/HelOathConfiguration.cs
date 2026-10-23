@@ -58,7 +58,7 @@ namespace HaldorExpansion.Features.HelOath
             var swapKey = input.Bind(ItemNames.ConfigSection(ItemNames.HelOathEn, ItemNames.HelOathRu),
                 "Soul Swap Key", KeyCode.E,
                 "Teleport to a materialized Hel ghost and consume that soul (default E). " +
-                "Requires Hel's Oath quality 10 and 40% maximum stamina. No cooldown.");
+                "Requires awakened Hel's Oath and 40% maximum stamina.");
             SoulSwapButton = new ButtonConfig
             {
                 Name = "HE_HelSoulSwap", Config = swapKey,

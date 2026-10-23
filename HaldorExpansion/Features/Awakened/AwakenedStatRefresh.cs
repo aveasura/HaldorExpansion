@@ -43,7 +43,7 @@ namespace HaldorExpansion.Features.Awakened
     [HarmonyPatch(typeof(Player), "Update")]
     internal static class AwakenedQualityStatsRefreshPatch
     {
-        // An equipped instance can cross Q10 during an upgrade without changing its slot.
+        // Upgrades or threshold config changes can alter awakening without changing the equipped slot.
         private static void Prefix(Player __instance) => AwakenedStatRefresh.Refresh(__instance);
     }
 }

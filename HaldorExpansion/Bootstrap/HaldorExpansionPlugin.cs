@@ -4,6 +4,7 @@ using BepInEx.Logging;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Configuration;
 using HaldorExpansion.Diagnostics;
+using HaldorExpansion.Features.Awakened;
 using HaldorExpansion.Features.Berserker;
 using HaldorExpansion.Features.Cestus;
 using HaldorExpansion.Features.HelOath;
@@ -56,6 +57,8 @@ namespace HaldorExpansion
 
             // Bind every configuration entry before Harmony patching. A compatibility issue in one
             // Harmony target must never leave later runtime systems with null ConfigEntry fields.
+            AwakenedConfiguration.Register(_configuration.Balance);
+            CestusHudConfiguration.Register(Config);
             CestusInputRegistration.RegisterCestusInput(Config);
             HelOathConfiguration.Register(_configuration.Balance, Config);
             BerserkerConfiguration.Register(_configuration.Balance, Config);

@@ -1,9 +1,9 @@
 namespace HaldorExpansion.Features.Awakened
 {
-    // Fixed awakening balance. Quality is checked on the equipped ItemData, never SharedData.
+    // Quality is checked on the equipped ItemData, never SharedData.
     internal static class AwakenedBalance
     {
-        internal const int QualityThreshold = 10;
+        internal static int QualityThreshold => AwakenedConfiguration.QualityThresholdValue;
         internal const float SkillCap = 100f;
 
         internal static class DelayedDoomChest

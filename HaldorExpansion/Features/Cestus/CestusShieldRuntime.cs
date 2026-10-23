@@ -116,60 +116,6 @@ namespace HaldorExpansion.Features.Cestus
             return absorbed;
         }
 
-        internal static float CorrectCestusShieldAfterDamage(Player player, float beforeHealth, float afterHealth)
-        {
-            if (player == null)
-                return 0f;
-
-            if (!CestusNetworkState.IsCestusShieldAuthorityRuntime(player))
-                return 0f;
-
-            if (player.IsDead())
-                return 0f;
-
-            float healthLoss = beforeHealth - afterHealth;
-            if (healthLoss <= 0.001f)
-                return 0f;
-
-            CestusStateStore.CestusState state = CestusStateStore.GetOrCreateCestusState(player);
-            RefreshAwakenedShield(player, state);
-            if (state.ShieldRemaining <= 0.001f)
-                return 0f;
-
-            float absorbed = Mathf.Min(state.ShieldRemaining, healthLoss);
-            if (absorbed <= 0.001f)
-                return 0f;
-
-            state.ShieldRemaining = Mathf.Max(0f, state.ShieldRemaining - absorbed);
-
-            float correctedHealth = Mathf.Min(CharacterHealthAccess.GetCharacterMaxHealth(player),
-                Mathf.Max(0f, afterHealth + absorbed));
-            CharacterHealthAccess.SetCharacterHealth(player, correctedHealth);
-
-            if (state.ShieldRemaining <= 0.001f)
-            {
-                ClearCestusShieldState(player, state, false, true);
-            }
-            else
-            {
-                CestusNetworkState.SyncCestusShieldState(player, state);
-            }
-
-            if (HaldorExpansionPlugin.DebugLogging)
-            {
-                HaldorExpansionPlugin.DebugLog(
-                    $"[HaldorExpansion] Cestus shield corrected post-damage: " +
-                    $"before={beforeHealth:0.##}, " +
-                    $"after={afterHealth:0.##}, " +
-                    $"absorbed={absorbed:0.##}, " +
-                    $"newHealth={correctedHealth:0.##}, " +
-                    $"remaining={state.ShieldRemaining:0.##}, " +
-                    $"{PlayerDiagnostics.GetCestusDebugPlayerTag(player)}");
-            }
-
-            return absorbed;
-        }
-
         internal static IEnumerator CestusShieldRoutine(CestusStateStore.CestusState state)
         {
             if (state == null)

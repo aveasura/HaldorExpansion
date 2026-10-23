@@ -181,10 +181,9 @@
         <Compile Include="Integration\Patches\CestusShieldHudPatch.cs"/>
         <Compile Include="Integration\Patches\CestusHitStopPatch.cs"/>
         <Compile Include="Integration\Patches\CestusFacebreakerNetworkPatch.cs"/>
-        <Compile Include="Integration\Patches\DelayedDoomApplyArmorPatch.cs"/>
         <Compile Include="Integration\Patches\DelayedDoomApplyDamagePatch.cs"/>
         <Compile Include="Integration\Patches\StaminaCapeApplyDamagePatch.cs"/>
-        <Compile Include="Integration\Patches\DelayedDoomDamagePatch.cs"/>
+        <Compile Include="Integration\Patches\CestusShieldDamagePatch.cs"/>
         <Compile Include="Integration\Patches\DelayedDoomFoodRegenPatch.cs"/>
         <Compile Include="Integration\Patches\DelayedDoomInventoryFixPatch.cs"/>
         <Compile Include="Integration\Patches\HaldorShopExpansionPatch.cs"/>
@@ -215,6 +214,7 @@
         <Compile Include="Features\Cestus\CestusRuntime.cs"/>
         <Compile Include="Diagnostics\PlayerDiagnostics.cs"/>
         <Compile Include="Features\Cestus\CestusHudView.cs"/>
+        <Compile Include="Features\Cestus\CestusHudConfiguration.cs"/>
         <Compile Include="Diagnostics\AdrenalineDiagnostics.cs"/>
         <Compile Include="Combat\AttackAnimationSpeedRuntime.cs"/>
         <Compile Include="Features\Cestus\CestusItemRegistration.cs"/>
@@ -432,6 +432,7 @@
         <Compile Include="Features\Awakened\AwakenedAbilityMath.cs"/>
         <Compile Include="Features\Awakened\AwakenedAbilityPatches.cs"/>
         <Compile Include="Features\Awakened\AwakenedBalance.cs"/>
+        <Compile Include="Features\Awakened\AwakenedConfiguration.cs"/>
         <Compile Include="Features\Awakened\AwakenedCombat.cs"/>
         <Compile Include="Features\Awakened\AwakenedDescriptions.cs"/>
         <Compile Include="Features\Awakened\AwakenedEquipment.cs"/>

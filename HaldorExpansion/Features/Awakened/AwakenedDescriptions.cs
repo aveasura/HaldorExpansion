@@ -19,9 +19,10 @@ namespace HaldorExpansion.Features.Awakened
             // Vanilla passes the prospective quality when previewing an upgrade.
             // Ordinary tooltips use this instance's quality; no shared data is changed.
             int quality = tooltipQuality > 0 ? tooltipQuality : item.m_quality;
-            return Localization.instance.Localize(quality >= AwakenedBalance.QualityThreshold
-                ? Key(artifact)
-                : HiddenKey);
+            int threshold = AwakenedBalance.QualityThreshold;
+            return quality >= threshold
+                ? Localization.instance.Localize(Key(artifact))
+                : string.Format(CultureInfo.InvariantCulture, Localization.instance.Localize(HiddenKey), threshold);
         }
 
         internal static string InsertBeforeLore(string tooltip, string potential, string lore)
@@ -43,11 +44,8 @@ namespace HaldorExpansion.Features.Awakened
         {
             text[HiddenKey] = "<color=#AA5555>" +
                               (ru
-                                  ? "Скрытый потенциал: пробуждается на " +
-                                    AwakenedBalance.QualityThreshold +
-                                    "-м уровне улучшения предмета."
-                                  : "Hidden Potential: awakens at upgrade level " +
-                                    AwakenedBalance.QualityThreshold + ".") +
+                                  ? "Скрытый потенциал: пробуждается на {0}-м уровне улучшения предмета."
+                                  : "Hidden Potential: awakens at upgrade level {0}.") +
                               "</color>";
 
             string title = "<color=#FF5555><b>" +
