@@ -28,7 +28,7 @@ namespace HaldorExpansion.Configuration
                 case "Copper":
                 case "Tin":
                 case "Silver":
-                case "Flametal":
+                case "FlametalNew":
                 case "Gold":
                 case "Feathers":
                 case "Sap":

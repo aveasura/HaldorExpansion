@@ -131,9 +131,11 @@ namespace HaldorExpansion.Configuration
                 newBalance ? null : ConfigText.Parse(File.ReadAllText(Balance.ConfigFilePath));
             string tradingDisk = newTrading ? null : File.ReadAllText(tradePath);
             bool oldBerserkerIds = !newTrading && BerserkerTradingMigration.NeedsUpgrade(tradingDisk);
-            TradingDocument parseDefaults = oldBerserkerIds
-                ? BerserkerTradingMigration.LegacyDefaults(TradingCatalog.Defaults)
-                : TradingCatalog.Defaults;
+            bool oldFlametalId = !newTrading && FlametalTradingMigration.NeedsUpgrade(tradingDisk);
+            TradingDocument parseDefaults = TradingCatalog.Defaults;
+            if (oldFlametalId) parseDefaults = FlametalTradingMigration.LegacyDefaults(parseDefaults);
+            if (oldBerserkerIds) parseDefaults = BerserkerTradingMigration.LegacyDefaults(parseDefaults);
+
             if (previous != null)
             {
                 // Only the retired Facebreaker flag may differ from an older key-set manifest.
@@ -168,6 +170,16 @@ namespace HaldorExpansion.Configuration
             localTrading = newTrading
                 ? TradingCatalog.FromEntries()
                 : TradingDocument.Parse(tradingDisk, parseDefaults, complete: previous == null);
+            if (oldFlametalId)
+            {
+                // If both legacy ID schemes are present, convert Flametal first while
+                // retaining the old Berserker IDs, then migrate those separately.
+                TradingDocument target = oldBerserkerIds
+                    ? BerserkerTradingMigration.LegacyDefaults(TradingCatalog.Defaults)
+                    : TradingCatalog.Defaults;
+                localTrading = FlametalTradingMigration.Upgrade(localTrading, target);
+            }
+
             if (oldBerserkerIds)
                 localTrading = BerserkerTradingMigration.Upgrade(localTrading, TradingCatalog.Defaults);
             TradingDocument.Parse(localTrading.Serialize(), TradingCatalog.Defaults);
@@ -186,7 +198,7 @@ namespace HaldorExpansion.Configuration
             bool updateGeneral = newGeneral || removeFacebreakerFlag ||
                                  (previous != null && previous.General != current.General);
             bool updateBalance = newBalance || (previous != null && previous.Balance != current.Balance);
-            bool updateTrading = newTrading || oldBerserkerIds ||
+            bool updateTrading = newTrading || oldBerserkerIds || oldFlametalId ||
                                  (previous != null && previous.Trading != current.Trading);
             if (updateGeneral || updateBalance || updateTrading)
             {

@@ -1,3 +1,8 @@
+## 1.3.4
+### Fixed
+- Haldor's Shop: Fixed Flametal being sold as the outdated Ancient Metal instead of the correct Ashlands Flametal.
+- Trading Configuration: Added automatic migration from `Flametal` to `FlametalNew`, preserving existing custom prices, stack sizes, availability, and progression requirements.
+
 ## 1.3.3
 - Hel's Oath: Introduced a new awakened ability - Ghosts of the Last Hunt. Successful hits summon up to three spectral archers that mirror their master's shots and unleash a devastating final volley during Hel's Embrace.
 - Hel's Oath: Added **Soul Swap**, allowing players to teleport to a summoned ghost by sacrificing its soul and a portion of maximum stamina.

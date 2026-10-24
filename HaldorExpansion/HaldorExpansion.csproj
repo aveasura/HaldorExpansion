@@ -83,6 +83,7 @@
         <Compile Include="Configuration\TradingEditorSettings.cs"/>
         <Compile Include="Configuration\TradingYamlEditor.cs"/>
         <Compile Include="Configuration\BerserkerTradingMigration.cs"/>
+        <Compile Include="Configuration\FlametalTradingMigration.cs"/>
         <Compile Include="Configuration\ConfigText.cs"/>
         <Compile Include="Configuration\ConfigSchema.cs"/>
         <Compile Include="Configuration\ConfigurationRuntime.cs"/>
