@@ -1,202 +1,233 @@
-﻿# Haldor Expansion
+# Haldor Expansion - Valheim Trading, Relics & Awakened Abilities
 
-[English](README.md) | [Русский](README.ru.md) | [Changelog](CHANGELOG.md)
+**English** · [Русский](README.ru.md) · [Changelog](CHANGELOG.md)
 
-**Version: 1.3.0**
+**Turn trophies into coins. Coins into relics. Relics into legends.**
 
-Haldor Expansion is a Valheim mod for **BepInEx 5 + Jotunn** that expands Haldor's shop with **13 unique pieces of equipment**, distinctive combat mechanics, and configurable prices, quantities, and world-progression requirements. Version 1.3.0 also enables upgrades for **12 artifacts** at the **Forge of Possibilities**, with **11 playable awakened powers** unlocked at quality 10.
+**Haldor Expansion (HaldorExpansion)** is a **Valheim mod** that expands Haldor's trading and equipment progression. Sell trophies and valuable loot, buy rare materials and unique artifacts, collect idols, and awaken new powers at the **Forge of Possibilities**.
 
-Every relic offers **powerful advantages with meaningful drawbacks**. The mod supports **English and Russian**, multiplayer, and dedicated servers. Haldor can also buy trophies, cores, and idols.
+There's more to discover beyond trading: become a Berserker and unleash Ragnarök, wield the devastating Bone Crushers, or send the spectral archers of Hel's Oath into battle.
 
-## What's new in 1.3.0
+---
 
-- **Berserker:** new Greataxe, Helmet, and Cloak with escalating Wrath, Blood Debt, Reckoning, and a devastating meteor-storm ability, **Ragnarök**.
-- **Forge of Possibilities:** upgrade 12 unique artifacts **beyond quality 10**. At quality **10+**, 11 artifacts awaken new abilities or passive effects. Their powers stay active at higher qualities. **Hel's Oath's awakening is still in development.**
-- **Facebreaker:** a new Bone Crushers ability with a custom casting animation and impact sounds. Pull enemies from both sides, slow them, and stagger them when both sides are caught.
-- **Haldor's Idols:** the regular Haldor Idol can drop alongside existing idols. The new **Haldor's Adamantine Idol** offers a safer upgrade attempt: on failure, equipment loses one quality level instead of being destroyed (minimum quality 1).
-- **Idol trading:** Haldor buys and sells **all 16 vanilla idols and both custom HaldorExpansion idols**, one at a time, with individually configurable prices and availability.
-- **Improved Haldor shop:** six category tabs, better item previews, scrolling tooltips, and faster navigation.
-- **Artifact lore:** 12 relics and both Haldor idols feature Norse-inspired stories in English and Russian, with hidden connections between their legends.
-- **In-game settings:** optional **BepInEx ConfigurationManager (F1)** support, a customizable Blood Debt HUD, and live updates to configuration files without restarting.
-- **Combat and quality-of-life fixes:** refined existing equipment interactions, fixed equipment visibility issues, and improved configuration migration.
+## Why return to Haldor?
 
-### 🎬 Ragnarök — Ability Showcase
+- **Equipment and resources:** 13 unique items and **31 types of materials** - from metals and timber to Refined Eitr, Bloodgold, Timberwood, and Ice.
+- **Coins for your loot:** Haldor buys creature and boss trophies, **Surtling, Black, Molten, and Frost Cores**, as well as idols.
+- **Upgrade your favorite relic:** **18 kinds of idols**, **12 upgradeable artifacts**, and awakened abilities unlocked at a configurable quality level.
+- **New combat styles:** **Berserker, Wrath, and Ragnarök**; **Bone Crushers and Facebreaker**; **Hel's Oath, Ghosts of the Last Hunt, and Soul Swap**.
+- **Flexible customization:** prices, inventory, world-progression requirements, abilities, and interface settings. English and Russian localization, single-player, and dedicated-server support.
+
+### 🎬 Ragnarök in action
 
 [![Ragnarök Ability Showcase](https://img.youtube.com/vi/U9n6rRKwHu8/hqdefault.jpg)](https://youtu.be/U9n6rRKwHu8)
 
-*Watch the Berserker unleash Ragnarök in-game.*
+*One of Haldor Expansion's combat abilities.*
 
-See the [changelog](CHANGELOG.md) for the full list of changes since 1.2.2.
+**Requires BepInEx 5 and Jotunn.** In multiplayer, the mod must be installed on the server and on every player's client. The server controls prices and gameplay balance; keybindings and the interface can be customized locally.
 
-## Installation
+[Full changelog](CHANGELOG.md) · [Source code and discussions](https://github.com/aveasura/HaldorExpansion)
 
-Install **BepInEx 5** and **Jotunn** (mod managers can handle these dependencies), then place the compiled mod in:
+---
 
-```text
-BepInEx/plugins/aveasura-HaldorExpansion/HaldorExpansion.dll
-```
+## Haldor's expanded shop - buy, sell & progress
 
-No additional PNG files are required: item icons are embedded in the DLL. You do **not** need to edit `.csproj` or create `HaldorExpansion.Local.props` to play. Those are developer-only build settings.
+Haldor becomes **a trader worth visiting after every expedition** - not just for equipment, but also for resources, idols, and a way to turn hard-earned loot into coins. Sell the trophies gathered on your adventures, stock up on useful materials, or invest in idols to upgrade your favorite relics.
 
-### Multiplayer / dedicated server
+**Buy from Haldor:** **13 unique equipment items**, **31 types of resources and materials**, and **18 kinds of idols** (16 standard idols, Haldor's Idol, and Haldor's Adamantine Idol). Item availability, stack sizes, prices, and world-progression requirements are configurable.
 
-Install the same HaldorExpansion version **on the dedicated server and on every player's client**. The mod uses `NetworkCompatibility(EveryoneMustHaveMod, Minor)`.
+**Sell to Haldor:** regular creature and boss trophies from the Meadows through the Deep North; **Surtling Cores, Black Cores, Molten Cores, and Frost Cores (Frostcore)**; and all 18 kinds of idols. Trophy prices depend on the item, with a configurable fallback price for other supported trophies.
 
-The server is authoritative for synchronized combat-balance settings, shop prices, stock configuration, and progression requirements. Connected clients use the server's values without permanently overwriting their own local configuration. Shop-tab visibility and local input preferences can be adjusted individually.
+The shop has **six tabs: All / Equipment / Wood / Ores and Metals / Resources / Other**. Idols currently appear under **Other**; there is no dedicated idol tab yet. Tabs can be customized or disabled to restore Valheim's familiar shop layout. Hiding a tab does not automatically remove its items from **All** - use `Hide items from disabled tabs` for that.
 
-## Haldor's shop and item descriptions
+### What can you buy? - resources & materials
 
-Haldor sells unique equipment, resources, and crafting materials. Depending on world progression and `trading.yml`, some products may be hidden until their requirements are met.
-
-The shop offers **six tabs: All / Equipment / Wood / Ores and Metals / Resources / Other**. All idols appear in **Other** (there is no separate idol tab). Category visibility is configurable in `general.cfg` or ConfigurationManager (F1). Hiding a tab does not hide its goods from **All** unless **Hide items from disabled tabs** is also enabled. Disable the entire tab interface to restore Haldor's traditional layout. Disabling and re-enabling an item retains its catalog order.
-
-For the 12 relics with stories **and both Haldor idols**, **shop previews emphasize the legend**, while the item's **inventory tooltip includes its story and mechanical details**. The Crossbow of the Shadow Hunt retains a conventional description pending a future redesign.
-
-Long item descriptions scroll using the mouse wheel while the pointer is over the tooltip, or with **Page Up / Page Down**. This also helps on smaller displays.
-
-## Unique equipment
-
-These are the **default purchase prices**. You can change them in `trading.yml`.
-
-| Item | Coins | Main role |
-| --- |------:| --- |
-| **Berserker Greataxe** |  2500 | Missing-health damage, Wrath, Blood Debt, Reckoning |
-| **Berserker Helmet** |  2500 | Wrath-based defense and lifesteal |
-| **Berserker Cloak** |  2500 | Faster Blood Debt generation. Unlocks Ragnarök at the cost of survivability |
-| **Bone Crushers** |  2500 | Cestus that turns damage suffered into a barrier and shockwave |
-| **Pit King's Mantle** |  3500 | Health bonus and Steel Heart synergy with Bone Crushers |
-| **Hel's Oath** | **Ghosts of the Last Hunt:** up to three spectral archers echo your shots; the first is a distant Guardian. **Soul Swap** (G) exchanges positions with a ghost without consuming it or using a cooldown. |
-| **Pelt of Helheim** |  2500 | Very Resistant to Pierce when the Hel/Fenris synergy is complete |
-| **Cuirass of Silent Reckoning** |  3500 | Delays part of dangerous damage instead of preventing it outright |
-| **Thread of the Norns** |  6666 | One-use protection from a lethal hit |
-| **Cloak of the Wounded Beast** |  2500 | Stronger healing at low health, but increased incoming damage |
-| **Cloak of Burned Resolve** |  2500 | Redirects part of incoming damage into stamina |
-| **Corrupted Brisingamen** |  1600 | Increases carrying capacity |
-| **Crossbow of the Shadow Hunt** |  2500 | Powerful opening shots with a mobility trade-off |
-
-### Berserker — Wrath and Blood Debt
-
-The **Greataxe, Helmet, and Cloak** complement each other, but they are **not a formal armor set** and do not require specific chest armor or leggings.
-
-- **Bloodthirst:** the Greataxe deals **+0.2% weapon damage for each point of missing HP**.
-- **Wrath I–V:** valid Greataxe hits build up to five stages. Each stage grants attack speed and reduces stamina costs. Wrath gradually fades without new hits. By default, the stage I–V attack-speed bonuses are **+20/+30/+38/+45/+50%**, with stamina costs reduced by **up to 35% at Wrath V** (configurable).
-- **Blood Debt:** generated by eligible damage suffered and Greataxe hits. It gradually fades outside combat. Its value appears on a dedicated HUD indicator.
-- **Reckoning:** with **Wrath II or higher** and sufficient Blood Debt (**100** by default), the Greataxe's secondary attack becomes a powerful strike. On a successful hit it spends some Blood Debt, deals extra damage, and restores health from direct damage dealt.
-- **Berserker Helmet:** increases defense as Wrath rises (up to **+25 armor**, **75% less stagger buildup**, and **5% less incoming damage** at Wrath V). Qualifying Greataxe hits restore health based on actual enemy HP lost (up to **5%** at Wrath V).
-- **Berserker Cloak:** increases incoming damage by **30%**, but boosts eligible Blood Debt generation by **50%**.
-- **Ragnarök:** requires the **Greataxe in hand, Cloak equipped, Wrath V, and enough Blood Debt** (**500** by default). Press **E** by default (configurable) to call down a dynamically scaled rain of **12–30 meteors**. Casting consumes all Wrath and Blood Debt and causes **Exhaustion** (by default, **-40% movement speed, -25% attack speed, and -40% stamina regeneration for 7 seconds**).
-
-Most Berserker combat settings, including thresholds, bonuses, and the Ragnarök key, can be adjusted in the configuration. Berserker equipment can be repaired at a Forge.
-
-### Steel Heart — Bone Crushers and Pit King's Mantle
-
-**Bone Crushers** are fast, aggressive cestus weapons. Taking real HP damage builds **Battle Fervor**. The charge gradually fades if no additional damage is taken. At full charge, activate **Retribution** with the **middle mouse button (Mouse2)** by default. It releases a nearby shockwave and grants a temporary protective barrier. Charge cannot build while the barrier is active.
-
-**Facebreaker:** hold **E (default)** to aim, then release it to pull nearby enemies inward from both sides. Pulled enemies are slowed for **4 seconds**. When enemies are caught on **both sides**, pulled targets also stagger. The ability uses a custom animation and synchronized impact sounds. Default cooldown: **5 seconds**. The key can be changed; existing saved bindings are preserved. Interacting with objects takes priority when the ability shares the interaction key. If bound to RMB (Mouse1), Facebreaker replaces blocking only while aiming and ready.
-
-Bone Crushers also grant **+10 maximum health**, **+90% attack speed**, and **-8 armor** while equipped.
-
-**Pit King's Mantle** is chest armor despite its name. It provides **+20 maximum health** alone, or **+60** with Bone Crushers. Together, the two items grant **+70 maximum health in total** and form the **Steel Heart** set. The set increases Retribution's barrier strength and shockwave damage by **50%**.
-
-### Hel's Oath and Pelt of Helheim
-
-**Hel's Oath** is a high-risk bow that converts **50% of maximum health into maximum stamina** and grants **+20 Bows skill** while equipped.
-
-When wielding the bow with the **full vanilla Fenris set**, dealing bow damage awakens **Hel's Touch**. It grows to five stages while avoiding combat hits. Taking a qualifying hit removes one stage. Every stage provides **+5% movement speed** and **-4% stamina cost**, reaching **+25% / -20%** at Touch V. Breaking the equipment requirements removes the bonuses immediately. Stored stages have a brief grace period before decaying.
-
-Normal bow hits charge **Hel's Embrace** based on outgoing damage before target armor and resistances. The required charge scales with world boss progression. Press **Mouse2** by default when fully charged: the **next arrow** becomes empowered and explodes on impact (**80% Lightning / 20% Frost**). Damage scales with the health/stamina trade-off, and **Hel's Touch V** greatly strengthens the explosion. The empowered arrow does not charge the next ability.
-
-**Pelt of Helheim** activates **Helheim's Ward** only while the Pelt, full Fenris set, Hel's Oath, and active **Hel's Touch V** are all present. The effect grants **Very Resistant to Pierce** and disappears when the requirements are lost.
-
-### Other relics
-
-- **Cuirass of Silent Reckoning (Delayed Doom):** triggers when a single post-defense hit exceeds **50% of maximum HP** or would otherwise be lethal. **50% of that damage hits immediately**, while **70% of the original hit** returns as damage debt over **6 seconds**. This is borrowed time, not immunity: extremely strong hits can still kill you.
-- **Thread of the Norns:** a one-use trinket that is destroyed when saving the wearer from lethal damage. Health becomes **50% of its pre-hit value**, all accumulated Delayed Doom debt is cleared, and health loss is prevented for **3 seconds**. Remaining damage-over-time effects may resume after the protection ends.
-- **Cloak of the Wounded Beast:** increases incoming damage by **20%**, but periodically heals the wearer more strongly at lower health. Healing is halved during relevant fire, poison, or spirit damage-over-time effects, and is also halved when combined with the Cuirass of Silent Reckoning.
-- **Cloak of Burned Resolve:** redirects **25% of incoming damage** into stamina. If there is insufficient stamina, the remaining HP damage is increased by **75%**. Stamina is consumed to absorb damage. This is not a free damage reduction.
-- **Corrupted Brisingamen:** adds **+150 carrying capacity**. It has no additional curse or drawback.
-- **Crossbow of the Shadow Hunt:** a heavy crossbow designed for powerful opening/backstab shots with a movement-speed penalty.
-
-The Bone Crushers shield HUD is configured locally in `general.cfg`, section `Bone Crushers Shield HUD / HUD щита Костоломов`. Its default remains the segment at the current HP endpoint. `Position X/Y` move it and `Scale` resizes it. Disable `Attach to Health Bar` for a separate gauge, then set normalized `Screen Position X/Y` (0–1, left to right / bottom to top). Disable `Match HP Bar Size` to use `Custom Width/Height`. `Enable HUD` affects only the indicator, not the shield mechanic.
-
-## Forge of Possibilities and Awakened Potential
-
-**12 of the 13 unique items** can be upgraded at the Forge of Possibilities. The **Haldor Idol** uses the normal success/failure rules: an unsuccessful upgrade **may destroy the item**. The **Adamantine Haldor Idol** offers a separate upgrade option for equipment already supported by the forge. It uses the **same success chance** as the regular Haldor Idol: success increases quality by **1**, while failure decreases it by **1**, but **never below quality 1**. The equipment **cannot be destroyed** by an adamantine attempt. Each attempt consumes **one idol**, including failed attempts at quality 1. The **Thread of the Norns** is not one of the upgradeable artifacts.
-
-**The awakening threshold is configurable; its default is quality 10.** In `balance.cfg`, the `Awakening / Пробуждение` section's `Quality threshold` sets the minimum quality for all artifacts (1–1000). The server controls this value in multiplayer. Changes apply to existing and equipped items; tooltips and upgrade previews use the current threshold. Falling below that quality disables awakening until the item meets the threshold again. This is not an upgrade cap: items can continue upgrading. Awakening belongs to the **particular upgraded item**, not every copy of that artifact.
+The catalogue includes metals, stone, timber, textiles, and rare magical crafting ingredients. Later-game resources include **Bloodgold, Timberwood, Ice, Black Metal, Linen Thread, Sap, Refined Eitr, and Soft Tissue**.
 
 <details>
-<summary>Show awakened abilities (quality +10 by default; spoilers)</summary>
+<summary><strong>Show all 31 resources and default buy prices</strong></summary>
 
-| Artifact | Awakened effect at the configured quality (default 10)                                                                                      |
-| --- |---------------------------------------------------------------------------------------------------------------------|
-| **Berserker Greataxe** | **Bloody Harvest:** Greataxe kills grant **30 Blood Debt**.                                                         |
-| **Berserker Helmet** | **Feast of the Fallen:** kills with the Greataxe during Wrath heal **10% of missing health**.                       |
-| **Berserker Cloak** | Ragnarök **preserves Wrath**. Blood Debt consumption and Exhaustion remain.                                         |
-| **Bone Crushers** | Normal attacks heal **3% of actual enemy HP lost**.                                                                 |
-| **Pit King's Mantle** | With Bone Crushers, raises the Steel Heart barrier bonus to **+100%** and increases Retribution damage accordingly. |
-| **Hel's Oath** | **Ghosts of the Last Hunt — work in progress.** No awakened ability yet.                                            |
-| **Pelt of Helheim** | **+80 maximum stamina** and **80% less fall damage**.                                                               |
-| **Cuirass of Silent Reckoning** | With active delayed-damage debt and health at **25% or below**, restores **2% of maximum HP per second**.           |
-| **Cloak of the Wounded Beast** | **+30 maximum health** and **+30 effective Unarmed skill** (capped at 100).                                         |
-| **Cloak of Burned Resolve** | Slight resistance to slashing damage (**25% reduction** at the resistance stage).                                   |
-| **Corrupted Brisingamen** | **Blessing of the Rejected Goddess:** **+40% stamina regeneration**.                                                |
-| **Crossbow of the Shadow Hunt** | **+60 effective Sneak** and **+30 effective Crossbows** (each capped at 100).                                       |
+**These are prices paid BY THE PLAYER to Haldor**, not what Haldor pays when buying items from you. Prices are for the **entire stack**, not necessarily a single item. *Full stack* means the item's maximum in-game stack size. Player and server configurations may use different prices.
 
-</details>
-
-Awakened abilities do not require a separate activation key. The effect is displayed in each item's tooltip as its quality changes. **Hel's Oath** can still be upgraded above +10. Its awakening will be introduced in a future update.
-
-## Trading: resources, idols, and sellable items
-
-Haldor sells crafting materials at configurable prices. The amounts below are the **defaults for a newly generated configuration**. Prices apply to the **whole stack shown**, not necessarily one unit. An entry marked *full stack* uses the item's maximum stack size.
-
-| Materials | Default stack | Price (coins) |
+| Resources available to buy | Stack size | Coins per stack |
 | --- | ---: | ---: |
 | Copper / Tin / Iron / Silver / Flametal | 30 each | 150 / 150 / 250 / 450 / 1000 |
-| Black Metal | Full stack | 200 |
+| Black Metal / Bloodgold | Full stack | 200 / 1500 |
 | Stone / Grausten / Black Marble | Full stack | 25 / 50 / 50 |
 | Wood / Core Wood / Ancient Bark / Fine Wood | Full stack | 25 / 50 / 100 / 200 |
-| Yggdrasil Wood / Ashwood | Full stack | 300 / 100 |
+| Yggdrasil Wood / Ashwood / Timberwood | Full stack | 300 / 100 / 100 |
 | Red Jute / Blue Jute / Linen Thread | Full stack | 300 / 300 / 800 |
 | Sap / Refined Eitr / Soft Tissue | Full stack | 400 / 900 / 400 |
 | Resin / Greydwarf Eye / Crystal / Obsidian / Needle / Tar | Full stack | 100 / 100 / 250 / 250 / 250 / 250 |
-| Feathers | 100 | 150 |
+| Feathers | Full stack (100) | 150 |
+| Ice | Full stack | 400 |
 
-### Idols
+</details>
 
-Haldor **buys and sells 18 idols**: all **16 standard battle/protection idols**, the **Haldor Idol**, and **Haldor's Adamantine Idol**. Idols appear under the **Other** shop tab, not in a separate category. Each idol is purchased **one at a time**, even if its inventory stack size is 20.
+### What can you sell? - trophies, cores & idols
 
-| Idol | Haldor sells to you | Haldor buys from you |
+Haldor buys **creature and boss trophies**, including those from the Deep North. Examples of default prices: **Eikthyr Trophy - 350 coins**, **Yagluth Trophy - 1500**, and **Fader Trophy - 5000**. Other trophies have their own prices; trophies without a specific entry use a configurable fallback (**10 coins** by default).
+
+| Rare material sold to Haldor | Default coins per item |
+| --- | ---: |
+| Surtling Core | 70 |
+| Black Core | 200 |
+| Molten Core | 350 |
+| Frost Core | 550 |
+
+### Idol trading - buy, sell & upgrade
+
+Haldor **buys and sells all 18 kinds of idols**. Every price below is **per single idol**, not per stack.
+
+| Idol | Buy from Haldor | Sell to Haldor |
 | --- | ---: | ---: |
-| Each of the 16 standard idols | **1000 coins per idol** | **300 coins per idol** |
-| **Haldor Idol** | **1000 coins per idol** | **300 coins per idol** |
-| **Haldor's Adamantine Idol** | **4000 coins per idol** | **2500 coins per idol** |
+| Any of the **16 standard idols** | **1000** | **300** |
+| **Haldor's Idol** | **1000** | **300** |
+| **Haldor's Adamantine Idol** | **4000** | **2500** |
 
-All these prices are configurable **individually** in `trading.yml` or via **F1** with the optional ConfigurationManager. Each idol's availability and world-progression requirement are independently configurable. The regular Haldor Idol can drop alongside standard idols. The Adamantine Haldor Idol has an **independent 1% chance per eligible chest** by default (configurable in `balance.cfg`); these additional rolls do not replace standard loot or regular Haldor Idol drops.
+Each idol's buy and sell prices, availability, and world-progression requirements can be configured independently. The upgrade mechanics are explained below.
 
-You can also **sell supported trophies** (including Deep North and boss trophies) and **Surtling Core, Black Core, and Molten Core** to Haldor. Prices can be configured per item, with a fallback for trophies lacking an individual entry. Setting a **sell** price to `0` disables selling that item. Your existing/migrated prices may differ from the defaults listed here.
+---
 
-## Configuration (1.3.0)
+## Forge of Possibilities & Awakened Potential
 
-On first launch, the mod generates three files in:
+**12 of the 13 unique equipment items** can be upgraded at the Forge of Possibilities. The exception is the **Thread of the Norns**.
+
+| Upgrade material | On success | On failure |
+| --- | --- | --- |
+| **Haldor's Idol** | Quality increases by **1** | The item **may be destroyed** |
+| **Haldor's Adamantine Idol** | Quality increases by **1** | Quality decreases by **1**, but the item **cannot be destroyed** |
+
+**Both idols have the same chance of success.** Adamantine failures never reduce an item's quality below **1**. Each attempt consumes one idol, even if the attempt fails at quality 1.
+
+**The awakening threshold is configurable; the default is quality 10.** The `Quality threshold` setting under `[Awakening / Пробуждение]` in `balance.cfg` sets a shared threshold for all artifacts (**1–1000**). In multiplayer, the server's value applies. Changes also affect existing and equipped items; tooltips and upgrade previews reflect the current requirements. Falling below the configured quality disables awakening until the item qualifies again. This is **not an upgrade cap**: items can be upgraded beyond the threshold. Awakening belongs to **each individual item instance**, not to every copy of the artifact.
+
+<details>
+<summary>Show awakened abilities (quality 10+ by default; spoilers)</summary>
+
+| Artifact | Awakened ability |
+| --- | --- |
+| **Berserker Greataxe** | **Bloody Harvest:** Greataxe kills grant **30 Blood Debt**. |
+| **Berserker Helmet** | **Feast of the Fallen:** Greataxe kills during Wrath restore **10% of missing health**. |
+| **Berserker Cloak** | Ragnarök **preserves Wrath**. Blood Debt is still consumed, and Exhaustion still applies. |
+| **Bone Crushers** | Normal attacks heal for **3% of the HP actually lost by the enemy**. |
+| **Pit King's Mantle** | With Bone Crushers, raises the Steel Heart barrier bonus to **+100%** and increases Retribution damage accordingly. |
+| **Hel's Oath** | **Ghosts of the Last Hunt:** up to three spectral archers; **Soul Swap** sacrifices a spirit and stamina to teleport. |
+| **Pelt of Helheim** | **+80 maximum stamina** and **80% less fall damage**. |
+| **Cuirass of Silent Reckoning** | While delayed-damage debt is active and HP is **at or below 25%**, restores **2% of maximum HP per second**. |
+| **Cloak of the Wounded Beast** | **+30 maximum HP** and **+30 effective Unarmed skill** (capped at 100). |
+| **Cloak of Burned Resolve** | **25% reduction to slash damage** at the resistance stage. |
+| **Corrupted Brisingamen** | **Blessing of the Rejected Goddess:** **+40% stamina regeneration**. |
+| **Crossbow of the Shadow Hunt** | **+60 effective Sneak** and **+30 effective Crossbows** (each capped at 100). |
+
+</details>
+
+Most awakened effects are passive or enhance existing abilities. **Hel's Oath** also unlocks **Soul Swap** (**E** by default; rebindable). The awakened effect appears in the item's tooltip once it reaches the required quality. **All 12 upgradeable artifacts have awakenings**, and upgrading beyond the threshold remains possible.
+
+### Where to find Haldor's idols
+
+Both special idols are sold by Haldor. The regular **Haldor's Idol** can also drop alongside standard idols without replacing their loot. **Haldor's Adamantine Idol** has an independent **1% chance per eligible chest** by default, configurable in `balance.cfg`. Buy and sell prices are listed in the trading section above.
+
+---
+
+## Combat mechanics & playstyles
+
+Every relic has its own character: some reward aggression, while others help you survive a lethal blow or reposition in battle.
+
+### Berserker - Wrath, Blood Debt & Ragnarök
+
+The **Berserker Greataxe, Helmet, and Cloak** complement one another without requiring a particular chest armor or leggings. This is a playstyle for warriors willing to risk their health in exchange for growing power.
+
+- **Bloodthirst:** the Greataxe becomes more dangerous as health is lost.
+- **Wrath I–V:** consecutive qualifying hits build up to five stages, increasing attack speed and reducing stamina costs.
+- **Blood Debt:** taking damage and landing Greataxe hits fuel a special combat resource displayed on its own HUD.
+- **Reckoning:** at **Wrath II+**, with enough Blood Debt, use the secondary attack to spend that resource, deal additional damage, and recover health on a successful hit.
+- **Ragnarök:** wield the Greataxe, equip the Berserker Cloak, reach **Wrath V**, and build enough Blood Debt. Press **E** (default) to summon **12–30 meteors**. The sky darkens, the battlefield erupts, and **Exhaustion** follows.
+
+The Helmet improves defense and healing at different Wrath stages. The Cloak accelerates Blood Debt generation but increases incoming damage. Ability thresholds, bonuses, Exhaustion penalties, and keybindings are configurable.
+
+### Bone Crushers - Retribution, Facebreaker & Steel Heart
+
+**Bone Crushers** are fast cestus weapons that turn lost health into **Battle Fervor**. At full charge, press the **middle mouse button (Mouse2)** by default: **Retribution** releases a shockwave and creates a temporary protective barrier.
+
+**Facebreaker** provides crowd control: **hold E** (default) to aim, then release it to pull enemies toward the targeted point. Targets are slowed for **4 seconds**, while enemies caught on **both sides** are also staggered. The ability has its own animation, impact sounds, and a **5-second default cooldown**. Its key can be changed, and previously saved bindings remain intact. If E is also bound to an interaction, opening doors or chests and picking up items take priority.
+
+Equipping the **Pit King's Mantle** alongside Bone Crushers unlocks **Steel Heart**, strengthening the protective barrier and Retribution's shockwave.
+
+The Bone Crushers shield indicator is customizable in `general.cfg`: move it, scale it, separate it from the health bar, or hide its display without disabling the actual shield.
+
+### Hel's Oath - Hel's Embrace, ghosts & Soul Swap
+
+**Hel's Oath** is a high-risk bow that trades **50% of maximum health for additional maximum stamina**.
+
+With the **full Fenris set**, successful hits build **Hel's Touch** through five stages, increasing movement speed and reducing stamina costs. Normal arrows charge **Hel's Embrace**: when ready, the next arrow triggers a powerful **Lightning and Frost explosion**. At **Hel's Touch V**, the explosion is empowered.
+
+**Ghosts of the Last Hunt (awakened):** successful normal hits summon up to **three spectral archers**. They echo their master's shots for **33% damage** and can fire through obstacles. The first apparition is a distant **Guardian**, useful as a tactical teleport destination. During Hel's Embrace, remaining ghosts fire empowered arrows dealing **50% of the ability's damage** before disappearing. Ghost attacks do not charge other abilities.
+
+**Soul Swap:** press **E** (default) to teleport to a materialized ghost, sacrificing **one soul and 40% of maximum stamina**. There is **no cooldown**, and the swap works even while jumping or rolling. Without new hits, ghosts begin to fade after **30 seconds**, losing one soul every **10 seconds**.
+
+The **Pelt of Helheim** completes the combination: when the Hel's Oath, Fenris, and Hel's Touch synergy requirements are met, it grants **Very Resistant to Pierce**.
+
+### Other relics - survival & risk
+
+- **Thread of the Norns:** a one-use amulet that sacrifices itself to save its owner from a lethal hit.
+- **Cuirass of Silent Reckoning:** delays a portion of dangerous incoming damage, giving you time to recover without erasing the consequences.
+- **Cloak of the Wounded Beast:** improves healing at low health at the cost of increased incoming damage.
+- **Cloak of Burned Resolve:** redirects a portion of incoming damage to stamina; running out of stamina is dangerous.
+- **Corrupted Brisingamen:** increases carrying capacity.
+- **Crossbow of the Shadow Hunt:** devastating opening shots and ambush attacks in exchange for mobility.
+
+---
+
+## All 13 unique equipment items
+
+The **default buy prices** are shown below. They can be changed in `trading.yml`.
+
+| Item | Coins | Playstyle |
+| --- | ---: | --- |
+| **Berserker Greataxe** | 2500 | Missing-health damage, Wrath, Blood Debt, and Reckoning |
+| **Berserker Helmet** | 2500 | Wrath-based defense and healing |
+| **Berserker Cloak** | 2500 | Faster Blood Debt generation; enables Ragnarök at a cost to survivability |
+| **Bone Crushers** | 2500 | Cestus weapons that turn damage suffered into a barrier and shockwave |
+| **Pit King's Mantle** | 3500 | Bonus health and Steel Heart synergy with Bone Crushers |
+| **Hel's Oath** | 2500 | Health-for-stamina bow, Hel's Touch and Embrace, awakened **Ghosts of the Last Hunt**, and **Soul Swap** |
+| **Pelt of Helheim** | 2500 | Very high Pierce resistance with the full Hel/Fenris synergy |
+| **Cuirass of Silent Reckoning** | 3500 | Delays a portion of dangerous damage without negating it |
+| **Thread of the Norns** | 6666 | One-use protection from a lethal hit |
+| **Cloak of the Wounded Beast** | 2500 | Increased low-health healing at the cost of taking more damage |
+| **Cloak of Burned Resolve** | 2500 | Redirects some incoming damage to stamina |
+| **Corrupted Brisingamen** | 1600 | Increased carrying capacity |
+| **Crossbow of the Shadow Hunt** | 2500 | Powerful opening shots with reduced mobility |
+
+---
+
+### Relic legends & readable descriptions
+
+**12 equipment artifacts and both Haldor idols** have original, interconnected lore. Shop previews focus on each relic's story, while inventory tooltips also explain its gameplay mechanics. The Crossbow of the Shadow Hunt retains a conventional description until a future rework.
+
+Long descriptions can be scrolled with the **mouse wheel** or **Page Up / Page Down**. This helps on smaller screens; the feature can be disabled in `general.cfg` for compatibility with other UI mods.
+
+---
+## Configuration - examples for players & server owners
+
+On first launch, the mod creates three configuration files in:
 
 ```text
 BepInEx/config/aveasura-HaldorExpansion/
-├── general.cfg   # Local controls and shop UI
-├── balance.cfg   # Gameplay and ability balance
-└── trading.yml   # Shop inventory, prices, progression and sell prices
+├── general.cfg   # Local preferences and shop interface
+├── balance.cfg   # Equipment and ability balance
+└── trading.yml   # Inventory, prices, world progression and sell values
 ```
 
-### Live reloading
+### Apply changes without restarting
 
-Changes to these files are automatically checked while the game runs. The default **configuration check interval is 3 seconds**, and the minimum is **0.5 seconds**. The system checks file metadata before performing a full read and waits for a stable change before applying it.
+The mod automatically checks these files during gameplay. By default, **checks run every 3 seconds**, with a minimum interval of **0.5 seconds**. File metadata is checked before reading the full contents, and changes are applied only after a second stability check.
 
-Edit the files on the **server** to change authoritative multiplayer settings. A client's local `balance.cfg` and `trading.yml` cannot override active server values. Invalid edits are rejected and the last accepted settings remain in use. See the BepInEx log for details.
+To change gameplay settings on a dedicated server, edit the appropriate files **on the server**. A client's local `balance.cfg` and `trading.yml` cannot override active server settings. If a config is damaged or contains invalid values, the last accepted settings remain in effect. Details are written to the BepInEx log.
 
 ### `general.cfg`
 
-For example, edit the existing generated entries:
+An example using **actual setting names** (edit the values in your generated file as needed):
 
 ```ini
 [Configuration]
@@ -204,21 +235,37 @@ Config check interval (seconds) = 3
 
 [Trading UI]
 Enable Haldor tabs = true
+Hide items from disabled tabs = false
 ```
 
-Set `Enable Haldor tabs = false` to restore the original shop layout. To remove goods from a disabled category as well, turn on `Hide items from disabled tabs`. Disabling the **Other** category with that option also hides idols.
+To restore Haldor's standard interface, set `Enable Haldor tabs = false`. To remove items from a hidden tab in **All**, enable `Hide items from disabled tabs`. If you also hide **Other**, idols will disappear from the shop.
 
-**Optional F1 configuration:** install **BepInEx ConfigurationManager** to edit mod settings in-game. In its F1 interface, **Trading UI** appears directly below **Compatibility**. You can adjust idol buy/sell prices, individual purchase availability, tab visibility, and the Blood Debt HUD without manually editing text files. ConfigurationManager is optional. The mod works without it.
+**Ability keybindings:** in newly generated configs, Facebreaker and Soul Swap default to **E**, while Hel's Embrace defaults to **Mouse2**. Existing custom bindings are preserved. When an ability shares a key with an interaction, opening chests or doors, picking up items, and other available interactions take priority.
 
-### `balance.cfg`
+**Optional F1 settings:** install **BepInEx ConfigurationManager** to edit supported settings in-game. In F1, **Trading UI** appears immediately after **Compatibility**. You can configure idol buy/sell prices, individual item availability, shop tabs, and the Blood Debt HUD. ConfigurationManager is optional; the mod works without it.
 
-Contains synchronized settings for Hel's Oath, the Berserker's Wrath/Blood Debt/Reckoning/Ragnarök, and other configurable combat effects. For example, Hel's Oath provides **Damage for full charge**, **Explosion radius**, **Embrace coefficient**, **Touch V Embrace coefficient**, and **Touch stack interval**. Ragnarök has configurable thresholds, casting time, Exhaustion, and its ability key. **Forge of Possibilities → Adamantine Idol chest drop chance** controls the independent chest drop rate (**1%** by default; `0` disables it, maximum `100`).
+### `balance.cfg` - awakening and idol drop examples
 
-**Edit the entries already generated by the mod**, rather than copying old configuration sections from 1.2.x. The **Ragnarök key** and other local button bindings are stored with input settings, not in `trading.yml`.
+This file controls combat balance, abilities, and the Forge of Possibilities. For example, these **existing settings** control the awakening quality threshold and Adamantine Idol chest drop chance:
+
+```ini
+[Awakening / Пробуждение]
+Quality threshold = 10
+
+[Forge of Possibilities]
+Adamantine Idol chest drop chance = 1
+```
+
+- `Quality threshold = 10` - awakens abilities at **quality 10** (allowed values: **1 to 1000**). This does not impose a maximum upgrade level.
+- `Adamantine Idol chest drop chance = 1` - sets the chance of finding an Adamantine Idol in an eligible chest to **1%**. A value of `0` disables these drops; `100` makes the chance 100%.
+
+This file also contains settings for **Hel's Oath**, **Wrath**, **Blood Debt**, **Reckoning**, **Ragnarök**, defensive mechanics, and other effects. For instance, Hel's Oath has `Damage for full charge`, `Explosion radius`, `Embrace coefficient`, `Touch V Embrace coefficient`, and `Touch stack interval`.
+
+**Important:** keep the section and setting names found in the `balance.cfg` generated by your installed mod version. Do not guess or reuse outdated names from 1.2.x. The server synchronizes combat balance in multiplayer; local keybindings are configured separately.
 
 ### `trading.yml`
 
-The file is generated with **all recognized items** under `shop:` and `sell:`. The example below is **only an excerpt from a generated file**. Do not replace the complete document with it:
+The mod generates a file containing the **complete catalogue of known items** under `shop:` (what players buy from Haldor) and `sell:` (what Haldor buys from players). Below is an **example of editing existing entries**, **not a complete replacement file**. **Do not replace your entire `trading.yml` with this snippet**:
 
 ```yaml
 shop:
@@ -245,48 +292,78 @@ shop:
 
 sell:
   TrophyEikthyr:
-    price: 70
+    price: 350
   SurtlingCore:
-    price: 50
+    price: 70
   aveasura_he_idol:
     price: 300
   aveasura_he_adamantine_idol:
     price: 2500
 ```
 
-In this **example**, Iron is locked behind the Elder. The default value in your generated file may be different. Keep the original entries for all other products and trophies.
+In this example, Iron is sold in **stacks of 30 for 250 coins**, and it becomes available after defeating **The Elder** (`defeated_gdking`). To make an item available immediately, set `requiredGlobalKey: ""`. This is a **custom configuration example**, not a guarantee that every player has those exact values. Keep all other entries in the file.
 
-- `price`: shop purchase price for the **entire stack** (**per one idol** for idols). In `shop:`, `0` means **free**. In `sell:`, `0` **disables selling**.
-- `enabled`: `false` hides the item from Haldor's **buy** list.
-- `stack`: how many units are sold together. `0` uses the prefab's maximum stack size. Other values cannot exceed it. **All idols are always sold as `stack: 1`, even if a different value is entered.**
-- `requiredGlobalKey`: required world key, or `""` for no restriction.
-- Item identifiers such as `Bone_crushers` are **internal prefab IDs**, not localized display names. Keep them unchanged.
-- Preserve `shop:` and `sell:`, all generated item entries, field names, and indentation (**spaces only, no tabs**). This file supports a restricted YAML format, not every YAML feature.
+- `price`: the buy price **for the entire stack** (**for one idol** in the case of idols). Under `shop:`, a value of `0` makes the item **free**. Under `sell:`, a value of `0` **disables selling** that item.
+- `enabled`: `false` removes an item from Haldor's **buyable inventory**.
+- `stack`: number of items per purchase. `0` means the item's maximum stack size. Other values cannot exceed that maximum. **All idols are forced to `stack: 1`, even if a different value is entered.**
+- `requiredGlobalKey`: the required global world key, or `""` if the item should be available immediately.
+- Identifiers such as `Bone_crushers` are **internal prefab IDs**, not localized item names. Do not rename them.
+- Keep the `shop:` and `sell:` sections, all entries and field names, and the correct indentation (**spaces only, no tabs**). Only a limited YAML subset is supported, not every YAML feature.
 
-Common boss progression keys:
+### Boss progression keys - examples
 
-```text
-defeated_eikthyr     Eikthyr
-defeated_gdking      The Elder
-defeated_bonemass    Bonemass
-defeated_dragon      Moder
-defeated_goblinking  Yagluth
-defeated_queen       The Queen
-defeated_fader       Fader
-defeated_frozenking  Kall Fimbulbringer / Deep North progression
+Set `requiredGlobalKey` to **one of the world's global keys**. The item becomes available after the corresponding boss is defeated, provided that your world and Valheim version support the key.
+
+| `requiredGlobalKey` value | Boss defeated |
+| --- | --- |
+| `"defeated_eikthyr"` | Eikthyr |
+| `"defeated_gdking"` | The Elder |
+| `"defeated_bonemass"` | Bonemass |
+| `"defeated_dragon"` | Moder |
+| `"defeated_goblinking"` | Yagluth |
+| `"defeated_queen"` | The Queen |
+| `"defeated_fader"` | Fader |
+| `"defeated_frozenking"` | Kell Fimbulbringer / Deep North progression |
+
+For example, to unlock an item after defeating **Bonemass**:
+
+```yaml
+requiredGlobalKey: "defeated_bonemass"
 ```
 
-Use the actual keys supported by your installed Valheim version and world.
+To remove the progression requirement, use an empty string: `requiredGlobalKey: ""`.
+
+Not every world or Valheim version necessarily supports all these keys - particularly the Deep North progression key.
 
 ### Upgrading from 1.2.x
 
-Version 1.3.0 migrates the old configuration into the new files when possible. The previous config is **backed up**, and upgrades can add newly introduced settings while retaining existing values. Backups and format metadata are stored inside the dedicated HaldorExpansion config directory.
+When upgrading from 1.2.x, the mod attempts to migrate existing settings into the new files. The previous configuration is **backed up**, and updates may add new settings while preserving customized values. Backups and configuration-format version information are stored in a separate folder under the HaldorExpansion configuration directory.
 
-Avoid deleting individual entries from a migrated configuration: the runtime validates its expected structure. If an edit is invalid, check the BepInEx log and restore the last known-good backup. Keep your own copy before major manual changes.
+Do not delete individual entries from already migrated configuration files: the mod validates the expected file structure. If an error occurs, check the BepInEx log and restore the last working backup. Before making extensive manual changes, creating your own config backup is recommended.
 
-## Compatibility and optional mods
+---
 
-HaldorExpansion requires **BepInEx 5** and **Jotunn**. It was previously used in local and dedicated-server environments with mods including:
+## Installation
+
+Install **BepInEx 5** and **Jotunn** (compatible mod managers may install these dependencies automatically), then place the compiled mod at:
+
+```text
+BepInEx/plugins/aveasura-HaldorExpansion/HaldorExpansion.dll
+```
+
+There is no need to copy separate PNG files: icons are embedded in the DLL. Players **do not need** to edit the `.csproj` or create `HaldorExpansion.Local.props` - these are only relevant when building from source.
+
+### Multiplayer / dedicated server
+
+Install the same HaldorExpansion version **on the dedicated server and on every player's client**. The mod uses `NetworkCompatibility(EveryoneMustHaveMod, Minor)`.
+
+The server controls synchronized combat balance, prices, shop stock, and world-progression requirements. Connected players use the server's values, but their local configuration files are not permanently overwritten. Shop-tab visibility and local keybindings can be configured individually.
+
+---
+
+## Compatibility & optional mods
+
+Required dependencies: **BepInEx 5** and **Jotunn**. HaldorExpansion has previously been used in single-player and on dedicated servers alongside other mods, including:
 
 - `Smoothbrain-CreatureLevelAndLootControl`
 - `warpalicious-Monster_Modifiers`
@@ -298,31 +375,35 @@ HaldorExpansion requires **BepInEx 5** and **Jotunn**. It was previously used in
 - `Marf-FuelEternal`
 - `...`
 
-These are **not required dependencies**. Compatibility depends on the versions installed. Earlier testing is not a guarantee for every 1.3.0 mod combination.
+These mods are **not required**. Compatibility depends on the installed versions: previous tests do not guarantee that every mod combination will work without issues in 1.3.3.
+
+---
 
 ## Building from source
 
-Requirements: Valheim, BepInEx 5, Jotunn, **.NET Framework 4.8**, and Visual Studio or Rider.
+Development requires Valheim, BepInEx 5, Jotunn, **.NET Framework 4.8**, and Visual Studio or Rider.
 
-The C# project is located at `HaldorExpansion/HaldorExpansion.csproj`. Developer-specific Valheim / r2modman / dedicated-server paths can be supplied through the optional file:
+C# project file: `HaldorExpansion/HaldorExpansion.csproj`. Local paths to Valheim, r2modman, and the dedicated server can be set in the optional file:
 
 ```text
 HaldorExpansion/HaldorExpansion.Local.props
 ```
 
-Copy `HaldorExpansion/HaldorExpansion.Local.props.example`, rename it to `HaldorExpansion.Local.props`, and adjust the paths for your machine. The file is local-only and should **not** be committed to Git.
+Copy `HaldorExpansion/HaldorExpansion.Local.props.example`, rename the copy to `HaldorExpansion.Local.props`, and set the paths for your machine. This is a local file and **should not be committed to Git**.
 
-Available MSBuild path properties include `R2ModmanProfileDir`, `ValheimInstallDir`, `ValheimDedicatedServerDir`, `ClientPluginDeployDir`, and `ServerPluginDeployDir`.
+Supported MSBuild path properties: `R2ModmanProfileDir`, `ValheimInstallDir`, `ValheimDedicatedServerDir`, `ClientPluginDeployDir`, `ServerPluginDeployDir`.
 
-Source PNGs are in `HaldorExpansion/Assets/Icons/` and are embedded in the DLL when built. Players do not need these files.
+The source PNG files are in `HaldorExpansion/Assets/Icons/` and are embedded in the DLL at build time. Players do not need them.
 
-### Contact & Support
+## Feedback
 
-Have questions, found a bug, or want to share feedback?
+Questions, found a bug, or want to share your thoughts?
 
-You can reach me on Discord: **@aveasura**
+You can contact me on Discord: **@aveasura**
 
 Bug reports, suggestions, and feedback are always welcome!
+
+---
 
 ## ❤️ Support Development
 
@@ -330,4 +411,4 @@ HaldorExpansion is free and will always remain free.
 
 If you enjoy the mod and would like to support its continued development, you can make a one-time donation or become a supporter on [Boosty](https://boosty.to/aveasura).
 
-Your support is entirely optional, but always appreciated. Thank you! 🍻
+Support is entirely optional, but I'm sincerely grateful to everyone who chooses to help. Thank you! 🍻
