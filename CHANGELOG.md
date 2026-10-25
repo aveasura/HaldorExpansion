@@ -1,3 +1,22 @@
+## 1.3.5
+### Added
+- **Custom Haldor Trading:** Added `custom-trading.yml`, automatically generated on first launch. Players can manually add new items to Haldor's shop, including items from other mods.
+- **Custom Trading Configuration:** Supports custom prices, stack sizes, progression requirements, and item categories. Changes are applied live without restarting the game and synchronized in multiplayer.
+- **Haldor's Shop:** Added a dedicated **Idols** category containing all 18 idols (16 vanilla and 2 custom). The tab can be enabled or disabled through the in-game configuration (F1).
+
+### Changed
+- **Haldor's Shop UI:** Improved category tab layout and spacing.
+- **Trading Balance:** Adjusted default prices for idols and trophies.
+- **Cloak of the Wounded Beast:** Added a missing custom icon and redesigned its color palette.
+- **Cloak of Burned Resolve:** Added a missing custom icon and redesigned its color palette with scorched graphite and ash tones.
+- **Pit King's Mantle:** Updated its color palette for a more distinctive appearance.
+
+### Notes
+- Custom trading currently supports items sold by Haldor to players. Selling arbitrary items to Haldor is not yet supported.
+- Custom trading items are currently configured through YAML only; an in-game F1 editor is planned for a future update.
+
+
+
 ## 1.3.4
 ### Fixed
 - Haldor's Shop: Fixed Flametal being sold as the outdated Ancient Metal instead of the correct Ashlands Flametal.
