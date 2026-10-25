@@ -82,7 +82,9 @@
         <Compile Include="Configuration\CustomTradingDocument.cs"/>
         <Compile Include="Configuration\CustomTradingRuntime.cs"/>
         <Compile Include="Trading\CustomShopItems.cs"/>
+        <Compile Include="Trading\CustomBuyItems.cs"/>
         <Compile Include="Integration\Patches\CustomTradingShopPatches.cs"/>
+        <Compile Include="Integration\Patches\CustomTradingBuyPatches.cs"/>
         <Compile Include="Configuration\TradingCatalog.cs"/>
         <Compile Include="Configuration\TradingEditorSettings.cs"/>
         <Compile Include="Configuration\TradingYamlEditor.cs"/>

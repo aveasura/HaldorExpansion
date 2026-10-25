@@ -310,6 +310,18 @@ In this example, Iron is sold in **stacks of 30 for 250 coins**, and it becomes 
 - Identifiers such as `Bone_crushers` are **internal prefab IDs**, not localized item names. Do not rename them.
 - Keep the `shop:` and `sell:` sections, all entries and field names, and the correct indentation (**spaces only, no tabs**). Only a limited YAML subset is supported, not every YAML feature.
 
+### `custom-trading.yml` (optional, user-defined items)
+
+This separate file is generated on first launch with an English quick-start guide, examples and a list of common progression keys. It is for **extra items**, including items from other mods. It does not replace `trading.yml`.
+
+- `haldorSells` lets you add new products. `price` is the price of one purchase and `amount` is the number of items received, capped at the prefab's stack limit.
+- `haldorBuys` lets Haldor purchase configured items through his **original sell coin button**. `price` is paid for **one item**. The button sells the current inventory stack, even if it contains only 18 of 50 berries.
+- New modded idols can use `category: Idols` to appear in the existing Idols filter.
+- `Enable Custom Trading` in the optional BepInEx Configuration Manager (F1) disables or enables both sections without deleting their contents. It does not change vanilla or built-in trade prices.
+- The maximum YAML size is **1 MiB**. Host or dedicated server values take precedence in multiplayer and can update live.
+
+See the comments inside the generated file for the full format. Note that the regular `trading.yml` still uses `stack`, while custom offers use `amount`.
+
 ### Boss progression keys - examples
 
 Set `requiredGlobalKey` to **one of the world's global keys**. The item becomes available after the corresponding boss is defeated, provided that your world and Valheim version support the key.

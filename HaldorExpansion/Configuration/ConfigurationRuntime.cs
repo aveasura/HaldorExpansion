@@ -33,6 +33,8 @@ namespace HaldorExpansion.Configuration
         private bool localizationDirty, applyingConfig, balanceSavePending;
         private float nextPoll, nextFullRead;
         private ConfigEntry<float> pollInterval;
+        private ConfigEntry<bool> enableCustomTrading;
+        private const string EnableCustomTradingKey = "Custom Trading\nEnable Custom Trading";
         private readonly Dictionary<string, FileStamp> fileStamps = new Dictionary<string, FileStamp>();
         private readonly Dictionary<string, string> accepted = new Dictionary<string, string>();
         private readonly Dictionary<string, string> pending = new Dictionary<string, string>();
@@ -108,6 +110,10 @@ namespace HaldorExpansion.Configuration
                     "before applying. Minimum 0.5 seconds, by default 3. Local setting, applies while playing. " +
                     "Интервал проверки изменений конфигов в секундах. По умолчанию 3, минимум 0.5.",
                     new AcceptableValueRange<float>(0.5f, float.MaxValue)));
+            enableCustomTrading = General.Bind("Custom Trading", "Enable Custom Trading", true,
+                "Enable or disable all user-defined Haldor offers in custom-trading.yml. " +
+                "Does not change vanilla items, built-in HaldorExpansion offers or the YAML file. " +
+                "Synced from the host/server. BepInEx Configuration Manager (F1) is optional.");
             Balance = new ConfigFile(balancePath, false, plugin.Info.Metadata) { SaveOnConfigSet = false };
             TradeEntries = new ConfigFile(Path.Combine(folder, ".trading-memory"), false) { SaveOnConfigSet = false };
             var field = AccessTools.Field(typeof(BaseUnityPlugin), "<Config>k__BackingField");
@@ -144,11 +150,14 @@ namespace HaldorExpansion.Configuration
                 string generalSignature = ConfigSchema.Signature(generalDisk.Keys);
                 if (generalSignature != previous.General)
                 {
-                    bool hasRemovedFlag = generalDisk.ContainsKey(RemovedFacebreakerFlag);
-                    IEnumerable<string> compatibleKeys = hasRemovedFlag
-                        ? generalDisk.Keys.Where(key => key != RemovedFacebreakerFlag)
-                        : generalDisk.Keys.Concat(new[] { RemovedFacebreakerFlag });
-                    ConfigSchema.Require(previous.General, ConfigSchema.Signature(compatibleKeys), "general.cfg");
+                    var compatible = new HashSet<string>(generalDisk.Keys);
+                    compatible.Remove(EnableCustomTradingKey);
+                    if (ConfigSchema.Signature(compatible) != previous.General)
+                    {
+                        if (!compatible.Add(RemovedFacebreakerFlag))
+                            compatible.Remove(RemovedFacebreakerFlag);
+                        ConfigSchema.Require(previous.General, ConfigSchema.Signature(compatible), "general.cfg");
+                    }
                 }
 
                 ConfigSchema.Require(previous.Balance, ConfigSchema.Signature(balanceDisk.Keys), "balance.cfg");
@@ -187,7 +196,9 @@ namespace HaldorExpansion.Configuration
 
             Validate(General, Values(General));
             Validate(Balance, Values(Balance));
-            if (!newGeneral) Validate(General, generalDisk, complete: previous == null);
+            if (!newGeneral)
+                Validate(General, generalDisk, complete: previous == null &&
+                                                         generalDisk.ContainsKey(EnableCustomTradingKey));
             if (!newBalance) Validate(Balance, balanceDisk, complete: previous == null);
 
             var current = new ConfigSchema
@@ -197,6 +208,7 @@ namespace HaldorExpansion.Configuration
                 Trading = ConfigSchema.TradingSignature(TradingCatalog.Defaults.Serialize(), TradingCatalog.Defaults)
             };
             bool updateGeneral = newGeneral || removeFacebreakerFlag ||
+                                 (!newGeneral && !generalDisk.ContainsKey(EnableCustomTradingKey)) ||
                                  (previous != null && previous.General != current.General);
             bool updateBalance = newBalance || (previous != null && previous.Balance != current.Balance);
             bool updateTrading = newTrading || oldBerserkerIds || oldFlametalId ||
@@ -267,9 +279,22 @@ namespace HaldorExpansion.Configuration
                 localizationDirty = true;
                 if (!IsClient && !wasClient && !applyingConfig) balanceSavePending = true;
             };
-            General.SettingChanged += (sender, args) => localizationDirty = true;
+            General.SettingChanged += (sender, args) =>
+            {
+                localizationDirty = true;
+                SetCustomTradingEnabled();
+            };
+            SetCustomTradingEnabled();
             customTrading.Initialize(folder);
             initialized = true;
+        }
+
+        private void SetCustomTradingEnabled()
+        {
+            bool enabled = enableCustomTrading == null || enableCustomTrading.Value;
+            CustomShopItems.SetEnabled(enabled);
+            CustomBuyItems.SetEnabled(enabled);
+            RequestTradeRefresh();
         }
 
         private static void Backup(string path, string backups)

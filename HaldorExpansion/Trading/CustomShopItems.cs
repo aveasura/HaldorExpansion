@@ -19,6 +19,9 @@ namespace HaldorExpansion.Trading
         private static readonly List<CustomTradeSetting> Settings = new List<CustomTradeSetting>();
         private static readonly HashSet<string> Warned = new HashSet<string>(StringComparer.Ordinal);
         private static ObjectDB warningDatabase;
+        private static bool enabled = true;
+
+        internal static void SetEnabled(bool value) => enabled = value;
 
         internal static void Apply(CustomTradingDocument document)
         {
@@ -30,7 +33,7 @@ namespace HaldorExpansion.Trading
                 if (row == null || string.IsNullOrEmpty(row.Id)) continue;
                 Settings.Add(new CustomTradeSetting
                 {
-                    Id = row.Id, Price = row.Price, Stack = row.Stack, Enabled = row.Enabled,
+                    Id = row.Id, Price = row.Price, Amount = row.Amount, Enabled = row.Enabled,
                     RequiredKey = row.RequiredKey ?? string.Empty, Category = row.Category ?? "Auto"
                 });
             }
@@ -56,12 +59,23 @@ namespace HaldorExpansion.Trading
         {
             if (!HaldorShopUpdater.IsHaldor(trader) || trader.m_items == null) return;
             RemoveOwned(trader);
+            if (!enabled || Settings.Count == 0) return;
             ObjectDB database = ObjectDB.instance;
             if (database == null) return;
             if (!ReferenceEquals(warningDatabase, database))
             {
                 warningDatabase = database;
                 Warned.Clear();
+            }
+
+            // Build once instead of scanning Trader.m_items for every custom entry.
+            var existingIds = new HashSet<string>(StringComparer.Ordinal);
+            var existingPrefabs = new HashSet<ItemDrop>();
+            foreach (Trader.TradeItem current in trader.m_items)
+            {
+                if (current == null || current.m_prefab == null) continue;
+                existingIds.Add(current.m_prefab.name);
+                existingPrefabs.Add(current.m_prefab);
             }
 
             foreach (CustomTradeSetting row in Settings)
@@ -73,7 +87,7 @@ namespace HaldorExpansion.Trading
                     continue;
                 }
 
-                if (HasPrefab(trader, row.Id, null))
+                if (existingIds.Contains(row.Id))
                 {
                     WarnExisting(row.Id);
                     continue;
@@ -100,7 +114,7 @@ namespace HaldorExpansion.Trading
                     continue;
                 }
 
-                if (HasPrefab(trader, drop.name, drop))
+                if (existingIds.Contains(drop.name) || existingPrefabs.Contains(drop))
                 {
                     WarnExisting(row.Id);
                     continue;
@@ -118,7 +132,7 @@ namespace HaldorExpansion.Trading
                 {
                     m_prefab = drop,
                     m_price = row.Price,
-                    m_stack = Math.Max(1, Math.Min(row.Stack, maximum)),
+                    m_stack = Math.Max(1, Math.Min(row.Amount, maximum)),
                     m_requiredGlobalKey = row.RequiredKey,
                     m_levelUpEffect = false,
                     m_buyPlayerEffects = new EffectList(),
@@ -130,6 +144,8 @@ namespace HaldorExpansion.Trading
                     m_incrementAmount = 0
                 };
                 trader.m_items.Add(item);
+                existingIds.Add(drop.name);
+                existingPrefabs.Add(drop);
                 Owned.Add(item, new OwnedEntry { Category = row.Category });
             }
         }
@@ -153,6 +169,9 @@ namespace HaldorExpansion.Trading
                 case "Resources":
                     category = ShopCategory.Resources;
                     return true;
+                case "Idols":
+                    category = ShopCategory.Idols;
+                    return true;
                 case "Other":
                     category = ShopCategory.Other;
                     return true;
@@ -162,15 +181,6 @@ namespace HaldorExpansion.Trading
 
         private static bool IsBuiltIn(string id) =>
             id != null && (TradingCatalog.Defaults.Shop.ContainsKey(id) || HaldorIdolCatalog.IsIdol(id));
-
-        private static bool HasPrefab(Trader trader, string id, ItemDrop resolved)
-        {
-            foreach (Trader.TradeItem item in trader.m_items)
-                if (item != null && item.m_prefab != null &&
-                    ((resolved != null && ReferenceEquals(item.m_prefab, resolved)) || item.m_prefab.name == id))
-                    return true;
-            return false;
-        }
 
         private static void WarnBuiltIn(string id) =>
             Warn(id,

@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.IO.Compression;
+using System.Text;
 using HaldorExpansion.Trading;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using UnityEngine;
+using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace HaldorExpansion.Configuration
 {
@@ -19,7 +22,8 @@ namespace HaldorExpansion.Configuration
         private DateTime lastWrite;
         private long length;
         private float nextPoll, nextFullRead;
-        private const int MaximumFileBytes = 262144;
+        private const int MaximumFileBytes = CustomTradingDocument.MaximumBytes;
+        private const string GzipPrefix = "HEGZ1:";
         private static bool IsClient => ZNet.instance != null && !ZNet.instance.IsServer();
 
         internal void Initialize(string folder)
@@ -119,7 +123,7 @@ namespace HaldorExpansion.Configuration
             if (!before.Exists) throw new IOException("custom-trading.yml is temporarily unavailable.");
             long size = before.Length;
             DateTime write = before.LastWriteTimeUtc;
-            if (size > MaximumFileBytes) throw new FormatException("File exceeds 256 KiB.");
+            if (size > MaximumFileBytes) throw new FormatException("File exceeds 1 MiB.");
             string text = File.ReadAllText(path);
             var after = new FileInfo(path);
             if (!after.Exists || after.Length != size || after.LastWriteTimeUtc != write)
@@ -133,6 +137,7 @@ namespace HaldorExpansion.Configuration
         private static void Apply(CustomTradingDocument document)
         {
             CustomShopItems.Apply(document);
+            CustomBuyItems.Apply(document);
             ConfigurationRuntime.RequestTradeRefresh();
         }
 
@@ -146,8 +151,43 @@ namespace HaldorExpansion.Configuration
         private ZPackage MakePackage()
         {
             var package = new ZPackage();
-            package.Write(local.Serialize());
+            package.Write(EncodeForNetwork(local.Serialize()));
             return package;
+        }
+
+        // Keep small wire documents readable. Compress large repetitive catalog rows.
+        private static string EncodeForNetwork(string text)
+        {
+            if (text.Length < 32768) return text;
+            byte[] data = Encoding.UTF8.GetBytes(text);
+            using (var stream = new MemoryStream())
+            {
+                using (var gzip = new GZipStream(stream, CompressionLevel.Fastest, true))
+                    gzip.Write(data, 0, data.Length);
+                string packed = GzipPrefix + Convert.ToBase64String(stream.ToArray());
+                return packed.Length < text.Length ? packed : text;
+            }
+        }
+
+        private static string DecodeFromNetwork(string text)
+        {
+            if (!text.StartsWith(GzipPrefix, StringComparison.Ordinal)) return text;
+            byte[] payload = Convert.FromBase64String(text.Substring(GzipPrefix.Length));
+            using (var input = new MemoryStream(payload))
+            using (var gzip = new GZipStream(input, CompressionMode.Decompress))
+            using (var output = new MemoryStream())
+            {
+                var buffer = new byte[8192];
+                int count;
+                while ((count = gzip.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    if (output.Length + count > MaximumFileBytes)
+                        throw new FormatException("Server custom trading data exceeds 1 MiB after decompression.");
+                    output.Write(buffer, 0, count);
+                }
+
+                return new UTF8Encoding(false, true).GetString(output.ToArray());
+            }
         }
 
         private IEnumerator RejectClientUpdate(long sender, ZPackage package)
@@ -161,7 +201,7 @@ namespace HaldorExpansion.Configuration
                 sender != ZNet.instance.GetServerPeer().m_uid) yield break;
             try
             {
-                Apply(CustomTradingDocument.Parse(package.ReadString()));
+                Apply(CustomTradingDocument.Parse(DecodeFromNetwork(package.ReadString())));
                 wasClient = true;
             }
             catch (Exception error)
