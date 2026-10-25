@@ -9,10 +9,10 @@ namespace HaldorExpansion.Trading
     {
         internal const string CustomId = "aveasura_he_idol";
         internal const string AdamantineId = "aveasura_he_adamantine_idol";
-        internal const int AdamantineBuyPrice = 4000;
+        internal const int AdamantineBuyPrice = 3000;
         internal const int AdamantineSellPrice = 2500;
-        internal const int BuyPrice = 1000;
-        internal const int SellPrice = 300;
+        internal const int BuyPrice = 700;
+        internal const int SellPrice = 400;
 
         internal sealed class Entry
         {
