@@ -201,7 +201,7 @@ namespace HaldorExpansion.Features.StaminaCape
             shared.m_setSize = 0;
             shared.m_setStatusEffect = null;
 
-            // Убрать морозостойкость
+            // Remove frost resistance
             if (shared.m_damageModifiers != null)
             {
                 shared.m_damageModifiers.RemoveAll(mod => mod.m_type == HitData.DamageType.Frost);
