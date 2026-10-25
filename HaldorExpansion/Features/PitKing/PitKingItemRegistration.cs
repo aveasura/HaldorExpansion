@@ -64,6 +64,7 @@ namespace HaldorExpansion.Features.PitKing
 
                     if (PitKingChestItemDrop != null)
                     {
+                        CustomApparelAppearance.Apply(existing, CustomApparelAppearance.Style.PitKing);
                         ConfigurePitKingChestShared(PitKingChestItemDrop.m_itemData.m_shared);
                         ApplyPitKingChestIcon(PitKingChestItemDrop.m_itemData.m_shared);
                     }
@@ -96,6 +97,7 @@ namespace HaldorExpansion.Features.PitKing
                     return false;
                 }
 
+                CustomApparelAppearance.Apply(chestGo, CustomApparelAppearance.Style.PitKing);
                 ConfigurePitKingChestShared(drop.m_itemData.m_shared);
                 ApplyPitKingChestIcon(drop.m_itemData.m_shared);
                 drop.m_itemData.m_dropPrefab = chestGo;

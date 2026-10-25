@@ -240,6 +240,7 @@ namespace HaldorExpansion.Presentation
                 case ShopCategory.Wood: prefab = "Wood"; break;
                 case ShopCategory.Metals: prefab = "CopperOre"; break;
                 case ShopCategory.Resources: prefab = "Sap"; break;
+                case ShopCategory.Idols: prefab = HaldorIdolCatalog.AdamantineId; break;
                 case ShopCategory.Other: prefab = "Ruby"; break;
             }
 
@@ -271,7 +272,15 @@ namespace HaldorExpansion.Presentation
             float holderHeight = holderTop - holderBottom;
             if (holderWidth <= 1f || holderHeight <= 1f) return;
 
-            float overflowBelow = Mathf.Max(0f, panel.rect.yMin - holderBottom);
+            // Include the native button if it protrudes beyond its decorative holder.
+            // Both copied images must have the same edge gap as the untouched coin frame.
+            nativeSellRect.GetWorldCorners(corners);
+            float buttonBottom = panel.InverseTransformPoint(corners[0]).y;
+            float buttonTop = panel.InverseTransformPoint(corners[2]).y;
+            float frameTop = Mathf.Max(holderTop, buttonTop);
+            float frameBottom = Mathf.Min(holderBottom, buttonBottom);
+            float frameTopOffset = frameTop - holderTop;
+            float overflowBelow = Mathf.Max(0f, panel.rect.yMin - frameBottom);
             float firstHolderTop = panel.rect.yMax + overflowBelow;
             int visibleCount = 0;
             for (int i = 0; i < holderRects.Length; i++)
@@ -288,41 +297,45 @@ namespace HaldorExpansion.Presentation
                 panel.TransformPoint(new Vector3(holderLeft, firstHolderTop, 0f)));
             Vector2 stepScreen = RectTransformUtility.WorldToScreenPoint(camera,
                 panel.TransformPoint(new Vector3(holderLeft + holderWidth, firstHolderTop - holderHeight, 0f)));
-            float pixelHeight = Mathf.Max(1f, Mathf.Abs(topScreen.y - stepScreen.y));
-            float pixelWidth = Mathf.Max(1f, Mathf.Abs(stepScreen.x - topScreen.x));
-            // Keep native sizes. On a short screen wrap upward overflow into columns to the left.
-            int rows = Mathf.Max(1,
-                Mathf.Min(visibleCount, Mathf.FloorToInt((Screen.height - 2f * ScreenMargin) / pixelHeight)));
-            int columns = (visibleCount + rows - 1) / rows;
-            float bottom = topScreen.y - rows * pixelHeight;
-            float verticalPixels = Mathf.Max(0f, ScreenMargin - bottom);
-            verticalPixels -= Mathf.Max(0f, topScreen.y + verticalPixels - (Screen.height - ScreenMargin));
-            float left = topScreen.x - (columns - 1) * pixelWidth;
-            float horizontalPixels = Mathf.Max(0f, ScreenMargin - left);
-            horizontalPixels -=
-                Mathf.Max(0f, topScreen.x + pixelWidth + horizontalPixels - (Screen.width - ScreenMargin));
-            firstHolderTop += verticalPixels * holderHeight / pixelHeight;
-            holderLeft += horizontalPixels * holderWidth / pixelWidth;
+            float pixelsPerHeight = Mathf.Max(1f, Mathf.Abs(topScreen.y - stepScreen.y)) / holderHeight;
+            float pixelsPerWidth = Mathf.Max(1f, Mathf.Abs(stepScreen.x - topScreen.x)) / holderWidth;
+
+            // The vanilla frame is the fixed eighth slot. Divide the whole strip
+            // evenly, including the gap between the last category and that frame.
+            float columnTop = firstHolderTop - Mathf.Max(0f,
+                topScreen.y - (Screen.height - ScreenMargin)) / pixelsPerHeight;
+            float step = HaldorTabsLayout.CalculateStep(visibleCount, columnTop - frameTop);
+
+            float pixelWidth = holderWidth * pixelsPerWidth;
+            float horizontalPixels = Mathf.Max(0f, ScreenMargin - topScreen.x);
+            horizontalPixels -= Mathf.Max(0f,
+                topScreen.x + pixelWidth + horizontalPixels - (Screen.width - ScreenMargin));
+            holderLeft += horizontalPixels / pixelsPerWidth;
             if (!root.activeSelf) root.SetActive(true);
 
             Vector2 holderSize = nativeHolderRect.rect.size;
             Vector2 buttonSize = nativeSellRect.rect.size;
-            Vector2 holderBasePosition = new Vector2(holderLeft - panel.rect.xMin, firstHolderTop - panel.rect.yMax);
+            Vector2 holderBasePosition = new Vector2(holderLeft - panel.rect.xMin,
+                columnTop - frameTopOffset - panel.rect.yMax);
+            Vector3 holderScale = new Vector3(
+                holderWidth / holderSize.x, holderHeight / holderSize.y, 1f);
             Vector2 nativeButtonAnchored = nativeSellRect.anchoredPosition;
             Vector2 nativeButtonAnchorMin = nativeSellRect.anchorMin;
             Vector2 nativeButtonAnchorMax = nativeSellRect.anchorMax;
             Vector2 nativeButtonPivot = nativeSellRect.pivot;
 
             int slot = 0;
-            for (int i = 0; i < holderRects.Length; i++)
+            foreach (ShopCategory category in HaldorTabsLayout.CategoryOrder)
             {
-                if (!TradingUiConfiguration.IsCategoryEnabled((ShopCategory)i)) continue;
+                int i = (int)category;
+                if (!TradingUiConfiguration.IsCategoryEnabled(category)) continue;
                 RectTransform holderRect = holderRects[i];
-                Vector2 holderPosition = new Vector2(holderBasePosition.x - (slot / rows) * holderWidth,
-                    holderBasePosition.y - (slot % rows) * holderHeight);
+                Vector2 holderPosition = new Vector2(holderBasePosition.x,
+                    holderBasePosition.y - slot * step);
                 slot++;
                 if (holderRect.anchoredPosition != holderPosition) holderRect.anchoredPosition = holderPosition;
                 if (holderRect.sizeDelta != holderSize) holderRect.sizeDelta = holderSize;
+                if (holderRect.localScale != holderScale) holderRect.localScale = holderScale;
 
                 RectTransform buttonRect = buttonRects[i];
                 buttonRect.anchorMin = nativeButtonAnchorMin;
@@ -336,12 +349,14 @@ namespace HaldorExpansion.Presentation
 
         internal void Cycle(ShopCategory current, int direction)
         {
-            int index = (int)current;
-            for (int i = 0; i < buttons.Length; i++)
+            var order = HaldorTabsLayout.CategoryOrder;
+            int index = Array.IndexOf(order, current);
+            for (int i = 0; i < order.Length; i++)
             {
-                index = (index + direction + buttons.Length) % buttons.Length;
-                if (!TradingUiConfiguration.IsCategoryEnabled((ShopCategory)index)) continue;
-                buttons[index].onClick.Invoke();
+                index = (index + direction + order.Length) % order.Length;
+                ShopCategory category = order[index];
+                if (!TradingUiConfiguration.IsCategoryEnabled(category)) continue;
+                buttons[(int)category].onClick.Invoke();
                 return;
             }
         }

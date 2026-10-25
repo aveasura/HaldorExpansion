@@ -39,6 +39,7 @@ namespace HaldorExpansion.Configuration
         private CustomRPC tradingRpc;
         private TradingDocument localTrading;
         private TradingEditorSettings tradingEditor;
+        private readonly CustomTradingRuntime customTrading = new CustomTradingRuntime();
 
         internal IEnumerable<ConfigEntryBase> TradingUiEntries => tradingEditor == null
             ? Enumerable.Empty<ConfigEntryBase>()
@@ -102,7 +103,7 @@ namespace HaldorExpansion.Configuration
             General = new ConfigFile(generalPath, false, plugin.Info.Metadata) { SaveOnConfigSet = false };
             pollInterval = General.Bind("Configuration", "Config check interval (seconds)", 3f,
                 new ConfigDescription(
-                    "How often to check general.cfg, balance.cfg and trading.yml for external changes. " +
+                    "How often to check general.cfg, balance.cfg, trading.yml and custom-trading.yml for external changes. " +
                     "Checks file timestamps and sizes before reading; modified files are verified twice " +
                     "before applying. Minimum 0.5 seconds, by default 3. Local setting, applies while playing. " +
                     "Интервал проверки изменений конфигов в секундах. По умолчанию 3, минимум 0.5.",
@@ -267,6 +268,7 @@ namespace HaldorExpansion.Configuration
                 if (!IsClient && !wasClient && !applyingConfig) balanceSavePending = true;
             };
             General.SettingChanged += (sender, args) => localizationDirty = true;
+            customTrading.Initialize(folder);
             initialized = true;
         }
 
@@ -328,6 +330,7 @@ namespace HaldorExpansion.Configuration
         internal void Update()
         {
             if (!initialized) return;
+            customTrading.Update(PollInterval);
             bool client = IsClient;
             if (wasClient && !client)
             {

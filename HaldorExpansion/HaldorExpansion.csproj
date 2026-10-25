@@ -79,6 +79,10 @@
 
     <ItemGroup>
         <Compile Include="Configuration\TradingDocument.cs"/>
+        <Compile Include="Configuration\CustomTradingDocument.cs"/>
+        <Compile Include="Configuration\CustomTradingRuntime.cs"/>
+        <Compile Include="Trading\CustomShopItems.cs"/>
+        <Compile Include="Integration\Patches\CustomTradingShopPatches.cs"/>
         <Compile Include="Configuration\TradingCatalog.cs"/>
         <Compile Include="Configuration\TradingEditorSettings.cs"/>
         <Compile Include="Configuration\TradingYamlEditor.cs"/>
@@ -233,6 +237,7 @@
         <Compile Include="Presentation\ItemLoreTooltip.cs"/>
         <Compile Include="Integration\Patches\ItemTooltipPatches.cs"/>
         <Compile Include="Presentation\EmbeddedIconLoader.cs"/>
+        <Compile Include="Presentation\CustomApparelAppearance.cs"/>
         <Compile Include="Presentation\ModLocalization.cs"/>
         <Compile Include="Features\Brisingamen\BrisingamenIds.cs"/>
         <Compile Include="Features\DelayedDoom\DelayedDoomIds.cs"/>
@@ -245,6 +250,7 @@
         <Compile Include="Trading\ShopCategoryFilter.cs"/>
         <Compile Include="Presentation\HaldorTabsController.cs"/>
         <Compile Include="Presentation\HaldorTabsView.cs"/>
+        <Compile Include="Presentation\HaldorTabsLayout.cs"/>
         <Compile Include="Integration\Patches\HaldorTabsPatches.cs"/>
         <Compile Include="Features\PitKing\PitKingItemRegistration.cs"/>
         <Compile Include="Features\SteelHeart\SteelHeartSet.cs"/>
@@ -417,6 +423,13 @@
 
         <EmbeddedResource Include="Assets\Icons\Pelt_of_Helheim.png">
             <LogicalName>HaldorExpansion.Assets.Icons.Pelt_of_Helheim.png</LogicalName>
+        </EmbeddedResource>
+        <!-- Optional custom cape artwork; add these PNGs and rebuild, no code edits needed. -->
+        <EmbeddedResource Include="Assets\Icons\wounded_beast_cape.png" Condition="Exists('Assets\Icons\wounded_beast_cape.png')">
+            <LogicalName>HaldorExpansion.Assets.Icons.wounded_beast_cape.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Assets\Icons\scorched_endurance_cape.png" Condition="Exists('Assets\Icons\scorched_endurance_cape.png')">
+            <LogicalName>HaldorExpansion.Assets.Icons.scorched_endurance_cape.png</LogicalName>
         </EmbeddedResource>
         <!-- Berserker illustrations are intentionally optional until they are finalized. -->
         <EmbeddedResource Include="Assets\Icons\berserker_axe.png" Condition="Exists('Assets\Icons\berserker_axe.png')">
