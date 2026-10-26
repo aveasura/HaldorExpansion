@@ -46,7 +46,7 @@ namespace HaldorExpansion.Patches
             if (__instance.m_items == null)
                 __instance.m_items = new List<Trader.TradeItem>();
 
-            CustomShopItems.RemoveOwned(__instance);
+            CustomShopItems.RemoveOwnedForRefresh(__instance);
             HaldorShopUpdater.RemoveDisabledItems(__instance);
 
             HaldorShopUpdater.TryAddConfiguredItems(__instance);

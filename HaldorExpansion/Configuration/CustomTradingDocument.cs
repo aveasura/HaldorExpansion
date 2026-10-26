@@ -60,6 +60,10 @@ namespace HaldorExpansion.Configuration
 # - Enable Custom Trading is a setting in BepInEx Configuration Manager.
 #   Open Configuration Manager with F1 (default hotkey).
 #   The Configuration Manager plugin is optional.
+#   In multiplayer, the server decides whether custom trading is enabled.
+#   Server admins may change this setting in F1 for all connected players.
+#   Other players cannot override the server value.
+#   Shop tab visibility settings remain personal for each player.
 #   When disabled, all custom buy and sell entries become inactive.
 #   Your YAML entries and their individual enabled values are preserved.
 # - Built-in HaldorExpansion shop entries are managed by the normal config.

@@ -40,10 +40,9 @@ namespace HaldorExpansion.Configuration
                 "Show category tabs in Haldor's shop. Disabling only changes the interface; category sales restrictions remain active. " +
                 "Показывать вкладки у Хальдора. Выключение меняет только интерфейс; запреты продажи категорий продолжают действовать.");
             hideItems = config.Bind("Trading UI", "Hide items from disabled tabs", false,
-                "OFF: hiding a category tab leaves its items available in ALL. ON: hiding a tab also removes that category's items from Haldor's shop, including ALL. " +
-                "Re-enabling restores only items allowed by other trading settings and world progression, in their original order. Applies even when the tab interface is disabled. " +
-                "ВЫКЛ: скрывается только вкладка, её товары остаются во ВСЕ. ВКЛ: скрытие вкладки также убирает товары этой категории из магазина Хальдора, включая ВСЕ. " +
-                "Включение вкладки возвращает только товары, разрешённые остальными настройками и прогрессом мира, в прежнем порядке. Действует и при выключенном интерфейсе вкладок.");
+                "Hides items from disabled shop categories, including Haldor's original vanilla items.\n" +
+                "This setting works even when \"Enable Haldor Tabs\" is disabled.\n" +
+                "If all categories are disabled, Haldor's shop will be completely empty.");
             BindCategory(config, ShopCategory.Equipment, "Снаряжение / Equipment");
             BindCategory(config, ShopCategory.Wood, "Древесина / Wood");
             BindCategory(config, ShopCategory.Metals, "Руды и металлы / Ores and metals");

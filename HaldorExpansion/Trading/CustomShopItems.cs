@@ -10,11 +10,17 @@ namespace HaldorExpansion.Trading
     {
         private sealed class OwnedEntry
         {
+            internal string Id;
             internal string Category;
         }
 
         private static readonly ConditionalWeakTable<Trader.TradeItem, OwnedEntry> Owned =
             new ConditionalWeakTable<Trader.TradeItem, OwnedEntry>();
+
+        // Only bridge the full built-in refresh to the next FillList. Weak trader
+        // keys avoid retaining traders/worlds if the store never fills again.
+        private static readonly ConditionalWeakTable<Trader, Dictionary<string, Trader.TradeItem>> Pending =
+            new ConditionalWeakTable<Trader, Dictionary<string, Trader.TradeItem>>();
 
         private static readonly List<CustomTradeSetting> Settings = new List<CustomTradeSetting>();
         private static readonly HashSet<string> Warned = new HashSet<string>(StringComparer.Ordinal);
@@ -39,10 +45,39 @@ namespace HaldorExpansion.Trading
             }
         }
 
-        // Run before the built-in shop refresh so its duplicate checks never see stale custom rows.
+        // Detach before built-in duplicate checks, but preserve matching instances
+        // for the next FillList. Repeated refreshes must keep the same pending rows.
+        internal static void RemoveOwnedForRefresh(Trader trader)
+        {
+            if (trader == null) return;
+            var reusable = CollectReusable(trader);
+            RemoveOwned(trader);
+            if (reusable.Count != 0) Pending.Add(trader, reusable);
+        }
+
+        private static Dictionary<string, Trader.TradeItem> CollectReusable(Trader trader)
+        {
+            Dictionary<string, Trader.TradeItem> reusable;
+            if (!Pending.TryGetValue(trader, out reusable))
+                reusable = new Dictionary<string, Trader.TradeItem>(StringComparer.Ordinal);
+            if (trader.m_items == null) return reusable;
+            foreach (Trader.TradeItem current in trader.m_items)
+            {
+                OwnedEntry owner;
+                if (current != null && Owned.TryGetValue(current, out owner) &&
+                    !string.IsNullOrEmpty(owner.Id))
+                    reusable[owner.Id] = current;
+            }
+
+            return reusable;
+        }
+
+        // Full cleanup for Hide/Show and after collecting candidates in Refresh.
         internal static void RemoveOwned(Trader trader)
         {
-            if (trader == null || trader.m_items == null) return;
+            if (trader == null) return;
+            Pending.Remove(trader);
+            if (trader.m_items == null) return;
             for (int i = trader.m_items.Count - 1; i >= 0; i--)
             {
                 Trader.TradeItem item = trader.m_items[i];
@@ -58,6 +93,13 @@ namespace HaldorExpansion.Trading
         internal static void Refresh(Trader trader)
         {
             if (!HaldorShopUpdater.IsHaldor(trader) || trader.m_items == null) return;
+            // StoreGui.FillList is called again after a purchase. Valheim keeps the
+            // selected TradeItem by reference, so recreating our TradeItems here
+            // would silently move selection to a different row.
+            // Keep the previous instances for matching IDs, but still remove our
+            // entries before checking foreign/built-in stock for collisions.
+            var reusable = CollectReusable(trader);
+
             RemoveOwned(trader);
             if (!enabled || Settings.Count == 0) return;
             ObjectDB database = ObjectDB.instance;
@@ -128,25 +170,41 @@ namespace HaldorExpansion.Trading
                 }
 
                 int maximum = Math.Max(1, shared.m_maxStackSize);
-                var item = new Trader.TradeItem
+                Trader.TradeItem item;
+                // Preserve object identity across repeated FillList calls (including
+                // the one triggered by Buy). If an alias now resolves to another
+                // prefab, replace the old row instead of keeping the wrong item.
+                if (reusable.TryGetValue(row.Id, out item) && ReferenceEquals(item.m_prefab, drop))
                 {
-                    m_prefab = drop,
-                    m_price = row.Price,
-                    m_stack = Math.Max(1, Math.Min(row.Amount, maximum)),
-                    m_requiredGlobalKey = row.RequiredKey,
-                    m_levelUpEffect = false,
-                    m_buyPlayerEffects = new EffectList(),
-                    m_icon = null,
-                    m_name = shared.m_name ?? string.Empty,
-                    m_tooltip = ShopLoreCatalog.DescriptionFor(shared),
-                    m_buyKey = string.Empty,
-                    m_incrementKey = string.Empty,
-                    m_incrementAmount = 0
-                };
+                    item.m_price = row.Price;
+                    item.m_stack = Math.Max(1, Math.Min(row.Amount, maximum));
+                    item.m_requiredGlobalKey = row.RequiredKey;
+                    item.m_name = shared.m_name ?? string.Empty;
+                    item.m_tooltip = ShopLoreCatalog.DescriptionFor(shared);
+                }
+                else
+                {
+                    item = new Trader.TradeItem
+                    {
+                        m_prefab = drop,
+                        m_price = row.Price,
+                        m_stack = Math.Max(1, Math.Min(row.Amount, maximum)),
+                        m_requiredGlobalKey = row.RequiredKey,
+                        m_levelUpEffect = false,
+                        m_buyPlayerEffects = new EffectList(),
+                        m_icon = null,
+                        m_name = shared.m_name ?? string.Empty,
+                        m_tooltip = ShopLoreCatalog.DescriptionFor(shared),
+                        m_buyKey = string.Empty,
+                        m_incrementKey = string.Empty,
+                        m_incrementAmount = 0
+                    };
+                }
+
                 trader.m_items.Add(item);
                 existingIds.Add(drop.name);
                 existingPrefabs.Add(drop);
-                Owned.Add(item, new OwnedEntry { Category = row.Category });
+                Owned.Add(item, new OwnedEntry { Id = row.Id, Category = row.Category });
             }
         }
 

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using HaldorExpansion.Trading;
 using HarmonyLib;
 
@@ -22,8 +21,10 @@ namespace HaldorExpansion.Patches
         private static readonly MethodInfo CloneShared = typeof(object).GetMethod("MemberwiseClone",
             BindingFlags.Instance | BindingFlags.NonPublic);
 
-        private static readonly ConditionalWeakTable<ItemDrop.ItemData.SharedData, CloneHolder> Clones =
-            new ConditionalWeakTable<ItemDrop.ItemData.SharedData, CloneHolder>();
+        // Share snapshots only inside the outer preview/sale. Another mod may
+        // change any original SharedData field between calls, even at the same price.
+        private static readonly Dictionary<ItemDrop.ItemData.SharedData, CloneHolder> Clones =
+            new Dictionary<ItemDrop.ItemData.SharedData, CloneHolder>();
 
         private static readonly Dictionary<ItemDrop.ItemData, ItemDrop.ItemData.SharedData> Originals =
             new Dictionary<ItemDrop.ItemData, ItemDrop.ItemData.SharedData>();
@@ -49,7 +50,13 @@ namespace HaldorExpansion.Patches
         private static ItemDrop.ItemData.SharedData PricedClone(ItemDrop.ItemData.SharedData original, int price)
         {
             if (CloneShared == null) return null;
-            CloneHolder holder = Clones.GetValue(original, _ => new CloneHolder());
+            CloneHolder holder;
+            if (!Clones.TryGetValue(original, out holder))
+            {
+                holder = new CloneHolder();
+                Clones.Add(original, holder);
+            }
+
             ItemDrop.ItemData.SharedData shared;
             if (!holder.ByPrice.TryGetValue(price, out shared))
             {
@@ -65,6 +72,7 @@ namespace HaldorExpansion.Patches
         {
             if (depth++ != 0) return;
             Originals.Clear();
+            Clones.Clear();
             Trader trader = CustomTradingFillPatch.GetTrader(gui);
             if (!CustomBuyItems.HasOffers || !HaldorShopUpdater.IsHaldor(trader) ||
                 Player.m_localPlayer == null) return;
@@ -91,6 +99,7 @@ namespace HaldorExpansion.Patches
             foreach (var entry in Originals)
                 entry.Key.m_shared = entry.Value;
             Originals.Clear();
+            Clones.Clear();
         }
     }
 

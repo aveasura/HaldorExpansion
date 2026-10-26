@@ -11,6 +11,7 @@ using HaldorExpansion.Presentation;
 using HaldorExpansion.Trading;
 using HarmonyLib;
 using Jotunn.Entities;
+using Jotunn.Extensions;
 using Jotunn.Managers;
 using UnityEngine;
 
@@ -34,6 +35,7 @@ namespace HaldorExpansion.Configuration
         private float nextPoll, nextFullRead;
         private ConfigEntry<float> pollInterval;
         private ConfigEntry<bool> enableCustomTrading;
+        private bool? appliedCustomTradingEnabled;
         private const string EnableCustomTradingKey = "Custom Trading\nEnable Custom Trading";
         private readonly Dictionary<string, FileStamp> fileStamps = new Dictionary<string, FileStamp>();
         private readonly Dictionary<string, string> accepted = new Dictionary<string, string>();
@@ -110,10 +112,13 @@ namespace HaldorExpansion.Configuration
                     "before applying. Minimum 0.5 seconds, by default 3. Local setting, applies while playing. " +
                     "Интервал проверки изменений конфигов в секундах. По умолчанию 3, минимум 0.5.",
                     new AcceptableValueRange<float>(0.5f, float.MaxValue)));
-            enableCustomTrading = General.Bind("Custom Trading", "Enable Custom Trading", true,
+            // The server owns the master switch. Jotunn syncs this entry to every client
+            // and allows server admins to change it through Configuration Manager.
+            enableCustomTrading = General.BindConfig("Custom Trading", "Enable Custom Trading", true,
                 "Enable or disable all user-defined Haldor offers in custom-trading.yml. " +
                 "Does not change vanilla items, built-in HaldorExpansion offers or the YAML file. " +
-                "Synced from the host/server. BepInEx Configuration Manager (F1) is optional.");
+                "Server synchronized. Only server admins can change it while connected. " +
+                "BepInEx Configuration Manager (F1) is optional.", synced: true);
             Balance = new ConfigFile(balancePath, false, plugin.Info.Metadata) { SaveOnConfigSet = false };
             TradeEntries = new ConfigFile(Path.Combine(folder, ".trading-memory"), false) { SaveOnConfigSet = false };
             var field = AccessTools.Field(typeof(BaseUnityPlugin), "<Config>k__BackingField");
@@ -292,6 +297,8 @@ namespace HaldorExpansion.Configuration
         private void SetCustomTradingEnabled()
         {
             bool enabled = enableCustomTrading == null || enableCustomTrading.Value;
+            if (appliedCustomTradingEnabled == enabled) return;
+            appliedCustomTradingEnabled = enabled;
             CustomShopItems.SetEnabled(enabled);
             CustomBuyItems.SetEnabled(enabled);
             RequestTradeRefresh();
@@ -355,6 +362,9 @@ namespace HaldorExpansion.Configuration
         internal void Update()
         {
             if (!initialized) return;
+            // Cover both local F1 edits and Jotunn server-sync updates, even if a
+            // configuration sync implementation does not raise SettingChanged.
+            SetCustomTradingEnabled();
             customTrading.Update(PollInterval);
             bool client = IsClient;
             if (wasClient && !client)
@@ -479,6 +489,12 @@ namespace HaldorExpansion.Configuration
                         var values = ConfigText.Parse(text);
                         foreach (var pair in file)
                         {
+                            // Connected clients may reload personal UI settings from general.cfg,
+                            // but a locally edited file must not override the server-owned switch.
+                            if (IsClient && ReferenceEquals(file, General) &&
+                                ReferenceEquals(pair.Value, enableCustomTrading))
+                                continue;
+
                             string value;
                             if (values.TryGetValue(pair.Key.Section + "\n" + pair.Key.Key, out value))
                                 pair.Value.SetSerializedValue(value);
