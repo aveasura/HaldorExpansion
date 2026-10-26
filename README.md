@@ -12,6 +12,7 @@ There's more to discover beyond trading: become a Berserker and unleash Ragnarö
 
 ## Why return to Haldor?
 
+- **Custom trading:** configure additional items for Haldor to sell and buy, including items from other mods, through `custom-trading.yml`. Changes apply live and synchronize in multiplayer.
 - **Equipment and resources:** 13 unique items and **31 types of materials** - from metals and timber to Refined Eitr, Bloodgold, Timberwood, and Ice.
 - **Coins for your loot:** Haldor buys creature and boss trophies, **Surtling, Black, Molten, and Frost Cores**, as well as idols.
 - **Upgrade your favorite relic:** **18 kinds of idols**, **12 upgradeable artifacts**, and awakened abilities unlocked at a configurable quality level.
@@ -38,7 +39,7 @@ Haldor becomes **a trader worth visiting after every expedition** - not just for
 
 **Sell to Haldor:** regular creature and boss trophies from the Meadows through the Deep North; **Surtling Cores, Black Cores, Molten Cores, and Frost Cores (Frostcore)**; and all 18 kinds of idols. Trophy prices depend on the item, with a configurable fallback price for other supported trophies.
 
-The shop has **six tabs: All / Equipment / Wood / Ores and Metals / Resources / Other**. Idols currently appear under **Other**; there is no dedicated idol tab yet. Tabs can be customized or disabled to restore Valheim's familiar shop layout. Hiding a tab does not automatically remove its items from **All** - use `Hide items from disabled tabs` for that.
+The shop has **seven tabs: All / Equipment / Wood / Ores and Metals / Resources / Other / Idols**. The dedicated **Idols** tab contains all 18 kinds of idols. Tabs can be customized or disabled to restore the familiar Valheim shop layout. Hiding a tab alone does not remove its items from **All**: use `Hide items from disabled tabs` to hide its category.
 
 ### What can you buy? - resources & materials
 
@@ -81,9 +82,9 @@ Haldor **buys and sells all 18 kinds of idols**. Every price below is **per sing
 
 | Idol | Buy from Haldor | Sell to Haldor |
 | --- | ---: | ---: |
-| Any of the **16 standard idols** | **1000** | **300** |
-| **Haldor's Idol** | **1000** | **300** |
-| **Haldor's Adamantine Idol** | **4000** | **2500** |
+| Any of the **16 standard idols** | **700** | **400** |
+| **Haldor's Idol** | **700** | **400** |
+| **Haldor's Adamantine Idol** | **3000** | **2500** |
 
 Each idol's buy and sell prices, availability, and world-progression requirements can be configured independently. The upgrade mechanics are explained below.
 
@@ -210,22 +211,25 @@ Long descriptions can be scrolled with the **mouse wheel** or **Page Up / Page D
 ---
 ## Configuration - examples for players & server owners
 
-On first launch, the mod creates three configuration files in:
+On first launch, the mod creates four configuration files in:
 
 ```text
 BepInEx/config/aveasura-HaldorExpansion/
-├── general.cfg   # Local preferences and shop interface
-├── balance.cfg   # Equipment and ability balance
-└── trading.yml   # Inventory, prices, world progression and sell values
+├── general.cfg          # Local preferences, shop UI and the Custom Trading toggle
+├── balance.cfg          # Equipment, abilities and combat balance
+├── trading.yml          # Built-in stock, prices, sell values and progression
+└── custom-trading.yml   # Additional offers for Haldor to sell and buy
 ```
 
 ### Apply changes without restarting
 
 The mod automatically checks these files during gameplay. By default, **checks run every 3 seconds**, with a minimum interval of **0.5 seconds**. File metadata is checked before reading the full contents, and changes are applied only after a second stability check.
 
-To change gameplay settings on a dedicated server, edit the appropriate files **on the server**. A client's local `balance.cfg` and `trading.yml` cannot override active server settings. If a config is damaged or contains invalid values, the last accepted settings remain in effect. Details are written to the BepInEx log.
+To change gameplay settings on a dedicated server, edit the appropriate files **on the server**. A client's local `balance.cfg`, `trading.yml`, and `custom-trading.yml` cannot override active server settings. If a config is damaged or contains invalid values, the last accepted settings remain in effect. Details are written to the BepInEx log.
 
 ### `general.cfg`
+
+This file contains local interface and keybinding preferences, plus the server-synchronized **Enable Custom Trading** toggle. In multiplayer, the server controls this toggle while each player keeps their own shop-tab preferences.
 
 An example using **actual setting names** (edit the values in your generated file as needed):
 
@@ -238,11 +242,11 @@ Enable Haldor tabs = true
 Hide items from disabled tabs = false
 ```
 
-To restore Haldor's standard interface, set `Enable Haldor tabs = false`. To remove items from a hidden tab in **All**, enable `Hide items from disabled tabs`. If you also hide **Other**, idols will disappear from the shop.
+To restore Haldor's standard interface, set `Enable Haldor tabs = false`. `Hide items from disabled tabs` hides items from disabled categories, **including Haldor's original vanilla items**, and works even when the tab interface is disabled. If all categories are disabled and hiding is enabled, **the shop will be completely empty**. Idols are now controlled by the **Idols** category, not **Other**.
 
 **Ability keybindings:** in newly generated configs, Facebreaker and Soul Swap default to **E**, while Hel's Embrace defaults to **Mouse2**. Existing custom bindings are preserved. When an ability shares a key with an interaction, opening chests or doors, picking up items, and other available interactions take priority.
 
-**Optional F1 settings:** install **BepInEx ConfigurationManager** to edit supported settings in-game. In F1, **Trading UI** appears immediately after **Compatibility**. You can configure idol buy/sell prices, individual item availability, shop tabs, and the Blood Debt HUD. ConfigurationManager is optional; the mod works without it.
+**Optional F1 settings:** install **BepInEx ConfigurationManager** to edit supported settings in-game. In F1, **Trading UI** appears immediately after **Compatibility**. You can configure idol buy/sell prices, built-in item availability, shop tabs, the Blood Debt HUD, and **Enable Custom Trading**. Custom offers themselves are edited only in `custom-trading.yml`. ConfigurationManager is optional; the mod works without it.
 
 ### `balance.cfg` - awakening and idol drop examples
 
@@ -275,12 +279,12 @@ shop:
     stack: 1
     requiredGlobalKey: ""
   aveasura_he_idol:
-    price: 1000
+    price: 700
     enabled: true
     stack: 1
     requiredGlobalKey: ""
   aveasura_he_adamantine_idol:
-    price: 4000
+    price: 3000
     enabled: true
     stack: 1
     requiredGlobalKey: ""
@@ -296,7 +300,7 @@ sell:
   SurtlingCore:
     price: 70
   aveasura_he_idol:
-    price: 300
+    price: 400
   aveasura_he_adamantine_idol:
     price: 2500
 ```
@@ -317,8 +321,29 @@ This separate file is generated on first launch with an English quick-start guid
 - `haldorSells` lets you add new products. `price` is the price of one purchase and `amount` is the number of items received, capped at the prefab's stack limit.
 - `haldorBuys` lets Haldor purchase configured items through his **original sell coin button**. `price` is paid for **one item**. The button sells the current inventory stack, even if it contains only 18 of 50 berries.
 - New modded idols can use `category: Idols` to appear in the existing Idols filter.
-- `Enable Custom Trading` in the optional BepInEx Configuration Manager (F1) disables or enables both sections without deleting their contents. It does not change vanilla or built-in trade prices.
+- `Enable Custom Trading` in the optional BepInEx Configuration Manager (F1) disables or enables both sections without deleting their contents. It does not disable vanilla or built-in trading. The toggle is synchronized from the server in multiplayer.
 - The maximum YAML size is **1 MiB**. Host or dedicated server values take precedence in multiplayer and can update live.
+
+Example additional offers. Add entries to the corresponding sections of your file while keeping your other offers:
+
+```yaml
+haldorSells:
+  Raspberry:
+    price: 20
+    amount: 10
+    enabled: true
+    requiredGlobalKey: "defeated_eikthyr"
+    category: Resources
+
+haldorBuys:
+  Raspberry:
+    price: 1
+    enabled: true
+```
+
+Haldor sells **10 raspberries for 20 coins** after Eikthyr is defeated and buys raspberries for **1 coin per item**. Selling a partial stack of 18 berries pays 18 coins. This is a configuration example, not an offer enabled by default.
+
+`amount`, `requiredGlobalKey`, and `category` belong to `haldorSells`. `haldorBuys` uses `price` and `enabled`. Use internal prefab IDs, not localized names. Configure built-in offers in `trading.yml`: `haldorSells` does not replace offers already provided by Haldor or another mod.
 
 See the comments inside the generated file for the full format. Note that the regular `trading.yml` still uses `stack`, while custom offers use `amount`.
 
@@ -387,7 +412,7 @@ Required dependencies: **BepInEx 5** and **Jotunn**. HaldorExpansion has previou
 - `Marf-FuelEternal`
 - `...`
 
-These mods are **not required**. Compatibility depends on the installed versions: previous tests do not guarantee that every mod combination will work without issues in 1.3.3.
+These mods are **not required**. Compatibility depends on the installed versions: previous tests do not guarantee that every mod combination will work without issues in 1.3.5.
 
 ---
 
