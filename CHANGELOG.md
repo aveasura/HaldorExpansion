@@ -1,20 +1,25 @@
 ## 1.3.5
 ### Added
-- **Custom Haldor Trading:** Added `custom-trading.yml`, automatically generated on first launch. Players can manually add new items to Haldor's shop, including items from other mods.
-- **Custom Trading Configuration:** Supports custom prices, stack sizes, progression requirements, and item categories. Changes are applied live without restarting the game and synchronized in multiplayer.
+- **Custom Haldor Trading:** Added `custom-trading.yml`, automatically generated on first launch. Players can configure additional items for Haldor to sell and buy, including items from other mods.
+- **Custom Shop Offers:** The `haldorSells` section supports custom prices, quantities per purchase, progression requirements, and item categories, including `Idols` for items from other mods.
+- **Custom Item Sales:** The `haldorBuys` section allows players to sell configured items to Haldor using the standard sell button. Prices are set per item, and each sale uses one actual inventory stack, including partial stacks.
+- **Custom Trading Toggle:** Added a server-synchronized **Enable Custom Trading** setting in F1. Both custom trading sections can be disabled without deleting the YAML file or affecting built-in offers.
+- **Live Configuration:** Custom trading changes apply without restarting the game and synchronize in multiplayer. Server trading rules take priority over local client configuration.
 - **Haldor's Shop:** Added a dedicated **Idols** category containing all 18 idols (16 vanilla and 2 custom). The tab can be enabled or disabled through the in-game configuration (F1).
 
 ### Changed
 - **Haldor's Shop UI:** Improved category tab layout and spacing.
+- **Custom Trading Performance:** Reduced temporary memory allocations during shop refreshes and improved handling of large catalogs with mixed custom and third-party offers.
+- **Shop Filtering Description:** Clarified that **Hide Items From Disabled Tabs** also hides Haldor's original vanilla items, works when tabs are disabled, and leaves the shop empty if all categories are disabled.
 - **Trading Balance:** Adjusted default prices for idols and trophies.
 - **Cloak of the Wounded Beast:** Added a missing custom icon and redesigned its color palette.
 - **Cloak of Burned Resolve:** Added a missing custom icon and redesigned its color palette with scorched graphite and ash tones.
 - **Pit King's Mantle:** Updated its color palette for a more distinctive appearance.
 
 ### Notes
-- Custom trading currently supports items sold by Haldor to players. Selling arbitrary items to Haldor is not yet supported.
-- Custom trading items are currently configured through YAML only; an in-game F1 editor is planned for a future update.
-
+- Custom trading offers are configured through YAML. F1(BepInEx Configuration Manager) provides the master toggle.
+- Prices in `haldorSells` apply to the entire purchase quantity. Prices in `haldorBuys` apply to each individual item.
+- Shop tab preferences remain personal, while custom trading rules are controlled by the server.
 
 
 ## 1.3.4
