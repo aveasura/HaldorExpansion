@@ -46,6 +46,7 @@ namespace HaldorExpansion.Patches
             if (__instance.m_items == null)
                 __instance.m_items = new List<Trader.TradeItem>();
 
+            CustomShopItems.RemoveOwnedForRefresh(__instance);
             HaldorShopUpdater.RemoveDisabledItems(__instance);
 
             HaldorShopUpdater.TryAddConfiguredItems(__instance);
@@ -72,6 +73,7 @@ namespace HaldorExpansion.Patches
             HaldorShopUpdater.TryAddHelOath(__instance);
 
             HaldorShopUpdater.RestoreOrder(__instance);
+            // Custom stock is appended at StoreGui.FillList, after other shop extensions.
         }
     }
 }

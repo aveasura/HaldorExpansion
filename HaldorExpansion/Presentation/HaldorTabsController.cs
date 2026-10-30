@@ -161,6 +161,8 @@ namespace HaldorExpansion.Presentation
 
         private static ShopCategory Classify(Trader.TradeItem item)
         {
+            ShopCategory custom;
+            if (CustomShopItems.TryGetCategory(item, out custom)) return custom;
             var shared = item?.m_prefab != null ? item.m_prefab.m_itemData?.m_shared : null;
             return ShopCategoryFilter.Classify(shared != null ? shared.m_itemType.ToString() : null,
                 item?.m_prefab != null ? item.m_prefab.name : null, shared?.m_name);

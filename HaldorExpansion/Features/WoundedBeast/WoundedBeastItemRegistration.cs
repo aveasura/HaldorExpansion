@@ -3,6 +3,7 @@ using System.Reflection;
 using HaldorExpansion.Compatibility;
 using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
+using HaldorExpansion.Presentation;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -15,6 +16,7 @@ namespace HaldorExpansion.Features.WoundedBeast
         internal const string WoundedBeastCapePrefabName = "CapeWoundedBeast";
         internal const string WoundedBeastCapeSourcePrefab = "CapeWolf";
         internal const int WoundedBeastCapePrice = 2500;
+        internal const string IconFileName = "wounded_beast_cape.png";
 
         internal const string WoundedBeastCapeItemKey = "$item_cape_woundedbeast";
         internal const string WoundedBeastCapeItemDescKey = "$item_cape_woundedbeast_desc";
@@ -42,6 +44,7 @@ namespace HaldorExpansion.Features.WoundedBeast
 
                     if (WoundedBeastCapeItemDrop != null)
                     {
+                        CustomApparelAppearance.Apply(existing, CustomApparelAppearance.Style.WoundedBeast);
                         ConfigureWoundedBeastCapeShared(WoundedBeastCapeItemDrop.m_itemData.m_shared);
                         WoundedBeastCapeItemDrop.m_itemData.m_dropPrefab = existing;
                     }
@@ -74,6 +77,7 @@ namespace HaldorExpansion.Features.WoundedBeast
                     return false;
                 }
 
+                CustomApparelAppearance.Apply(capeGo, CustomApparelAppearance.Style.WoundedBeast);
                 ConfigureWoundedBeastCapeShared(drop.m_itemData.m_shared);
                 drop.m_itemData.m_dropPrefab = capeGo;
 
@@ -188,6 +192,8 @@ namespace HaldorExpansion.Features.WoundedBeast
             if (shared == null)
                 return;
 
+            // Optional artwork: absent PNG leaves the inherited icon intact.
+            EmbeddedIconLoader.TrySetEmbeddedIcon(shared, IconFileName);
             shared.m_name = WoundedBeastCapeItemKey;
             shared.m_description = WoundedBeastCapeItemDescKey;
 

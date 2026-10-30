@@ -36,6 +36,7 @@ namespace HaldorExpansion.Presentation
                 [UiTextIds.ShopMetals] = "Руды и металлы",
                 [UiTextIds.ShopResources] = "Ресурсы",
                 [UiTextIds.ShopOther] = "Прочее",
+                [UiTextIds.ShopIdols] = "Идолы",
                 [UiTextIds.TooltipScroll] = "Прокрутка: колесо мыши / PgUp, PgDn",
 
 
@@ -565,6 +566,7 @@ namespace HaldorExpansion.Presentation
                 [UiTextIds.ShopMetals] = "Ores and metals",
                 [UiTextIds.ShopResources] = "Resources",
                 [UiTextIds.ShopOther] = "Other",
+                [UiTextIds.ShopIdols] = "Idols",
                 [UiTextIds.TooltipScroll] = "Scroll: mouse wheel / PgUp, PgDn",
 
                 // Hel Oath

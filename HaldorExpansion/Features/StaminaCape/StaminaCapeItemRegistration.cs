@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using HaldorExpansion.Features.Upgrades;
 using HaldorExpansion.Integration;
+using HaldorExpansion.Presentation;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -14,6 +15,7 @@ namespace HaldorExpansion.Features.StaminaCape
         internal const string PrefabName = "CapeFracturedBreath";
         internal const string SourcePrefab = "CapeLox";
         internal const int Price = 2500;
+        internal const string IconFileName = "scorched_endurance_cape.png";
 
         internal const string ItemKey = "$item_cape_fracturedbreath";
         internal const string ItemDescKey = "$item_cape_fracturedbreath_desc";
@@ -48,6 +50,7 @@ namespace HaldorExpansion.Features.StaminaCape
 
                     if (CapeItemDrop != null)
                     {
+                        CustomApparelAppearance.Apply(existing, CustomApparelAppearance.Style.ScorchedEndurance);
                         ItemDrop.ItemData.SharedData shared = CapeItemDrop.m_itemData.m_shared;
                         ConfigureShared(shared);
 
@@ -84,6 +87,7 @@ namespace HaldorExpansion.Features.StaminaCape
                     return false;
                 }
 
+                CustomApparelAppearance.Apply(capeGo, CustomApparelAppearance.Style.ScorchedEndurance);
                 ItemDrop.ItemData.SharedData sharedNew = drop.m_itemData.m_shared;
 
                 ConfigureShared(sharedNew);
@@ -176,6 +180,8 @@ namespace HaldorExpansion.Features.StaminaCape
             if (shared == null)
                 return;
 
+            // Optional artwork: absent PNG leaves the inherited icon intact.
+            EmbeddedIconLoader.TrySetEmbeddedIcon(shared, IconFileName);
             shared.m_name = ItemKey;
             shared.m_description = ItemDescKey;
 
@@ -195,7 +201,7 @@ namespace HaldorExpansion.Features.StaminaCape
             shared.m_setSize = 0;
             shared.m_setStatusEffect = null;
 
-            // Убрать морозостойкость
+            // Remove frost resistance
             if (shared.m_damageModifiers != null)
             {
                 shared.m_damageModifiers.RemoveAll(mod => mod.m_type == HitData.DamageType.Frost);

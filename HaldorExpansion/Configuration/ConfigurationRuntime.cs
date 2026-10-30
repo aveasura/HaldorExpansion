@@ -11,6 +11,7 @@ using HaldorExpansion.Presentation;
 using HaldorExpansion.Trading;
 using HarmonyLib;
 using Jotunn.Entities;
+using Jotunn.Extensions;
 using Jotunn.Managers;
 using UnityEngine;
 
@@ -33,12 +34,16 @@ namespace HaldorExpansion.Configuration
         private bool localizationDirty, applyingConfig, balanceSavePending;
         private float nextPoll, nextFullRead;
         private ConfigEntry<float> pollInterval;
+        private ConfigEntry<bool> enableCustomTrading;
+        private bool? appliedCustomTradingEnabled;
+        private const string EnableCustomTradingKey = "Custom Trading\nEnable Custom Trading";
         private readonly Dictionary<string, FileStamp> fileStamps = new Dictionary<string, FileStamp>();
         private readonly Dictionary<string, string> accepted = new Dictionary<string, string>();
         private readonly Dictionary<string, string> pending = new Dictionary<string, string>();
         private CustomRPC tradingRpc;
         private TradingDocument localTrading;
         private TradingEditorSettings tradingEditor;
+        private readonly CustomTradingRuntime customTrading = new CustomTradingRuntime();
 
         internal IEnumerable<ConfigEntryBase> TradingUiEntries => tradingEditor == null
             ? Enumerable.Empty<ConfigEntryBase>()
@@ -102,11 +107,18 @@ namespace HaldorExpansion.Configuration
             General = new ConfigFile(generalPath, false, plugin.Info.Metadata) { SaveOnConfigSet = false };
             pollInterval = General.Bind("Configuration", "Config check interval (seconds)", 3f,
                 new ConfigDescription(
-                    "How often to check general.cfg, balance.cfg and trading.yml for external changes. " +
+                    "How often to check general.cfg, balance.cfg, trading.yml and custom-trading.yml for external changes. " +
                     "Checks file timestamps and sizes before reading; modified files are verified twice " +
                     "before applying. Minimum 0.5 seconds, by default 3. Local setting, applies while playing. " +
                     "Интервал проверки изменений конфигов в секундах. По умолчанию 3, минимум 0.5.",
                     new AcceptableValueRange<float>(0.5f, float.MaxValue)));
+            // The server owns the master switch. Jotunn syncs this entry to every client
+            // and allows server admins to change it through Configuration Manager.
+            enableCustomTrading = General.BindConfig("Custom Trading", "Enable Custom Trading", true,
+                "Enable or disable all user-defined Haldor offers in custom-trading.yml. " +
+                "Does not change vanilla items, built-in HaldorExpansion offers or the YAML file. " +
+                "Server synchronized. Only server admins can change it while connected. " +
+                "BepInEx Configuration Manager (F1) is optional.", synced: true);
             Balance = new ConfigFile(balancePath, false, plugin.Info.Metadata) { SaveOnConfigSet = false };
             TradeEntries = new ConfigFile(Path.Combine(folder, ".trading-memory"), false) { SaveOnConfigSet = false };
             var field = AccessTools.Field(typeof(BaseUnityPlugin), "<Config>k__BackingField");
@@ -143,11 +155,14 @@ namespace HaldorExpansion.Configuration
                 string generalSignature = ConfigSchema.Signature(generalDisk.Keys);
                 if (generalSignature != previous.General)
                 {
-                    bool hasRemovedFlag = generalDisk.ContainsKey(RemovedFacebreakerFlag);
-                    IEnumerable<string> compatibleKeys = hasRemovedFlag
-                        ? generalDisk.Keys.Where(key => key != RemovedFacebreakerFlag)
-                        : generalDisk.Keys.Concat(new[] { RemovedFacebreakerFlag });
-                    ConfigSchema.Require(previous.General, ConfigSchema.Signature(compatibleKeys), "general.cfg");
+                    var compatible = new HashSet<string>(generalDisk.Keys);
+                    compatible.Remove(EnableCustomTradingKey);
+                    if (ConfigSchema.Signature(compatible) != previous.General)
+                    {
+                        if (!compatible.Add(RemovedFacebreakerFlag))
+                            compatible.Remove(RemovedFacebreakerFlag);
+                        ConfigSchema.Require(previous.General, ConfigSchema.Signature(compatible), "general.cfg");
+                    }
                 }
 
                 ConfigSchema.Require(previous.Balance, ConfigSchema.Signature(balanceDisk.Keys), "balance.cfg");
@@ -186,7 +201,9 @@ namespace HaldorExpansion.Configuration
 
             Validate(General, Values(General));
             Validate(Balance, Values(Balance));
-            if (!newGeneral) Validate(General, generalDisk, complete: previous == null);
+            if (!newGeneral)
+                Validate(General, generalDisk, complete: previous == null &&
+                                                         generalDisk.ContainsKey(EnableCustomTradingKey));
             if (!newBalance) Validate(Balance, balanceDisk, complete: previous == null);
 
             var current = new ConfigSchema
@@ -196,6 +213,7 @@ namespace HaldorExpansion.Configuration
                 Trading = ConfigSchema.TradingSignature(TradingCatalog.Defaults.Serialize(), TradingCatalog.Defaults)
             };
             bool updateGeneral = newGeneral || removeFacebreakerFlag ||
+                                 (!newGeneral && !generalDisk.ContainsKey(EnableCustomTradingKey)) ||
                                  (previous != null && previous.General != current.General);
             bool updateBalance = newBalance || (previous != null && previous.Balance != current.Balance);
             bool updateTrading = newTrading || oldBerserkerIds || oldFlametalId ||
@@ -266,8 +284,24 @@ namespace HaldorExpansion.Configuration
                 localizationDirty = true;
                 if (!IsClient && !wasClient && !applyingConfig) balanceSavePending = true;
             };
-            General.SettingChanged += (sender, args) => localizationDirty = true;
+            General.SettingChanged += (sender, args) =>
+            {
+                localizationDirty = true;
+                SetCustomTradingEnabled();
+            };
+            SetCustomTradingEnabled();
+            customTrading.Initialize(folder);
             initialized = true;
+        }
+
+        private void SetCustomTradingEnabled()
+        {
+            bool enabled = enableCustomTrading == null || enableCustomTrading.Value;
+            if (appliedCustomTradingEnabled == enabled) return;
+            appliedCustomTradingEnabled = enabled;
+            CustomShopItems.SetEnabled(enabled);
+            CustomBuyItems.SetEnabled(enabled);
+            RequestTradeRefresh();
         }
 
         private static void Backup(string path, string backups)
@@ -328,6 +362,10 @@ namespace HaldorExpansion.Configuration
         internal void Update()
         {
             if (!initialized) return;
+            // Cover both local F1 edits and Jotunn server-sync updates, even if a
+            // configuration sync implementation does not raise SettingChanged.
+            SetCustomTradingEnabled();
+            customTrading.Update(PollInterval);
             bool client = IsClient;
             if (wasClient && !client)
             {
@@ -451,6 +489,12 @@ namespace HaldorExpansion.Configuration
                         var values = ConfigText.Parse(text);
                         foreach (var pair in file)
                         {
+                            // Connected clients may reload personal UI settings from general.cfg,
+                            // but a locally edited file must not override the server-owned switch.
+                            if (IsClient && ReferenceEquals(file, General) &&
+                                ReferenceEquals(pair.Value, enableCustomTrading))
+                                continue;
+
                             string value;
                             if (values.TryGetValue(pair.Key.Section + "\n" + pair.Key.Key, out value))
                                 pair.Value.SetSerializedValue(value);
